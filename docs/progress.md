@@ -6,7 +6,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Em andamento** | `etapa-2a-identity-accounts` |
+| 2 — Identidade e autenticação | **Em andamento** (PR A #7 mergeado; faltam B e C) | `etapa-2a-identity-accounts` |
 
 ---
 
@@ -22,7 +22,7 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - O refresh token é renovado a cada uso, vale 14 dias sem uso e no máximo 30 dias; depois disso é preciso entrar de novo.
 - A verificação de senhas vazadas (Have I Been Pwned, k-anonymity) fica ligada por padrão, com chave para desligar.
 
-### PR A — contas, senhas e e-mails (concluído no branch, aguardando PR)
+### PR A — contas, senhas e e-mails (concluído: PR #7 mergeado em 2026-10-16, CI verde)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
