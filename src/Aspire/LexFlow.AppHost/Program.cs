@@ -55,6 +55,7 @@ builder.AddProject<Projects.LexFlow_Worker>("worker")
 
 // Frontend Angular (ng serve na porta fixa 4200, usada pelo e2e).
 builder.AddJavaScriptApp("web", "../../Web/lexflow-web", "start")
+    .WithNpm(install: true, installCommand: "ci")
     .WithReference(api).WaitFor(api)
     .WithHttpEndpoint(port: 4200, targetPort: 4200, isProxied: false)
     .WithHttpHealthCheck("/")
