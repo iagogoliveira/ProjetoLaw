@@ -5,7 +5,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | Etapa | Status | Branch |
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
-| 1 — Building blocks | **Em andamento** (PR A: SharedKernel e value objects) | `etapa-1a-shared-kernel` |
+| 1 — Building blocks | **Em andamento** (PR A #4 e PR B prontos; PR C em seguida) | `etapa-1a-shared-kernel`, `etapa-1b-application-web` |
 
 ---
 
@@ -22,7 +22,9 @@ Plano aprovado em 2026-10-16, em 3 PRs empilhados: **A** (SharedKernel e value o
 | 1.1 | SharedKernel: `Entity`, `AggregateRoot`, `ValueObject`, `Result`/`Error`, `ITenantOwned`, `ICaseScoped`, `ISoftDeletable`, `IAuditable`, `[NotAudited]`, `[Sensitive]` | ✅ | `ResultTests`, `EntityTests` |
 | 1.2 | Value objects: `Cpf`, `Cnpj` (inclui alfanumérico), `CnjNumber`, `OabNumber`, `Money`, `Email`, `Phone`, `Cep` | ✅ | `CnjNumberTests` (22 válidos, 21 inválidos, conferência independente com `BigInteger`), `DocumentTests`, `ContactTests`, `MoneyTests` |
 | 1.3 | Regras do CLAUDE.md na compilação e no IL (ADR 0006) | ✅ | `BannedApiTests.*` |
-| 1.4–1.12 | Pipeline de casos de uso, Web.Common, EF Core base, Platform, outbox, adaptadores, endpoints, contrato da API | ⏳ | — |
+| 1.4 | Pipeline: `ICommand`/`IQuery`, decorators Logging → Validação → Transação, `IUnitOfWork` por módulo, `IClock` (`TimeProvider`), `IIdGenerator` (UUID v7), Scrutor (ADR 0007) | ✅ | `PipelineTests`, `ClockTests`, `HandlerConventionTests` |
+| 1.5 | Web.Common: ProblemDetails, `X-Correlation-Id`, `RequirePermission` e autenticação provisórios (ADR 0008), claims → `ICurrentUser`/`ITenantContext`, cursor, `IModule` | ✅ | `ProblemDetailsTests`, `SecurityAndCorrelationTests`, `CursorPaginationTests` |
+| 1.6–1.12 | EF Core base, Platform, outbox, adaptadores, endpoints, contrato da API | ⏳ | — |
 
 ---
 

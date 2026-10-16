@@ -33,6 +33,14 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | NetArchTest.eNhancedEdition | 1.4.5 | MIT | Testes de arquitetura (fork mantido; `NetArchTest.Rules` está parado desde 2021) |
 | Microsoft.AspNetCore.Mvc.Testing | 10.0.13 | MIT | `WebApplicationFactory` |
 | Testcontainers (+ PostgreSql, Redis, RabbitMq) | 4.16.0 | MIT | Integração com containers reais |
+| Microsoft.CodeAnalysis.BannedApiAnalyzers | 5.6.0 | MIT | Regras do CLAUDE.md no build (Etapa 1, ADR 0006) |
+| Mono.Cecil | 0.11.6 | MIT | Varredura de IL nos testes de arquitetura (Etapa 1) |
+| FluentValidation | 12.2.0 | Apache-2.0 | Validadores dos comandos e consultas (Etapa 1, ADR 0007) |
+| Scrutor | 7.0.0 | MIT | Registro por varredura de assembly e decorators (Etapa 1) |
+| Microsoft.Extensions.DependencyInjection(.Abstractions) / Logging.Abstractions | 10.0.13 | MIT | Application.Abstractions |
+| Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | MIT | `FakeTimeProvider` (o "FakeClock" da seção 13.3) |
+| Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | MIT | `FakeLogCollector` nos testes |
+| Microsoft.AspNetCore.TestHost | 10.0.13 | MIT | Testes do pipeline HTTP do Web.Common |
 
 ### Frontend (npm)
 
