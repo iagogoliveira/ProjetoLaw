@@ -5,4 +5,8 @@
     <ProjectReference Include="..\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.BuildingBlocks.UnitTests" />
+  </ItemGroup>
+
 </Project>
