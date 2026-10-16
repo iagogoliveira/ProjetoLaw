@@ -6,6 +6,8 @@
     <ProjectReference Include="..\..\BuildingBlocks\LexFlow.Web.Common\LexFlow.Web.Common.csproj" />
     <ProjectReference Include="..\..\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Platform\LexFlow.Platform.Endpoints\LexFlow.Platform.Endpoints.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\LexFlow.Identity.Endpoints\LexFlow.Identity.Endpoints.csproj" />
   </ItemGroup>
 
   <ItemGroup>

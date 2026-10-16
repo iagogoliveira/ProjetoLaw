@@ -1,0 +1,5 @@
+        <p>Olá, {{ name | html.escape }}.</p>
+        <p>Para concluir seu cadastro no LexFlow, confirme seu e-mail:</p>
+        <p><a href="{{ link | html.escape }}" style="display:inline-block;padding:12px 20px;background:#1d4ed8;color:#ffffff;text-decoration:none;border-radius:6px;">Confirmar e-mail</a></p>
+        <p>Se o botão não funcionar, copie este endereço no navegador:<br>{{ link | html.escape }}</p>
+        <p>O link vale por 24 horas. Se você não fez este cadastro, ignore este e-mail.</p>

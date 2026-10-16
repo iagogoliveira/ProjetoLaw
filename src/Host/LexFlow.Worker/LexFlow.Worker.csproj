@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\Aspire\LexFlow.ServiceDefaults\LexFlow.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\LexFlow.Infrastructure.Common\LexFlow.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\..\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

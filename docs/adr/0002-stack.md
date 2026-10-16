@@ -51,6 +51,9 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | System.Security.Cryptography.Pkcs (pin transitivo) | 10.0.13 | MIT | Corrige GHSA-846f-f764-76mx (alta) e GHSA-2fmv-rv2c-59x7, transitivas do MimeKit |
 | coverlet.MTP | 10.1.0 | MIT | Cobertura (ADR 0012); o coletor da Microsoft tem licença proprietária |
 | dotnet-ef (ferramenta local) | 10.0.13 | MIT | Geração de migrations |
+| Microsoft.Extensions.Identity.Core / Stores, Microsoft.AspNetCore.Identity.EntityFrameworkCore | 10.0.13 | MIT | ASP.NET Core Identity (Etapa 2, ADR 0013) |
+| Microsoft.AspNetCore.DataProtection.EntityFrameworkCore | 10.0.13 | MIT | Anel de chaves compartilhado por API e Worker (ADR 0013) |
+| Scriban | 7.5.1 | BSD-2-Clause | Templates dos e-mails transacionais (ADR 0013) |
 
 ### Frontend (npm)
 

@@ -39,7 +39,7 @@ internal sealed class ProcessedIntegrationEventConfiguration : IEntityTypeConfig
 /// </summary>
 public abstract class IntegrationEventConsumer<TEvent, TDbContext>(TDbContext db, IClock clock) : IIntegrationEventHandler<TEvent>
     where TEvent : IntegrationEvent
-    where TDbContext : ModuleDbContextBase
+    where TDbContext : DbContext, IModuleDbContext
 {
     protected TDbContext Db { get; } = db;
 
@@ -49,7 +49,9 @@ public abstract class IntegrationEventConsumer<TEvent, TDbContext>(TDbContext db
     public async Task Handle(TEvent integrationEvent, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(integrationEvent);
-        using var scope = AmbientContext.Begin(integrationEvent.OrganizationId, integrationEvent.CorrelationId);
+        // Evento da plataforma (sem organização): executa sem tenant, então dados de escritório ficam inacessíveis.
+        Guid? organization = integrationEvent.OrganizationId == Guid.Empty ? null : integrationEvent.OrganizationId;
+        using var scope = AmbientContext.Begin(organization, integrationEvent.CorrelationId);
 
         var alreadyProcessed = await Db.Set<ProcessedIntegrationEvent>()
             .AnyAsync(p => p.EventId == integrationEvent.EventId && p.Consumer == ConsumerName, cancellationToken);

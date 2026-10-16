@@ -245,7 +245,7 @@ internal sealed class CreateCaseHandler(
 
 - **Eventos de domínio** (dentro do módulo, mesma transação): ex.: `DeadlineCompleted`.
 - **Eventos de integração** (entre módulos, via outbox do Wolverine, assíncronos): ex.: `CaseOpenedIntegrationEvent`, `PublicationTriagedIntegrationEvent`, `InvoiceIssuedIntegrationEvent`. Definidos em `Contracts`, versionados, idempotentes no consumo.
-- Todo evento de integração carrega `OrganizationId`, `EventId`, `OccurredAt` e `CorrelationId`.
+- Todo evento de integração carrega `OrganizationId`, `EventId`, `OccurredAt` e `CorrelationId`. Exceção: eventos da plataforma (`PlatformIntegrationEvent`, ex.: contas de usuário, que são globais) levam `OrganizationId` vazio e são consumidos sem tenant (ADR 0013).
 
 ## 5. Convenções do frontend Angular
 

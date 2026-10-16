@@ -1,4 +1,6 @@
 using LexFlow.Application.Abstractions;
+using LexFlow.Identity.Infrastructure;
+using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.Integrations;
 using LexFlow.MigrationService;
@@ -14,10 +16,11 @@ builder.AddServiceDefaults();
 builder.Services.AddApplication();
 builder.Services.AddSystemContexts();
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
+builder.Services.AddIdentityPersistence(builder.Configuration);
 builder.Services.AddExternalAdapters(builder.Configuration);
 
 // Ordem de aplicação: Platform primeiro (extensões e trilha de auditoria usadas pelos demais módulos).
-builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext)]));
+builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext), typeof(IdentityModuleDbContext)]));
 builder.Services.AddHostedService<MigrationRunner>();
 
 using var host = builder.Build();

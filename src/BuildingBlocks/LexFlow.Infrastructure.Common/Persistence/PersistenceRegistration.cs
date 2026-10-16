@@ -22,7 +22,7 @@ public static class PersistenceRegistration
         IConfiguration configuration,
         string moduleName,
         string schema)
-        where TContext : ModuleDbContextBase
+        where TContext : DbContext, IModuleDbContext
     {
         ArgumentNullException.ThrowIfNull(configuration);
 

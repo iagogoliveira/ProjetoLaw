@@ -11,6 +11,16 @@ public sealed class RequiredPermissionAttribute(string permission) : Attribute
     public string Permission { get; } = permission;
 }
 
+/// <summary>
+/// Endpoint público, sem login (ex.: cadastro, recuperação de senha). A exceção à regra "todo endpoint tem permissão"
+/// fica explícita e com motivo, para os SecurityTests distinguirem esquecimento de decisão.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+public sealed class PublicEndpointAttribute(string reason) : Attribute
+{
+    public string Reason { get; } = reason;
+}
+
 public static class PermissionEndpointExtensions
 {
     public const string PolicyPrefix = "permission:";
@@ -26,6 +36,16 @@ public static class PermissionEndpointExtensions
         return builder
             .WithMetadata(new RequiredPermissionAttribute(permission))
             .RequireAuthorization(PolicyPrefix + permission);
+    }
+
+    /// <summary>Libera o endpoint sem autenticação, registrando o motivo nos metadados (<see cref="PublicEndpointAttribute"/>).</summary>
+    public static TBuilder AllowPublicAccess<TBuilder>(this TBuilder builder, string reason)
+        where TBuilder : IEndpointConventionBuilder
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        return builder
+            .WithMetadata(new PublicEndpointAttribute(reason))
+            .AllowAnonymous();
     }
 }
 

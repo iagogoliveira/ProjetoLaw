@@ -14,14 +14,15 @@ public static class AmbientContext
 
     internal static string? CorrelationId => Current.Value?.CorrelationId;
 
-    public static IDisposable Begin(Guid organizationId, string? correlationId)
+    /// <summary>Sem organização (<c>null</c>): processo da plataforma, sem acesso a dados de escritório.</summary>
+    public static IDisposable Begin(Guid? organizationId, string? correlationId)
     {
         var previous = Current.Value;
         Current.Value = new Frame(organizationId, correlationId);
         return new Restore(previous);
     }
 
-    private sealed record Frame(Guid OrganizationId, string? CorrelationId);
+    private sealed record Frame(Guid? OrganizationId, string? CorrelationId);
 
     private sealed class Restore(Frame? previous) : IDisposable
     {

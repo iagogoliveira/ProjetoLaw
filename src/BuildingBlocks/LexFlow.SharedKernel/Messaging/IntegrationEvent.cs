@@ -15,3 +15,9 @@ public abstract record IntegrationEvent
 
     public string? CorrelationId { get; init; }
 }
+
+/// <summary>
+/// Evento de integração da plataforma, sem organização (ex.: contas de usuário, que são globais e anteriores a qualquer
+/// escritório). <see cref="IntegrationEvent.OrganizationId"/> fica vazio e o consumidor executa sem tenant (ADR 0013).
+/// </summary>
+public abstract record PlatformIntegrationEvent : IntegrationEvent;

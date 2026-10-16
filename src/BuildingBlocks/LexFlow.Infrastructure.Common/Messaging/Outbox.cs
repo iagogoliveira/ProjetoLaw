@@ -37,9 +37,14 @@ internal sealed class IntegrationEventPublisher(
     {
         ArgumentNullException.ThrowIfNull(integrationEvent);
 
-        var organization = integrationEvent.OrganizationId != Guid.Empty
-            ? integrationEvent.OrganizationId
-            : tenant.OrganizationId ?? throw new InvalidOperationException($"{typeof(TEvent).Name} publicado sem organização.");
+        var organization = integrationEvent switch
+        {
+            PlatformIntegrationEvent when integrationEvent.OrganizationId != Guid.Empty =>
+                throw new InvalidOperationException($"{typeof(TEvent).Name} é da plataforma e não leva organização."),
+            PlatformIntegrationEvent => Guid.Empty,
+            _ when integrationEvent.OrganizationId != Guid.Empty => integrationEvent.OrganizationId,
+            _ => tenant.OrganizationId ?? throw new InvalidOperationException($"{typeof(TEvent).Name} publicado sem organização."),
+        };
 
         pending.Add(integrationEvent with
         {

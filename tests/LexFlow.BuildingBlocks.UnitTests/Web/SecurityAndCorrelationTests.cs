@@ -20,6 +20,7 @@ public sealed class SecurityAndCorrelationTests
         app.MapGet("/protected", (ICurrentUser user, ITenantContext tenant) => new { user.UserId, tenant.OrganizationId })
             .RequirePermission("sample.things.read");
         app.MapGet("/public", () => "ok");
+        app.MapGet("/signup", () => "ok").AllowPublicAccess("cadastro aberto");
     }
 
     [Fact]
@@ -64,6 +65,21 @@ public sealed class SecurityAndCorrelationTests
             .Single(e => e.RoutePattern.RawText == "/protected");
 
         endpoint.Metadata.GetMetadata<RequiredPermissionAttribute>()!.Permission.ShouldBe("sample.things.read");
+    }
+
+    [Fact]
+    public async Task Public_endpoint_records_its_reason_and_skips_authentication()
+    {
+        await using var app = await TestWebHost.StartAsync(MapSample);
+        using var client = app.GetTestClient();
+
+        var endpoint = app.Services.GetRequiredService<EndpointDataSource>().Endpoints
+            .OfType<RouteEndpoint>()
+            .Single(e => e.RoutePattern.RawText == "/signup");
+
+        endpoint.Metadata.GetMetadata<PublicEndpointAttribute>()!.Reason.ShouldBe("cadastro aberto");
+        endpoint.Metadata.GetMetadata<RequiredPermissionAttribute>().ShouldBeNull();
+        (await client.GetStringAsync(new Uri("/signup", UriKind.Relative), Ct)).ShouldBe("ok");
     }
 
     [Fact]

@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.SharedKernel.Messaging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,6 +16,9 @@ namespace LexFlow.Api.IntegrationTests;
 /// </param>
 public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settings, bool isolateMessaging = false) : WebApplicationFactory<Program>
 {
+    /// <summary>Eventos de integração publicados pela API desta fábrica.</summary>
+    public ConcurrentQueue<IntegrationEvent> PublishedEvents { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -28,6 +34,13 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
             .AddAuthentication(TestAuthenticationHandler.SchemeName)
             .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.SchemeName, null));
 
+        // Os eventos continuam indo para o outbox real; a cópia permite verificar o que cada endpoint pediu.
+        builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton(PublishedEvents);
+            services.Decorate<IIntegrationEventPublisher, RecordingPublisher>();
+        });
+
         if (isolateMessaging)
         {
             builder.ConfigureTestServices(services =>
@@ -36,5 +49,16 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
                 services.DisableAllWolverineMessagePersistence();
             });
         }
+    }
+}
+
+/// <summary>Repassa ao publicador real e guarda uma cópia do evento.</summary>
+internal sealed class RecordingPublisher(IIntegrationEventPublisher inner, ConcurrentQueue<IntegrationEvent> published) : IIntegrationEventPublisher
+{
+    public void Publish<TEvent>(TEvent integrationEvent)
+        where TEvent : IntegrationEvent
+    {
+        published.Enqueue(integrationEvent);
+        inner.Publish(integrationEvent);
     }
 }
