@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ICommand, IQuery, handlers, ICurrentUser, ITenantContext, IClock (Etapa 1). -->
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.SharedKernel\LexFlow.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

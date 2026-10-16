@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- DbContext base, interceptors, outbox, blob, email, cache (Etapa 1). -->
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

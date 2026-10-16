@@ -1,0 +1,13 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <UserSecretsId>lexflow-apphost</UserSecretsId>
+    <!-- DCP/dashboard via pacotes NuGet: dispensa o Aspire CLI no dev e no CI (ADR 0004). -->
+    <AspireUseCliBundle>false</AspireUseCliBundle>
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Host\LexFlow.Api\LexFlow.Api.csproj" />
+    <ProjectReference Include="..\..\Host\LexFlow.Worker\LexFlow.Worker.csproj" />
+  </ItemGroup>
+</Project>
