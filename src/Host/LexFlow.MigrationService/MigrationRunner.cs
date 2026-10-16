@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LexFlow.Infrastructure.Common.Integrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.MigrationService;
@@ -27,6 +28,8 @@ internal sealed partial class MigrationRunner(
                 await context.Database.MigrateAsync(stoppingToken);
                 LogApplied(logger, contextType.Name, pending.Count);
             }
+
+            await services.GetRequiredService<IObjectStorageProvisioner>().EnsureBucketAsync(stoppingToken);
         }
         catch (Exception ex)
         {
