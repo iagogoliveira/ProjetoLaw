@@ -5,7 +5,22 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | Etapa | Status | Branch |
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
-| 1 — Building blocks | **Concluída localmente**; PRs #4, #5 e C aguardando revisão e merge | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
+| 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
+| 2 — Identidade e autenticação | **Em andamento** | `etapa-2a-identity-accounts` |
+
+---
+
+## Etapa 2 — Identidade e autenticação (em andamento)
+
+**RFs:** RF-01 (cadastro, login, logout, recuperação de senha, MFA, bloqueio por tentativas, sessões). Ficam para depois: MFA obrigatório por organização, convites, troca de organização e restrição por IP/horário (Etapa 3); SSO, SCIM e passkeys (Etapa 16).
+
+Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (servidor OIDC, login, sessões, TOTP), **C** (frontend e e2e).
+
+**Decisões de negócio confirmadas:**
+- O cadastro é aberto (autoatendimento).
+- MFA por TOTP e também por código enviado por e-mail.
+- O refresh token é renovado a cada uso, vale 14 dias sem uso e no máximo 30 dias; depois disso é preciso entrar de novo.
+- A verificação de senhas vazadas (Have I Been Pwned, k-anonymity) fica ligada por padrão, com chave para desligar.
 
 ---
 
@@ -13,7 +28,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 **RFs:** base para todos. Feriados e tribunais preparam o RF-03 e o RF-09; a auditoria prepara o RF-45.
 
-Plano aprovado em 2026-10-16, em 3 PRs empilhados: **A** #4 (SharedKernel e value objects), **B** #5 (Application.Abstractions e Web.Common) e **C** (infraestrutura, Platform e mensageria).
+Plano aprovado em 2026-10-16, em 3 PRs empilhados e mergeados: **A** #4 (SharedKernel e value objects), **B** #5 (Application.Abstractions e Web.Common) e **C** #6 (infraestrutura, Platform e mensageria).
 
 **Decisões de negócio confirmadas:**
 - O seed de feriados tem só os feriados nacionais de lei federal. Forenses, estaduais, municipais, Carnaval, Corpus Christi e recesso ficam para a Etapa 7.
