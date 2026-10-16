@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\LexFlow.ServiceDefaults\LexFlow.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

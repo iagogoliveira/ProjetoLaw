@@ -64,3 +64,9 @@ dotnet_diagnostic.MA0006.severity = none
 dotnet_diagnostic.MA0002.severity = none
 # coleções concretas são aceitáveis em fakes e asserções de teste
 dotnet_diagnostic.MA0016.severity = none
+# helpers de teste podem ser de instância por legibilidade (acesso à fixture)
+dotnet_diagnostic.CA1822.severity = none
+
+# Migrations são geradas pelo dotnet-ef: fora dos analisadores de estilo/qualidade.
+[**/Migrations/*.cs]
+generated_code = true

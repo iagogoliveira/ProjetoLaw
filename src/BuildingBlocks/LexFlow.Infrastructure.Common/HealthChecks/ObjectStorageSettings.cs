@@ -12,4 +12,6 @@ public sealed class ObjectStorageSettings
     public string? SecretKey { get; init; }
 
     public string Region { get; init; } = "us-east-1";
+
+    public string Bucket { get; init; } = "lexflow";
 }

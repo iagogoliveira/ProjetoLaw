@@ -1,5 +1,12 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using LexFlow.Application.Abstractions;
+using LexFlow.Infrastructure.Common.Context;
+using LexFlow.Platform.Infrastructure;
+using LexFlow.Platform.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Testcontainers.Redis;
@@ -43,8 +50,29 @@ public sealed class DependenciesFixture : IAsyncLifetime
         ["Storage:SecretKey"] = StorageSecretKey,
     };
 
-    public async ValueTask InitializeAsync() =>
+    public async ValueTask InitializeAsync()
+    {
         await Task.WhenAll(Postgres.StartAsync(), Redis.StartAsync(), RabbitMq.StartAsync(), ObjectStorage.StartAsync());
+
+        // Mesmo papel do MigrationService: schema do banco antes da API subir.
+        await using var provider = PlatformServices();
+        await using var scope = provider.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
+    }
+
+    /// <summary>Serviços do módulo Platform fora da API (para migrar e preparar dados de teste).</summary>
+    public ServiceProvider PlatformServices()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(Settings.ToDictionary(p => p.Key, p => (string?)p.Value, StringComparer.Ordinal))
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddApplication();
+        services.AddSystemContexts();
+        services.AddPlatformInfrastructure(configuration);
+        return services.BuildServiceProvider();
+    }
 
     public async ValueTask DisposeAsync()
     {

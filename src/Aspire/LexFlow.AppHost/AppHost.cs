@@ -40,35 +40,53 @@ builder.AddContainer("gotenberg", "gotenberg/gotenberg", "8.38.1")
     .WithHttpEndpoint(targetPort: 3000, name: "http")
     .WithHttpHealthCheck("/health");
 
-builder.AddContainer("clamav", "clamav/clamav", "1.5.4-debian")
+var clamav = builder.AddContainer("clamav", "clamav/clamav", "1.5.4-debian")
     .WithEndpoint(targetPort: 3310, name: "clamd", scheme: "tcp")
     .WithClamAvHealthCheck();
 
-builder.AddContainer("mailpit", "axllent/mailpit", "v1.31.6")
+var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "v1.31.6")
     .WithHttpEndpoint(targetPort: 8025, name: "http")
     .WithEndpoint(targetPort: 1025, name: "smtp", scheme: "tcp")
     .WithHttpHealthCheck("/livez");
 
 var storageEndpoint = storage.GetEndpoint("s3");
+var smtp = mailpit.GetEndpoint("smtp");
+var clamd = clamav.GetEndpoint("clamd");
+
+// Migrations aplicadas por um processo próprio, nunca no startup da API (seção 6.5).
+var migrations = builder.AddProject<Projects.LexFlow_MigrationService>("migrations")
+    .WithReference(database).WaitFor(database)
+    .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
+    .WithEnvironment("Storage__AccessKey", storageAccessKey)
+    .WithEnvironment("Storage__SecretKey", storageSecretKey)
+    .WaitFor(storage);
 
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
-    .WithReference(database).WaitFor(database)
+    .WithReference(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
     .WithEnvironment("Storage__AccessKey", storageAccessKey)
     .WithEnvironment("Storage__SecretKey", storageSecretKey)
     .WaitFor(storage)
+    .WithEnvironment("Email__Host", smtp.Property(EndpointProperty.Host))
+    .WithEnvironment("Email__Port", smtp.Property(EndpointProperty.Port))
+    .WithEnvironment("ClamAv__Host", clamd.Property(EndpointProperty.Host))
+    .WithEnvironment("ClamAv__Port", clamd.Property(EndpointProperty.Port))
     .WithHttpHealthCheck("/health/ready", endpointName: "http");
 
 builder.AddProject<Projects.LexFlow_Worker>("worker")
-    .WithReference(database).WaitFor(database)
+    .WithReference(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
     .WithEnvironment("Storage__AccessKey", storageAccessKey)
     .WithEnvironment("Storage__SecretKey", storageSecretKey)
-    .WaitFor(storage);
+    .WaitFor(storage)
+    .WithEnvironment("Email__Host", smtp.Property(EndpointProperty.Host))
+    .WithEnvironment("Email__Port", smtp.Property(EndpointProperty.Port))
+    .WithEnvironment("ClamAv__Host", clamd.Property(EndpointProperty.Host))
+    .WithEnvironment("ClamAv__Port", clamd.Property(EndpointProperty.Port));
 
 // Porta fixa (sem proxy): o `ng serve` escuta em 4200 e o Playwright do CI usa http://localhost:4200.
 builder.AddJavaScriptApp("web", "../../Web/lexflow-web", "start")

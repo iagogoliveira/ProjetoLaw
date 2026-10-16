@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Platform\LexFlow.Platform.Domain\LexFlow.Platform.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

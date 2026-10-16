@@ -1,14 +1,38 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.HealthChecks;
+using LexFlow.Infrastructure.Common.Integrations;
+using LexFlow.Infrastructure.Common.Messaging;
+using LexFlow.Platform.Application;
+using LexFlow.Platform.Endpoints;
+using LexFlow.Platform.Infrastructure;
 using LexFlow.Web.Common;
+using LexFlow.Web.Common.Modules;
 using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Módulos da API (seção 4.2): cada um registra serviços e mapeia os próprios endpoints.
+IModule[] modules = [new PlatformModule()];
+
 builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
 builder.Services.AddOpenApi();
 builder.Services.AddWebCommon();
+
+// Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
+builder.Services.AddApplication(PlatformApplication.Assembly);
+builder.Services.AddPlatformInfrastructure(builder.Configuration);
+
+// A API só publica eventos (outbox) e agenda jobs; consumidores e servidor de jobs rodam no Worker.
+builder.Services.AddLexFlowMessaging(builder.Configuration);
+builder.Services.AddExternalAdapters(builder.Configuration);
+builder.Services.AddJobScheduling(builder.Configuration, runServer: false);
+
+foreach (var module in modules)
+{
+    module.AddServices(builder.Services, builder.Configuration);
+}
 
 var app = builder.Build();
 
@@ -22,6 +46,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapDefaultEndpoints();
+
+foreach (var module in modules)
+{
+    module.MapEndpoints(app);
+}
 
 await app.RunAsync();
 

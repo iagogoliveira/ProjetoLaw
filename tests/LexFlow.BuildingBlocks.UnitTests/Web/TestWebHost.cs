@@ -19,12 +19,16 @@ internal static class TestWebHost
     public const string UserHeader = "X-Test-User";
     public const string OrganizationHeader = "X-Test-Org";
 
-    public static async Task<WebApplication> StartAsync(Action<WebApplication> mapEndpoints, bool withTestAuthentication = false)
+    public static async Task<WebApplication> StartAsync(
+        Action<WebApplication> mapEndpoints,
+        bool withTestAuthentication = false,
+        Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateSlimBuilder();
         builder.WebHost.UseTestServer();
         builder.Logging.ClearProviders();
         builder.Services.AddWebCommon();
+        configureServices?.Invoke(builder.Services);
         if (withTestAuthentication)
         {
             builder.Services.AddAuthentication(TestScheme)

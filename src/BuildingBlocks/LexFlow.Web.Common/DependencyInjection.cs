@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Web.Common.Correlation;
+using LexFlow.Web.Common.Idempotency;
 using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -20,7 +21,7 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddLexFlowProblemDetails();
-        services.TryAddScoped<ICorrelationContext, HttpCorrelationContext>();
+        services.TryAddScoped<IRequestContext, HttpRequestContext>();
         services.TryAddScoped<ICurrentUser, HttpContextCurrentUser>();
         services.TryAddScoped<ITenantContext, HttpContextTenantContext>();
 
@@ -32,11 +33,12 @@ public static class DependencyInjection
         return services;
     }
 
-    /// <summary>Ordem: ProblemDetails → correlação → autenticação → autorização.</summary>
+    /// <summary>Ordem: ProblemDetails → correlação → buffer de idempotência → autenticação → autorização.</summary>
     public static IApplicationBuilder UseWebCommon(this IApplicationBuilder app)
     {
         app.UseLexFlowProblemDetails();
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<IdempotencyBufferingMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         return app;

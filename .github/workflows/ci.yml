@@ -40,16 +40,25 @@ jobs:
           dotnet list LexFlow.sln package --vulnerable --include-transitive | tee vulnerable.txt
           if grep -q "has the following vulnerable packages" vulnerable.txt; then exit 1; fi
       # Projetos descobertos pelo nome: todo tests/*.UnitTests e tests/*.IntegrationTests novo entra sozinho.
+      # Cobertura (coverlet) coletada em todos, unida pelo portão de 80% em Domain/Application.
       - name: Testes unitários e de arquitetura
         run: |
           for project in tests/*.UnitTests tests/LexFlow.ArchitectureTests; do
-            dotnet test --project "$project" --no-build -c Release
+            dotnet test --project "$project" --no-build -c Release               --coverlet --coverlet-output-format cobertura --results-directory "TestResults/$(basename "$project")"
           done
       - name: Testes de integração (Testcontainers)
         run: |
           for project in tests/*.IntegrationTests; do
-            dotnet test --project "$project" --no-build -c Release
+            dotnet test --project "$project" --no-build -c Release               --coverlet --coverlet-output-format cobertura --results-directory "TestResults/$(basename "$project")"
           done
+      - name: Cobertura ≥ 80% em Domain/Application
+        run: python3 scripts/coverage_gate.py TestResults --minimum 80
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage
+          path: TestResults/**/*cobertura*.xml
+          retention-days: 7
 
   frontend:
     name: Frontend (lint, Vitest, build)
@@ -71,6 +80,14 @@ jobs:
         run: npm run lint
       - name: Testes unitários (Vitest)
         run: npm test
+      - name: Cliente da API atualizado com docs/openapi/v1.json
+        run: |
+          npm run generate:api
+          if [ -n "$(git status --porcelain -- src/app/api)" ]; then
+            git status --porcelain -- src/app/api
+            echo "::error::Cliente desatualizado: rode 'npm run generate:api' e commite src/app/api."
+            exit 1
+          fi
       - name: Build
         run: npm run build
 
@@ -127,6 +144,25 @@ jobs:
           retention-days: 7
 
   # Repositório público: code scanning gratuito. Se voltar a ser privado, exige GitHub Code Security.
+  openapi:
+    name: OpenAPI (breaking changes)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # O snapshot (OpenApiContractTests) garante que docs/openapi/v1.json é o contrato servido pela API.
+      - name: Comparar com a base do PR (oasdiff)
+        run: |
+          if ! git cat-file -e "origin/${{ github.base_ref }}:docs/openapi/v1.json" 2>/dev/null; then
+            echo "::notice::Base sem docs/openapi/v1.json: primeira versão do contrato, nada a comparar."
+            exit 0
+          fi
+          git show "origin/${{ github.base_ref }}:docs/openapi/v1.json" > base-openapi.json
+          curl -fsSL https://github.com/oasdiff/oasdiff/releases/download/v1.33.0/oasdiff_1.33.0_linux_amd64.tar.gz | tar xz oasdiff
+          ./oasdiff breaking base-openapi.json docs/openapi/v1.json --fail-on ERR
+
   codeql:
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-latest
