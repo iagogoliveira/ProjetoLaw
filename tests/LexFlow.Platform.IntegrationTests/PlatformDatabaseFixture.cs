@@ -74,6 +74,16 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         return new NpgsqlConnectionStringBuilder(ConnectionString) { Database = name }.ConnectionString;
     }
 
+    /// <summary>Banco próprio já migrado, para testes que afetariam outros (ex.: limpeza entre organizações).</summary>
+    public async Task<string> CreateMigratedDatabaseAsync()
+    {
+        var connectionString = await CreateEmptyDatabaseAsync();
+        await using var provider = BuildProvider(connectionString, new TestTenant(), new TestUser());
+        await using var scope = provider.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
+        return connectionString;
+    }
+
     public async Task ExecuteAsync(string sql, params object[] parameters)
     {
         await using var connection = new NpgsqlConnection(ConnectionString);
@@ -87,9 +97,11 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         await command.ExecuteNonQueryAsync();
     }
 
-    public async Task<T?> ScalarAsync<T>(string sql, params object[] parameters)
+    public Task<T?> ScalarAsync<T>(string sql, params object[] parameters) => ScalarOnAsync<T>(ConnectionString, sql, parameters);
+
+    public static async Task<T?> ScalarOnAsync<T>(string connectionString, string sql, params object[] parameters)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
         await using var command = new NpgsqlCommand(sql, connection);
         foreach (var parameter in parameters)

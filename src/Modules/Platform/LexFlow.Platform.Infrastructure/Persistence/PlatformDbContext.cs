@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Persistence;
+using LexFlow.Platform.Application.Abstractions;
 using LexFlow.Platform.Domain.Calendar;
 using LexFlow.Platform.Domain.Courts;
 using LexFlow.Platform.Domain.Idempotency;
@@ -10,7 +11,7 @@ namespace LexFlow.Platform.Infrastructure.Persistence;
 
 /// <summary>DbContext do módulo Platform (schema <c>platform</c>); dono da tabela <c>audit.audit_logs</c>.</summary>
 public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> options, ITenantContext tenant)
-    : ModuleDbContextBase(options, tenant)
+    : ModuleDbContextBase(options, tenant), IPlatformDbContext
 {
     public const string SchemaName = "platform";
     public const string ModuleName = "Platform";

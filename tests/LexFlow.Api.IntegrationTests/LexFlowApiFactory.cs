@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Wolverine;
 
 namespace LexFlow.Api.IntegrationTests;
@@ -20,6 +22,11 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
         {
             builder.UseSetting(key, value);
         }
+
+        // Autentica quando a requisição traz X-Test-User (sem ele, segue anônima → 401 nos endpoints protegidos).
+        builder.ConfigureTestServices(services => services
+            .AddAuthentication(TestAuthenticationHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.SchemeName, null));
 
         if (isolateMessaging)
         {

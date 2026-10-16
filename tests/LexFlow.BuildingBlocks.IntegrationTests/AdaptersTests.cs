@@ -51,7 +51,9 @@ public sealed class AdaptersTests(AdaptersFixture fixture) : IClassFixture<Adapt
 
         var downloadUrl = await storage.CreateDownloadUrlAsync(key);
         (await http.GetByteArrayAsync(downloadUrl, Ct)).ShouldBe([1, 2, 3, 4]);
-        downloadUrl.Query.ShouldContain("X-Amz-Expires=300");
+        // Validade de 5 min (seção 7.3); o SDK desconta o próprio relógio, então pode sair 299.
+        var expires = System.Web.HttpUtility.ParseQueryString(downloadUrl.Query)["X-Amz-Expires"];
+        int.Parse(expires!, System.Globalization.CultureInfo.InvariantCulture).ShouldBeInRange(290, 300);
     }
 
     [Fact]

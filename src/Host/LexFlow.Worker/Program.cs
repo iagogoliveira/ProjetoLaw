@@ -18,6 +18,7 @@ builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly);
 builder.Services.AddExternalAdapters(builder.Configuration);
 builder.Services.AddJobScheduling(builder.Configuration, runServer: true);
+builder.Services.AddPlatformRecurringJobs();
 
 using var host = builder.Build();
 await host.RunAsync();
