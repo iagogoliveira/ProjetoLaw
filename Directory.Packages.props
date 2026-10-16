@@ -52,6 +52,8 @@
   <ItemGroup Label="Pins transitivos (segurança)">
     <!-- GHSA-qhrr-8q5h-9q3h: MessagePack < 2.5.303 (dependência transitiva do Aspire.Hosting). -->
     <PackageVersion Include="MessagePack" Version="2.5.307" />
+    <!-- CVE-2026-70162 / CVE-2026-84008: Pkcs <= 10.0.12 (transitivo via Azure.Identity/SqlClient). -->
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup Label="Testes">

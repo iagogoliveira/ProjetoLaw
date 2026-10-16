@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.AppHost", "src\Aspi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.ServiceDefaults", "src\Aspire\LexFlow.ServiceDefaults\LexFlow.ServiceDefaults.csproj", "{1BE6596E-1D48-45FC-84A5-05ACA53A4482}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.Api.IntegrationTests", "tests\LexFlow.Api.IntegrationTests\LexFlow.Api.IntegrationTests.csproj", "{08232085-0FE6-47E3-9F47-2BEE090EF1BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +137,18 @@ Global
 		{1BE6596E-1D48-45FC-84A5-05ACA53A4482}.Release|x64.Build.0 = Release|Any CPU
 		{1BE6596E-1D48-45FC-84A5-05ACA53A4482}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BE6596E-1D48-45FC-84A5-05ACA53A4482}.Release|x86.Build.0 = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|x64.Build.0 = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Debug|x86.Build.0 = Debug|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|x64.ActiveCfg = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|x64.Build.0 = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|x86.ActiveCfg = Release|Any CPU
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -149,5 +165,6 @@ Global
 		{52BF7FB6-37FF-5100-EFD1-124EFF302675} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{F330CA36-F710-45A7-A2AF-704013812C77} = {52BF7FB6-37FF-5100-EFD1-124EFF302675}
 		{1BE6596E-1D48-45FC-84A5-05ACA53A4482} = {52BF7FB6-37FF-5100-EFD1-124EFF302675}
+		{08232085-0FE6-47E3-9F47-2BEE090EF1BA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

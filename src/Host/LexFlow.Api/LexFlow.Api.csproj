@@ -1,5 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <UserSecretsId>lexflow-api</UserSecretsId>
+    <!-- Gera docs/openapi/v1.json no build, usado pelo CI (oasdiff) e pelo cliente TypeScript. -->
+    <OpenApiDocumentsDirectory>$(MSBuildThisFileDirectory)..\..\..\docs\openapi</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocumentsOptions>--file-name v1</OpenApiGenerateDocumentsOptions>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" />
+    <PackageReference Include="Aspire.StackExchange.Redis" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\LexFlow.ServiceDefaults\LexFlow.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\LexFlow.Web.Common\LexFlow.Web.Common.csproj" />
+  </ItemGroup>
 </Project>

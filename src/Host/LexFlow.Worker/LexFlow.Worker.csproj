@@ -3,6 +3,14 @@
     <UserSecretsId>lexflow-worker</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" />
+    <PackageReference Include="Aspire.StackExchange.Redis" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\LexFlow.ServiceDefaults\LexFlow.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\LexFlow.Infrastructure.Common\LexFlow.Infrastructure.Common.csproj" />
   </ItemGroup>
 </Project>
