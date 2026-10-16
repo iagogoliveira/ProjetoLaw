@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.topbar {
+  gap: var(--lf-space-2);
+}
+
+.brand {
+  font: var(--mat-sys-title-large);
+}
+
+.layout {
+  flex: 1;
+}
+
+mat-sidenav {
+  width: var(--lf-sidenav-width);
+}
+
+.content {
+  padding: var(--lf-space-4);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--lf-space-2);
+  top: calc(-1 * var(--lf-space-8));
+  z-index: 10;
+  padding: var(--lf-space-2) var(--lf-space-3);
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+
+  &:focus {
+    top: var(--lf-space-2);
+  }
+}

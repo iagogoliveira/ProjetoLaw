@@ -1,0 +1,29 @@
+<ng-container *transloco="let t">
+  <a class="skip-link" href="#conteudo">{{ t('app.skipToContent') }}</a>
+
+  <mat-toolbar class="topbar" role="banner">
+    <button
+      mat-icon-button
+      type="button"
+      [attr.aria-label]="t('shell.toggleNavigation')"
+      [attr.aria-expanded]="navOpen()"
+      aria-controls="menu-principal"
+      (click)="toggleNav()"
+    >
+      <mat-icon aria-hidden="true">menu</mat-icon>
+    </button>
+    <span class="brand" data-testid="brand">{{ t('app.name') }}</span>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="layout">
+    <mat-sidenav id="menu-principal" mode="side" [opened]="navOpen()">
+      <nav [attr.aria-label]="t('shell.mainNavigation')" data-testid="main-nav"></nav>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <main id="conteudo" tabindex="-1" class="content">
+        <router-outlet />
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>
