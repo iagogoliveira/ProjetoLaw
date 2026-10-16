@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Host\LexFlow.Api\LexFlow.Api.csproj" />
     <ProjectReference Include="..\..\Host\LexFlow.Worker\LexFlow.Worker.csproj" />
   </ItemGroup>
