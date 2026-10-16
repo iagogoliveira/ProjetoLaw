@@ -517,14 +517,16 @@ A arquitetura continua sendo um **monólito modular** em .NET + Angular, agora c
 ### 15.1 Stack
 
 - **Frontend:** Angular + TypeScript, PWA, biblioteca de componentes própria com design system; editor rico para peças e modelos.
-- **Backend:** ASP.NET Core Web API (C#), EF Core, SQL Server (transacional), Hangfire ou Worker Services para jobs.
-- **Busca:** índice de texto completo (Elasticsearch/OpenSearch ou Azure AI Search) para processos, pessoas e conteúdo de documentos.
-- **Arquivos:** armazenamento de objetos privado compatível com S3 ou Azure Blob, com links temporários.
-- **Mensageria:** fila (RabbitMQ, Azure Service Bus ou similar) obrigatória nesta versão, por causa de captura, OCR, IA, NFS-e e notificações.
-- **Cache:** Redis para sessões, permissões calculadas e limites de uso.
-- **IA:** camada de abstração de provedores; banco vetorial (pgvector, Azure AI Search ou similar) particionado por organização.
+- **Backend:** ASP.NET Core Web API (C#), EF Core com provedor Npgsql, **PostgreSQL** (transacional), Hangfire ou Worker Services para jobs.
+- **Busca:** full-text nativo do PostgreSQL (`tsvector` + `unaccent` + `pg_trgm`) no início; OpenSearch auto-hospedado ou gerenciado quando o volume exigir.
+- **Arquivos:** armazenamento de objetos privado **compatível com S3** (MinIO, AWS S3, Cloudflare R2, Backblaze B2, Google Cloud Storage etc.), com links temporários assinados.
+- **Mensageria:** fila obrigatória nesta versão (captura, OCR, IA, NFS-e, notificações): RabbitMQ por padrão, atrás de uma abstração que permite trocar por SQS, Pub/Sub ou similar.
+- **Cache:** Redis (ou Valkey) para sessões, permissões calculadas e limites de uso.
+- **IA:** camada de abstração de provedores; busca vetorial com **pgvector** no próprio PostgreSQL, particionada por organização.
 - **Autenticação:** ASP.NET Core Identity + OpenIddict ou provedor OIDC externo (para SSO/SCIM).
-- **Infra:** containers (Kubernetes ou Azure Container Apps), IaC (Terraform/Bicep), região Brasil.
+- **Infra:** imagens de container (OCI) executáveis em qualquer provedor — VPS com Docker Compose (ex.: Hostinger, Hetzner, DigitalOcean), Kubernetes ou serviço gerenciado de containers de qualquer nuvem; IaC com Terraform/OpenTofu; região Brasil preferencial.
+
+**Independência de provedor:** nenhum módulo de negócio depende de um serviço proprietário de nuvem. Armazenamento, filas, e-mail, segredos, OCR e telemetria são acessados por interfaces com implementações trocáveis por configuração, e a observabilidade usa OpenTelemetry (exportável para qualquer backend).
 
 ### 15.2 Estrutura da solução
 
@@ -557,7 +559,7 @@ tests/
   LexFlow.ArchitectureTests/   # regras de dependência entre módulos
 ```
 
-Cada módulo tem seu próprio schema no SQL Server, expõe contratos públicos e se comunica com os demais por interfaces ou eventos de domínio — nunca acessando tabelas de outro módulo.
+Cada módulo tem seu próprio schema no PostgreSQL, expõe contratos públicos e se comunica com os demais por interfaces ou eventos de domínio — nunca acessando tabelas de outro módulo.
 
 ### 15.3 Modelo de dados — entidades principais por módulo
 

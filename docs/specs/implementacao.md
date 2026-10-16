@@ -21,7 +21,7 @@ O agente implementa **uma etapa por vez, na ordem das seções 9 a 12**, e só a
 2. **Uma etapa = um branch = um ou mais PRs pequenos** (idealmente < 600 linhas alteradas cada), com descrição citando etapa e RFs.
 3. **Testes antes de declarar pronto.** Toda regra de negócio tem teste unitário; todo endpoint tem teste de integração com banco real (Testcontainers); todo endpoint de dados de escritório tem teste de isolamento de tenant.
 4. **Nunca contornar o filtro de tenant** (`IgnoreQueryFilters`) fora do código de plataforma explicitamente autorizado e auditado.
-5. **Nenhum segredo no código.** Usar `dotnet user-secrets` localmente e Key Vault em nuvem.
+5. **Nenhum segredo no código.** Usar `dotnet user-secrets` localmente e um cofre de segredos em produção (seção 8.3).
 6. **Não alterar migrations já aplicadas.** Criar nova migration.
 7. **Respeitar fronteiras de módulo:** um módulo não referencia o projeto `Infrastructure` nem as entidades de outro; comunica-se por `Contracts` ou eventos. Os testes de arquitetura falham se isso acontecer.
 8. **Toda operação que muda dados relevantes gera auditoria** (seção 6.4).
@@ -44,7 +44,7 @@ Cada etapa nas seções 9–12 traz: **Objetivo**, **RFs cobertos**, **Pré-requ
 
 ## 2. Stack tecnológica
 
-Backend em **.NET 10 (LTS) + C#**, frontend em **Angular** e dados em **SQL Server 2025**, hospedados no **Azure (região Brazil South)**. Bibliotecas com licença comercial recente (MediatR, AutoMapper, MassTransit) foram evitadas de propósito; antes de adicionar qualquer pacote, o agente confere a licença atual e registra ADR.
+Backend em **.NET 10 (LTS) + C#**, frontend em **Angular** e dados em **PostgreSQL**, empacotados como containers que rodam em **qualquer provedor**: um VPS com Docker Compose (ex.: Hostinger, Hetzner) ou uma nuvem gerenciada (AWS, GCP, Azure). Nenhum código de negócio depende de serviço proprietário de nuvem; bibliotecas com licença comercial recente (MediatR, AutoMapper, MassTransit) foram evitadas de propósito, e antes de adicionar qualquer pacote o agente confere a licença atual e registra ADR.
 
 ### 2.1 Backend
 
@@ -53,26 +53,29 @@ Backend em **.NET 10 (LTS) + C#**, frontend em **Angular** e dados em **SQL Serv
 | Runtime e linguagem | .NET 10 LTS, C# 14 | MIT |
 | API | ASP.NET Core Minimal APIs agrupadas por módulo (`MapGroup`), versionamento com `Asp.Versioning.Http` | MIT |
 | Documentação da API | `Microsoft.AspNetCore.OpenApi` + Scalar UI | MIT |
-| ORM | EF Core 10 (SQL Server provider) | MIT |
-| Consultas de leitura pesadas | Dapper (relatórios, listagens grandes) | Apache 2.0 |
+| Banco de dados | PostgreSQL 17 ou superior | Licença PostgreSQL (gratuita) |
+| ORM | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` + `EFCore.NamingConventions` (snake\_case) | PostgreSQL / Apache 2.0 |
+| Consultas de leitura pesadas | Dapper + Npgsql (relatórios, listagens grandes) | Apache 2.0 |
 | Comandos e consultas (CQRS leve) | Handlers próprios (`ICommandHandler<T>`, `IQueryHandler<T>`) com decorators para validação, transação e log | Sem MediatR (licença comercial) |
 | Validação | FluentValidation | Apache 2.0 |
 | Mapeamento | Riok.Mapperly (gerado em compilação) | Apache 2.0 |
-| Mensageria e outbox | Wolverine (com transporte Azure Service Bus; RabbitMQ local) | MIT |
-| Jobs agendados | Hangfire (storage SQL Server) | LGPL (núcleo gratuito) |
+| Mensageria e outbox | Wolverine com persistência PostgreSQL (outbox/inbox) e transporte RabbitMQ; transporte trocável (SQS, Pub/Sub, Azure Service Bus) por configuração | MIT |
+| Jobs agendados | Hangfire + `Hangfire.PostgreSql` | LGPL (núcleo gratuito) |
 | Resiliência HTTP | `Microsoft.Extensions.Http.Resilience` (Polly v8) | MIT / BSD |
 | Autenticação | ASP.NET Core Identity + OpenIddict (servidor OIDC próprio), SAML via `Sustainsys.Saml2` | Apache 2.0 |
-| Cache | Redis via `Microsoft.Extensions.Caching.Hybrid` | MIT |
+| Cache | Redis ou Valkey via `Microsoft.Extensions.Caching.Hybrid` | MIT / BSD |
 | Feature flags | `Microsoft.FeatureManagement` (flags por plano/módulo) | MIT |
-| Logs e telemetria | Serilog + OpenTelemetry (traces, métricas, logs) → Azure Monitor | Apache 2.0 |
-| Busca textual | OpenSearch (cliente `OpenSearch.Client`) | Apache 2.0 |
-| Busca vetorial (IA) | Tipo `VECTOR` do SQL Server 2025 no MVP; Azure AI Search se escala exigir | ADR na Etapa 11 |
-| Abstração de LLM | `Microsoft.Extensions.AI` (`IChatClient`, `IEmbeddingGenerator`) com provedores Anthropic, OpenAI/Azure OpenAI | MIT |
+| Logs e telemetria | Serilog + OpenTelemetry (traces, métricas, logs) → qualquer backend OTLP (Grafana LGTM, SigNoz, Datadog, monitor do provedor) | Apache 2.0 |
+| Busca textual | Full-text do PostgreSQL (`tsvector`, configuração `portuguese`, `unaccent`, `pg_trgm`); OpenSearch só se o volume exigir (ADR) | — |
+| Busca vetorial (IA) | `pgvector` com índice HNSW (`Pgvector.EntityFrameworkCore`) | PostgreSQL / MIT |
+| Armazenamento de objetos | API S3 via `AWSSDK.S3` (funciona com MinIO, AWS S3, Cloudflare R2, Backblaze B2, GCS em modo interoperável) | Apache 2.0 |
+| Segredos | `IConfiguration` com variáveis de ambiente; provedor de cofre plugável (Infisical, HashiCorp Vault, AWS/GCP/Azure secret manager) | — |
+| Abstração de LLM | `Microsoft.Extensions.AI` (`IChatClient`, `IEmbeddingGenerator`) com provedores Anthropic, OpenAI e outros | MIT |
 | PDF — leitura | UglyToad.PdfPig | Apache 2.0 |
 | DOCX — leitura e geração | DocumentFormat.OpenXml | MIT |
 | Conversão DOCX→PDF | Gotenberg (container com LibreOffice) | MIT |
 | PDF de relatórios | QuestPDF | Community gratuita até limite de receita; revisar |
-| OCR | Azure AI Document Intelligence (produção); Tesseract em container (local/fallback) | — |
+| OCR | `IOcrProvider`: Tesseract em container por padrão; serviço de nuvem (AWS Textract, Google Document AI, Azure Document Intelligence) opcional | — |
 | Antivírus | ClamAV em container via `nClam` | GPL (serviço separado) |
 | Planilhas (import/export) | ClosedXML | MIT |
 
@@ -97,20 +100,21 @@ Backend em **.NET 10 (LTS) + C#**, frontend em **Angular** e dados em **SQL Serv
 
 ### 2.3 Dados e infraestrutura
 
-| Camada | Local (desenvolvimento) | Produção (Azure Brazil South) |
-| --- | --- | --- |
-| Orquestração local | .NET Aspire (AppHost) | — |
-| Banco transacional | SQL Server 2025 em container | Azure SQL Database (Business Critical para Corporativo) ou SQL Managed Instance |
-| Arquivos | Azurite (emulador de Blob) | Azure Blob Storage (privado, criptografado) |
-| Filas | RabbitMQ em container | Azure Service Bus |
-| Cache | Redis em container | Azure Cache for Redis |
-| Busca | OpenSearch em container | OpenSearch gerenciado ou Azure AI Search |
-| Segredos | user-secrets | Azure Key Vault + Managed Identity |
-| Execução | Aspire | Azure Container Apps (API, Worker, Gotenberg, ClamAV) |
-| Borda | — | Azure Front Door + WAF |
-| IaC | — | Bicep (ou Terraform), em `infra/` |
-| CI/CD | — | GitHub Actions |
-| E-mail transacional | Mailpit (captura local) | Azure Communication Services ou SendGrid |
+| Camada | Local (desenvolvimento) | Opção A — VPS (ex.: Hostinger, Hetzner) | Opção B — nuvem gerenciada (AWS, GCP, Azure) |
+| --- | --- | --- | --- |
+| Orquestração | .NET Aspire (AppHost) | Docker Compose | Serviço de containers ou Kubernetes |
+| Banco | PostgreSQL em container | PostgreSQL em container com volume dedicado + backup com pgBackRest/WAL para armazenamento externo | PostgreSQL gerenciado (RDS, Cloud SQL, Azure Database for PostgreSQL) |
+| Arquivos | MinIO | MinIO no próprio VPS ou bucket S3 externo (R2, B2) | S3, GCS ou Blob (via adaptador S3/gateway) |
+| Filas | RabbitMQ em container | RabbitMQ em container | RabbitMQ gerenciado ou fila nativa (SQS, Pub/Sub, Service Bus) |
+| Cache | Redis/Valkey em container | Redis/Valkey em container | Redis/Valkey gerenciado |
+| Segredos | user-secrets | Variáveis de ambiente injetadas de um cofre (Infisical/Vault) | Secret manager do provedor |
+| Borda e TLS | — | Caddy ou Traefik (Let's Encrypt) + Cloudflare (WAF/CDN) | Load balancer + WAF do provedor ou Cloudflare |
+| Observabilidade | Dashboard do Aspire | Grafana LGTM em container ou SaaS (Grafana Cloud, SigNoz) | Mesmo coletor OTLP ou o monitor do provedor |
+| IaC | — | Terraform/OpenTofu + Ansible ou scripts de provisionamento | Terraform/OpenTofu |
+| CI/CD | — | GitHub Actions → registry de imagens → deploy via SSH | GitHub Actions → registry → deploy no serviço gerenciado |
+| E-mail transacional | Mailpit | SMTP de provedor (Amazon SES, Resend, Brevo) | Idem |
+
+A escolha do provedor é registrada numa ADR antes do primeiro deploy; até lá, o desenvolvimento acontece só com a coluna "Local".
 
 ## 3. Arquitetura em execução
 
@@ -118,7 +122,7 @@ São apenas dois processos .NET — **API** e **Worker** — compilados da mesma
 
 &#91;embedded content: arquitetura em execução · 2 processos .NET, 5 armazenamentos\]
 
-A API nunca chama fornecedores lentos dentro da requisição do usuário: grava a intenção e o evento no outbox, responde `202` e o Worker conclui. A busca vetorial da IA fica no próprio SQL Server no MVP (Etapa 11).
+A API nunca chama fornecedores lentos dentro da requisição do usuário: grava a intenção e o evento no outbox, responde `202` e o Worker conclui. A busca textual e a vetorial da IA (pgvector) ficam no próprio PostgreSQL no MVP.
 
 ## 4. Estrutura do repositório e convenções do backend
 
@@ -138,11 +142,12 @@ lexflow/
     adr/                         # 0001-monolito-modular.md, ...
     progress.md
     spec/                        # especificação v3.0 exportada
-  infra/                         # Bicep: main.bicep, modules/*.bicep, parameters/*.json
+  infra/                         # Terraform/OpenTofu por alvo (vps/, aws/, gcp/, azure/)
+  deploy/                        # docker-compose.prod.yml, Caddyfile, scripts de deploy por alvo
   .github/workflows/             # ci.yml, deploy-staging.yml, deploy-prod.yml
   src/
     Aspire/
-      LexFlow.AppHost/           # orquestra SQL, Redis, RabbitMQ, Azurite, OpenSearch, Gotenberg, ClamAV, Mailpit
+      LexFlow.AppHost/           # orquestra PostgreSQL, Redis, RabbitMQ, MinIO, Gotenberg, ClamAV, Mailpit
       LexFlow.ServiceDefaults/   # OpenTelemetry, health checks, resiliência
     Host/
       LexFlow.Api/               # Program.cs, registra módulos, middlewares
@@ -230,7 +235,7 @@ internal sealed class CreateCaseHandler(
 - Erros no formato **RFC 9457 ProblemDetails** com `code`, `traceId` e `errors` por campo.
 - Paginação por cursor em listas grandes (`?cursor=&limit=50`, máximo 200) e por página em telas administrativas.
 - Filtros e ordenação por parâmetros explícitos (nunca expressões livres vindas do cliente).
-- Concorrência otimista: `ETag` derivado de `rowversion`; `PUT`/`PATCH` exigem `If-Match` e devolvem 412 em conflito.
+- Concorrência otimista: `ETag` derivado de `xmin`; `PUT`/`PATCH` exigem `If-Match` e devolvem 412 em conflito.
 - Idempotência: `POST` sensíveis (faturar, emitir NFS-e, gerar peça, importar) aceitam `Idempotency-Key` armazenada por 24 h.
 - Operações longas: `202 Accepted` + `Location: /api/v1/jobs/{id}`; status `queued|running|succeeded|failed`.
 - Datas em UTC (ISO 8601) na API; prazos processuais usam `DateOnly` com fuso `America/Sao_Paulo`.
@@ -285,7 +290,7 @@ Cada feature contém: `*.routes.ts`, `pages/` (componentes roteados), `component
 9. Acessibilidade WCAG 2.1 AA: rótulos, foco visível, navegação por teclado; teste axe em todos os e2e.
 10. Atalhos de teclado na fila de triagem (ex.: `J`/`K` navegar, `T` triar, `P` criar prazo).
 11. Tema claro/escuro por tokens CSS; nenhuma cor fixa em componente.
-12. Upload em blocos direto para o Blob com SAS emitido pela API (não passar arquivos grandes pela API).
+12. Upload em partes direto para o armazenamento de objetos com URLs pré-assinadas emitidas pela API (não passar arquivos grandes pela API).
 13. Tempo real (novas publicações, status de jobs, notificações) via **SignalR** com reconexão automática.
 
 ### 5.3 Autenticação no frontend
@@ -296,29 +301,31 @@ Cada feature contém: `*.routes.ts`, `pages/` (componentes roteados), `component
 
 ## 6. Banco de dados, multi-tenant, auditoria e migrations
 
-Um banco SQL Server compartilhado com **um schema por módulo** e isolamento por `OrganizationId` em três camadas: filtro global do EF Core, Row-Level Security do SQL Server e testes automatizados. A edição Corporativa pode receber banco dedicado sem mudança de código (connection string resolvida por tenant).
+Um banco PostgreSQL compartilhado com **um schema por módulo** e isolamento por `OrganizationId` em três camadas: filtro global do EF Core, Row-Level Security do PostgreSQL e testes automatizados. A edição Corporativa pode receber banco dedicado sem mudança de código (connection string resolvida por tenant).
 
 ### 6.1 Convenções de schema
 
 - Schemas: `identity`, `org`, `crm`, `litigation`, `publications`, `scheduling`, `workflow`, `documents`, `finance`, `advisory`, `ai`, `reporting`, `platform`, `billing`, `audit`.
-- Tabelas no plural em PascalCase (`litigation.Cases`); chaves `Id uniqueidentifier` (Guid v7) clusterizadas.
+- Nomes de tabelas e colunas em **snake\_case** no plural (`litigation.cases`, `organization_id`), gerados pela convenção `UseSnakeCaseNamingConvention()`; o código C# continua em PascalCase.
+- Chave primária `id uuid` com valor **UUID v7** gerado na aplicação (`Guid.CreateVersion7()`), ordenável por tempo.
 - Colunas padrão em toda entidade de escritório:
 
 ```sql
-OrganizationId  uniqueidentifier NOT NULL,
-CreatedAt       datetime2(3)     NOT NULL,
-CreatedBy       uniqueidentifier NOT NULL,
-UpdatedAt       datetime2(3)     NULL,
-UpdatedBy       uniqueidentifier NULL,
-IsDeleted       bit              NOT NULL DEFAULT 0,   -- soft delete
-DeletedAt       datetime2(3)     NULL,
-RowVersion      rowversion       NOT NULL               -- concorrência otimista
+organization_id  uuid         NOT NULL,
+created_at       timestamptz  NOT NULL,
+created_by       uuid         NOT NULL,
+updated_at       timestamptz  NULL,
+updated_by       uuid         NULL,
+is_deleted       boolean      NOT NULL DEFAULT false,  -- soft delete
+deleted_at       timestamptz  NULL
+-- concorrência otimista: coluna de sistema xmin mapeada como token (.IsRowVersion() no Npgsql)
 ```
 
-- Todo índice não clusterizado de consulta começa por `OrganizationId` (ex.: `IX_Cases_Org_CnjNumber`, `IX_Deadlines_Org_Responsible_DueDate`).
-- Unicidade sempre dentro do tenant: `UNIQUE (OrganizationId, CnjNumber) WHERE IsDeleted = 0`.
-- Valores monetários `decimal(19,4)` + `Currency char(3)`; textos longos `nvarchar(max)` só quando necessário.
-- Campos customizados: tabela `platform.CustomFieldDefinitions` + valores em coluna `CustomFields nvarchar(max)` com JSON validado (SQL Server 2025 tem tipo `json` nativo) e índices em colunas computadas para campos marcados como filtráveis.
+- Todo índice de consulta começa por `organization_id` (ex.: `ix_cases_org_cnj_number`, `ix_deadlines_org_responsible_due_date`).
+- Unicidade sempre dentro do tenant, com índice parcial: `CREATE UNIQUE INDEX ... ON litigation.cases (organization_id, cnj_number) WHERE NOT is_deleted`.
+- Valores monetários `numeric(19,4)` + `currency char(3)`; datas `timestamptz` (UTC) e `date` para prazos.
+- Campos customizados: tabela `platform.custom_field_definitions` + valores em coluna `custom_fields jsonb` validada na aplicação, com índice GIN para campos marcados como filtráveis.
+- Extensões habilitadas na primeira migration: `pgcrypto`, `unaccent`, `pg_trgm`, `vector` (pgvector). Todas existem nos PostgreSQL gerenciados das grandes nuvens e na imagem `pgvector/pgvector` para VPS.
 
 ### 6.2 Isolamento de tenant (obrigatório)
 
@@ -326,8 +333,8 @@ RowVersion      rowversion       NOT NULL               -- concorrência otimist
 2. **`ITenantContext`** resolvido por requisição a partir do token (claim `org_id`) e validado contra `OrganizationMember`; em jobs e consumidores, a partir do evento.
 3. **Filtro global EF Core** aplicado por convenção no `ModuleDbContextBase`: `e => e.OrganizationId == _tenant.OrganizationId && !e.IsDeleted`.
 4. **Interceptor `TenantSaveChangesInterceptor`** preenche `OrganizationId` em inserts e lança exceção se uma entidade alterada pertencer a outro tenant.
-5. **Row-Level Security** no SQL Server: predicate de filtro e de bloqueio usando `SESSION_CONTEXT(N'OrganizationId')`, definido por um `DbConnectionInterceptor` ao abrir a conexão. Assim, até SQL cru (Dapper) fica isolado.
-6. **Busca, Blob e cache** também particionados: índice OpenSearch com filtro obrigatório por `organizationId`; blobs em `/{organizationId}/{module}/{id}`; chaves de cache prefixadas com o tenant.
+5. **Row-Level Security no PostgreSQL:** em cada tabela de escritório, `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + `FORCE ROW LEVEL SECURITY` e a política `USING (organization_id = current_setting('app.organization_id')::uuid)` (com `WITH CHECK` igual). Um `DbTransactionInterceptor` executa `SELECT set_config('app.organization_id', @org, true)` no início de cada transação — o `true` restringe o valor à transação e evita vazamento entre conexões do pool. A aplicação conecta com um papel **sem** `BYPASSRLS` e que não é dono das tabelas; migrations rodam com outro papel. Assim, até SQL cru (Dapper) fica isolado.
+6. **Busca, armazenamento e cache** também particionados: índices de busca sempre filtrados por `organization_id`; objetos em `/{organizationId}/{module}/{id}`; chaves de cache prefixadas com o tenant.
 7. **Testes:** `LexFlow.SecurityTests` descobre todos os endpoints via `EndpointDataSource`, cria dados em duas organizações e verifica que nenhum retorna, altera ou exclui dado da outra (esperado: 404).
 
 ### 6.3 Casos sigilosos (muralha ética)
@@ -338,9 +345,9 @@ RowVersion      rowversion       NOT NULL               -- concorrência otimist
 
 ### 6.4 Auditoria
 
-- `AuditSaveChangesInterceptor` grava em `audit.AuditLogs`: `OrganizationId, UserId, Action, EntityType, EntityId, Changes (JSON com antes/depois só de campos não sensíveis), Ip, UserAgent, CorrelationId, OccurredAt`.
-- Tabela append-only: usuário da aplicação sem permissão de `UPDATE`/`DELETE`; opcionalmente *ledger table* do SQL Server para trilha imutável verificável.
-- Campos marcados `[NotAudited]` ou `[Sensitive]` (conteúdo de peças, textos de documentos, senhas) nunca entram em `Changes`.
+- `AuditSaveChangesInterceptor` grava em `audit.audit_logs`: `organization_id, user_id, action, entity_type, entity_id, changes (jsonb com antes/depois só de campos não sensíveis), ip, user_agent, correlation_id, occurred_at`.
+- Tabela append-only: o papel da aplicação recebe só `INSERT` e `SELECT` (`REVOKE UPDATE, DELETE`); cada linha guarda o hash SHA-256 da anterior por organização (encadeamento), permitindo verificar que nada foi alterado.
+- Campos marcados `[NotAudited]` ou `[Sensitive]` (conteúdo de peças, textos de documentos, senhas) nunca entram em `changes`.
 - Leituras auditadas apenas para: casos sigilosos, exportações, acesso de suporte e download de documentos.
 
 ### 6.5 Migrations
@@ -353,8 +360,10 @@ RowVersion      rowversion       NOT NULL               -- concorrência otimist
 ### 6.6 Desempenho
 
 - Listagens usam projeções (`Select` para DTO) e `AsNoTracking`; nada de carregar agregados inteiros para listar.
-- Consultas de relatório em Dapper, apontando para réplica de leitura (`ApplicationIntent=ReadOnly`) quando disponível.
-- Particionamento por data em tabelas de alto volume (`publications.Publications`, `audit.AuditLogs`, `ai.UsageRecords`) a partir da edição Corporativa.
+- Consultas de relatório em Dapper, apontando para réplica de leitura quando houver (segunda connection string `ReadOnly`; sem réplica, usa a principal).
+- Pool de conexões do Npgsql dimensionado por processo; em produção com muitos processos, PgBouncer em *transaction mode* (compatível com o `set_config(..., true)` por transação do item 6.2).
+- Particionamento declarativo por data (`PARTITION BY RANGE`) em tabelas de alto volume (`publications.publications`, `audit.audit_logs`, `ai.usage_records`) a partir da edição Corporativa.
+- `VACUUM`/`ANALYZE` automáticos monitorados; `pg_stat_statements` habilitado para encontrar consultas lentas.
 
 ## 7. Segurança: autenticação, autorização e permissões
 
@@ -363,7 +372,7 @@ A API é ao mesmo tempo servidor OIDC (OpenIddict) e API protegida; toda decisã
 ### 7.1 Autenticação
 
 - ASP.NET Core Identity com `ApplicationUser` em `identity.Users`; hash padrão do Identity (PBKDF2), política de senha mínima de 12 caracteres e verificação contra lista de senhas vazadas (k-anonymity da API Have I Been Pwned, opcional).
-- OpenIddict: fluxos **Authorization Code + PKCE** (SPA), **Client Credentials** (API pública/integrações) e **Refresh Token** rotativo; tokens assinados com certificado no Key Vault.
+- OpenIddict: fluxos **Authorization Code + PKCE** (SPA), **Client Credentials** (API pública/integrações) e **Refresh Token** rotativo; tokens assinados com certificado guardado no cofre de segredos.
 - Claims do access token: `sub`, `org_id`, `org_ids`, `role_ids`, `amr`, `sid`; permissões **não** vão no token (mudam com frequência) — são resolvidas e cacheadas no servidor por 5 min, com invalidação por evento.
 - MFA: TOTP (`Identity` nativo) e código por e-mail; WebAuthn/passkeys via `Fido2NetLib` na edição Corporativa.
 - SSO: OIDC externo (Entra ID, Google) via handlers de autenticação externos e SAML 2.0 via `Sustainsys.Saml2`; *just-in-time provisioning* e SCIM 2.0 (endpoints `/scim/v2/Users` e `/Groups`).
@@ -385,8 +394,8 @@ A API é ao mesmo tempo servidor OIDC (OpenIddict) e API protegida; toda decisã
 - `RateLimiter` do ASP.NET Core: por usuário (300 req/min), por IP em login (10 req/min), por organização em endpoints de IA.
 - Cabeçalhos: HSTS, CSP restritiva, `X-Content-Type-Options`, `Referrer-Policy`; CORS só para a origem do frontend.
 - Uploads: limite por plano, validação de extensão **e** assinatura binária, varredura ClamAV antes de liberar o arquivo (estado `Quarantined → Clean | Infected`).
-- Downloads só por SAS de leitura com validade de 5 min, gerado após checar permissão.
-- Dados sensíveis (CPF, dados bancários) com **Always Encrypted** ou criptografia de coluna na aplicação via Data Protection API com chaves no Key Vault.
+- Downloads só por URL pré-assinada de leitura com validade de 5 min, gerado após checar permissão.
+- Dados sensíveis (CPF, dados bancários) com **criptografia de coluna na aplicação (Data Protection API ou envelope encryption via IKeyProvider), com as chaves fora do banco**.
 - Entrada para LLM tratada como dado não confiável (seção da etapa 11).
 - Varreduras no CI: `dotnet list package --vulnerable`, `npm audit`, CodeQL, Gitleaks e Trivy nas imagens.
 
@@ -399,19 +408,25 @@ O ambiente local sobe inteiro com um comando (`dotnet run --project src/Aspire/L
 `LexFlow.AppHost` declara os recursos e injeta as connection strings:
 
 ```csharp
-var sql      = builder.AddSqlServer("sql").WithDataVolume().AddDatabase("lexflow");
+var pg       = builder.AddPostgres("postgres")
+                      .WithImage("pgvector/pgvector", "pg17")   // PostgreSQL com pgvector
+                      .WithDataVolume()
+                      .AddDatabase("lexflow");
 var redis    = builder.AddRedis("redis");
 var rabbit   = builder.AddRabbitMQ("rabbit").WithManagementPlugin();
-var blobs    = builder.AddAzureStorage("storage").RunAsEmulator().AddBlobs("blobs");
-var search   = builder.AddContainer("opensearch", "opensearchproject/opensearch").WithHttpEndpoint(9200, 9200);
+var minio    = builder.AddContainer("minio", "minio/minio")
+                      .WithArgs("server", "/data", "--console-address", ":9001")
+                      .WithHttpEndpoint(9000, 9000, "s3").WithHttpEndpoint(9001, 9001, "console");
 var gotenberg= builder.AddContainer("gotenberg", "gotenberg/gotenberg").WithHttpEndpoint(3000, 3000);
 var clamav   = builder.AddContainer("clamav", "clamav/clamav").WithEndpoint(3310, 3310);
 var mail     = builder.AddContainer("mailpit", "axllent/mailpit").WithHttpEndpoint(8025, 8025);
 
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
-    .WithReference(sql).WithReference(redis).WithReference(rabbit).WithReference(blobs);
+    .WithReference(pg).WithReference(redis).WithReference(rabbit)
+    .WithEnvironment("Storage__ServiceUrl", minio.GetEndpoint("s3"));
 builder.AddProject<Projects.LexFlow_Worker>("worker")
-    .WithReference(sql).WithReference(redis).WithReference(rabbit).WithReference(blobs);
+    .WithReference(pg).WithReference(redis).WithReference(rabbit)
+    .WithEnvironment("Storage__ServiceUrl", minio.GetEndpoint("s3"));
 builder.AddNpmApp("web", "../../Web/lexflow-web").WithReference(api).WithHttpEndpoint(env: "PORT");
 ```
 
@@ -420,28 +435,35 @@ builder.AddNpmApp("web", "../../Web/lexflow-web").WithReference(api).WithHttpEnd
 
 ### 8.2 Pipeline (GitHub Actions)
 
-1. **`ci.yml`** (todo PR): restore → build → `dotnet format --verify-no-changes` → testes unitários e de arquitetura → testes de integração e segurança com Testcontainers → frontend `npm ci`, lint, Vitest, build → Playwright e2e contra o AppHost → CodeQL, Gitleaks, Trivy → geração do OpenAPI e checagem de *breaking changes* (`oasdiff`).
-2. **`deploy-staging.yml`** (merge em `main`): build das imagens (API, Worker, Web via nginx) → push no Azure Container Registry → `what-if` e deploy Bicep → bundle de migrations → deploy Container Apps (revisão nova) → smoke tests → avaliações de IA (subset).
-3. **`deploy-prod.yml`** (tag `v*` + aprovação manual no environment `production`): mesmos passos, troca de tráfego gradual (10% → 50% → 100%) entre revisões do Container Apps, rollback automático se health/erros piorarem.
+1. **`ci.yml`** (todo PR): restore → build → `dotnet format --verify-no-changes` → testes unitários e de arquitetura → testes de integração e segurança com Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, MinIO) → frontend `npm ci`, lint, Vitest, build → Playwright e2e contra o AppHost → CodeQL, Gitleaks, Trivy → geração do OpenAPI e checagem de *breaking changes* (`oasdiff`).
+2. **`deploy-staging.yml`** (merge em `main`): build das imagens (API, Worker, Web via nginx) → push no registry de imagens escolhido (GitHub Container Registry por padrão) → aplicar migrations com o bundle do EF Core → atualizar os serviços no alvo de deploy → smoke tests → avaliações de IA (subset).
+3. **`deploy-prod.yml`** (tag `v*` + aprovação manual no environment `production`): mesmos passos, com estratégia de troca sem indisponibilidade (blue-green no VPS via proxy reverso; rolling update ou troca gradual de tráfego na nuvem gerenciada) e rollback automático se health check ou taxa de erros piorar.
 
-Autenticação do GitHub no Azure por **OIDC federado** (sem segredos de longa duração).
+O passo "atualizar os serviços" é o único que muda por provedor: fica num script ou *composite action* por alvo (`deploy/vps/`, `deploy/<nuvem>/`), chamado pelo mesmo workflow.
 
-### 8.3 Infraestrutura em produção (Bicep em `infra/`)
+Credenciais de deploy: na nuvem gerenciada, **OIDC federado** entre GitHub e o provedor (sem segredos de longa duração); no VPS, chave SSH dedicada ao deploy, guardada nos *secrets* do environment do GitHub e com permissão restrita a um usuário sem acesso root.
 
-| Recurso | Configuração inicial |
-| --- | --- |
-| Resource groups | `rg-lexflow-{env}` por ambiente (`dev`, `staging`, `prod`) |
-| Rede | VNet com subnets para Container Apps e Private Endpoints (SQL, Blob, Key Vault, Service Bus, Redis) |
-| Azure Container Apps | `api` (min 2 réplicas), `worker` (escala por fila via KEDA), `gotenberg`, `clamav` |
-| Azure SQL | Geo-backup, PITR 35 dias, réplica de leitura; failover group para Corporativo |
-| Blob Storage | Privado, soft delete 30 dias, versionamento, lifecycle para camada cool após 180 dias |
-| Service Bus | Standard (Premium para Corporativo), filas/tópicos por evento de integração |
-| Key Vault | Segredos, chaves de assinatura de token, chaves de criptografia de coluna |
-| Front Door + WAF | Regras OWASP gerenciadas, domínio `app.lexflow.com.br` e domínios white label |
-| Observabilidade | Application Insights + Log Analytics; alertas de negócio (seção 13) |
-| Static Web App ou Container nginx | Frontend Angular |
+### 8.3 Infraestrutura de produção independente de provedor
 
-Todos os recursos em **Brazil South**, com backup geo-redundante para **Brazil Southeast**.
+A aplicação só exige o que qualquer provedor oferece: executar containers, um PostgreSQL com as extensões da seção 6.1, armazenamento compatível com S3, RabbitMQ, Redis/Valkey e HTTPS. Cada dependência externa tem uma interface no código e uma implementação escolhida por configuração:
+
+| Dependência | Interface no código | Implementação padrão | Alternativas |
+| --- | --- | --- | --- |
+| Arquivos | `IObjectStorage` | S3 API (MinIO/R2/B2/AWS) | GCS interoperável, Azure Blob (adaptador próprio) |
+| Filas e eventos | Wolverine (transporte configurável) | RabbitMQ | SQS, Google Pub/Sub, Azure Service Bus |
+| E-mail | `IEmailSender` | SMTP | API do provedor (SES, Resend, Brevo) |
+| Segredos | `IConfiguration` | Variáveis de ambiente | Infisical, Vault, secret manager da nuvem |
+| OCR | `IOcrProvider` | Tesseract em container | Textract, Document AI, Document Intelligence |
+| Telemetria | OpenTelemetry (OTLP) | Grafana LGTM | Qualquer backend OTLP |
+| Chaves de criptografia | `IKeyProvider` (Data Protection) | Chave em arquivo protegido no volume | KMS da nuvem |
+
+**Opção A — VPS (ex.: Hostinger, Hetzner, DigitalOcean).** Indicada para o início e para custos baixos. Use um **VPS** com acesso root (hospedagem compartilhada não executa .NET em containers): a partir de 4 vCPU e 8–16 GB de RAM para piloto. Um `docker-compose.prod.yml` sobe Caddy (TLS automático), API, Worker, Web, PostgreSQL, RabbitMQ, Redis, MinIO, Gotenberg e ClamAV. Backups do PostgreSQL com pgBackRest (completo diário + WAL contínuo) e dos objetos do MinIO são enviados para **armazenamento fora do VPS** (outro provedor ou bucket S3), com teste de restauração mensal. Cloudflare na frente para DNS, WAF e proteção contra DDoS. Firewall liberando só 80/443 e SSH por chave.
+
+**Opção B — nuvem gerenciada (AWS, GCP ou Azure).** Indicada quando houver clientes maiores, SLA de 99,9% ou necessidade de escalar. Os mesmos containers rodam em serviço gerenciado (ECS/Fargate, Cloud Run, Container Apps) ou Kubernetes; PostgreSQL, Redis e filas passam a ser gerenciados; Terraform/OpenTofu descreve tudo em `infra/<provedor>/`.
+
+**Migração entre opções:** como as imagens, o banco (dump/restore ou replicação lógica do PostgreSQL) e os objetos (cópia S3 com `rclone`) são portáveis, trocar de A para B é uma operação planejada de infraestrutura, sem mudança no código de negócio.
+
+Em qualquer opção, preferir data center no Brasil (ou o mais próximo disponível) e manter cópia de backup em um segundo provedor ou região.
 
 ## 9. Etapas 0–3 — Fundação
 
@@ -465,7 +487,7 @@ As quatro primeiras etapas não entregam funcionalidade jurídica; entregam a ba
 **Critérios de aceite:**
 
 - [ ] `dotnet run --project src/Aspire/LexFlow.AppHost` sobe API, Worker, Web e todos os containers; dashboard do Aspire mostra todos saudáveis.
-- [ ] `GET /health/ready` retorna 200 com SQL, Redis, RabbitMQ e Blob verificados.
+- [ ] `GET /health/ready` retorna 200 com PostgreSQL, Redis, RabbitMQ e MinIO verificados.
 - [ ] Frontend abre com layout vazio em pt-BR.
 - [ ] CI verde no primeiro PR; um teste de arquitetura propositalmente quebrado faz o CI falhar.
 
@@ -479,7 +501,7 @@ As quatro primeiras etapas não entregam funcionalidade jurídica; entregam a ba
 2. Value objects brasileiros com validação e testes: `Cpf`, `Cnpj`, `CnjNumber` (dígito verificador módulo 97 da Resolução CNJ 65/2008), `OabNumber` (número + UF), `Money`, `Email`, `Phone`, `Cep`.
 3. `Application.Abstractions`: `ICommand`, `IQuery`, handlers, decorators (Logging, Validation, Transaction), `ICurrentUser`, `ITenantContext`, `IClock` (nunca usar `DateTime.Now` direto), `IIdGenerator`.
 4. Registro automático de handlers e validadores por *assembly scanning* (Scrutor).
-5. `Infrastructure.Common`: `ModuleDbContextBase` (filtros globais, convenções, `rowversion`), interceptors de tenant, auditoria e eventos de domínio, outbox Wolverine com EF Core, `IBlobStorage` (Azure Blob), `IEmailSender`, `IFileScanner` (ClamAV), `IJobScheduler` (Hangfire).
+5. `Infrastructure.Common`: `ModuleDbContextBase` (filtros globais, convenções, `xmin`), interceptors de tenant, auditoria e eventos de domínio, outbox Wolverine com EF Core, `IObjectStorage` (API S3), `IEmailSender`, `IFileScanner` (ClamAV), `IJobScheduler` (Hangfire).
 6. `Web.Common`: mapeamento `Result → IResult` com ProblemDetails, middleware de correlação, `RequirePermission` (placeholder até Etapa 3), paginação por cursor, `Idempotency-Key` (tabela `platform.IdempotencyKeys`), endpoint genérico `GET /api/v1/jobs/{id}`.
 7. Módulo `Platform` mínimo: `AuditLogs`, `IdempotencyKeys`, `Jobs`, `Holidays`, `Courts` (tribunais com código CNJ: segmento `J` e tribunal `TR`).
 
@@ -519,7 +541,7 @@ As quatro primeiras etapas não entregam funcionalidade jurídica; entregam a ba
 2. `PermissionCatalog` com todas as permissões previstas na especificação (mesmo de módulos futuros), agrupadas por módulo para a tela.
 3. Onboarding: criar organização → cria perfis padrão (seção 3.2 da especificação) → usuário vira Administrador do escritório.
 4. `ITenantContext` real: lê `org_id`, valida pertença, suporta troca de organização (`POST /api/v1/me/active-organization`).
-5. Row-Level Security no SQL Server (seção 6.2, item 5) com script na migration.
+5. Row-Level Security no PostgreSQL (seção 6.2, item 5) com script na migration.
 6. `IAuthorizationPolicyProvider` dinâmico, `PermissionService` com cache Redis e invalidação por evento `RolePermissionsChanged`.
 7. `IResourceAuthorizer<T>` genérico e decorator de autorização de recurso.
 8. Convites por e-mail com token de uso único e expiração de 7 dias.
@@ -530,7 +552,7 @@ As quatro primeiras etapas não entregam funcionalidade jurídica; entregam a ba
 **Critérios de aceite:**
 
 - [ ] Usuário da Org A recebe 404 em qualquer recurso da Org B (teste automático cobre 100% dos endpoints).
-- [ ] Consulta SQL crua sem filtro executada com `SESSION_CONTEXT` da Org A não retorna linhas da Org B (prova do RLS).
+- [ ] Consulta SQL crua sem filtro executada com `app.organization_id` da Org A não retorna linhas da Org B (prova do RLS).
 - [ ] Remover a permissão `settings.users.manage` de um perfil bloqueia a ação em até 5 s, sem novo login.
 - [ ] Campo customizado obrigatório criado na tela aparece e é validado no formulário de teste.
 
@@ -545,7 +567,7 @@ Estas etapas entregam o dia a dia do escritório: pessoas, processos, publicaç�
 **Tarefas:**
 
 1. Módulo `Crm`, schema `crm`: `Person` (tipo PF/PJ, `Cpf`/`Cnpj`, nome, nome social/fantasia, dados fiscais), `PersonRole` (Client, Opponent, Witness, Expert, Correspondent, Supplier), `EconomicGroup`, `Contact`, `Address`, `ConflictCheck`, `ConflictCheckHit`, `Opportunity`, `Proposal`, `ProposalItem`.
-2. Índice de busca de pessoas no OpenSearch com nome normalizado (sem acentos, *lowercase*) e *fuzzy* para duplicidade e conflito.
+2. Busca de pessoas no PostgreSQL com unaccent e pg\_trgm (similaridade) sobre o nome normalizado (sem acentos, *lowercase*) e *fuzzy* para duplicidade e conflito.
 3. Conflito de interesses: `POST /api/v1/conflict-checks` recebe nome/documento, busca em pessoas, partes de processos (via `ILitigationLookup`, stub até a Etapa 5) e grupos; retorna `Direct | Indirect | None`; prosseguir com alerta exige `justification`.
 4. Consulta de CNPJ por integração (`ICnpjLookup`; implementação fake + real via API pública ou provedor).
 5. Fusão de cadastros duplicados (`POST /api/v1/people/{id}/merge`) reatribuindo vínculos, auditada.
@@ -566,7 +588,7 @@ Estas etapas entregam o dia a dia do escritório: pessoas, processos, publicaç�
 **Tarefas:**
 
 1. Módulo `Litigation`: agregado `LegalCase` (com `CnjNumber?`, `InternalFolder`, `CourtId`, `Instance`, `District`, `CourtUnit`, `ProceduralClass`, `Subject`, `PracticeAreaId`, `Phase`, `Status`, `ClaimValue: Money`, datas), `CaseParty` (pessoa + polo + advogado contrário com OAB), `CaseAssignment` (papel: Partner, Lawyer, Team), `CaseRelation` (Principal, Incident, Appeal, Enforcement, Attached), `Claim`, `ClaimValuation` (por instância), `RiskAssessment`, `Settlement`, `SettlementInstallment`, `Hearing`.
-2. Numeração interna configurável (`{AREA}-{ANO}-{SEQ:00000}`) com sequência por tenant (`sp_getapplock` ou `SEQUENCE` por organização).
+2. Numeração interna configurável (`{AREA}-{ANO}-{SEQ:00000}`) com sequência por tenant: tabela de contadores por organização incrementada com `UPDATE ... RETURNING` na mesma transação do cadastro.
 3. Pré-preenchimento do tribunal e segmento a partir do número CNJ (campos `J` e `TR`).
 4. Linha do tempo: `GET /api/v1/cases/{id}/timeline` agrega eventos de todos os módulos por meio de interface `ITimelineContributor` registrada por módulo (inicialmente só Litigation; outros módulos acrescentam depois).
 5. Atualização monetária: tabela `platform.MonetaryIndexes (Index, Month, Value)` com seed de IPCA-E, INPC, SELIC; job mensal para importar novos valores (fonte oficial; fake em dev). Serviço `IMonetaryCorrection` com testes contra cálculos conferidos.
@@ -664,8 +686,8 @@ Com estas etapas o produto fica comercialmente completo para as edições Solo e
 **Tarefas:**
 
 1. Módulo `Documents`: `Folder`, `Document` (tipo documental, vínculos: caso, pessoa, contrato), `DocumentVersion` (blob, hash SHA-256, tamanho, MIME, autor), `DocumentExtraction` (texto, páginas, idioma, método: Native/OCR, status), `DocumentShare` (externo, expiração), `DocumentTemplate`, `TemplateVersion`, `SignatureRequest`, `SignatureSigner`.
-2. Upload direto: `POST /api/v1/documents/upload-sessions` → SAS de escrita com validade de 15 min para `/{org}/documents/{docId}/{versionId}` → cliente envia em blocos → `POST /complete` → evento `DocumentUploaded`.
-3. Pipeline assíncrono no Worker: **ClamAV** (infectado → `Infected`, bloqueado) → detecção de tipo real → extração (PdfPig para PDF com texto; OpenXml para DOCX; OCR via Document Intelligence se o PDF não tiver camada de texto) → indexação OpenSearch (texto + metadados + `organizationId` + `caseId` + ACL) → `DocumentReady`.
+2. Upload direto: `POST /api/v1/documents/upload-sessions` → URLs pré-assinadas de upload multipart (S3) com validade de 15 min para `/{org}/documents/{docId}/{versionId}` → cliente envia em blocos → `POST /complete` → evento `DocumentUploaded`.
+3. Pipeline assíncrono no Worker: **ClamAV** (infectado → `Infected`, bloqueado) → detecção de tipo real → extração (PdfPig para PDF com texto; OpenXml para DOCX; OCR via IOcrProvider, Tesseract por padrão, se o PDF não tiver camada de texto) → indexação no full-text do PostgreSQL (texto + metadados + `organizationId` + `caseId` + ACL) → `DocumentReady`.
 4. Visualização: PDF.js no navegador; DOCX convertido para PDF pelo Gotenberg e cacheado.
 5. Busca de conteúdo `GET /api/v1/search?q=` com *highlight*, sempre filtrando por tenant e por casos que o usuário pode ver.
 6. Motor de modelos DOCX: marcadores `{{cliente.nome}}`, `{{processo.numero}}`, laços `{{#each partes}}`, condicionais; implementação sobre OpenXml (ADR: avaliar bibliotecas MIT de templating DOCX); geração em lote como job.
@@ -713,7 +735,7 @@ Com estas etapas o produto fica comercialmente completo para as edições Solo e
 
 **Tarefas:**
 
-1. Módulo `AI`: `LegalResearchQuery`, `LegalSource` (tipo: Legislation, Decision, Summary/Ementa, News, Metadata; tribunal, número, relator, órgão, data, URL, `VerificationStatus`), `LegalSourceSnapshot` (texto capturado + hash + data), `DocumentChunk` (texto, embedding em coluna `VECTOR` com a dimensão do modelo escolhido, origem), `DraftRequest`, `DraftDocument`, `DraftVersion`, `DraftSection`, `DraftCitation` (trecho da minuta ↔ fonte ↔ trecho de suporte ↔ status), `AiUsageRecord`, `AiQuota`, `PromptTemplate` (versionado).
+1. Módulo `AI`: `LegalResearchQuery`, `LegalSource` (tipo: Legislation, Decision, Summary/Ementa, News, Metadata; tribunal, número, relator, órgão, data, URL, `VerificationStatus`), `LegalSourceSnapshot` (texto capturado + hash + data), `DocumentChunk` (texto, embedding em coluna `vector (pgvector, índice HNSW)` com a dimensão do modelo escolhido, origem), `DraftRequest`, `DraftDocument`, `DraftVersion`, `DraftSection`, `DraftCitation` (trecho da minuta ↔ fonte ↔ trecho de suporte ↔ status), `AiUsageRecord`, `AiQuota`, `PromptTemplate` (versionado).
 2. Abstração `Microsoft.Extensions.AI`: `IChatClient` com *pipeline* (logging, telemetria, cache, medição de uso) e roteamento por complexidade (modelo menor para classificação/extração, modelo maior para redação). Provedor e modelo configuráveis por organização (edição Corporativa).
 3. **Ingestão (RAG privado):** ao `DocumentReady`, segmentar em blocos de \~800 tokens com sobreposição de 100, preservando página e seção; gerar embeddings; gravar `DocumentChunk` com `OrganizationId` e `CaseId`.
 4. **Pesquisa jurídica:** `ILegalSearchProvider` (fornecedor licenciado + fontes oficiais de legislação); toda fonte recuperada vira `LegalSource` + `LegalSourceSnapshot`. DataJud apenas para metadados/movimentações.
@@ -723,7 +745,7 @@ Com estas etapas o produto fica comercialmente completo para as edições Solo e
    2. extrair fatos com saída estruturada (JSON Schema) marcando origem (`UserProvided | Document(pág.) | Inferred`);
    3. identificar questões jurídicas e teses;
    4. pesquisar fontes por questão e verificar;
-   5. recuperar trechos (híbrido: BM25 no OpenSearch + vetorial) com *re-ranking*;
+   5. recuperar trechos (híbrido: full-text do PostgreSQL + vetorial com pgvector) com *re-ranking*;
    6. gerar a estrutura da peça a partir do template do tipo/jurisdição;
    7. redigir seção por seção com marcadores `[[cite:SOURCE_ID]]` — o modelo só pode citar IDs presentes no contexto;
    8. **validar citações:** todo marcador precisa apontar para `LegalSource` existente; marcadores inválidos são removidos e viram alerta; checagem de que o trecho de suporte sustenta a afirmação (modelo verificador separado);
@@ -751,7 +773,7 @@ Com estas etapas o produto fica comercialmente completo para as edições Solo e
 1. Módulo `Portal`: `PortalAccess` (pessoa ↔ usuário externo ↔ casos liberados), `PortalShare` (documento/fatura/relatório liberado), `PortalMessage`.
 2. Endpoints em `/api/v1/portal/*` com política exclusiva para usuários externos; textos de status em linguagem simples mapeados por fase.
 3. Aprovação de propostas, acordos e faturas pelo portal, alimentando workflows (Etapa 8).
-4. Rotas `portal/` no Angular com layout próprio e tema por organização (logo e cores); domínio white label tratado no Front Door (edição Corporativa).
+4. Rotas `portal/` no Angular com layout próprio e tema por organização (logo e cores); domínio white label tratado no proxy reverso/CDN (Caddy ou Cloudflare) (edição Corporativa).
 5. PWA: instalação, push notifications (Web Push com VAPID), modo offline de leitura para agenda do dia.
 
 **Critérios de aceite:**
@@ -790,7 +812,7 @@ Estas etapas transformam o produto de pequenos e médios escritórios em platafo
 1. Módulo `Reporting`: modelo de leitura desnormalizado (`reporting.*`) atualizado por eventos de integração (projeções), para não pesar nas tabelas transacionais.
 2. Painéis padrão (ECharts): carteira, prazos, produtividade, financeiro, contingência, êxito.
 3. Gerador de relatórios: catálogo de *datasets* com colunas permitidas por permissão; usuário escolhe colunas, filtros, agrupamentos; consultas geradas com SQL parametrizado a partir de uma whitelist (nunca SQL livre); agendamento por e-mail; exportação XLSX (ClosedXML), CSV e PDF (QuestPDF).
-4. Edição Corporativa: exportação incremental (Change Tracking do SQL Server) para data lake do cliente e conector Power BI via OData somente leitura.
+4. Edição Corporativa: exportação incremental (replicação lógica do PostgreSQL) para data lake do cliente e conector Power BI via OData somente leitura.
 5. API pública: clientes OAuth (Client Credentials) criados pelo administrador com escopos (`cases.read`, `deadlines.write`…); mesma API interna, com rate limit por cliente.
 6. Webhooks de saída: assinatura HMAC-SHA256 no cabeçalho, retentativas com backoff exponencial por 24 h, painel de entregas e reenvio manual.
 7. Portal do desenvolvedor: documentação Scalar pública da API e exemplos.
@@ -827,7 +849,7 @@ Estas etapas transformam o produto de pequenos e médios escritórios em platafo
 
 1. SSO OIDC/SAML por organização, provisionamento SCIM 2.0, passkeys, restrição por IP.
 2. **Tenant com banco dedicado:** `ITenantConnectionResolver` lê `platform.TenantDatabases`; migrations aplicadas a todos os bancos pelo pipeline; teste e2e com um tenant compartilhado e um dedicado.
-3. BYOK: chave de criptografia do cliente no Key Vault dele (Always Encrypted / TDE com chave gerenciada pelo cliente).
+3. BYOK: envelope encryption com a chave mestra no KMS do próprio cliente, acessada via IKeyProvider.
 4. Testes de carga k6 com organização de 500 mil processos e 5 milhões de documentos, 1.000 usuários simultâneos; ajustes de índices, particionamento e cache até atingir as metas da especificação.
 5. Ambiente sandbox por cliente (cópia anonimizada).
 6. Redundância do fornecedor de publicações (segundo provedor e reconciliação entre ambos).
@@ -866,7 +888,7 @@ Como o código será escrito por uma IA, os testes são o contrato: o agente nã
 | --- | --- | --- | --- |
 | Unitário | xUnit v3, Shouldly ou AwesomeAssertions, NSubstitute, Bogus | Domínio, value objects, calculadora de prazos, regras financeiras, validadores | Todo PR |
 | Arquitetura | NetArchTest / ArchUnitNET | Dependências entre camadas e módulos, nomes, handlers `internal sealed` | Todo PR |
-| Integração | `WebApplicationFactory` + Testcontainers (SQL Server, Redis, RabbitMQ, Azurite, OpenSearch) + Respawn | Endpoints ponta a ponta com banco real, migrations, outbox | Todo PR |
+| Integração | `WebApplicationFactory` + Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, MinIO) + Respawn | Endpoints ponta a ponta com banco real, migrations, outbox | Todo PR |
 | Segurança | Projeto `SecurityTests` com descoberta automática de endpoints | Isolamento de tenant, casos sigilosos, permissões, usuários externos | Todo PR |
 | Snapshot | Verify | Contratos OpenAPI, e-mails gerados, DOCX/PDF gerados | Todo PR |
 | Propriedade | FsCheck | Somatórios financeiros, calculadora de prazos com datas aleatórias | Todo PR |
@@ -907,7 +929,7 @@ Como o código será escrito por uma IA, os testes são o contrato: o agente nã
 | `lexflow_tenant_isolation_violation_total` | qualquer incremento (crítico) |
 | Fila dead-letter | qualquer mensagem |
 
-- Dashboards no Azure Monitor/Grafana por módulo; runbooks em `docs/runbooks/` para cada alerta.
+- Dashboards no Grafana (ou no monitor do provedor escolhido) por módulo; runbooks em `docs/runbooks/` para cada alerta.
 
 ## 14. Modelos de prompt e checklist para o agente
 
@@ -919,7 +941,8 @@ Use estes modelos para iniciar cada sessão do agente; eles mantêm o escopo peq
 # LexFlow — regras para agentes
 
 - Leia docs/progress.md antes de começar. Siga a ordem de etapas de docs/spec/implementacao.md.
-- Stack fixa: .NET 10, EF Core 10, SQL Server 2025, Angular, Wolverine, Hangfire, OpenIddict.
+- Stack fixa: .NET 10, EF Core 10 + Npgsql, PostgreSQL 17+, Angular, Wolverine, Hangfire, OpenIddict.
+- Nuvem: nenhum SDK proprietário fora das implementações de interfaces em Infrastructure (IObjectStorage, IEmailSender, IOcrProvider, IKeyProvider).
   Não adicione pacotes sem checar licença e registrar ADR em docs/adr/.
 - Proibido: MediatR, AutoMapper, MassTransit (licenças), IgnoreQueryFilters fora de Platform,
   DateTime.Now (use IClock), SQL concatenado, segredos no código, editar migrations aplicadas.
