@@ -1,0 +1,23 @@
+<ng-container *transloco="let t">
+  <a class="skip-link" href="#main-content">{{ t('app.skipToContent') }}</a>
+
+  <header>
+    <mat-toolbar class="toolbar">
+      <span class="brand">{{ t('app.name') }}</span>
+    </mat-toolbar>
+  </header>
+
+  <mat-sidenav-container class="container">
+    <mat-sidenav class="sidenav" mode="side" opened>
+      <nav [attr.aria-label]="t('shell.mainNavigation')">
+        <p class="empty-navigation">{{ t('shell.emptyNavigation') }}</p>
+      </nav>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <main id="main-content" class="content" tabindex="-1">
+        <router-outlet />
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>
