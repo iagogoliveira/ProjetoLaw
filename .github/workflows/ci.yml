@@ -88,13 +88,14 @@ jobs:
       - name: npm ci
         run: npm ci
         working-directory: ${{ env.WEB_DIR }}
+      # Debug de propósito: com AspireUseCliBundle o `dotnet run` do AppHost procura o binário em bin/Debug.
       - name: Build
-        run: dotnet build LexFlow.sln -c Release
+        run: dotnet build LexFlow.sln
       - name: Testes do AppHost (todos os recursos saudáveis)
-        run: dotnet test --project tests/LexFlow.AppHost.Tests --no-build -c Release
+        run: dotnet test --project tests/LexFlow.AppHost.Tests --no-build
       - name: Subir o AppHost
         run: |
-          dotnet run --project src/Aspire/LexFlow.AppHost --no-build -c Release --launch-profile http > apphost.log 2>&1 &
+          dotnet run --project src/Aspire/LexFlow.AppHost --no-build --launch-profile http > apphost.log 2>&1 &
           for i in $(seq 1 120); do
             if curl -fs http://localhost:4200/ > /dev/null; then echo "web pronto"; exit 0; fi
             sleep 5
@@ -118,8 +119,11 @@ jobs:
             apphost.log
           retention-days: 7
 
+  # Code scanning em repositório privado exige GitHub Code Security (pago). Enquanto o repositório
+  # for privado sem essa licença, o job não roda (pendência registrada em docs/progress.md).
   codeql:
     name: CodeQL (${{ matrix.language }})
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
