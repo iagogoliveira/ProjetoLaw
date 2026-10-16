@@ -202,6 +202,14 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: /language:${{ matrix.language }}
+          # Repositório privado sem GitHub Advanced Security não aceita upload: o SARIF vira artefato.
+          upload: ${{ github.event.repository.private && 'never' || 'always' }}
+          output: sarif-results
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: codeql-${{ matrix.language }}
+          path: sarif-results/
       - name: Gitleaks
         if: matrix.language == 'csharp'
         run: >
