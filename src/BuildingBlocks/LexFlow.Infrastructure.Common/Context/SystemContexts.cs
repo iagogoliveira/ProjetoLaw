@@ -12,29 +12,17 @@ internal sealed class SystemCurrentUser : ICurrentUser
     public Guid? UserId => null;
 }
 
-/// <summary>Sem organização ativa: filtros de tenant não retornam linhas e gravações de escritório são rejeitadas.</summary>
-internal sealed class NoTenantContext : ITenantContext
-{
-    public Guid? OrganizationId => null;
-}
-
-internal sealed class NoRequestContext : IRequestContext
-{
-    public string? CorrelationId => null;
-
-    public string? IpAddress => null;
-
-    public string? UserAgent => null;
-}
-
 public static class SystemContextRegistration
 {
-    /// <summary>Contextos de usuário, tenant e requisição para processos fora de HTTP. Não sobrescreve registros existentes.</summary>
+    /// <summary>
+    /// Contextos para processos fora de HTTP: usuário de sistema e tenant/correlação do escopo ambiente
+    /// (<see cref="AmbientContext"/>); sem escopo aberto, não há tenant. Não sobrescreve registros existentes.
+    /// </summary>
     public static IServiceCollection AddSystemContexts(this IServiceCollection services)
     {
         services.TryAddScoped<ICurrentUser, SystemCurrentUser>();
-        services.TryAddScoped<ITenantContext, NoTenantContext>();
-        services.TryAddScoped<IRequestContext, NoRequestContext>();
+        services.TryAddScoped<ITenantContext, AmbientTenantContext>();
+        services.TryAddScoped<IRequestContext, AmbientRequestContext>();
         return services;
     }
 }

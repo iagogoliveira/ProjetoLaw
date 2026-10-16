@@ -1,11 +1,13 @@
 using System.Linq.Expressions;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Data;
+using LexFlow.Infrastructure.Common.Messaging;
 using LexFlow.Infrastructure.Common.Persistence.Auditing;
 using LexFlow.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
+using Wolverine.EntityFrameworkCore;
 
 namespace LexFlow.Infrastructure.Common.Persistence;
 
@@ -42,8 +44,10 @@ public abstract class ModuleDbContextBase(DbContextOptions options, ITenantConte
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
         modelBuilder.ApplyConfiguration(new AuditLogEntryConfiguration(excludeFromMigrations: !OwnsAuditLog));
+        modelBuilder.ApplyConfiguration(new ProcessedIntegrationEventConfiguration());
+        MapWolverineEnvelopes(modelBuilder);
 
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => !e.IsOwned() && e.BaseType is null).ToList())
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => !e.IsOwned() && e.BaseType is null && !string.Equals(e.GetSchema(), WolverineSchema, StringComparison.Ordinal)).ToList())
         {
             var clrType = entityType.ClrType;
             var builder = modelBuilder.Entity(clrType);
@@ -59,6 +63,23 @@ public abstract class ModuleDbContextBase(DbContextOptions options, ITenantConte
                 builder.HasQueryFilter(SoftDeleteFilter, SoftDeleteFilterFor(clrType));
                 builder.Property(nameof(ISoftDeletable.IsDeleted)).HasDefaultValue(false);
             }
+        }
+    }
+
+    /// <summary>Schema das tabelas do Wolverine (outbox/inbox), criadas e mantidas pelo próprio Wolverine.</summary>
+    public const string WolverineSchema = "wolverine";
+
+    /// <summary>
+    /// Mapeia as tabelas de envelopes do Wolverine para que o outbox grave as mensagens no mesmo <c>SaveChanges</c>.
+    /// Ficam fora das migrations: o Wolverine cria e evolui o próprio schema.
+    /// </summary>
+    private static void MapWolverineEnvelopes(ModelBuilder modelBuilder)
+    {
+        var before = modelBuilder.Model.GetEntityTypes().Select(e => e.ClrType).ToHashSet();
+        modelBuilder.MapWolverineEnvelopeStorage(WolverineSchema);
+        foreach (var added in modelBuilder.Model.GetEntityTypes().Where(e => !before.Contains(e.ClrType)).ToList())
+        {
+            modelBuilder.Entity(added.ClrType).ToTable(added.GetTableName()!, added.GetSchema(), t => t.ExcludeFromMigrations());
         }
     }
 

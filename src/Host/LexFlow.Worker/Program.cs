@@ -1,6 +1,7 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.HealthChecks;
+using LexFlow.Infrastructure.Common.Messaging;
 using LexFlow.Platform.Application;
 using LexFlow.Platform.Infrastructure;
 
@@ -12,7 +13,8 @@ builder.Services.AddApplication(PlatformApplication.Assembly);
 builder.Services.AddSystemContexts();
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 
-// Consumidores Wolverine e servidor Hangfire entram na Etapa 1.
+// Consumidores de eventos de integração: assemblies Infrastructure dos módulos.
+builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly);
 
 using var host = builder.Build();
 await host.RunAsync();

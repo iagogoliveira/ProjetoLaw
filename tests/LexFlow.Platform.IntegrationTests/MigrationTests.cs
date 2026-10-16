@@ -61,6 +61,28 @@ public sealed class MigrationTests(PlatformDatabaseFixture fixture)
         });
     }
 
+    /// <summary>Cada migration aplicada sobre a versão anterior (cenário de deploy), não só do zero.</summary>
+    [Fact]
+    public async Task Migrations_apply_incrementally_one_by_one()
+    {
+        var connectionString = await fixture.CreateEmptyDatabaseAsync();
+
+        await WithContextAsync(connectionString, async db =>
+        {
+            var migrator = db.GetService<IMigrator>();
+            var all = db.Database.GetMigrations().ToList();
+            all.Count.ShouldBeGreaterThanOrEqualTo(2);
+            foreach (var migration in all)
+            {
+                await migrator.MigrateAsync(migration, cancellationToken: Ct);
+                (await db.Database.GetAppliedMigrationsAsync(Ct)).Last().ShouldBe(migration);
+            }
+
+            (await db.Database.GetPendingMigrationsAsync(Ct)).ShouldBeEmpty();
+            return true;
+        });
+    }
+
     [Fact]
     public async Task Reference_data_is_seeded()
     {

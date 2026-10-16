@@ -29,6 +29,13 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
   </ItemGroup>
+  <ItemGroup Label="Mensageria e jobs">
+    <PackageVersion Include="WolverineFx" Version="6.51.0" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="6.51.0" />
+    <PackageVersion Include="WolverineFx.Postgresql" Version="6.51.0" />
+    <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.51.0" />
+    <PackageVersion Include="WolverineFx.RuntimeCompilation" Version="6.51.0" />
+  </ItemGroup>
   <ItemGroup Label="ServiceDefaults e API">
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.11.0" />

@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions.Data;
 using LexFlow.Infrastructure.Common.HealthChecks;
+using LexFlow.Infrastructure.Common.Messaging;
 using LexFlow.Infrastructure.Common.Persistence.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,7 @@ public static class PersistenceRegistration
     /// <summary>
     /// Registra o DbContext do módulo sobre o <see cref="NpgsqlDataSource"/> compartilhado, com snake_case, histórico
     /// de migrations no schema do módulo e os interceptors na ordem: eventos de domínio → tenant → colunas de
-    /// auditoria/exclusão lógica → trilha de auditoria. Também expõe o contexto como <see cref="IUnitOfWork"/> do módulo.
+    /// auditoria/exclusão lógica → trilha de auditoria → outbox (se houver mensageria). Também expõe o contexto como <see cref="IUnitOfWork"/> do módulo.
     /// </summary>
     public static IServiceCollection AddModuleDbContext<TContext>(
         this IServiceCollection services,
@@ -37,16 +38,25 @@ public static class PersistenceRegistration
         services.TryAddScoped<AuditableEntitiesInterceptor>();
         services.TryAddScoped<AuditSaveChangesInterceptor>();
 
-        services.AddDbContext<TContext>((sp, options) => options
-            .UseNpgsql(
-                sp.GetRequiredService<NpgsqlDataSource>(),
-                npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
-            .UseSnakeCaseNamingConvention()
-            .AddInterceptors(
-                sp.GetRequiredService<DomainEventsInterceptor>(),
-                sp.GetRequiredService<TenantSaveChangesInterceptor>(),
-                sp.GetRequiredService<AuditableEntitiesInterceptor>(),
-                sp.GetRequiredService<AuditSaveChangesInterceptor>()));
+        services.AddDbContext<TContext>((sp, options) =>
+        {
+            options
+                .UseNpgsql(
+                    sp.GetRequiredService<NpgsqlDataSource>(),
+                    npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(
+                    sp.GetRequiredService<DomainEventsInterceptor>(),
+                    sp.GetRequiredService<TenantSaveChangesInterceptor>(),
+                    sp.GetRequiredService<AuditableEntitiesInterceptor>(),
+                    sp.GetRequiredService<AuditSaveChangesInterceptor>());
+
+            // Só quando a mensageria está configurada (API e Worker); o MigrationService não publica eventos.
+            if (sp.GetService<OutboxInterceptor>() is { } outbox)
+            {
+                options.AddInterceptors(outbox);
+            }
+        });
 
         services.AddKeyedScoped<IUnitOfWork>(moduleName, (sp, _) => sp.GetRequiredService<TContext>());
         return services;

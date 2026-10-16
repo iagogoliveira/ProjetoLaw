@@ -31,7 +31,7 @@ public sealed class HealthEndpointsTests(DependenciesFixture dependencies)
     [InlineData("Storage:ServiceUrl", UnreachableStorage)]
     public async Task Ready_returns_503_when_a_dependency_is_down(string key, string unreachableValue)
     {
-        using var response = await GetAsync(With(key, unreachableValue), "/health/ready");
+        using var response = await GetAsync(With(key, unreachableValue), "/health/ready", isolateMessaging: true);
 
         response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
     }
@@ -39,7 +39,7 @@ public sealed class HealthEndpointsTests(DependenciesFixture dependencies)
     [Fact]
     public async Task Live_stays_200_when_a_dependency_is_down()
     {
-        using var response = await GetAsync(With("Storage:ServiceUrl", UnreachableStorage), "/health/live");
+        using var response = await GetAsync(With("Storage:ServiceUrl", UnreachableStorage), "/health/live", isolateMessaging: true);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -47,9 +47,9 @@ public sealed class HealthEndpointsTests(DependenciesFixture dependencies)
     private Dictionary<string, string> With(string key, string value) =>
         new(dependencies.Settings, StringComparer.Ordinal) { [key] = value };
 
-    private static async Task<HttpResponseMessage> GetAsync(IReadOnlyDictionary<string, string> settings, string path)
+    private static async Task<HttpResponseMessage> GetAsync(IReadOnlyDictionary<string, string> settings, string path, bool isolateMessaging = false)
     {
-        await using var factory = new LexFlowApiFactory(settings);
+        await using var factory = new LexFlowApiFactory(settings, isolateMessaging);
         using var client = factory.CreateClient();
         return await client.GetAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
     }
