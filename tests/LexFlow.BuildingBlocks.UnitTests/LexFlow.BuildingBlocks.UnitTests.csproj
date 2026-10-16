@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BuildingBlocks\LexFlow.SharedKernel\LexFlow.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

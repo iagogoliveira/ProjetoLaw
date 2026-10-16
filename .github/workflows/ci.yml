@@ -39,10 +39,17 @@ jobs:
         run: |
           dotnet list LexFlow.sln package --vulnerable --include-transitive | tee vulnerable.txt
           if grep -q "has the following vulnerable packages" vulnerable.txt; then exit 1; fi
-      - name: Testes de arquitetura
-        run: dotnet test --project tests/LexFlow.ArchitectureTests --no-build -c Release
+      # Projetos descobertos pelo nome: todo tests/*.UnitTests e tests/*.IntegrationTests novo entra sozinho.
+      - name: Testes unitários e de arquitetura
+        run: |
+          for project in tests/*.UnitTests tests/LexFlow.ArchitectureTests; do
+            dotnet test --project "$project" --no-build -c Release
+          done
       - name: Testes de integração (Testcontainers)
-        run: dotnet test --project tests/LexFlow.Api.IntegrationTests --no-build -c Release
+        run: |
+          for project in tests/*.IntegrationTests; do
+            dotnet test --project "$project" --no-build -c Release
+          done
 
   frontend:
     name: Frontend (lint, Vitest, build)

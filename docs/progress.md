@@ -4,8 +4,25 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 | Etapa | Status | Branch |
 | --- | --- | --- |
-| 0 — Bootstrap do repositório | **Concluída**; aguardando revisão e merge do PR #3 | `etapa-0-bootstrap` |
-| 1 — Building blocks | Não iniciada | — |
+| 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
+| 1 — Building blocks | **Em andamento** (PR A: SharedKernel e value objects) | `etapa-1a-shared-kernel` |
+
+---
+
+## Etapa 1 — Building blocks (em andamento)
+
+Plano aprovado em 2026-10-16, em 3 PRs empilhados: **A** (SharedKernel e value objects), **B** (Application.Abstractions e Web.Common), **C** (infraestrutura, módulo Platform e mensageria).
+
+**Decisões de negócio confirmadas:**
+- O seed de feriados terá só os feriados nacionais de lei federal. Carnaval, Corpus Christi, feriados forenses, estaduais, municipais e o recesso ficam para a Etapa 7.
+- Os números CNJ de teste são gerados com dígito verificador correto, sem processos reais de terceiros.
+
+| # | Subtarefa | Status | Testes |
+| --- | --- | --- | --- |
+| 1.1 | SharedKernel: `Entity`, `AggregateRoot`, `ValueObject`, `Result`/`Error`, `ITenantOwned`, `ICaseScoped`, `ISoftDeletable`, `IAuditable`, `[NotAudited]`, `[Sensitive]` | ✅ | `ResultTests`, `EntityTests` |
+| 1.2 | Value objects: `Cpf`, `Cnpj` (inclui alfanumérico), `CnjNumber`, `OabNumber`, `Money`, `Email`, `Phone`, `Cep` | ✅ | `CnjNumberTests` (22 válidos, 21 inválidos, conferência independente com `BigInteger`), `DocumentTests`, `ContactTests`, `MoneyTests` |
+| 1.3 | Regras do CLAUDE.md na compilação e no IL (ADR 0006) | ✅ | `BannedApiTests.*` |
+| 1.4–1.12 | Pipeline de casos de uso, Web.Common, EF Core base, Platform, outbox, adaptadores, endpoints, contrato da API | ⏳ | — |
 
 ---
 
