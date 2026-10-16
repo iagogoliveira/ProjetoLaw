@@ -64,6 +64,7 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | @playwright/test | 1.64.1 | Apache-2.0 |
 | @axe-core/playwright | 4.14.0 | MPL-2.0 (só em dev, sem redistribuição) |
 | @hey-api/openapi-ts | 0.99.0 | MIT (dev; gera `src/app/api`, ADR 0012) |
+| js-yaml (override npm) | 4.3.2 | MIT | Corrige GHSA-52cp-r559-cp3m, GHSA-5p4m-2wfm-xmqj e GHSA-2883-xcg3-v3hh (altas), transitivas do `@hey-api/openapi-ts` |
 
 ### Ferramentas de CI
 
