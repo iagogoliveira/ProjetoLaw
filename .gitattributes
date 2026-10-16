@@ -1,3 +1,14 @@
 * text=auto eol=lf
-*.{cmd,bat,ps1,sln} text eol=crlf
-*.{png,jpg,jpeg,gif,ico,woff,woff2,pdf,docx} binary
+*.sln text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.docx binary

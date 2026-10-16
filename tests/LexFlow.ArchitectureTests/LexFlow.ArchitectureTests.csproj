@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Building blocks e TODOS os projetos de módulo (glob): módulos novos entram nas regras automaticamente. -->
+    <ProjectReference Include="..\..\src\BuildingBlocks\**\*.csproj" />
+    <ProjectReference Include="..\..\src\Modules\**\*.csproj" />
+  </ItemGroup>
+</Project>

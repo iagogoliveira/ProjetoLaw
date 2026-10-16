@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.Api.IntegrationTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.AppHost.Tests", "tests\LexFlow.AppHost.Tests\LexFlow.AppHost.Tests.csproj", "{EBA34668-CBB8-4FA7-90A3-2448A4508C8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.ArchitectureTests", "tests\LexFlow.ArchitectureTests\LexFlow.ArchitectureTests.csproj", "{800F8902-52EE-4E9B-BA3C-DF6234A8660F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -163,6 +165,18 @@ Global
 		{EBA34668-CBB8-4FA7-90A3-2448A4508C8C}.Release|x64.Build.0 = Release|Any CPU
 		{EBA34668-CBB8-4FA7-90A3-2448A4508C8C}.Release|x86.ActiveCfg = Release|Any CPU
 		{EBA34668-CBB8-4FA7-90A3-2448A4508C8C}.Release|x86.Build.0 = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|x64.Build.0 = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Debug|x86.Build.0 = Debug|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|x64.ActiveCfg = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|x64.Build.0 = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|x86.ActiveCfg = Release|Any CPU
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,5 +195,6 @@ Global
 		{1BE6596E-1D48-45FC-84A5-05ACA53A4482} = {52BF7FB6-37FF-5100-EFD1-124EFF302675}
 		{08232085-0FE6-47E3-9F47-2BEE090EF1BA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{EBA34668-CBB8-4FA7-90A3-2448A4508C8C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{800F8902-52EE-4E9B-BA3C-DF6234A8660F} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
