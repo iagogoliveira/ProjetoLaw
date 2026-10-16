@@ -3,5 +3,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\LexFlow.Infrastructure.Common\LexFlow.Infrastructure.Common.csproj" />
   </ItemGroup>
 </Project>
