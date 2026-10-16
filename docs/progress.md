@@ -5,26 +5,77 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | Etapa | Status | Branch |
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
-| 1 — Building blocks | **Em andamento** (PR A #4 e PR B prontos; PR C em seguida) | `etapa-1a-shared-kernel`, `etapa-1b-application-web` |
+| 1 — Building blocks | **Concluída localmente**; PRs #4, #5 e C aguardando revisão e merge | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 
 ---
 
-## Etapa 1 — Building blocks (em andamento)
+## Etapa 1 — Building blocks (2026-10-16)
 
-Plano aprovado em 2026-10-16, em 3 PRs empilhados: **A** (SharedKernel e value objects), **B** (Application.Abstractions e Web.Common), **C** (infraestrutura, módulo Platform e mensageria).
+**RFs:** base para todos. Feriados e tribunais preparam o RF-03 e o RF-09; a auditoria prepara o RF-45.
+
+Plano aprovado em 2026-10-16, em 3 PRs empilhados: **A** #4 (SharedKernel e value objects), **B** #5 (Application.Abstractions e Web.Common) e **C** (infraestrutura, Platform e mensageria).
 
 **Decisões de negócio confirmadas:**
-- O seed de feriados terá só os feriados nacionais de lei federal. Carnaval, Corpus Christi, feriados forenses, estaduais, municipais e o recesso ficam para a Etapa 7.
-- Os números CNJ de teste são gerados com dígito verificador correto, sem processos reais de terceiros.
+- O seed de feriados tem só os feriados nacionais de lei federal. Forenses, estaduais, municipais, Carnaval, Corpus Christi e recesso ficam para a Etapa 7.
+- Os números CNJ de teste são gerados com dígito verificador correto, sem processos reais.
 
-| # | Subtarefa | Status | Testes |
-| --- | --- | --- | --- |
-| 1.1 | SharedKernel: `Entity`, `AggregateRoot`, `ValueObject`, `Result`/`Error`, `ITenantOwned`, `ICaseScoped`, `ISoftDeletable`, `IAuditable`, `[NotAudited]`, `[Sensitive]` | ✅ | `ResultTests`, `EntityTests` |
-| 1.2 | Value objects: `Cpf`, `Cnpj` (inclui alfanumérico), `CnjNumber`, `OabNumber`, `Money`, `Email`, `Phone`, `Cep` | ✅ | `CnjNumberTests` (22 válidos, 21 inválidos, conferência independente com `BigInteger`), `DocumentTests`, `ContactTests`, `MoneyTests` |
-| 1.3 | Regras do CLAUDE.md na compilação e no IL (ADR 0006) | ✅ | `BannedApiTests.*` |
-| 1.4 | Pipeline: `ICommand`/`IQuery`, decorators Logging → Validação → Transação, `IUnitOfWork` por módulo, `IClock` (`TimeProvider`), `IIdGenerator` (UUID v7), Scrutor (ADR 0007) | ✅ | `PipelineTests`, `ClockTests`, `HandlerConventionTests` |
-| 1.5 | Web.Common: ProblemDetails, `X-Correlation-Id`, `RequirePermission` e autenticação provisórios (ADR 0008), claims → `ICurrentUser`/`ITenantContext`, cursor, `IModule` | ✅ | `ProblemDetailsTests`, `SecurityAndCorrelationTests`, `CursorPaginationTests` |
-| 1.6–1.12 | EF Core base, Platform, outbox, adaptadores, endpoints, contrato da API | ⏳ | — |
+### Entregue
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 1.1 | SharedKernel: `Entity`, `AggregateRoot`, `ValueObject`, `Result`/`Error`, `ITenantOwned`, `ICaseScoped`, `ISoftDeletable`, `IAuditable`, `[NotAudited]`, `[Sensitive]` | `ResultTests`, `EntityTests` |
+| 1.2 | Value objects: `Cpf`, `Cnpj` (inclui alfanumérico), `CnjNumber`, `OabNumber`, `Money`, `Email`, `Phone`, `Cep` | `CnjNumberTests`, `DocumentTests`, `ContactTests`, `MoneyTests` |
+| 1.3 | Regras do CLAUDE.md no build e no IL (ADR 0006) | `BannedApiTests.*` |
+| 1.4 | Pipeline: `ICommand`/`IQuery`, decorators Logging → Validação → Transação, `IUnitOfWork` por módulo, `IClock`, `IIdGenerator`, Scrutor (ADR 0007) | `PipelineTests`, `ClockTests`, `HandlerConventionTests` |
+| 1.5 | Web.Common: ProblemDetails, `X-Correlation-Id`, `RequirePermission` e autenticação provisórios (ADR 0008), cursor, `IModule` | `ProblemDetailsTests`, `SecurityAndCorrelationTests`, `CursorPaginationTests` |
+| 1.6 | EF Core base: `ModuleDbContextBase` (filtros nomeados de tenant e soft delete, `xmin`), interceptors de eventos de domínio, tenant, colunas de controle e auditoria | `PersistenceTests`, `AuditTrailTests` |
+| 1.7 | Módulo Platform: `Job`, `IdempotencyKey`, `Holiday` (regras), `Court` (107); migrations; trilha encadeada e append-only (ADR 0010); `MigrationService` (ADR 0011) | `HolidayCalendarTests`, `JobAndCourtTests`, `MigrationTests`, `AuditLogTests` |
+| 1.8 | Outbox/inbox Wolverine (PostgreSQL + RabbitMQ), consumo idempotente por `EventId` (ADR 0009) | `OutboxTests` |
+| 1.9 | Adaptadores: S3, SMTP, ClamAV (cliente próprio), Hangfire com tenant do agendador | `AdaptersTests` |
+| 1.10 | `GET /api/v1/jobs/{id}`, `Idempotency-Key` com armazenamento e limpeza diária | `JobsEndpointTests`, `IdempotencyFilterTests`, `IdempotencyStoreTests` |
+| 1.11 | Contrato versionado (`docs/openapi/v1.json`), `oasdiff` no CI, cliente TypeScript gerado, cobertura ≥ 80% (ADR 0012) | `OpenApiContractTests`, `scripts/coverage_gate.py` |
+
+**Tabelas:** `audit.audit_logs`, `platform.jobs`, `platform.idempotency_keys`, `platform.holidays`, `platform.courts`, `platform.processed_integration_events`, além dos schemas `wolverine` e `hangfire`, mantidos pelas próprias bibliotecas.
+**Endpoint:** `GET /api/v1/jobs/{id}` (permissão `platform.jobs.read`).
+**Telas:** nenhuma; existe só o cliente gerado em `src/app/api`.
+
+### Critérios de aceite e evidências
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Testes unitários dos value objects com casos válidos e inválidos (≥ 20 CNJ válidos e ≥ 20 inválidos) | ✅ | `CnjNumberTests.Valid_numbers_are_accepted` (22 números, segmentos J = 1 a 9), `Valid_numbers_pass_independent_mod97_check` (`BigInteger`), `Invalid_numbers_are_rejected` (20) e `Null_is_rejected`; `DocumentTests`, `ContactTests` e `MoneyTests` para os demais value objects |
+| Evento de integração gravado no outbox é publicado e consumido uma única vez, mesmo com reentrega | ✅ | `OutboxTests.Event_saved_in_outbox_is_published_and_consumed_exactly_once`, `Redelivered_event_is_not_processed_twice`, `Rolled_back_transaction_publishes_nothing` e `Consumer_runs_with_the_tenant_of_the_event` (Wolverine, PostgreSQL e RabbitMQ reais) |
+| `SaveChanges` gera linha em `audit.audit_logs` com antes e depois | ✅ | `AuditTrailTests.Save_changes_writes_audit_rows_with_before_and_after` e `Sensitive_and_not_audited_fields_never_enter_changes`; com a migration real, `AuditLogTests.Save_changes_writes_chained_audit_row_with_before_and_after`, além de cadeia sob concorrência, append-only e adulteração detectada |
+
+**Última verificação local:** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 333 testes .NET (8 projetos), 5 Vitest e 4 Playwright passando, cobertura entre 90,3% e 98,3% nas camadas do portão, `npm run lint`, `npm test`, `npm run build` e cliente da API determinístico.
+
+### ADRs
+
+| ADR | Status |
+| --- | --- |
+| [0006 — Regras do CLAUDE.md no compilador e no IL](adr/0006-regras-no-compilador.md) | Aceita |
+| [0007 — Pipeline de casos de uso próprio](adr/0007-pipeline-de-casos-de-uso.md) | Aceita |
+| [0008 — Autenticação, permissão e tenant provisórios](adr/0008-autenticacao-e-tenant-provisorios.md) | Aceita |
+| [0009 — Mensageria, jobs e adaptadores](adr/0009-mensageria-jobs-e-adaptadores.md) | Aceita |
+| [0010 — Trilha de auditoria](adr/0010-trilha-de-auditoria.md) | Aceita |
+| [0011 — Dados de referência e MigrationService](adr/0011-dados-de-referencia-e-migrations.md) | Aceita |
+| [0012 — Contrato da API e cobertura](adr/0012-contrato-da-api-e-cobertura.md) | Aceita |
+
+### Pendências
+
+1. **Etapa 2:** substituir o esquema de autenticação provisório pelo OpenIddict.
+2. **Etapa 3:**
+   - validar `org_id` contra `OrganizationMember` e aceitar o cabeçalho `X-Organization-Id`;
+   - RLS e papéis do banco, incluindo o `REVOKE UPDATE, DELETE` em `audit.audit_logs`;
+   - permissão `platform.jobs.read` no `PermissionCatalog`;
+   - decorator de autorização de recurso;
+   - painel do Hangfire com autorização;
+   - `SecurityTests` cobrindo `GET /api/v1/jobs/{id}`.
+3. **Etapa 7:** feriados forenses, estaduais e municipais, recesso e feriados do escritório.
+4. **Desempenho:** pré-gerar o código do Wolverine (`TypeLoadMode.Static`) para a inicialização em produção.
+5. **Etapa 9:** `StreamMaxLength` do ClamAV alinhado ao limite de upload.
+6. **Testes:** a inbox do Wolverine (descarte por envelope) não tem teste próprio. O efeito único é garantido e testado pela camada de `processed_integration_events`.
+7. Continuam da Etapa 0: Worker sem endpoint de saúde; política do npm `allow-scripts`; licença do Redis 8.
 
 ---
 

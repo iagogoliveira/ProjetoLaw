@@ -41,6 +41,16 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | MIT | `FakeTimeProvider` (o "FakeClock" da seção 13.3) |
 | Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | MIT | `FakeLogCollector` nos testes |
 | Microsoft.AspNetCore.TestHost | 10.0.13 | MIT | Testes do pipeline HTTP do Web.Common |
+| Microsoft.EntityFrameworkCore(.Relational/.Design) | 10.0.13 | MIT | Persistência (Etapa 1) |
+| Npgsql / Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | PostgreSQL | Provedor PostgreSQL |
+| EFCore.NamingConventions | 10.0.1 | Apache-2.0 | snake_case (seção 6.1) |
+| WolverineFx (+ EntityFrameworkCore, Postgresql, RabbitMQ, RuntimeCompilation) | 6.51.0 | MIT | Outbox/inbox e transporte (ADR 0009); transitivas JasperFx, Weasel, Newtonsoft.Json: MIT |
+| Hangfire.Core / Hangfire.NetCore | 1.8.25 | LGPL-3.0 | Jobs (seção 2.1) |
+| Hangfire.PostgreSql | 1.21.1 | LGPL-3.0 | Armazenamento dos jobs; transitivas Dapper e Dapper.AOT: Apache-2.0 |
+| MailKit (MimeKit) | 4.18.1 | MIT | SMTP |
+| System.Security.Cryptography.Pkcs (pin transitivo) | 10.0.13 | MIT | Corrige GHSA-846f-f764-76mx (alta) e GHSA-2fmv-rv2c-59x7, transitivas do MimeKit |
+| coverlet.MTP | 10.1.0 | MIT | Cobertura (ADR 0012); o coletor da Microsoft tem licença proprietária |
+| dotnet-ef (ferramenta local) | 10.0.13 | MIT | Geração de migrations |
 
 ### Frontend (npm)
 
@@ -53,6 +63,11 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | vitest / jsdom | 5.0.x / 30.x | MIT |
 | @playwright/test | 1.64.1 | Apache-2.0 |
 | @axe-core/playwright | 4.14.0 | MPL-2.0 (só em dev, sem redistribuição) |
+| @hey-api/openapi-ts | 0.99.0 | MIT (dev; gera `src/app/api`, ADR 0012) |
+
+### Ferramentas de CI
+
+`oasdiff` 1.33.0 (Apache-2.0), baixado da release oficial no job `openapi`.
 
 ### Imagens de container (ambiente local e testes)
 
