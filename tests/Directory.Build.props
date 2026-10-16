@@ -11,6 +11,8 @@
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Shouldly" />
+    <!-- Cobertura (MIT) para o portão de 80% em Domain/Application (scripts/coverage_gate.py). -->
+    <PackageReference Include="coverlet.MTP" />
   </ItemGroup>
 
   <ItemGroup>
