@@ -4,7 +4,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 | Etapa | Status | Branch |
 | --- | --- | --- |
-| 0 — Bootstrap do repositório | **Concluída localmente**; falta o CI no GitHub (ver pendências) | `etapa-0-bootstrap` |
+| 0 — Bootstrap do repositório | **Concluída**; aguardando revisão e merge do PR #3 | `etapa-0-bootstrap` |
 | 1 — Building blocks | Não iniciada | — |
 
 ---
@@ -35,7 +35,7 @@ Não há entidades, tabelas, migrations nem endpoints de negócio nesta etapa.
 | `dotnet run --project src/Aspire/LexFlow.AppHost` sobe API, Worker, Web e todos os containers, todos saudáveis no dashboard | ✅ | `AppHostTests.Resource_becomes_healthy` (postgres, lexflow, redis, rabbit, storage, gotenberg, mailpit, api, web) e `AppHostTests.Resource_is_running` (clamav, worker, que não têm endpoint HTTP de saúde). Verificação manual: `dotnet run --launch-profile http` subiu tudo e o dashboard ficou em `http://localhost:15211` |
 | `GET /health/ready` retorna 200 com PostgreSQL, Redis, RabbitMQ e MinIO verificados | ✅ (MinIO → RustFS, ADR 0004) | `HealthEndpointsTests.Ready_returns_200_when_all_dependencies_are_up`; `HealthEndpointsTests.Ready_returns_503_when_a_dependency_is_down` (4 casos, um por dependência) prova que cada uma é verificada; `AppHostTests.Api_ready_endpoint_returns_200` |
 | Frontend abre com layout vazio em pt-BR | ✅ | e2e `shell.spec.ts › opens the empty layout in pt-BR`, `skip link moves focus to the main content`, `has no WCAG 2.1 AA accessibility violations` (claro e escuro); Vitest `Shell`, `DashboardPage`, `translations`; `AppHostTests.Web_serves_the_angular_app_in_pt_BR` |
-| CI verde no primeiro PR; um teste de arquitetura propositalmente quebrado faz o CI falhar | ⏳ **Pendente** (precisa de push) | Local: todos os passos do `ci.yml` que rodam fora do GitHub passaram. A violação plantada (`LexFlow.Demo.Domain` usando `LexFlow.Demo.Infrastructure`) fez `ModuleDependencyTests.Module_layers_respect_dependency_rules` falhar com exit code 2 e foi revertida. As regras também são provadas por `LayerRulesSelfTests.*`. Falta rodar no GitHub Actions |
+| CI verde no primeiro PR; um teste de arquitetura propositalmente quebrado faz o CI falhar | ✅ | PR #3: CI verde no commit `e1cc7c7` (run 38948667829; Backend, Frontend, AppHost + E2E, Gitleaks e Trivy passaram, CodeQL pulado, ver pendência 10). Commit temporário `8a2c0f5` (`LexFlow.Demo.Domain` usando `LexFlow.Demo.Infrastructure`): run 38949537138 falhou em `ModuleDependencyTests.Module_layers_respect_dependency_rules` com "Demo.Domain viola a seção 4.2: LexFlow.Demo.Domain.DemoEntity". Revertido em seguida. As regras também são provadas por `LayerRulesSelfTests.*` |
 
 **Última verificação local completa:** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, `dotnet test --solution LexFlow.sln` (33/33), `npm run lint`, `npm test` (5/5), `npx playwright test` (4/4, contra o `ng serve` e contra o AppHost), `dotnet list package --vulnerable` e `npm audit` sem achados.
 
@@ -51,7 +51,7 @@ Não há entidades, tabelas, migrations nem endpoints de negócio nesta etapa.
 
 ### Pendências
 
-1. **Push e PR** do branch `etapa-0-bootstrap`: aguardando autorização. Depois do PR, confirmar o CI verde e abrir um commit temporário com uma violação de arquitetura para mostrar o CI vermelho. Isso fecha o 4º critério.
+1. **Revisão e merge do PR #3** (https://github.com/iagogoliveira/ProjetoLaw/pull/3).
 2. **Revisão humana das ADRs 0003, 0004 e 0005.** Se a 0004 for aceita, atualizar as seções 2.3, 8.1 e 8.3 da especificação (MinIO → armazenamento S3/RustFS).
 3. **Checagem de breaking changes do OpenAPI (`oasdiff`)** e **cliente TypeScript gerado** (`@hey-api/openapi-ts`): entram quando houver o primeiro endpoint de negócio, porque ainda não há baseline.
 4. **Trivy em imagens:** hoje varre só o filesystem. A varredura de imagens entra com os Dockerfiles do `deploy-staging.yml`.
@@ -60,3 +60,6 @@ Não há entidades, tabelas, migrations nem endpoints de negócio nesta etapa.
 7. **`/health/*` sem autenticação em todos os ambientes:** responde só o status agregado, sem detalhes. Revisar junto com as proteções da Etapa 3 e da seção 7.3.
 8. **npm 11 `allow-scripts`:** aparecem avisos sobre scripts de instalação não aprovados (`esbuild`, `lmdb`, `@parcel/watcher`, `msgpackr-extract`). O build funciona sem eles; decidir a política de aprovação (`npm approve-scripts`).
 9. **Licença do Redis 8** (RSALv2/SSPLv1/AGPLv3): aceitável para uso interno. Avaliar Valkey antes de qualquer distribuição (ADR 0002).
+10. **CodeQL desligado:** code scanning em repositório privado exige GitHub Code Security (pago). O job só roda com o repositório público. Decisão pendente: manter assim, contratar o Code Security ou tornar o repositório público.
+11. **CI no GitHub:** o evento `pull_request` não disparou para o commit `e1cc7c7`, e o CI rodou por `workflow_dispatch`. Nos commits seguintes o evento voltou a disparar normalmente.
+12. **Ajustes de CI descobertos no primeiro PR:** o runner Linux não confia no certificado de dev, então o readiness usa o endpoint `http`; o `dotnet run` do AppHost com `AspireUseCliBundle` só funciona em Debug; CodeQL precisa de `actions: read` e Gitleaks de `pull-requests: read`.
