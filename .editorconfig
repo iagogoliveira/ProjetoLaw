@@ -62,3 +62,5 @@ dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.MA0006.severity = none
 # asserts do Shouldly não têm overload com comparer
 dotnet_diagnostic.MA0002.severity = none
+# coleções concretas são aceitáveis em fakes e asserções de teste
+dotnet_diagnostic.MA0016.severity = none
