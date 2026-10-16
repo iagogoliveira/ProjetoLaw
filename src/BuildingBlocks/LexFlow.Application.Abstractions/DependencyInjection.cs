@@ -10,7 +10,7 @@ namespace LexFlow.Application.Abstractions;
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registra relógio, gerador de IDs, todos os handlers e validadores dos assemblies informados (Scrutor) e
+    /// Registra relógio, gerador de IDs, todos os handlers (comandos, consultas e eventos de domínio) e validadores dos assemblies informados (Scrutor) e
     /// o pipeline de decorators. Deve ser chamado uma única vez, com os assemblies Application de todos os módulos.
     /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services, params Assembly[] assemblies)
@@ -27,6 +27,9 @@ public static class DependencyInjection
             .AsImplementedInterfaces()
             .WithScopedLifetime()
             .AddClasses(c => c.AssignableTo(typeof(IValidator<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
+            .AddClasses(c => c.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 

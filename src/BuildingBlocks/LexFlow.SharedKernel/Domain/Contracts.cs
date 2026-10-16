@@ -45,8 +45,11 @@ public interface IAuditable
     Guid? UpdatedBy { get; }
 }
 
-/// <summary>A propriedade nunca entra no campo <c>changes</c> da auditoria (ex.: textos longos de documentos).</summary>
-[AttributeUsage(AttributeTargets.Property)]
+/// <summary>
+/// Em propriedade: nunca entra no campo <c>changes</c> da auditoria (ex.: textos longos de documentos).
+/// Em classe: a entidade inteira fica fora da trilha (ex.: registros técnicos como jobs e chaves de idempotência).
+/// </summary>
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
 public sealed class NotAuditedAttribute : Attribute;
 
 /// <summary>Dado sensível (CPF, dados bancários, senhas): fora da auditoria e mascarado nos logs.</summary>

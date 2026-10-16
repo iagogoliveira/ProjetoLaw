@@ -1,21 +1,22 @@
 using System.Diagnostics;
+using LexFlow.Application.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace LexFlow.Web.Common.Correlation;
 
-/// <summary>Id de correlação da requisição atual, propagado para logs, ProblemDetails e eventos de integração.</summary>
-public interface ICorrelationContext
+/// <summary>Correlação, IP e user-agent da requisição HTTP atual (auditoria e eventos de integração).</summary>
+internal sealed class HttpRequestContext(IHttpContextAccessor accessor) : IRequestContext
 {
-    string CorrelationId { get; }
-}
-
-internal sealed class HttpCorrelationContext(IHttpContextAccessor accessor) : ICorrelationContext
-{
-    public string CorrelationId =>
+    public string? CorrelationId =>
         accessor.HttpContext?.Items[CorrelationIdMiddleware.ItemKey] as string
-        ?? Activity.Current?.TraceId.ToString()
-        ?? string.Empty;
+        ?? Activity.Current?.TraceId.ToString();
+
+    public string? IpAddress => accessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+    public string? UserAgent => accessor.HttpContext?.Request.Headers.UserAgent.ToString() is { Length: > 0 } ua
+        ? ua[..Math.Min(ua.Length, 512)]
+        : null;
 }
 
 /// <summary>

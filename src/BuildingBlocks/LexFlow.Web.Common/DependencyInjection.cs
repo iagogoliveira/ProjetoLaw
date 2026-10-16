@@ -20,7 +20,7 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddLexFlowProblemDetails();
-        services.TryAddScoped<ICorrelationContext, HttpCorrelationContext>();
+        services.TryAddScoped<IRequestContext, HttpRequestContext>();
         services.TryAddScoped<ICurrentUser, HttpContextCurrentUser>();
         services.TryAddScoped<ITenantContext, HttpContextTenantContext>();
 

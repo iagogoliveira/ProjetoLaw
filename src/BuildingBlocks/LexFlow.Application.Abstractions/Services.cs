@@ -62,3 +62,16 @@ public interface ITenantContext
     /// <summary>Organização ativa; lança se não houver (erro de programação: endpoint de escritório sem tenant).</summary>
     Guid RequiredOrganizationId => OrganizationId ?? throw new InvalidOperationException("Nenhuma organização ativa no contexto.");
 }
+
+/// <summary>
+/// Dados de origem da operação atual (requisição HTTP ou mensagem), usados pela auditoria e pelos eventos de integração.
+/// </summary>
+public interface IRequestContext
+{
+    /// <summary>Id de correlação propagado entre API, Worker e mensagens.</summary>
+    string? CorrelationId { get; }
+
+    string? IpAddress { get; }
+
+    string? UserAgent { get; }
+}
