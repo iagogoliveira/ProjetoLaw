@@ -45,7 +45,8 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithReference(blobs).WaitFor(blobs)
-    .WithHttpHealthCheck("/health/ready");
+    // Endpoint http (existe nos dois perfis): evita depender de certificado de dev confiável.
+    .WithHttpHealthCheck("/health/ready", endpointName: "http");
 
 builder.AddProject<Projects.LexFlow_Worker>("worker")
     .WithReference(sql).WaitFor(sql)
