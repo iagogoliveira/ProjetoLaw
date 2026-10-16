@@ -1,0 +1,14 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>b478016a-3a19-4de3-abfe-d95ede9239a6</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Host\LexFlow.Api\LexFlow.Api.csproj" />
+    <ProjectReference Include="..\..\Host\LexFlow.Worker\LexFlow.Worker.csproj" />
+  </ItemGroup>
+
+</Project>
