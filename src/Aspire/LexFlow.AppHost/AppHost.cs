@@ -75,7 +75,9 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithEnvironment("ClamAv__Port", clamd.Property(EndpointProperty.Port))
     .WithHttpHealthCheck("/health/ready", endpointName: "http");
 
+// O Worker monta os links dos e-mails de conta com o endereço público da API (servidor de identidade).
 builder.AddProject<Projects.LexFlow_Worker>("worker")
+    .WithEnvironment("Identity__PublicUrl", api.GetEndpoint("http"))
     .WithReference(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)

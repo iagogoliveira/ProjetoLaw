@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetJobData, GetJobErrors, GetJobResponses } from './types.gen';
+import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -22,3 +22,51 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Estado de uma operação longa
  */
 export const getJob = <ThrowOnError extends boolean = false>(options: Options<GetJobData, ThrowOnError>): RequestResult<GetJobResponses, GetJobErrors, ThrowOnError> => (options.client ?? client).get<GetJobResponses, GetJobErrors, ThrowOnError>({ url: '/api/v1/jobs/{id}', ...options });
+
+/**
+ * Cadastra uma conta e envia o e-mail de confirmação
+ */
+export const register = <ThrowOnError extends boolean = false>(options: Options<RegisterData, ThrowOnError>): RequestResult<RegisterResponses, RegisterErrors, ThrowOnError> => (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+    url: '/api/v1/auth/register',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Confirma o e-mail com o token recebido
+ */
+export const confirmEmail = <ThrowOnError extends boolean = false>(options: Options<ConfirmEmailData, ThrowOnError>): RequestResult<ConfirmEmailResponses, ConfirmEmailErrors, ThrowOnError> => (options.client ?? client).post<ConfirmEmailResponses, ConfirmEmailErrors, ThrowOnError>({
+    url: '/api/v1/auth/confirm-email',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Envia o link de redefinição de senha, se o e-mail tiver conta
+ */
+export const forgotPassword = <ThrowOnError extends boolean = false>(options: Options<ForgotPasswordData, ThrowOnError>): RequestResult<ForgotPasswordResponses, ForgotPasswordErrors, ThrowOnError> => (options.client ?? client).post<ForgotPasswordResponses, ForgotPasswordErrors, ThrowOnError>({
+    url: '/api/v1/auth/forgot-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Redefine a senha com o token recebido
+ */
+export const resetPassword = <ThrowOnError extends boolean = false>(options: Options<ResetPasswordData, ThrowOnError>): RequestResult<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError> => (options.client ?? client).post<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError>({
+    url: '/api/v1/auth/reset-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});

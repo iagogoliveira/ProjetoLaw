@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using LexFlow.Application.Abstractions;
+using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Infrastructure.Common.Persistence.Auditing;
 using LexFlow.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,9 @@ internal sealed class AuditSaveChangesInterceptor(
             var entries = context.ChangeTracker.Entries()
                 .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
                 .Where(e => e.Entity is not AuditLogEntry && !e.Metadata.IsOwned())
-                .Where(e => e.Metadata.ClrType.GetCustomAttribute<NotAuditedAttribute>() is null)
+                .Where(e => e.Metadata.ClrType.GetCustomAttribute<NotAuditedAttribute>() is null
+                    && e.Metadata.FindAnnotation(AuditAnnotations.NotAudited) is null
+                    && !string.Equals(e.Metadata.GetSchema(), ModuleModel.WolverineSchema, StringComparison.Ordinal))
                 .Select(ToAuditEntry)
                 .OfType<AuditLogEntry>()
                 .ToList();
@@ -115,7 +118,10 @@ internal sealed class AuditSaveChangesInterceptor(
     /// <summary>Exclui token de concorrência, colunas de controle e propriedades marcadas como sensíveis ou não auditadas.</summary>
     private static bool IsAuditable(PropertyEntry property)
     {
-        if (property.Metadata.IsShadowProperty() || property.Metadata.IsConcurrencyToken || BookkeepingProperties.Contains(property.Metadata.Name))
+        if (property.Metadata.IsShadowProperty()
+            || property.Metadata.IsConcurrencyToken
+            || BookkeepingProperties.Contains(property.Metadata.Name)
+            || property.Metadata.FindAnnotation(AuditAnnotations.Sensitive) is not null)
         {
             return false;
         }

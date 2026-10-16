@@ -1,6 +1,11 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using LexFlow.Application.Abstractions;
+using LexFlow.Application.Abstractions.Integrations;
+using LexFlow.Identity.Application;
+using LexFlow.Identity.Infrastructure;
+using LexFlow.Identity.Infrastructure.Emails;
+using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Platform.Infrastructure;
 using LexFlow.Platform.Infrastructure.Persistence;
@@ -48,6 +53,10 @@ public sealed class DependenciesFixture : IAsyncLifetime
         ["Storage:ServiceUrl"] = ObjectStorageUrl.ToString(),
         ["Storage:AccessKey"] = StorageAccessKey,
         ["Storage:SecretKey"] = StorageSecretKey,
+        ["Identity:PublicUrl"] = "https://identity.lexflow.test",
+
+        // Os testes não dependem da internet; a verificação de vazamentos tem testes próprios com API falsa.
+        ["Identity:CheckBreachedPasswords"] = "false",
     };
 
     public async ValueTask InitializeAsync()
@@ -58,6 +67,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         await using var provider = PlatformServices();
         await using var scope = provider.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
     }
 
     /// <summary>Serviços do módulo Platform fora da API (para migrar e preparar dados de teste).</summary>
@@ -71,6 +81,26 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddApplication();
         services.AddSystemContexts();
         services.AddPlatformInfrastructure(configuration);
+        services.AddIdentityPersistence(configuration);
+        return services.BuildServiceProvider();
+    }
+
+    /// <summary>
+    /// "Worker" de teste: o mesmo registro do Identity que o Worker usa, em outro container de DI, com e-mail falso.
+    /// Prova que um token gerado nele é aceito pela API (anel de chaves compartilhado pelo banco).
+    /// </summary>
+    public ServiceProvider WorkerServices(IEmailSender email)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(Settings.ToDictionary(p => p.Key, p => (string?)p.Value, StringComparer.Ordinal))
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddApplication(IdentityApplication.Assembly);
+        services.AddSystemContexts();
+        services.AddIdentityInfrastructure(configuration);
+        services.AddSingleton(email);
+        services.AddScoped<AccountEmailConsumer>();
         return services.BuildServiceProvider();
     }
 

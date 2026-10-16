@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Identity.Domain\LexFlow.Identity.Domain.csproj" />
+    <ProjectReference Include="..\LexFlow.Identity.Contracts\LexFlow.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.Identity.Infrastructure" />
+    <InternalsVisibleTo Include="LexFlow.Identity.UnitTests" />
+    <InternalsVisibleTo Include="LexFlow.Identity.IntegrationTests" />
+  </ItemGroup>
+
+</Project>

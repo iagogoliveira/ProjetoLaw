@@ -4,6 +4,15 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type ConfirmEmailRequest = {
+    userId: string;
+    token: string;
+};
+
+export type ForgotPasswordRequest = {
+    email: string;
+};
+
 /**
  * Estado de uma operação longa para `GET /api/v1/jobs/{id}` (seção 4.4).
  */
@@ -24,6 +33,18 @@ export type ProblemDetails = {
     status?: null | number | string;
     detail?: null | string;
     instance?: null | string;
+};
+
+export type RegisterRequest = {
+    email: string;
+    fullName: string;
+    password: string;
+};
+
+export type ResetPasswordRequest = {
+    userId: string;
+    token: string;
+    newPassword: string;
 };
 
 export type GetJobData = {
@@ -56,3 +77,99 @@ export type GetJobResponses = {
 };
 
 export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type RegisterData = {
+    body: RegisterRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/register';
+};
+
+export type RegisterErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+};
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors];
+
+export type RegisterResponses = {
+    /**
+     * Accepted
+     */
+    202: unknown;
+};
+
+export type ConfirmEmailData = {
+    body: ConfirmEmailRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/confirm-email';
+};
+
+export type ConfirmEmailErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+};
+
+export type ConfirmEmailError = ConfirmEmailErrors[keyof ConfirmEmailErrors];
+
+export type ConfirmEmailResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ConfirmEmailResponse = ConfirmEmailResponses[keyof ConfirmEmailResponses];
+
+export type ForgotPasswordData = {
+    body: ForgotPasswordRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/forgot-password';
+};
+
+export type ForgotPasswordErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+};
+
+export type ForgotPasswordError = ForgotPasswordErrors[keyof ForgotPasswordErrors];
+
+export type ForgotPasswordResponses = {
+    /**
+     * Accepted
+     */
+    202: unknown;
+};
+
+export type ResetPasswordData = {
+    body: ResetPasswordRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/reset-password';
+};
+
+export type ResetPasswordErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+};
+
+export type ResetPasswordError = ResetPasswordErrors[keyof ResetPasswordErrors];
+
+export type ResetPasswordResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];

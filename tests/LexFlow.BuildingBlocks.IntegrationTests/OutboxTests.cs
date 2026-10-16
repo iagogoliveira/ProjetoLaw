@@ -122,4 +122,28 @@ public sealed class OutboxTests(MessagingFixture fixture) : IClassFixture<Messag
             matterId,
             _organization)).ShouldBe(2); // entrada do evento de domínio + entrada do consumidor, ambas na organização do evento
     }
+
+    [Fact]
+    public async Task Platform_event_is_published_without_tenant_and_consumed_without_tenant()
+    {
+        var userId = Guid.CreateVersion7();
+        await using (var scope = fixture.Host.Services.CreateAsyncScope())
+        {
+            scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>().Publish(new AccountNoticeIntegrationEvent(userId));
+            await scope.ServiceProvider.GetRequiredService<SampleDbContext>().SaveChangesAsync(Ct);
+        }
+
+        await WaitUntilAsync(() => Task.FromResult(AccountNoticeConsumer.Consumed.ContainsKey(userId)));
+        await Task.Delay(QuietPeriod, Ct);
+        AccountNoticeConsumer.Consumed[userId].ShouldBe([null]);
+    }
+
+    [Fact]
+    public async Task Platform_event_with_organization_is_rejected()
+    {
+        await using var scope = fixture.Host.Services.CreateAsyncScope();
+        var publisher = scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>();
+
+        Should.Throw<InvalidOperationException>(() => publisher.Publish(new AccountNoticeIntegrationEvent(Guid.CreateVersion7()) { OrganizationId = _organization }));
+    }
 }

@@ -22,6 +22,31 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - O refresh token é renovado a cada uso, vale 14 dias sem uso e no máximo 30 dias; depois disso é preciso entrar de novo.
 - A verificação de senhas vazadas (Have I Been Pwned, k-anonymity) fica ligada por padrão, com chave para desligar.
 
+### PR A — contas, senhas e e-mails (concluído no branch, aguardando PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 2.1 | Convenções de módulo em `ModuleModel`/`IModuleDbContext`, usadas também por contexto que não herda de `ModuleDbContextBase`; marcações de auditoria por configuração (`IsSensitive`, `IsNotAudited`) | `PersistenceTests`, `AuditTrailTests` (existentes); `AccountEmailConsumerTests.Audit_trail_records_the_user_without_secrets_and_never_the_keys` |
+| 2.2 | `PlatformIntegrationEvent`: evento sem organização, consumido sem tenant | `OutboxTests.Platform_event_is_published_without_tenant_and_consumed_without_tenant`, `Platform_event_with_organization_is_rejected` |
+| 2.3 | Módulo Identity: `ApplicationUser`, `Session` (14 dias sem uso, máximo 30), Identity + EF Core no schema `identity`, migration `Initial`, passkeys fora do modelo (Etapa 16) | `SessionAndUserTests`, `MigrationTests` (Identity) |
+| 2.4 | Política de senha: mínimo 12, máximo 128, senhas vazadas (Pwned Passwords, falha aberta, desligável); bloqueio 5 tentativas / 15 min configurado (prova no PR B, com o login) | `PwnedPasswordValidatorTests`, `AccountRulesTests`, `AuthEndpointsTests.Short_password_is_rejected_with_its_code_even_for_an_existing_email` |
+| 2.5 | `POST /api/v1/auth/register`, `confirm-email`, `forgot-password`, `reset-password`, públicos com motivo (`AllowPublicAccess`) e sem revelar se o e-mail tem conta | `AuthEndpointsTests` (11 casos), `EndpointSecurityConventionTests`, `SecurityAndCorrelationTests.Public_endpoint_records_its_reason_and_skips_authentication` |
+| 2.6 | E-mails de conta em pt-BR (Scriban), enviados pelo Worker a partir do outbox; token gerado no Worker; anel de chaves do Data Protection no banco | `AccountEmailComposerTests`, `AccountEmailConsumerTests`, `AuthEndpointsTests.Link_sent_by_the_worker_confirms_the_email`, `Forgot_password_resets_with_a_single_use_link` |
+| 2.7 | Contrato OpenAPI e cliente TypeScript atualizados (só adições) | `OpenApiContractTests` |
+
+**Tabelas:** `identity.users`, `user_claims`, `user_logins`, `user_tokens`, `sessions`, `data_protection_keys`, `processed_integration_events`.
+**Telas:** nenhuma (páginas Razor no PR B, SPA no PR C). Os links dos e-mails apontam para `/conta/confirmar-email`, `/conta/redefinir-senha` e `/conta/esqueci-a-senha` no servidor de identidade (`Identity:PublicUrl`), que o PR B cria.
+**ADR:** [0013 — Contas, senhas e e-mails de conta](adr/0013-contas-senhas-e-emails.md) (Aceita em 2026-10-16: cadastro que não revela contas e eventos da plataforma aprovados; seção 4.5 da spec atualizada).
+
+**Critérios de aceite da etapa:** nenhum fecha no PR A. O fluxo e2e e o refresh rotativo dependem do OpenIddict (PR B) e das telas (PR C). O bloqueio na 6ª tentativa está configurado, mas só é provado com o login.
+
+**Última verificação local (PR A):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 382 testes .NET em 10 projetos (Docker local, Testcontainers), 5 Vitest e 4 Playwright, `npm run lint`, sem pacotes vulneráveis. Cobertura: Identity.Application 98,2% e Identity.Domain 95,3%; as demais camadas seguem acima de 90%. A migration `Initial` do Identity não tem mudança de modelo pendente.
+
+**Pendências do PR A:**
+1. Anel de chaves do Data Protection sem criptografia em repouso: proteger com `IKeyProvider`/cofre antes de produção (ADR 0013).
+2. PR B: rate limit por IP nos endpoints públicos de conta junto com o de login; revogar sessões ao redefinir a senha; páginas Razor nos caminhos `/conta/*` dos links.
+3. Spec, seção 7.1: a tabela é `identity.users` (snake_case, seção 6.1), e não `identity.Users`.
+
 ---
 
 ## Etapa 1 — Building blocks (2026-10-16)

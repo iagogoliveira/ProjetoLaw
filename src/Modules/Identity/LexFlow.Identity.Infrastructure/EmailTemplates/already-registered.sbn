@@ -1,0 +1,5 @@
+        <p>Olá, {{ name | html.escape }}.</p>
+        <p>Alguém tentou criar uma conta no LexFlow com este e-mail, mas você já tem uma conta.</p>
+        <p>Se foi você e não lembra a senha, redefina-a aqui:</p>
+        <p><a href="{{ link | html.escape }}" style="display:inline-block;padding:12px 20px;background:#1d4ed8;color:#ffffff;text-decoration:none;border-radius:6px;">Redefinir senha</a></p>
+        <p>Se não foi você, ignore este e-mail. Nenhuma alteração foi feita na sua conta.</p>

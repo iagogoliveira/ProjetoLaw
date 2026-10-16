@@ -9,6 +9,9 @@ namespace LexFlow.Sample.Contracts
 {
     /// <summary>Evento de integração de exemplo (no projeto Contracts do módulo emissor).</summary>
     public sealed record MatterRegisteredIntegrationEvent(Guid MatterId, string Title) : IntegrationEvent;
+
+    /// <summary>Evento de plataforma de exemplo (sem organização), como os de contas de usuário.</summary>
+    public sealed record AccountNoticeIntegrationEvent(Guid UserId) : PlatformIntegrationEvent;
 }
 
 namespace LexFlow.Sample.Infrastructure
@@ -30,5 +33,19 @@ namespace LexFlow.Sample.Infrastructure
 
         protected override void OnDuplicateSkipped(MatterRegisteredIntegrationEvent integrationEvent) =>
             SkippedDuplicates.AddOrUpdate(integrationEvent.EventId, 1, (_, count) => count + 1);
+    }
+
+    /// <summary>Consumidor de evento de plataforma: anota o tenant visto durante o consumo (deve ser nenhum).</summary>
+    public sealed class AccountNoticeConsumer(SampleDbContext db, IClock clock, ITenantContext tenant)
+        : IntegrationEventConsumer<AccountNoticeIntegrationEvent, SampleDbContext>(db, clock)
+    {
+        /// <summary>Consumos por UserId, com o tenant ativo em cada um.</summary>
+        public static ConcurrentDictionary<Guid, List<Guid?>> Consumed { get; } = new();
+
+        protected override Task ConsumeAsync(AccountNoticeIntegrationEvent integrationEvent, CancellationToken cancellationToken)
+        {
+            Consumed.AddOrUpdate(integrationEvent.UserId, _ => [tenant.OrganizationId], (_, seen) => [.. seen, tenant.OrganizationId]);
+            return Task.CompletedTask;
+        }
     }
 }

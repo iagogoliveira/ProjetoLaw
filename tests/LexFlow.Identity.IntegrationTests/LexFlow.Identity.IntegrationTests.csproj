@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
+    <!-- O Platform cria a trilha audit.audit_logs, onde o Identity grava: as migrations dele vêm antes. -->
+    <ProjectReference Include="..\..\src\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
