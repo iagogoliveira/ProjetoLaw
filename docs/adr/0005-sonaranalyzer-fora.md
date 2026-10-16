@@ -1,6 +1,6 @@
 # ADR 0005 — SonarAnalyzer.CSharp fora até revisão da licença
 
-- **Status:** Proposta (revisão humana)
+- **Status:** Aceita (revisão humana em 2026-10-16)
 - **Data:** 2026-10-16
 - **Etapa:** 0
 

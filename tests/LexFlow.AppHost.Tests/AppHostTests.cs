@@ -11,9 +11,9 @@ namespace LexFlow.AppHost.Tests;
 public sealed class AppHostTests(AppHostFixture fixture)
 {
     public static TheoryData<string> HealthCheckedResources =>
-        ["postgres", "lexflow", "redis", "rabbit", "storage", "gotenberg", "mailpit", "api", "web"];
+        ["postgres", "lexflow", "redis", "rabbit", "storage", "gotenberg", "clamav", "mailpit", "api", "web"];
 
-    public static TheoryData<string> RunningResources => ["clamav", "worker"];
+    public static TheoryData<string> RunningResources => ["worker"];
 
     [Theory]
     [MemberData(nameof(HealthCheckedResources))]

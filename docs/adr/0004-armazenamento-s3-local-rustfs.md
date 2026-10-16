@@ -1,6 +1,6 @@
 # ADR 0004 — RustFS no lugar do MinIO como armazenamento S3 local
 
-- **Status:** Proposta (revisão humana)
+- **Status:** Aceita (revisão humana em 2026-10-16)
 - **Data:** 2026-10-16
 - **Etapa:** 0
 

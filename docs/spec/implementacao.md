@@ -104,7 +104,7 @@ Backend em **.NET 10 (LTS) + C#**, frontend em **Angular** e dados em **PostgreS
 | --- | --- | --- | --- |
 | Orquestração | .NET Aspire (AppHost) | Docker Compose | Serviço de containers ou Kubernetes |
 | Banco | PostgreSQL em container | PostgreSQL em container com volume dedicado + backup com pgBackRest/WAL para armazenamento externo | PostgreSQL gerenciado (RDS, Cloud SQL, Azure Database for PostgreSQL) |
-| Arquivos | MinIO | MinIO no próprio VPS ou bucket S3 externo (R2, B2) | S3, GCS ou Blob (via adaptador S3/gateway) |
+| Arquivos | RustFS (S3; ADR 0004) | RustFS no próprio VPS ou bucket S3 externo (R2, B2) | S3, GCS ou Blob (via adaptador S3/gateway) |
 | Filas | RabbitMQ em container | RabbitMQ em container | RabbitMQ gerenciado ou fila nativa (SQS, Pub/Sub, Service Bus) |
 | Cache | Redis/Valkey em container | Redis/Valkey em container | Redis/Valkey gerenciado |
 | Segredos | user-secrets | Variáveis de ambiente injetadas de um cofre (Infisical/Vault) | Secret manager do provedor |
@@ -147,7 +147,7 @@ lexflow/
   .github/workflows/             # ci.yml, deploy-staging.yml, deploy-prod.yml
   src/
     Aspire/
-      LexFlow.AppHost/           # orquestra PostgreSQL, Redis, RabbitMQ, MinIO, Gotenberg, ClamAV, Mailpit
+      LexFlow.AppHost/           # orquestra PostgreSQL, Redis, RabbitMQ, RustFS (S3), Gotenberg, ClamAV, Mailpit
       LexFlow.ServiceDefaults/   # OpenTelemetry, health checks, resiliência
     Host/
       LexFlow.Api/               # Program.cs, registra módulos, middlewares
@@ -414,19 +414,20 @@ var pg       = builder.AddPostgres("postgres")
                       .AddDatabase("lexflow");
 var redis    = builder.AddRedis("redis");
 var rabbit   = builder.AddRabbitMQ("rabbit").WithManagementPlugin();
-var minio    = builder.AddContainer("minio", "minio/minio")
-                      .WithArgs("server", "/data", "--console-address", ":9001")
-                      .WithHttpEndpoint(9000, 9000, "s3").WithHttpEndpoint(9001, 9001, "console");
+// MinIO deixou de publicar imagens; RustFS é compatível com a API S3 (ADR 0004).
+var storage  = builder.AddContainer("storage", "rustfs/rustfs")
+                      .WithHttpEndpoint(targetPort: 9000, name: "s3")
+                      .WithHttpEndpoint(targetPort: 9001, name: "console");
 var gotenberg= builder.AddContainer("gotenberg", "gotenberg/gotenberg").WithHttpEndpoint(3000, 3000);
 var clamav   = builder.AddContainer("clamav", "clamav/clamav").WithEndpoint(3310, 3310);
 var mail     = builder.AddContainer("mailpit", "axllent/mailpit").WithHttpEndpoint(8025, 8025);
 
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithReference(pg).WithReference(redis).WithReference(rabbit)
-    .WithEnvironment("Storage__ServiceUrl", minio.GetEndpoint("s3"));
+    .WithEnvironment("Storage__ServiceUrl", storage.GetEndpoint("s3"));
 builder.AddProject<Projects.LexFlow_Worker>("worker")
     .WithReference(pg).WithReference(redis).WithReference(rabbit)
-    .WithEnvironment("Storage__ServiceUrl", minio.GetEndpoint("s3"));
+    .WithEnvironment("Storage__ServiceUrl", storage.GetEndpoint("s3"));
 builder.AddNpmApp("web", "../../Web/lexflow-web").WithReference(api).WithHttpEndpoint(env: "PORT");
 ```
 
@@ -435,7 +436,7 @@ builder.AddNpmApp("web", "../../Web/lexflow-web").WithReference(api).WithHttpEnd
 
 ### 8.2 Pipeline (GitHub Actions)
 
-1. **`ci.yml`** (todo PR): restore → build → `dotnet format --verify-no-changes` → testes unitários e de arquitetura → testes de integração e segurança com Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, MinIO) → frontend `npm ci`, lint, Vitest, build → Playwright e2e contra o AppHost → CodeQL, Gitleaks, Trivy → geração do OpenAPI e checagem de *breaking changes* (`oasdiff`).
+1. **`ci.yml`** (todo PR): restore → build → `dotnet format --verify-no-changes` → testes unitários e de arquitetura → testes de integração e segurança com Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, RustFS) → frontend `npm ci`, lint, Vitest, build → Playwright e2e contra o AppHost → CodeQL, Gitleaks, Trivy → geração do OpenAPI e checagem de *breaking changes* (`oasdiff`).
 2. **`deploy-staging.yml`** (merge em `main`): build das imagens (API, Worker, Web via nginx) → push no registry de imagens escolhido (GitHub Container Registry por padrão) → aplicar migrations com o bundle do EF Core → atualizar os serviços no alvo de deploy → smoke tests → avaliações de IA (subset).
 3. **`deploy-prod.yml`** (tag `v*` + aprovação manual no environment `production`): mesmos passos, com estratégia de troca sem indisponibilidade (blue-green no VPS via proxy reverso; rolling update ou troca gradual de tráfego na nuvem gerenciada) e rollback automático se health check ou taxa de erros piorar.
 
@@ -449,7 +450,7 @@ A aplicação só exige o que qualquer provedor oferece: executar containers, um
 
 | Dependência | Interface no código | Implementação padrão | Alternativas |
 | --- | --- | --- | --- |
-| Arquivos | `IObjectStorage` | S3 API (MinIO/R2/B2/AWS) | GCS interoperável, Azure Blob (adaptador próprio) |
+| Arquivos | `IObjectStorage` | S3 API (RustFS/R2/B2/AWS) | GCS interoperável, Azure Blob (adaptador próprio) |
 | Filas e eventos | Wolverine (transporte configurável) | RabbitMQ | SQS, Google Pub/Sub, Azure Service Bus |
 | E-mail | `IEmailSender` | SMTP | API do provedor (SES, Resend, Brevo) |
 | Segredos | `IConfiguration` | Variáveis de ambiente | Infisical, Vault, secret manager da nuvem |
@@ -457,7 +458,7 @@ A aplicação só exige o que qualquer provedor oferece: executar containers, um
 | Telemetria | OpenTelemetry (OTLP) | Grafana LGTM | Qualquer backend OTLP |
 | Chaves de criptografia | `IKeyProvider` (Data Protection) | Chave em arquivo protegido no volume | KMS da nuvem |
 
-**Opção A — VPS (ex.: Hostinger, Hetzner, DigitalOcean).** Indicada para o início e para custos baixos. Use um **VPS** com acesso root (hospedagem compartilhada não executa .NET em containers): a partir de 4 vCPU e 8–16 GB de RAM para piloto. Um `docker-compose.prod.yml` sobe Caddy (TLS automático), API, Worker, Web, PostgreSQL, RabbitMQ, Redis, MinIO, Gotenberg e ClamAV. Backups do PostgreSQL com pgBackRest (completo diário + WAL contínuo) e dos objetos do MinIO são enviados para **armazenamento fora do VPS** (outro provedor ou bucket S3), com teste de restauração mensal. Cloudflare na frente para DNS, WAF e proteção contra DDoS. Firewall liberando só 80/443 e SSH por chave.
+**Opção A — VPS (ex.: Hostinger, Hetzner, DigitalOcean).** Indicada para o início e para custos baixos. Use um **VPS** com acesso root (hospedagem compartilhada não executa .NET em containers): a partir de 4 vCPU e 8–16 GB de RAM para piloto. Um `docker-compose.prod.yml` sobe Caddy (TLS automático), API, Worker, Web, PostgreSQL, RabbitMQ, Redis, RustFS, Gotenberg e ClamAV. Backups do PostgreSQL com pgBackRest (completo diário + WAL contínuo) e dos objetos do RustFS são enviados para **armazenamento fora do VPS** (outro provedor ou bucket S3), com teste de restauração mensal. Cloudflare na frente para DNS, WAF e proteção contra DDoS. Firewall liberando só 80/443 e SSH por chave.
 
 **Opção B — nuvem gerenciada (AWS, GCP ou Azure).** Indicada quando houver clientes maiores, SLA de 99,9% ou necessidade de escalar. Os mesmos containers rodam em serviço gerenciado (ECS/Fargate, Cloud Run, Container Apps) ou Kubernetes; PostgreSQL, Redis e filas passam a ser gerenciados; Terraform/OpenTofu descreve tudo em `infra/<provedor>/`.
 
@@ -487,7 +488,7 @@ As quatro primeiras etapas não entregam funcionalidade jurídica; entregam a ba
 **Critérios de aceite:**
 
 - [ ] `dotnet run --project src/Aspire/LexFlow.AppHost` sobe API, Worker, Web e todos os containers; dashboard do Aspire mostra todos saudáveis.
-- [ ] `GET /health/ready` retorna 200 com PostgreSQL, Redis, RabbitMQ e MinIO verificados.
+- [ ] `GET /health/ready` retorna 200 com PostgreSQL, Redis, RabbitMQ e armazenamento S3 (RustFS) verificados.
 - [ ] Frontend abre com layout vazio em pt-BR.
 - [ ] CI verde no primeiro PR; um teste de arquitetura propositalmente quebrado faz o CI falhar.
 
@@ -888,7 +889,7 @@ Como o código será escrito por uma IA, os testes são o contrato: o agente nã
 | --- | --- | --- | --- |
 | Unitário | xUnit v3, Shouldly ou AwesomeAssertions, NSubstitute, Bogus | Domínio, value objects, calculadora de prazos, regras financeiras, validadores | Todo PR |
 | Arquitetura | NetArchTest / ArchUnitNET | Dependências entre camadas e módulos, nomes, handlers `internal sealed` | Todo PR |
-| Integração | `WebApplicationFactory` + Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, MinIO) + Respawn | Endpoints ponta a ponta com banco real, migrations, outbox | Todo PR |
+| Integração | `WebApplicationFactory` + Testcontainers (PostgreSQL com pgvector, Redis, RabbitMQ, RustFS) + Respawn | Endpoints ponta a ponta com banco real, migrations, outbox | Todo PR |
 | Segurança | Projeto `SecurityTests` com descoberta automática de endpoints | Isolamento de tenant, casos sigilosos, permissões, usuários externos | Todo PR |
 | Snapshot | Verify | Contratos OpenAPI, e-mails gerados, DOCX/PDF gerados | Todo PR |
 | Propriedade | FsCheck | Somatórios financeiros, calculadora de prazos com datas aleatórias | Todo PR |

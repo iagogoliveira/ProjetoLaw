@@ -1,6 +1,6 @@
 # ADR 0003 — Projetos de módulo criados na etapa que os implementa
 
-- **Status:** Proposta (revisão humana)
+- **Status:** Aceita (revisão humana em 2026-10-16)
 - **Data:** 2026-10-16
 - **Etapa:** 0
 

@@ -1,4 +1,5 @@
 // Ambiente local completo (seção 8.1): `dotnet run --project src/Aspire/LexFlow.AppHost`.
+using LexFlow.AppHost;
 using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -40,7 +41,8 @@ builder.AddContainer("gotenberg", "gotenberg/gotenberg", "8.38.1")
     .WithHttpHealthCheck("/health");
 
 builder.AddContainer("clamav", "clamav/clamav", "1.5.4-debian")
-    .WithEndpoint(targetPort: 3310, name: "clamd", scheme: "tcp");
+    .WithEndpoint(targetPort: 3310, name: "clamd", scheme: "tcp")
+    .WithClamAvHealthCheck();
 
 builder.AddContainer("mailpit", "axllent/mailpit", "v1.31.6")
     .WithHttpEndpoint(targetPort: 8025, name: "http")

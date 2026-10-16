@@ -119,11 +119,9 @@ jobs:
             apphost.log
           retention-days: 7
 
-  # Code scanning em repositório privado exige GitHub Code Security (pago). Enquanto o repositório
-  # for privado sem essa licença, o job não roda (pendência registrada em docs/progress.md).
+  # Repositório público: code scanning gratuito. Se voltar a ser privado, exige GitHub Code Security.
   codeql:
     name: CodeQL (${{ matrix.language }})
-    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
