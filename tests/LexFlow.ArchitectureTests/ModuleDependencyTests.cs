@@ -10,4 +10,9 @@ public sealed class ModuleDependencyTests
 
         violations.ShouldBeEmpty(string.Join(Environment.NewLine, violations));
     }
+
+    /// <summary>Garante que as regras acima não passam por vacuidade: os módulos existentes são encontrados.</summary>
+    [Fact]
+    public void Existing_modules_are_discovered() =>
+        LayerRules.DiscoverModules(LexFlowAssemblies.All, LexFlowAssemblies.Prefix).ShouldContain("Platform");
 }

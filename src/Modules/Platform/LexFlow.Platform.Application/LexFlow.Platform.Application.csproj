@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Platform.Domain\LexFlow.Platform.Domain.csproj" />
+    <ProjectReference Include="..\LexFlow.Platform.Contracts\LexFlow.Platform.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.Platform.Infrastructure" />
+    <InternalsVisibleTo Include="LexFlow.Platform.UnitTests" />
+    <InternalsVisibleTo Include="LexFlow.Platform.IntegrationTests" />
+  </ItemGroup>
+
+</Project>

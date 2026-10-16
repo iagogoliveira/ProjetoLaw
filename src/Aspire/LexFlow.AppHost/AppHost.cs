@@ -51,8 +51,12 @@ builder.AddContainer("mailpit", "axllent/mailpit", "v1.31.6")
 
 var storageEndpoint = storage.GetEndpoint("s3");
 
+// Migrations aplicadas por um processo próprio, nunca no startup da API (seção 6.5).
+var migrations = builder.AddProject<Projects.LexFlow_MigrationService>("migrations")
+    .WithReference(database).WaitFor(database);
+
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
-    .WithReference(database).WaitFor(database)
+    .WithReference(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
@@ -62,7 +66,7 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithHttpHealthCheck("/health/ready", endpointName: "http");
 
 builder.AddProject<Projects.LexFlow_Worker>("worker")
-    .WithReference(database).WaitFor(database)
+    .WithReference(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)

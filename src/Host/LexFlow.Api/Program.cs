@@ -1,4 +1,7 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.HealthChecks;
+using LexFlow.Platform.Application;
+using LexFlow.Platform.Infrastructure;
 using LexFlow.Web.Common;
 using Scalar.AspNetCore;
 using Serilog;
@@ -9,6 +12,10 @@ builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
 builder.Services.AddOpenApi();
 builder.Services.AddWebCommon();
+
+// Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
+builder.Services.AddApplication(PlatformApplication.Assembly);
+builder.Services.AddPlatformInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

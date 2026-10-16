@@ -39,6 +39,20 @@ public sealed class AppHostTests(AppHostFixture fixture)
         resourceEvent.Snapshot.State?.Text.ShouldBe(KnownResourceStates.Running);
     }
 
+    /// <summary>Migrations rodam num processo próprio que termina antes de API e Worker subirem (seção 6.5).</summary>
+    [Fact]
+    public async Task Migrations_complete_successfully()
+    {
+        using var cts = new CancellationTokenSource(AppHostFixture.StartupTimeout);
+
+        var resourceEvent = await fixture.App.ResourceNotifications.WaitForResourceAsync(
+            "migrations",
+            e => e.Snapshot.State?.Text is "Exited" or "Finished" or "FailedToStart",
+            cts.Token);
+
+        resourceEvent.Snapshot.ExitCode.ShouldBe(0);
+    }
+
     [Fact]
     public async Task Api_ready_endpoint_returns_200()
     {
