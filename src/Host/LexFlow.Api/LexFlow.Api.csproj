@@ -6,4 +6,9 @@
     <ProjectReference Include="..\..\BuildingBlocks\LexFlow.Web.Common\LexFlow.Web.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
 </Project>
