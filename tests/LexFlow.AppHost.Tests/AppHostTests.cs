@@ -26,7 +26,12 @@ public sealed class AppHostTests(AppHostFixture fixture) : IClassFixture<AppHost
         names.ShouldContain("worker", StringComparer.Ordinal);
         names.ShouldContain("web", StringComparer.Ordinal);
 
-        foreach (var resource in model.Resources.Where(r => r is not ParameterResource))
+        // Só recursos com ciclo de vida (containers, projetos, executáveis, bancos); recursos de
+        // modelo como 'azure-environment' (criado pelo AddAzureStorage) nunca ficam "saudáveis".
+        var runnable = model.Resources.OfType<IResourceWithWaitSupport>().Cast<IResource>().ToList();
+        runnable.Select(r => r.Name).ShouldContain("clamav", StringComparer.Ordinal);
+
+        foreach (var resource in runnable)
         {
             if (resource is JavaScriptInstallerResource)
             {
