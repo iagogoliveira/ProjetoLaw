@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.eNhancedEdition" />
+  </ItemGroup>
+
+  <!-- Os hosts referenciam todos os BuildingBlocks e módulos; assim todo assembly LexFlow.* chega ao bin deste projeto. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Host\LexFlow.Api\LexFlow.Api.csproj" />
+    <ProjectReference Include="..\..\src\Host\LexFlow.Worker\LexFlow.Worker.csproj" />
+  </ItemGroup>
+
+</Project>

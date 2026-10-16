@@ -1,0 +1,179 @@
+# Pipeline de todo PR (seção 8.2). Jobs independentes rodam em paralelo; o e2e depende de backend e frontend.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  NODE_VERSION: '24'
+  WEB_DIR: src/Web/lexflow-web
+
+jobs:
+  backend:
+    name: Backend (build, format, arquitetura, integração)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Restore
+        run: dotnet restore LexFlow.sln
+      - name: Build (TreatWarningsAsErrors)
+        run: dotnet build LexFlow.sln --no-restore -c Release
+      - name: Format
+        run: dotnet format LexFlow.sln --no-restore --verify-no-changes
+      - name: Pacotes vulneráveis
+        run: |
+          dotnet list LexFlow.sln package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then exit 1; fi
+      - name: Testes de arquitetura
+        run: dotnet test --project tests/LexFlow.ArchitectureTests --no-build -c Release
+      - name: Testes de integração (Testcontainers)
+        run: dotnet test --project tests/LexFlow.Api.IntegrationTests --no-build -c Release
+
+  frontend:
+    name: Frontend (lint, Vitest, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WEB_DIR }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WEB_DIR }}/package-lock.json
+      - run: npm ci
+      - name: npm audit
+        run: npm audit --audit-level=high
+      - name: Lint (ESLint + Prettier)
+        run: npm run lint
+      - name: Testes unitários (Vitest)
+        run: npm test
+      - name: Build
+        run: npm run build
+
+  apphost-e2e:
+    name: AppHost + E2E (Playwright contra o AppHost)
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASPIRE_ALLOW_UNSECURED_TRANSPORT: 'true'
+      LexFlow__UseDataVolumes: 'false'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WEB_DIR }}/package-lock.json
+      - name: npm ci
+        run: npm ci
+        working-directory: ${{ env.WEB_DIR }}
+      # Debug de propósito: com AspireUseCliBundle o `dotnet run` do AppHost procura o binário em bin/Debug.
+      - name: Build
+        run: dotnet build LexFlow.sln
+      - name: Testes do AppHost (todos os recursos saudáveis)
+        run: dotnet test --project tests/LexFlow.AppHost.Tests --no-build
+      - name: Subir o AppHost
+        run: |
+          dotnet run --project src/Aspire/LexFlow.AppHost --no-build --launch-profile http > apphost.log 2>&1 &
+          for i in $(seq 1 120); do
+            if curl -fs http://localhost:4200/ > /dev/null; then echo "web pronto"; exit 0; fi
+            sleep 5
+          done
+          echo "web não respondeu"; tail -100 apphost.log; exit 1
+      - name: Instalar navegador do Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: ${{ env.WEB_DIR }}
+      - name: Playwright
+        run: npx playwright test
+        working-directory: ${{ env.WEB_DIR }}
+        env:
+          CI: 'true'
+          E2E_BASE_URL: http://localhost:4200
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-report
+          path: |
+            ${{ env.WEB_DIR }}/playwright-report
+            apphost.log
+          retention-days: 7
+
+  # Repositório público: code scanning gratuito. Se voltar a ser privado, exige GitHub Code Security.
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        if: matrix.language == 'csharp'
+        with:
+          global-json-file: global.json
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - name: Build
+        if: matrix.language == 'csharp'
+        run: dotnet build LexFlow.sln -c Release
+      - uses: github/codeql-action/analyze@v4
+
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trivy:
+    name: Trivy (dependências e configuração)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Ainda não há imagens (Etapa 0); varre o repositório. A varredura de imagens entra com o deploy-staging.yml.
+      - uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'

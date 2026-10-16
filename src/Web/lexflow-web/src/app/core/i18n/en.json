@@ -1,0 +1,14 @@
+{
+  "app": {
+    "name": "LexFlow",
+    "skipToContent": "Skip to content"
+  },
+  "shell": {
+    "mainNavigation": "Main navigation",
+    "emptyNavigation": "No modules available yet."
+  },
+  "dashboard": {
+    "title": "Home",
+    "empty": "Your dashboard will appear here."
+  }
+}
