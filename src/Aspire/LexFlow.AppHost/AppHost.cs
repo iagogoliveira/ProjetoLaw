@@ -57,7 +57,7 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithEnvironment("Storage__AccessKey", storageAccessKey)
     .WithEnvironment("Storage__SecretKey", storageSecretKey)
     .WaitFor(storage)
-    .WithHttpHealthCheck("/health/ready");
+    .WithHttpHealthCheck("/health/ready", endpointName: "http");
 
 builder.AddProject<Projects.LexFlow_Worker>("worker")
     .WithReference(database).WaitFor(database)

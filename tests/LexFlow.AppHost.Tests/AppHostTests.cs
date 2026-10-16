@@ -45,7 +45,7 @@ public sealed class AppHostTests(AppHostFixture fixture)
         using var cts = new CancellationTokenSource(AppHostFixture.StartupTimeout);
         await fixture.App.ResourceNotifications.WaitForResourceHealthyAsync("api", cts.Token);
 
-        using var client = fixture.App.CreateHttpClient("api");
+        using var client = fixture.App.CreateHttpClient("api", "http");
         using var response = await client.GetAsync(new Uri("/health/ready", UriKind.Relative), cts.Token);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -57,7 +57,7 @@ public sealed class AppHostTests(AppHostFixture fixture)
         using var cts = new CancellationTokenSource(AppHostFixture.StartupTimeout);
         await fixture.App.ResourceNotifications.WaitForResourceHealthyAsync("web", cts.Token);
 
-        using var client = fixture.App.CreateHttpClient("web");
+        using var client = fixture.App.CreateHttpClient("web", "http");
         var html = await client.GetStringAsync(new Uri("/", UriKind.Relative), cts.Token);
 
         html.ShouldContain("<html lang=\"pt-BR\">");
