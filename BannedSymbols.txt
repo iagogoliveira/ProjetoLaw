@@ -1,0 +1,13 @@
+# Regras do CLAUDE.md verificadas na compilação (RS0030). Ver docs/adr/0006-regras-no-compilador.md.
+# Hora atual: use IClock (testável com FakeClock).
+P:System.DateTime.Now;Use IClock (LexFlow.Application.Abstractions) em vez de DateTime.Now
+P:System.DateTime.UtcNow;Use IClock (LexFlow.Application.Abstractions) em vez de DateTime.UtcNow
+P:System.DateTime.Today;Use IClock (LexFlow.Application.Abstractions) em vez de DateTime.Today
+P:System.DateTimeOffset.Now;Use IClock (LexFlow.Application.Abstractions) em vez de DateTimeOffset.Now
+P:System.DateTimeOffset.UtcNow;Use IClock (LexFlow.Application.Abstractions) em vez de DateTimeOffset.UtcNow
+# SQL concatenado: use FromSql/ExecuteSql com interpolação (parametrizada) ou Dapper com parâmetros.
+M:Microsoft.EntityFrameworkCore.RelationalQueryableExtensions.FromSqlRaw``1(Microsoft.EntityFrameworkCore.DbSet{``0},System.String,System.Object[]);SQL concatenado é proibido: use FromSql com interpolação
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Object[]);SQL concatenado é proibido: use ExecuteSql com interpolação
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Object[]);SQL concatenado é proibido: use ExecuteSqlAsync com interpolação
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Threading.CancellationToken);SQL concatenado é proibido: use ExecuteSqlAsync com interpolação
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Collections.Generic.IEnumerable{System.Object},System.Threading.CancellationToken);SQL concatenado é proibido: use ExecuteSqlAsync com interpolação
