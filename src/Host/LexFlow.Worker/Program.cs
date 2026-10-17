@@ -22,6 +22,7 @@ builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfra
 builder.Services.AddExternalAdapters(builder.Configuration);
 builder.Services.AddJobScheduling(builder.Configuration, runServer: true);
 builder.Services.AddPlatformRecurringJobs();
+builder.Services.AddIdentityRecurringJobs();
 
 using var host = builder.Build();
 await host.RunAsync();

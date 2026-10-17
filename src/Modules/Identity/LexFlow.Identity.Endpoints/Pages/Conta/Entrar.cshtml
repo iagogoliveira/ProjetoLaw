@@ -1,0 +1,33 @@
+@page "/conta/entrar"
+@model LexFlow.Identity.Endpoints.Pages.Conta.EntrarModel
+@{
+    ViewData["Title"] = "Entrar";
+}
+
+<h1>Entrar</h1>
+
+@if (Model.SignedInWithoutReturn)
+{
+    <p role="status">Você entrou. Volte ao LexFlow para continuar.</p>
+}
+else
+{
+    @if (Model.ErrorMessage is not null)
+    {
+        <p class="error" role="alert">@Model.ErrorMessage</p>
+    }
+
+    <form method="post" novalidate>
+        <input type="hidden" asp-for="ReturnUrl">
+        <label for="email">E-mail</label>
+        <input id="email" name="Email" type="email" autocomplete="username" required value="@Model.Email">
+        <label for="password">Senha</label>
+        <input id="password" name="Password" type="password" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div class="links">
+        <a href="/conta/esqueci-a-senha">Esqueci a senha</a>
+        <a href="/conta/cadastro">Criar conta</a>
+    </div>
+}

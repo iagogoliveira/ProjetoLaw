@@ -74,6 +74,7 @@ public sealed class IdentityDatabaseFixture : IAsyncLifetime
         services.AddSystemContexts();
         services.AddPlatformInfrastructure(configuration);
         services.AddIdentityInfrastructure(configuration);
+        services.AddIdentitySeeding(configuration);
         services.AddSingleton<IEmailSender>(email);
         services.AddScoped<AccountEmailConsumer>();
         return services.BuildServiceProvider(validateScopes: true);

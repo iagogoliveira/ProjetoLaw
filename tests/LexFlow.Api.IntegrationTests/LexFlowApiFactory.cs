@@ -14,7 +14,9 @@ namespace LexFlow.Api.IntegrationTests;
 /// <param name="isolateMessaging">
 /// Desliga transportes e persistência do Wolverine (que conectam ao subir) nos testes que derrubam dependências de propósito.
 /// </param>
-public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settings, bool isolateMessaging = false) : WebApplicationFactory<Program>
+/// <param name="testAuthentication">Esquema de teste por cabeçalho (padrão) ou só a validação real de tokens OIDC.</param>
+public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settings, bool isolateMessaging = false, bool testAuthentication = true)
+    : WebApplicationFactory<Program>
 {
     /// <summary>Eventos de integração publicados pela API desta fábrica.</summary>
     public ConcurrentQueue<IntegrationEvent> PublishedEvents { get; } = new();
@@ -30,9 +32,17 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
         }
 
         // Autentica quando a requisição traz X-Test-User (sem ele, segue anônima → 401 nos endpoints protegidos).
-        builder.ConfigureTestServices(services => services
-            .AddAuthentication(TestAuthenticationHandler.SchemeName)
-            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.SchemeName, null));
+        // Com testAuthentication = false, vale só a validação real do OpenIddict (tokens emitidos pelo fluxo OIDC).
+        if (testAuthentication)
+        {
+            builder.ConfigureTestServices(services => services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = TestAuthenticationHandler.SchemeName;
+                    options.DefaultChallengeScheme = TestAuthenticationHandler.SchemeName;
+                })
+                .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.SchemeName, null));
+        }
 
         // Os eventos continuam indo para o outbox real; a cópia permite verificar o que cada endpoint pediu.
         builder.ConfigureTestServices(services =>

@@ -54,6 +54,7 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | Microsoft.Extensions.Identity.Core / Stores, Microsoft.AspNetCore.Identity.EntityFrameworkCore | 10.0.13 | MIT | ASP.NET Core Identity (Etapa 2, ADR 0013) |
 | Microsoft.AspNetCore.DataProtection.EntityFrameworkCore | 10.0.13 | MIT | Anel de chaves compartilhado por API e Worker (ADR 0013) |
 | Scriban | 7.5.1 | BSD-2-Clause | Templates dos e-mails transacionais (ADR 0013) |
+| OpenIddict.Server.AspNetCore, Validation.AspNetCore, Validation.ServerIntegration, EntityFrameworkCore | 7.7.2 | Apache-2.0 | Servidor OIDC e validação de tokens (ADR 0014) |
 
 ### Frontend (npm)
 

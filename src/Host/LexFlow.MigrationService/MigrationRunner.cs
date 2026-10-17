@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using LexFlow.Infrastructure.Common.Integrations;
+using LexFlow.Infrastructure.Common.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.MigrationService;
@@ -27,6 +28,15 @@ internal sealed partial class MigrationRunner(
                 var pending = (await context.Database.GetPendingMigrationsAsync(stoppingToken)).ToList();
                 await context.Database.MigrateAsync(stoppingToken);
                 LogApplied(logger, contextType.Name, pending.Count);
+            }
+
+            // Dados que dependem do ambiente (ex.: cliente OIDC), depois de todas as migrations.
+            await using (var scope = services.CreateAsyncScope())
+            {
+                foreach (var seeder in scope.ServiceProvider.GetServices<IDatabaseSeeder>())
+                {
+                    await seeder.SeedAsync(stoppingToken);
+                }
             }
 
             await services.GetRequiredService<IObjectStorageProvisioner>().EnsureBucketAsync(stoppingToken);

@@ -1,0 +1,33 @@
+@page "/conta/esqueci-a-senha"
+@model LexFlow.Identity.Endpoints.Pages.Conta.EsqueciASenhaModel
+@{
+    ViewData["Title"] = "Esqueci a senha";
+}
+
+<h1>Esqueci a senha</h1>
+
+@if (Model.Requested)
+{
+    <p role="status">Se houver uma conta com <strong>@Model.Email</strong>, enviamos um link para redefinir a senha. Ele vale por 24 horas.</p>
+    <div class="links"><a href="/conta/entrar">Voltar ao login</a></div>
+}
+else
+{
+    @if (Model.Errors.Count > 0)
+    {
+        <div class="error" role="alert">
+            @foreach (var error in Model.Errors)
+            {
+                <p>@error</p>
+            }
+        </div>
+    }
+
+    <form method="post" novalidate>
+        <label for="email">E-mail da conta</label>
+        <input id="email" name="Email" type="email" autocomplete="email" required value="@Model.Email">
+        <button type="submit">Enviar link</button>
+    </form>
+
+    <div class="links"><a href="/conta/entrar">Voltar ao login</a></div>
+}

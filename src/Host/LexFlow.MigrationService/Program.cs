@@ -17,6 +17,7 @@ builder.Services.AddApplication();
 builder.Services.AddSystemContexts();
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddIdentityPersistence(builder.Configuration);
+builder.Services.AddIdentitySeeding(builder.Configuration);
 builder.Services.AddExternalAdapters(builder.Configuration);
 
 // Ordem de aplicação: Platform primeiro (extensões e trilha de auditoria usadas pelos demais módulos).

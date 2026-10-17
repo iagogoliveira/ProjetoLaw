@@ -33,6 +33,7 @@ public static class ProblemDetailsSetup
                     StatusCodes.Status403Forbidden => "auth.forbidden",
                     StatusCodes.Status404NotFound => "http.not_found",
                     StatusCodes.Status405MethodNotAllowed => "http.method_not_allowed",
+                    StatusCodes.Status429TooManyRequests => "http.too_many_requests",
                     _ when context.Exception is not null => UnexpectedErrorCode,
                     _ => "http.error",
                 };

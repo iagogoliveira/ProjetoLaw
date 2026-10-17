@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\LexFlow.Identity.Endpoints\LexFlow.Identity.Endpoints.csproj" />
   </ItemGroup>
 
 </Project>
