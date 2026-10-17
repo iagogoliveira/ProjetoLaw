@@ -4,9 +4,11 @@ using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Organization.Application.Abstractions;
 using LexFlow.Organization.Application.Access;
 using LexFlow.Organization.Infrastructure.Access;
+using LexFlow.Organization.Infrastructure.Invitations;
 using LexFlow.Organization.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace LexFlow.Organization.Infrastructure;
 
@@ -22,15 +24,19 @@ public static class OrganizationInfrastructure
 
     /// <summary>
     /// DbContext e autorização: pertença do usuário (valida o tenant da requisição), verificador de permissões e acesso
-    /// corrente para os autorizadores de recurso, com cache no Redis.
+    /// corrente para os autorizadores de recurso, com cache no Redis. Também o e-mail dos convites (enviado pelo Worker).
     /// </summary>
     public static IServiceCollection AddOrganizationInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
         services.AddOrganizationPersistence(configuration);
         services.AddRedisConnection(configuration);
         services.AddSingleton<IAccessCache, RedisAccessCache>();
         services.AddScoped<AccessReader>();
         services.AddScoped<AccessChanges>();
+        services.AddScoped<RoleAssignments>();
+        services.TryAddSingleton(configuration.GetSection(OrganizationSettings.SectionName).Get<OrganizationSettings>() ?? new OrganizationSettings());
+        services.AddSingleton<InvitationEmailComposer>();
         services.AddScoped<IPermissionChecker, PermissionChecker>();
         services.AddScoped<ICurrentAccess, CurrentAccess>();
         services.AddScoped<IMembershipLookup, MembershipLookup>();

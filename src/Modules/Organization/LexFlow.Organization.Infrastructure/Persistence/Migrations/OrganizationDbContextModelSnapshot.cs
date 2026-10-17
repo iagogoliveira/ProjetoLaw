@@ -111,6 +111,169 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.Invitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("accepted_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("email");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<Guid>("InvitedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invited_by");
+
+                    b.Property<Guid?>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitations");
+
+                    b.HasIndex("OrganizationId", "Email")
+                        .HasDatabaseName("ix_invitations_organization_id_email");
+
+                    b.ToTable("invitations", "org");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.InvitationRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("InvitationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invitation_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("scope");
+
+                    b.Property<Guid?>("ScopeRefId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scope_ref_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitation_roles");
+
+                    b.HasIndex("InvitationId")
+                        .HasDatabaseName("ix_invitation_roles_invitation_id");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_invitation_roles_role_id");
+
+                    b.HasIndex("OrganizationId", "RoleId")
+                        .HasDatabaseName("ix_invitation_roles_organization_id_role_id");
+
+                    b.ToTable("invitation_roles", "org");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.InvitationToken", b =>
+                {
+                    b.Property<string>("TokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("token_hash")
+                        .IsFixedLength();
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("email");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<Guid>("InvitationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invitation_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.HasKey("TokenHash")
+                        .HasName("pk_invitation_tokens");
+
+                    b.HasIndex("InvitationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invitation_tokens_invitation_id");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_invitation_tokens_organization_id");
+
+                    b.ToTable("invitation_tokens", "org");
+                });
+
             modelBuilder.Entity("LexFlow.Organization.Domain.Members.OrganizationMember", b =>
                 {
                     b.Property<Guid>("Id")
@@ -900,6 +1063,50 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.Invitation", b =>
+                {
+                    b.HasOne("LexFlow.Organization.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitations_organizations_organization_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.InvitationRole", b =>
+                {
+                    b.HasOne("LexFlow.Organization.Domain.Invitations.Invitation", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("InvitationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitation_roles_invitations_invitation_id");
+
+                    b.HasOne("LexFlow.Organization.Domain.Roles.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitation_roles_roles_role_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.InvitationToken", b =>
+                {
+                    b.HasOne("LexFlow.Organization.Domain.Invitations.Invitation", null)
+                        .WithMany()
+                        .HasForeignKey("InvitationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitation_tokens_invitations_invitation_id");
+
+                    b.HasOne("LexFlow.Organization.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitation_tokens_organizations_organization_id");
+                });
+
             modelBuilder.Entity("LexFlow.Organization.Domain.Members.OrganizationMember", b =>
                 {
                     b.HasOne("LexFlow.Organization.Domain.Organizations.Organization", null)
@@ -996,6 +1203,11 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_role_permissions_roles_role_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Invitations.Invitation", b =>
+                {
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("LexFlow.Organization.Domain.Roles.Role", b =>

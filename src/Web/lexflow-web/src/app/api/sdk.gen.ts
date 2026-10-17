@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses } from './types.gen';
+import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,11 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * Catálogo de permissões atribuíveis, por grupo, para a matriz de perfis
+ */
+export const listPermissions = <ThrowOnError extends boolean = false>(options?: Options<ListPermissionsData, ThrowOnError>): RequestResult<ListPermissionsResponses, ListPermissionsErrors, ThrowOnError> => (options?.client ?? client).get<ListPermissionsResponses, ListPermissionsErrors, ThrowOnError>({ url: '/api/v1/permissions', ...options });
 
 /**
  * Estado de uma operação longa
@@ -155,6 +160,11 @@ export const assignMemberRoles = <ThrowOnError extends boolean = false>(options:
 });
 
 /**
+ * Remove um membro do escritório; o acesso termina na próxima requisição
+ */
+export const removeMember = <ThrowOnError extends boolean = false>(options: Options<RemoveMemberData, ThrowOnError>): RequestResult<RemoveMemberResponses, RemoveMemberErrors, ThrowOnError> => (options.client ?? client).delete<RemoveMemberResponses, RemoveMemberErrors, ThrowOnError>({ url: '/api/v1/organization/members/{id}', ...options });
+
+/**
  * Exige (ou não) verificação em duas etapas de todos os membros
  */
 export const setMfaPolicy = <ThrowOnError extends boolean = false>(options: Options<SetMfaPolicyData, ThrowOnError>): RequestResult<SetMfaPolicyResponses, SetMfaPolicyErrors, ThrowOnError> => (options.client ?? client).put<SetMfaPolicyResponses, SetMfaPolicyErrors, ThrowOnError>({
@@ -172,10 +182,272 @@ export const setMfaPolicy = <ThrowOnError extends boolean = false>(options: Opti
 export const listRoles = <ThrowOnError extends boolean = false>(options?: Options<ListRolesData, ThrowOnError>): RequestResult<ListRolesResponses, ListRolesErrors, ThrowOnError> => (options?.client ?? client).get<ListRolesResponses, ListRolesErrors, ThrowOnError>({ url: '/api/v1/roles', ...options });
 
 /**
+ * Cria um perfil do escritório com a matriz de permissões inicial
+ */
+export const createRole = <ThrowOnError extends boolean = false>(options: Options<CreateRoleData, ThrowOnError>): RequestResult<CreateRoleResponses, CreateRoleErrors, ThrowOnError> => (options.client ?? client).post<CreateRoleResponses, CreateRoleErrors, ThrowOnError>({
+    url: '/api/v1/roles',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Exclui um perfil sem membros nem convites pendentes (o Administrador do escritório não sai)
+ */
+export const deleteRole = <ThrowOnError extends boolean = false>(options: Options<DeleteRoleData, ThrowOnError>): RequestResult<DeleteRoleResponses, DeleteRoleErrors, ThrowOnError> => (options.client ?? client).delete<DeleteRoleResponses, DeleteRoleErrors, ThrowOnError>({ url: '/api/v1/roles/{id}', ...options });
+
+/**
+ * Renomeia um perfil e troca a descrição
+ */
+export const updateRole = <ThrowOnError extends boolean = false>(options: Options<UpdateRoleData, ThrowOnError>): RequestResult<UpdateRoleResponses, UpdateRoleErrors, ThrowOnError> => (options.client ?? client).put<UpdateRoleResponses, UpdateRoleErrors, ThrowOnError>({
+    url: '/api/v1/roles/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Substitui as permissões de um perfil; vale para os membros em até 5 s, sem novo login
  */
 export const updateRolePermissions = <ThrowOnError extends boolean = false>(options: Options<UpdateRolePermissionsData, ThrowOnError>): RequestResult<UpdateRolePermissionsResponses, UpdateRolePermissionsErrors, ThrowOnError> => (options.client ?? client).put<UpdateRolePermissionsResponses, UpdateRolePermissionsErrors, ThrowOnError>({
     url: '/api/v1/roles/{id}/permissions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Convites da organização ativa, do mais recente ao mais antigo
+ */
+export const listInvitations = <ThrowOnError extends boolean = false>(options?: Options<ListInvitationsData, ThrowOnError>): RequestResult<ListInvitationsResponses, ListInvitationsErrors, ThrowOnError> => (options?.client ?? client).get<ListInvitationsResponses, ListInvitationsErrors, ThrowOnError>({ url: '/api/v1/organization/invitations', ...options });
+
+/**
+ * Convida por e-mail, com os perfis que o convidado recebe; o convite vale 7 dias
+ */
+export const createInvitation = <ThrowOnError extends boolean = false>(options: Options<CreateInvitationData, ThrowOnError>): RequestResult<CreateInvitationResponses, CreateInvitationErrors, ThrowOnError> => (options.client ?? client).post<CreateInvitationResponses, CreateInvitationErrors, ThrowOnError>({
+    url: '/api/v1/organization/invitations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Reenvia um convite pendente: o prazo recomeça e o link anterior deixa de valer
+ */
+export const resendInvitation = <ThrowOnError extends boolean = false>(options: Options<ResendInvitationData, ThrowOnError>): RequestResult<ResendInvitationResponses, ResendInvitationErrors, ThrowOnError> => (options.client ?? client).post<ResendInvitationResponses, ResendInvitationErrors, ThrowOnError>({ url: '/api/v1/organization/invitations/{id}/resend', ...options });
+
+/**
+ * Cancela um convite pendente
+ */
+export const revokeInvitation = <ThrowOnError extends boolean = false>(options: Options<RevokeInvitationData, ThrowOnError>): RequestResult<RevokeInvitationResponses, RevokeInvitationErrors, ThrowOnError> => (options.client ?? client).delete<RevokeInvitationResponses, RevokeInvitationErrors, ThrowOnError>({ url: '/api/v1/organization/invitations/{id}', ...options });
+
+/**
+ * Escritório, e-mail convidado e prazo de um convite válido
+ */
+export const previewInvitation = <ThrowOnError extends boolean = false>(options: Options<PreviewInvitationData, ThrowOnError>): RequestResult<PreviewInvitationResponses, PreviewInvitationErrors, ThrowOnError> => (options.client ?? client).post<PreviewInvitationResponses, PreviewInvitationErrors, ThrowOnError>({
+    url: '/api/v1/invitations/preview',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Aceita o convite com a conta do e-mail convidado e entra no escritório com os perfis do convite
+ */
+export const acceptInvitation = <ThrowOnError extends boolean = false>(options: Options<AcceptInvitationData, ThrowOnError>): RequestResult<AcceptInvitationResponses, AcceptInvitationErrors, ThrowOnError> => (options.client ?? client).post<AcceptInvitationResponses, AcceptInvitationErrors, ThrowOnError>({
+    url: '/api/v1/invitations/accept',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lista: filial
+ */
+export const listBranches = <ThrowOnError extends boolean = false>(options?: Options<ListBranchesData, ThrowOnError>): RequestResult<ListBranchesResponses, ListBranchesErrors, ThrowOnError> => (options?.client ?? client).get<ListBranchesResponses, ListBranchesErrors, ThrowOnError>({ url: '/api/v1/organization/branches', ...options });
+
+/**
+ * Cadastra: filial
+ */
+export const createBranch = <ThrowOnError extends boolean = false>(options?: Options<CreateBranchData, ThrowOnError>): RequestResult<CreateBranchResponses, CreateBranchErrors, ThrowOnError> => (options?.client ?? client).post<CreateBranchResponses, CreateBranchErrors, ThrowOnError>({
+    url: '/api/v1/organization/branches',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Exclui: filial (barrado se estiver em uso)
+ */
+export const deleteBranch = <ThrowOnError extends boolean = false>(options: Options<DeleteBranchData, ThrowOnError>): RequestResult<DeleteBranchResponses, DeleteBranchErrors, ThrowOnError> => (options.client ?? client).delete<DeleteBranchResponses, DeleteBranchErrors, ThrowOnError>({ url: '/api/v1/organization/branches/{id}', ...options });
+
+/**
+ * Edita: filial
+ */
+export const updateBranch = <ThrowOnError extends boolean = false>(options: Options<UpdateBranchData, ThrowOnError>): RequestResult<UpdateBranchResponses, UpdateBranchErrors, ThrowOnError> => (options.client ?? client).put<UpdateBranchResponses, UpdateBranchErrors, ThrowOnError>({
+    url: '/api/v1/organization/branches/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lista: área de atuação
+ */
+export const listPracticeAreas = <ThrowOnError extends boolean = false>(options?: Options<ListPracticeAreasData, ThrowOnError>): RequestResult<ListPracticeAreasResponses, ListPracticeAreasErrors, ThrowOnError> => (options?.client ?? client).get<ListPracticeAreasResponses, ListPracticeAreasErrors, ThrowOnError>({ url: '/api/v1/organization/practice-areas', ...options });
+
+/**
+ * Cadastra: área de atuação
+ */
+export const createPracticeArea = <ThrowOnError extends boolean = false>(options?: Options<CreatePracticeAreaData, ThrowOnError>): RequestResult<CreatePracticeAreaResponses, CreatePracticeAreaErrors, ThrowOnError> => (options?.client ?? client).post<CreatePracticeAreaResponses, CreatePracticeAreaErrors, ThrowOnError>({
+    url: '/api/v1/organization/practice-areas',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Exclui: área de atuação (barrado se estiver em uso)
+ */
+export const deletePracticeArea = <ThrowOnError extends boolean = false>(options: Options<DeletePracticeAreaData, ThrowOnError>): RequestResult<DeletePracticeAreaResponses, DeletePracticeAreaErrors, ThrowOnError> => (options.client ?? client).delete<DeletePracticeAreaResponses, DeletePracticeAreaErrors, ThrowOnError>({ url: '/api/v1/organization/practice-areas/{id}', ...options });
+
+/**
+ * Edita: área de atuação
+ */
+export const updatePracticeArea = <ThrowOnError extends boolean = false>(options: Options<UpdatePracticeAreaData, ThrowOnError>): RequestResult<UpdatePracticeAreaResponses, UpdatePracticeAreaErrors, ThrowOnError> => (options.client ?? client).put<UpdatePracticeAreaResponses, UpdatePracticeAreaErrors, ThrowOnError>({
+    url: '/api/v1/organization/practice-areas/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lista: equipe
+ */
+export const listTeams = <ThrowOnError extends boolean = false>(options?: Options<ListTeamsData, ThrowOnError>): RequestResult<ListTeamsResponses, ListTeamsErrors, ThrowOnError> => (options?.client ?? client).get<ListTeamsResponses, ListTeamsErrors, ThrowOnError>({ url: '/api/v1/organization/teams', ...options });
+
+/**
+ * Cadastra: equipe
+ */
+export const createTeam = <ThrowOnError extends boolean = false>(options?: Options<CreateTeamData, ThrowOnError>): RequestResult<CreateTeamResponses, CreateTeamErrors, ThrowOnError> => (options?.client ?? client).post<CreateTeamResponses, CreateTeamErrors, ThrowOnError>({
+    url: '/api/v1/organization/teams',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Exclui: equipe (barrado se estiver em uso)
+ */
+export const deleteTeam = <ThrowOnError extends boolean = false>(options: Options<DeleteTeamData, ThrowOnError>): RequestResult<DeleteTeamResponses, DeleteTeamErrors, ThrowOnError> => (options.client ?? client).delete<DeleteTeamResponses, DeleteTeamErrors, ThrowOnError>({ url: '/api/v1/organization/teams/{id}', ...options });
+
+/**
+ * Edita: equipe
+ */
+export const updateTeam = <ThrowOnError extends boolean = false>(options: Options<UpdateTeamData, ThrowOnError>): RequestResult<UpdateTeamResponses, UpdateTeamErrors, ThrowOnError> => (options.client ?? client).put<UpdateTeamResponses, UpdateTeamErrors, ThrowOnError>({
+    url: '/api/v1/organization/teams/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lista: centro de custo
+ */
+export const listCostCenters = <ThrowOnError extends boolean = false>(options?: Options<ListCostCentersData, ThrowOnError>): RequestResult<ListCostCentersResponses, ListCostCentersErrors, ThrowOnError> => (options?.client ?? client).get<ListCostCentersResponses, ListCostCentersErrors, ThrowOnError>({ url: '/api/v1/organization/cost-centers', ...options });
+
+/**
+ * Cadastra: centro de custo
+ */
+export const createCostCenter = <ThrowOnError extends boolean = false>(options?: Options<CreateCostCenterData, ThrowOnError>): RequestResult<CreateCostCenterResponses, CreateCostCenterErrors, ThrowOnError> => (options?.client ?? client).post<CreateCostCenterResponses, CreateCostCenterErrors, ThrowOnError>({
+    url: '/api/v1/organization/cost-centers',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Exclui: centro de custo (barrado se estiver em uso)
+ */
+export const deleteCostCenter = <ThrowOnError extends boolean = false>(options: Options<DeleteCostCenterData, ThrowOnError>): RequestResult<DeleteCostCenterResponses, DeleteCostCenterErrors, ThrowOnError> => (options.client ?? client).delete<DeleteCostCenterResponses, DeleteCostCenterErrors, ThrowOnError>({ url: '/api/v1/organization/cost-centers/{id}', ...options });
+
+/**
+ * Edita: centro de custo
+ */
+export const updateCostCenter = <ThrowOnError extends boolean = false>(options: Options<UpdateCostCenterData, ThrowOnError>): RequestResult<UpdateCostCenterResponses, UpdateCostCenterErrors, ThrowOnError> => (options.client ?? client).put<UpdateCostCenterResponses, UpdateCostCenterErrors, ThrowOnError>({
+    url: '/api/v1/organization/cost-centers/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lista: sócio
+ */
+export const listPartners = <ThrowOnError extends boolean = false>(options?: Options<ListPartnersData, ThrowOnError>): RequestResult<ListPartnersResponses, ListPartnersErrors, ThrowOnError> => (options?.client ?? client).get<ListPartnersResponses, ListPartnersErrors, ThrowOnError>({ url: '/api/v1/organization/partners', ...options });
+
+/**
+ * Cadastra: sócio
+ */
+export const createPartner = <ThrowOnError extends boolean = false>(options?: Options<CreatePartnerData, ThrowOnError>): RequestResult<CreatePartnerResponses, CreatePartnerErrors, ThrowOnError> => (options?.client ?? client).post<CreatePartnerResponses, CreatePartnerErrors, ThrowOnError>({
+    url: '/api/v1/organization/partners',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Exclui: sócio (barrado se estiver em uso)
+ */
+export const deletePartner = <ThrowOnError extends boolean = false>(options: Options<DeletePartnerData, ThrowOnError>): RequestResult<DeletePartnerResponses, DeletePartnerErrors, ThrowOnError> => (options.client ?? client).delete<DeletePartnerResponses, DeletePartnerErrors, ThrowOnError>({ url: '/api/v1/organization/partners/{id}', ...options });
+
+/**
+ * Edita: sócio
+ */
+export const updatePartner = <ThrowOnError extends boolean = false>(options: Options<UpdatePartnerData, ThrowOnError>): RequestResult<UpdatePartnerResponses, UpdatePartnerErrors, ThrowOnError> => (options.client ?? client).put<UpdatePartnerResponses, UpdatePartnerErrors, ThrowOnError>({
+    url: '/api/v1/organization/partners/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Substitui os membros de uma equipe
+ */
+export const setTeamMembers = <ThrowOnError extends boolean = false>(options: Options<SetTeamMembersData, ThrowOnError>): RequestResult<SetTeamMembersResponses, SetTeamMembersErrors, ThrowOnError> => (options.client ?? client).put<SetTeamMembersResponses, SetTeamMembersErrors, ThrowOnError>({
+    url: '/api/v1/organization/teams/{id}/members',
     ...options,
     headers: {
         'Content-Type': 'application/json',

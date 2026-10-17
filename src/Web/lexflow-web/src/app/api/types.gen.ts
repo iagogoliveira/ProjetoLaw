@@ -14,6 +14,19 @@ export type AssignmentResponse = {
     scopeRefId: null | string;
 };
 
+export type BranchRequest = {
+    name: string;
+    cnpj: null | string;
+    municipalRegistration: null | string;
+};
+
+export type BranchResponse = {
+    id: string;
+    name: string;
+    cnpj: null | string;
+    municipalRegistration: null | string;
+};
+
 export type ConfirmEmailRequest = {
     userId: string;
     token: string;
@@ -23,8 +36,30 @@ export type ConfirmTotpRequest = {
     code: string;
 };
 
+export type CostCenterRequest = {
+    code: string;
+    name: string;
+};
+
+export type CostCenterResponse = {
+    id: string;
+    code: string;
+    name: string;
+};
+
+export type CreateInvitationRequest = {
+    email: string;
+    roles: Array<RoleAssignmentInput>;
+};
+
 export type CreateOrganizationRequest = {
     name: string;
+};
+
+export type CreateRoleRequest = {
+    name: string;
+    description: null | string;
+    permissions: Array<string>;
 };
 
 /**
@@ -34,6 +69,43 @@ export type DataScope = 'own' | 'team' | 'practiceArea' | 'branch' | 'organizati
 
 export type ForgotPasswordRequest = {
     email: string;
+};
+
+export type InvitationAcceptedResponse = {
+    organizationId: string;
+    organizationName: string;
+};
+
+/**
+ * O que a página do convite mostra antes do login: escritório, e-mail convidado (para o cadastro) e prazo.
+ */
+export type InvitationPreviewResponse = {
+    organizationName: string;
+    email: string;
+    expiresAt: string;
+};
+
+export type InvitationResponse = {
+    id: string;
+    email: string;
+    status: InvitationState;
+    expiresAt: string;
+    invitedBy: string;
+    createdAt: string;
+    acceptedAt: null | string;
+    roles: Array<AssignmentResponse>;
+};
+
+/**
+ * Situação exibida: a gravada, ou "expirado" para um pendente com o prazo vencido.
+ */
+export type InvitationState = 'pending' | 'accepted' | 'revoked' | 'expired';
+
+/**
+ * Token recebido no link do convite. Vai no corpo, nunca na URL da API (não aparece em logs de acesso).
+ */
+export type InvitationTokenRequest = {
+    token: string;
 };
 
 /**
@@ -50,9 +122,14 @@ export type JobResponse = {
     completedAt: null | string;
 };
 
+/**
+ * Membro com nome e e-mail da conta (módulo Identity) e os perfis atribuídos.
+ */
 export type MemberResponse = {
     id: string;
     userId: string;
+    fullName: null | string;
+    email: null | string;
     joinedAt: string;
     roles: Array<AssignmentResponse>;
 };
@@ -91,6 +168,38 @@ export type OrganizationCreatedResponse = {
 };
 
 export type OrganizationSummary = {
+    id: string;
+    name: string;
+};
+
+export type PartnerRequest = {
+    name: string;
+    sharePercentage: number | string;
+    memberId: null | string;
+};
+
+export type PartnerResponse = {
+    id: string;
+    name: string;
+    sharePercentage: number | string;
+    memberId: null | string;
+};
+
+export type PermissionGroupResponse = {
+    group: string;
+    permissions: Array<PermissionResponse>;
+};
+
+export type PermissionResponse = {
+    name: string;
+    description: string;
+};
+
+export type PracticeAreaRequest = {
+    name: string;
+};
+
+export type PracticeAreaResponse = {
     id: string;
     name: string;
 };
@@ -150,6 +259,24 @@ export type SessionResponse = {
     current: boolean;
 };
 
+export type TeamMembersRequest = {
+    memberIds: Array<string>;
+};
+
+export type TeamRequest = {
+    name: string;
+    practiceAreaId: null | string;
+    branchId: null | string;
+};
+
+export type TeamResponse = {
+    id: string;
+    name: string;
+    practiceAreaId: null | string;
+    branchId: null | string;
+    memberIds: Array<string>;
+};
+
 /**
  * Chave para o aplicativo autenticador: digitada à mão ou lida pelo QR code gerado a partir do `otpauth://`.
  */
@@ -161,6 +288,36 @@ export type TotpSetupResponse = {
 export type UpdateRolePermissionsRequest = {
     permissions: Array<string>;
 };
+
+export type UpdateRoleRequest = {
+    name: string;
+    description: null | string;
+};
+
+export type ListPermissionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/permissions';
+};
+
+export type ListPermissionsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListPermissionsError = ListPermissionsErrors[keyof ListPermissionsErrors];
+
+export type ListPermissionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<PermissionGroupResponse>;
+};
+
+export type ListPermissionsResponse = ListPermissionsResponses[keyof ListPermissionsResponses];
 
 export type GetJobData = {
     body?: never;
@@ -620,6 +777,41 @@ export type AssignMemberRolesResponses = {
 
 export type AssignMemberRolesResponse = AssignMemberRolesResponses[keyof AssignMemberRolesResponses];
 
+export type RemoveMemberData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/members/{id}';
+};
+
+export type RemoveMemberErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type RemoveMemberError = RemoveMemberErrors[keyof RemoveMemberErrors];
+
+export type RemoveMemberResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type RemoveMemberResponse = RemoveMemberResponses[keyof RemoveMemberResponses];
+
 export type SetMfaPolicyData = {
     body: MfaPolicyRequest;
     path?: never;
@@ -670,6 +862,113 @@ export type ListRolesResponses = {
 
 export type ListRolesResponse = ListRolesResponses[keyof ListRolesResponses];
 
+export type CreateRoleData = {
+    body: CreateRoleRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/roles';
+};
+
+export type CreateRoleErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateRoleError = CreateRoleErrors[keyof CreateRoleErrors];
+
+export type CreateRoleResponses = {
+    /**
+     * Created
+     */
+    201: RoleResponse;
+};
+
+export type CreateRoleResponse = CreateRoleResponses[keyof CreateRoleResponses];
+
+export type DeleteRoleData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/roles/{id}';
+};
+
+export type DeleteRoleErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteRoleError = DeleteRoleErrors[keyof DeleteRoleErrors];
+
+export type DeleteRoleResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteRoleResponse = DeleteRoleResponses[keyof DeleteRoleResponses];
+
+export type UpdateRoleData = {
+    body: UpdateRoleRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/roles/{id}';
+};
+
+export type UpdateRoleErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type UpdateRoleError = UpdateRoleErrors[keyof UpdateRoleErrors];
+
+export type UpdateRoleResponses = {
+    /**
+     * OK
+     */
+    200: RoleResponse;
+};
+
+export type UpdateRoleResponse = UpdateRoleResponses[keyof UpdateRoleResponses];
+
 export type UpdateRolePermissionsData = {
     body: UpdateRolePermissionsRequest;
     path: {
@@ -708,3 +1007,936 @@ export type UpdateRolePermissionsResponses = {
 };
 
 export type UpdateRolePermissionsResponse = UpdateRolePermissionsResponses[keyof UpdateRolePermissionsResponses];
+
+export type ListInvitationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/invitations';
+};
+
+export type ListInvitationsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListInvitationsError = ListInvitationsErrors[keyof ListInvitationsErrors];
+
+export type ListInvitationsResponses = {
+    /**
+     * OK
+     */
+    200: Array<InvitationResponse>;
+};
+
+export type ListInvitationsResponse = ListInvitationsResponses[keyof ListInvitationsResponses];
+
+export type CreateInvitationData = {
+    body: CreateInvitationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/invitations';
+};
+
+export type CreateInvitationErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateInvitationError = CreateInvitationErrors[keyof CreateInvitationErrors];
+
+export type CreateInvitationResponses = {
+    /**
+     * Created
+     */
+    201: InvitationResponse;
+};
+
+export type CreateInvitationResponse = CreateInvitationResponses[keyof CreateInvitationResponses];
+
+export type ResendInvitationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/invitations/{id}/resend';
+};
+
+export type ResendInvitationErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ResendInvitationError = ResendInvitationErrors[keyof ResendInvitationErrors];
+
+export type ResendInvitationResponses = {
+    /**
+     * OK
+     */
+    200: InvitationResponse;
+};
+
+export type ResendInvitationResponse = ResendInvitationResponses[keyof ResendInvitationResponses];
+
+export type RevokeInvitationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/invitations/{id}';
+};
+
+export type RevokeInvitationErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type RevokeInvitationError = RevokeInvitationErrors[keyof RevokeInvitationErrors];
+
+export type RevokeInvitationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type RevokeInvitationResponse = RevokeInvitationResponses[keyof RevokeInvitationResponses];
+
+export type PreviewInvitationData = {
+    body: InvitationTokenRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/invitations/preview';
+};
+
+export type PreviewInvitationErrors = {
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type PreviewInvitationError = PreviewInvitationErrors[keyof PreviewInvitationErrors];
+
+export type PreviewInvitationResponses = {
+    /**
+     * OK
+     */
+    200: InvitationPreviewResponse;
+};
+
+export type PreviewInvitationResponse = PreviewInvitationResponses[keyof PreviewInvitationResponses];
+
+export type AcceptInvitationData = {
+    body: InvitationTokenRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/invitations/accept';
+};
+
+export type AcceptInvitationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AcceptInvitationError = AcceptInvitationErrors[keyof AcceptInvitationErrors];
+
+export type AcceptInvitationResponses = {
+    /**
+     * OK
+     */
+    200: InvitationAcceptedResponse;
+};
+
+export type AcceptInvitationResponse = AcceptInvitationResponses[keyof AcceptInvitationResponses];
+
+export type ListBranchesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/branches';
+};
+
+export type ListBranchesErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListBranchesError = ListBranchesErrors[keyof ListBranchesErrors];
+
+export type ListBranchesResponses = {
+    /**
+     * OK
+     */
+    200: Array<BranchResponse>;
+};
+
+export type ListBranchesResponse = ListBranchesResponses[keyof ListBranchesResponses];
+
+export type CreateBranchData = {
+    body?: BranchRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/branches';
+};
+
+export type CreateBranchErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateBranchError = CreateBranchErrors[keyof CreateBranchErrors];
+
+export type CreateBranchResponses = {
+    /**
+     * Created
+     */
+    201: BranchResponse;
+};
+
+export type CreateBranchResponse = CreateBranchResponses[keyof CreateBranchResponses];
+
+export type DeleteBranchData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/branches/{id}';
+};
+
+export type DeleteBranchErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteBranchError = DeleteBranchErrors[keyof DeleteBranchErrors];
+
+export type DeleteBranchResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteBranchResponse = DeleteBranchResponses[keyof DeleteBranchResponses];
+
+export type UpdateBranchData = {
+    body?: BranchRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/branches/{id}';
+};
+
+export type UpdateBranchErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateBranchError = UpdateBranchErrors[keyof UpdateBranchErrors];
+
+export type UpdateBranchResponses = {
+    /**
+     * OK
+     */
+    200: BranchResponse;
+};
+
+export type UpdateBranchResponse = UpdateBranchResponses[keyof UpdateBranchResponses];
+
+export type ListPracticeAreasData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/practice-areas';
+};
+
+export type ListPracticeAreasErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListPracticeAreasError = ListPracticeAreasErrors[keyof ListPracticeAreasErrors];
+
+export type ListPracticeAreasResponses = {
+    /**
+     * OK
+     */
+    200: Array<PracticeAreaResponse>;
+};
+
+export type ListPracticeAreasResponse = ListPracticeAreasResponses[keyof ListPracticeAreasResponses];
+
+export type CreatePracticeAreaData = {
+    body?: PracticeAreaRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/practice-areas';
+};
+
+export type CreatePracticeAreaErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreatePracticeAreaError = CreatePracticeAreaErrors[keyof CreatePracticeAreaErrors];
+
+export type CreatePracticeAreaResponses = {
+    /**
+     * Created
+     */
+    201: PracticeAreaResponse;
+};
+
+export type CreatePracticeAreaResponse = CreatePracticeAreaResponses[keyof CreatePracticeAreaResponses];
+
+export type DeletePracticeAreaData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/practice-areas/{id}';
+};
+
+export type DeletePracticeAreaErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeletePracticeAreaError = DeletePracticeAreaErrors[keyof DeletePracticeAreaErrors];
+
+export type DeletePracticeAreaResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeletePracticeAreaResponse = DeletePracticeAreaResponses[keyof DeletePracticeAreaResponses];
+
+export type UpdatePracticeAreaData = {
+    body?: PracticeAreaRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/practice-areas/{id}';
+};
+
+export type UpdatePracticeAreaErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdatePracticeAreaError = UpdatePracticeAreaErrors[keyof UpdatePracticeAreaErrors];
+
+export type UpdatePracticeAreaResponses = {
+    /**
+     * OK
+     */
+    200: PracticeAreaResponse;
+};
+
+export type UpdatePracticeAreaResponse = UpdatePracticeAreaResponses[keyof UpdatePracticeAreaResponses];
+
+export type ListTeamsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/teams';
+};
+
+export type ListTeamsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListTeamsError = ListTeamsErrors[keyof ListTeamsErrors];
+
+export type ListTeamsResponses = {
+    /**
+     * OK
+     */
+    200: Array<TeamResponse>;
+};
+
+export type ListTeamsResponse = ListTeamsResponses[keyof ListTeamsResponses];
+
+export type CreateTeamData = {
+    body?: TeamRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/teams';
+};
+
+export type CreateTeamErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateTeamError = CreateTeamErrors[keyof CreateTeamErrors];
+
+export type CreateTeamResponses = {
+    /**
+     * Created
+     */
+    201: TeamResponse;
+};
+
+export type CreateTeamResponse = CreateTeamResponses[keyof CreateTeamResponses];
+
+export type DeleteTeamData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/teams/{id}';
+};
+
+export type DeleteTeamErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteTeamError = DeleteTeamErrors[keyof DeleteTeamErrors];
+
+export type DeleteTeamResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteTeamResponse = DeleteTeamResponses[keyof DeleteTeamResponses];
+
+export type UpdateTeamData = {
+    body?: TeamRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/teams/{id}';
+};
+
+export type UpdateTeamErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateTeamError = UpdateTeamErrors[keyof UpdateTeamErrors];
+
+export type UpdateTeamResponses = {
+    /**
+     * OK
+     */
+    200: TeamResponse;
+};
+
+export type UpdateTeamResponse = UpdateTeamResponses[keyof UpdateTeamResponses];
+
+export type ListCostCentersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/cost-centers';
+};
+
+export type ListCostCentersErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListCostCentersError = ListCostCentersErrors[keyof ListCostCentersErrors];
+
+export type ListCostCentersResponses = {
+    /**
+     * OK
+     */
+    200: Array<CostCenterResponse>;
+};
+
+export type ListCostCentersResponse = ListCostCentersResponses[keyof ListCostCentersResponses];
+
+export type CreateCostCenterData = {
+    body?: CostCenterRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/cost-centers';
+};
+
+export type CreateCostCenterErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateCostCenterError = CreateCostCenterErrors[keyof CreateCostCenterErrors];
+
+export type CreateCostCenterResponses = {
+    /**
+     * Created
+     */
+    201: CostCenterResponse;
+};
+
+export type CreateCostCenterResponse = CreateCostCenterResponses[keyof CreateCostCenterResponses];
+
+export type DeleteCostCenterData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/cost-centers/{id}';
+};
+
+export type DeleteCostCenterErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteCostCenterError = DeleteCostCenterErrors[keyof DeleteCostCenterErrors];
+
+export type DeleteCostCenterResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteCostCenterResponse = DeleteCostCenterResponses[keyof DeleteCostCenterResponses];
+
+export type UpdateCostCenterData = {
+    body?: CostCenterRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/cost-centers/{id}';
+};
+
+export type UpdateCostCenterErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateCostCenterError = UpdateCostCenterErrors[keyof UpdateCostCenterErrors];
+
+export type UpdateCostCenterResponses = {
+    /**
+     * OK
+     */
+    200: CostCenterResponse;
+};
+
+export type UpdateCostCenterResponse = UpdateCostCenterResponses[keyof UpdateCostCenterResponses];
+
+export type ListPartnersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/partners';
+};
+
+export type ListPartnersErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListPartnersError = ListPartnersErrors[keyof ListPartnersErrors];
+
+export type ListPartnersResponses = {
+    /**
+     * OK
+     */
+    200: Array<PartnerResponse>;
+};
+
+export type ListPartnersResponse = ListPartnersResponses[keyof ListPartnersResponses];
+
+export type CreatePartnerData = {
+    body?: PartnerRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/partners';
+};
+
+export type CreatePartnerErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreatePartnerError = CreatePartnerErrors[keyof CreatePartnerErrors];
+
+export type CreatePartnerResponses = {
+    /**
+     * Created
+     */
+    201: PartnerResponse;
+};
+
+export type CreatePartnerResponse = CreatePartnerResponses[keyof CreatePartnerResponses];
+
+export type DeletePartnerData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/partners/{id}';
+};
+
+export type DeletePartnerErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeletePartnerError = DeletePartnerErrors[keyof DeletePartnerErrors];
+
+export type DeletePartnerResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeletePartnerResponse = DeletePartnerResponses[keyof DeletePartnerResponses];
+
+export type UpdatePartnerData = {
+    body?: PartnerRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/partners/{id}';
+};
+
+export type UpdatePartnerErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdatePartnerError = UpdatePartnerErrors[keyof UpdatePartnerErrors];
+
+export type UpdatePartnerResponses = {
+    /**
+     * OK
+     */
+    200: PartnerResponse;
+};
+
+export type UpdatePartnerResponse = UpdatePartnerResponses[keyof UpdatePartnerResponses];
+
+export type SetTeamMembersData = {
+    body: TeamMembersRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/teams/{id}/members';
+};
+
+export type SetTeamMembersErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type SetTeamMembersError = SetTeamMembersErrors[keyof SetTeamMembersErrors];
+
+export type SetTeamMembersResponses = {
+    /**
+     * OK
+     */
+    200: TeamResponse;
+};
+
+export type SetTeamMembersResponse = SetTeamMembersResponses[keyof SetTeamMembersResponses];

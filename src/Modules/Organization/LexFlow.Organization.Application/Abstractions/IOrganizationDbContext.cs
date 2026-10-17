@@ -1,3 +1,4 @@
+using LexFlow.Organization.Domain.Invitations;
 using LexFlow.Organization.Domain.Members;
 using LexFlow.Organization.Domain.OrgStructure;
 using LexFlow.Organization.Domain.Roles;
@@ -31,6 +32,11 @@ public interface IOrganizationDbContext
     DbSet<CostCenter> CostCenters { get; }
 
     DbSet<Partner> Partners { get; }
+
+    DbSet<Invitation> Invitations { get; }
+
+    /// <summary>Diretório token → convite, sem tenant (ver <see cref="InvitationToken"/>).</summary>
+    DbSet<InvitationToken> InvitationTokens { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -54,7 +54,7 @@ public sealed class Branch : StructureEntity
         : base(id, name)
     {
         Cnpj = cnpj?.Value;
-        MunicipalRegistration = municipalRegistration?.Trim();
+        MunicipalRegistration = string.IsNullOrWhiteSpace(municipalRegistration) ? null : municipalRegistration.Trim();
     }
 
     /// <summary>Só dígitos (ou alfanumérico, a partir de 2026), validado pelo value object <see cref="SharedKernel.ValueObjects.Cnpj"/>.</summary>
@@ -64,6 +64,13 @@ public sealed class Branch : StructureEntity
 
     public static Branch Create(Guid id, string name, Cnpj? cnpj = null, string? municipalRegistration = null) =>
         new(id, name, cnpj, municipalRegistration);
+
+    public void Update(string name, Cnpj? cnpj, string? municipalRegistration)
+    {
+        Rename(name);
+        Cnpj = cnpj?.Value;
+        MunicipalRegistration = string.IsNullOrWhiteSpace(municipalRegistration) ? null : municipalRegistration.Trim();
+    }
 }
 
 /// <summary>Área de atuação ou núcleo (trabalhista, cível, tributário…).</summary>
@@ -101,6 +108,13 @@ public sealed class Team : StructureEntity
 
     public static Team Create(Guid id, string name, Guid? practiceAreaId = null, Guid? branchId = null) =>
         new(id, name, practiceAreaId, branchId);
+
+    public void Update(string name, Guid? practiceAreaId, Guid? branchId)
+    {
+        Rename(name);
+        PracticeAreaId = practiceAreaId;
+        BranchId = branchId;
+    }
 }
 
 /// <summary>Membro de uma equipe.</summary>
@@ -147,12 +161,22 @@ public sealed class CostCenter : StructureEntity
         : base(id, name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
-        Code = code.Trim().ToUpperInvariant();
+        Code = NormalizeCode(code);
     }
 
     public string Code { get; private set; } = string.Empty;
 
     public static CostCenter Create(Guid id, string code, string name) => new(id, code, name);
+
+    /// <summary>Código normalizado como gravado (sem espaços nas pontas, em maiúsculas).</summary>
+    public static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
+
+    public void Update(string code, string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        Rename(name);
+        Code = NormalizeCode(code);
+    }
 }
 
 /// <summary>Sócio e participação, para relatórios de distribuição de resultado.</summary>
@@ -176,7 +200,22 @@ public sealed class Partner : StructureEntity
     public decimal SharePercentage { get; private set; }
 
     public static Result<Partner> Create(Guid id, string name, decimal sharePercentage, Guid? memberId = null) =>
-        sharePercentage is <= 0 or > 100
-            ? OrganizationErrors.InvalidPartnerShare
-            : new Partner(id, name, memberId, sharePercentage);
+        IsValidShare(sharePercentage)
+            ? new Partner(id, name, memberId, sharePercentage)
+            : OrganizationErrors.InvalidPartnerShare;
+
+    public Result Update(string name, decimal sharePercentage, Guid? memberId)
+    {
+        if (!IsValidShare(sharePercentage))
+        {
+            return OrganizationErrors.InvalidPartnerShare;
+        }
+
+        Rename(name);
+        SharePercentage = sharePercentage;
+        MemberId = memberId;
+        return Result.Success;
+    }
+
+    private static bool IsValidShare(decimal sharePercentage) => sharePercentage is > 0 and <= 100;
 }

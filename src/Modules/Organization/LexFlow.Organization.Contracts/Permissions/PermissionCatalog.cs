@@ -38,6 +38,7 @@ public static partial class PermissionCatalog
     public const string ProfileRead = "identity.profile.read";
     public const string ProfileManage = "identity.profile.manage";
     public const string OrganizationsCreate = "organizations.create";
+    public const string InvitationsAccept = "organizations.invitations.accept";
     public const string SettingsOrganizationManage = "settings.organization.manage";
     public const string SettingsStructureManage = "settings.structure.manage";
     public const string SettingsUsersRead = "settings.users.read";
@@ -53,6 +54,7 @@ public static partial class PermissionCatalog
         new(ProfileRead, Groups.Account, "Ver o próprio perfil e as sessões", Universal: true),
         new(ProfileManage, Groups.Account, "Gerenciar a verificação em duas etapas e as sessões", Universal: true),
         new(OrganizationsCreate, Groups.Account, "Criar um novo escritório", Universal: true),
+        new(InvitationsAccept, Groups.Account, "Aceitar convites para escritórios", Universal: true),
 
         new(SettingsOrganizationManage, Groups.Settings, "Editar os dados e as políticas do escritório"),
         new(SettingsStructureManage, Groups.Settings, "Gerenciar filiais, áreas, equipes, centros de custo e sócios"),

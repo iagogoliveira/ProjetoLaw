@@ -32,7 +32,7 @@ public sealed record ResetPasswordRequest(Guid UserId, string Token, string NewP
 public sealed class IdentityModule : IModule
 {
     /// <summary>Limite por IP do login e dos endpoints públicos de conta (seção 7.3: 10 req/min).</summary>
-    public const string PublicRateLimitPolicy = "identity-public";
+    public const string PublicRateLimitPolicy = PublicRateLimit.PolicyName;
 
     public const string PermitsPerMinuteKey = "Identity:PublicPermitsPerMinute";
 

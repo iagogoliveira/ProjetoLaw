@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using LexFlow.Application.Abstractions.Integrations;
 using LexFlow.Identity.Application.Abstractions;
+using LexFlow.Identity.Contracts;
 using LexFlow.Identity.Domain.Sessions;
 using LexFlow.Identity.Domain.Users;
 using LexFlow.Identity.Infrastructure.Emails;
@@ -27,11 +28,12 @@ public static class IdentityInfrastructure
     /// <summary>Nome comum do Data Protection: API e Worker precisam do mesmo para ler os tokens um do outro.</summary>
     public const string DataProtectionApplicationName = "LexFlow";
 
-    /// <summary>Só o DbContext do módulo (usado pelo MigrationService).</summary>
+    /// <summary>DbContext do módulo (usado também pelo MigrationService) e o diretório de usuários dos outros módulos.</summary>
     public static IServiceCollection AddIdentityPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddModuleDbContext<IdentityModuleDbContext>(configuration, IdentityModuleDbContext.ModuleName, IdentityModuleDbContext.SchemaName);
         services.AddScoped<IIdentityDbContext>(sp => sp.GetRequiredService<IdentityModuleDbContext>());
+        services.AddScoped<IUserDirectory, UserDirectory>();
         return services;
     }
 

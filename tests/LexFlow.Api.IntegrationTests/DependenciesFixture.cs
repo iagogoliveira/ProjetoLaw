@@ -9,6 +9,7 @@ using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Organization.Infrastructure;
+using LexFlow.Organization.Infrastructure.Invitations;
 using LexFlow.Organization.Infrastructure.Persistence;
 using LexFlow.Platform.Infrastructure;
 using LexFlow.Platform.Infrastructure.Persistence;
@@ -123,8 +124,9 @@ public sealed class DependenciesFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// "Worker" de teste: o mesmo registro do Identity que o Worker usa, em outro container de DI, com e-mail falso.
-    /// Prova que um token gerado nele é aceito pela API (anel de chaves compartilhado pelo banco).
+    /// "Worker" de teste: o mesmo registro do Identity e do Organization que o Worker usa, em outro container de DI,
+    /// com e-mail falso. Prova que um token gerado nele é aceito pela API (anel de chaves compartilhado pelo banco, e o
+    /// hash dos convites gravado pelo próprio consumidor).
     /// </summary>
     public ServiceProvider WorkerServices(IEmailSender email)
     {
@@ -136,8 +138,10 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddApplication(IdentityApplication.Assembly);
         services.AddSystemContexts();
         services.AddIdentityInfrastructure(configuration);
+        services.AddOrganizationInfrastructure(configuration);
         services.AddSingleton(email);
         services.AddScoped<AccountEmailConsumer>();
+        services.AddScoped<InvitationEmailConsumer>();
         return services.BuildServiceProvider();
     }
 
