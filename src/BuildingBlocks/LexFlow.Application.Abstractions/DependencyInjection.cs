@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using LexFlow.Application.Abstractions.Behaviors;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Application.Abstractions.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -32,13 +33,18 @@ public static class DependencyInjection
             .WithScopedLifetime()
             .AddClasses(c => c.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
             .AsImplementedInterfaces()
+            .WithScopedLifetime()
+            .AddClasses(c => c.AssignableTo(typeof(IResourceAuthorizer<>)), publicOnly: false)
+            .AsImplementedInterfaces()
             .WithScopedLifetime());
 
         // Scrutor envolve na ordem de registro: o último decorator é o mais externo.
-        // Resultado: Logging → Validação → (Autorização de recurso, Etapa 3) → Transação → Handler.
+        // Resultado: Logging → Validação → Autorização de recurso → Transação → Handler (seção 4.3).
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(TransactionCommandDecorator<,>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(ResourceAuthorizationCommandDecorator<,>));
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidationCommandDecorator<,>));
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingCommandDecorator<,>));
+        services.TryDecorate(typeof(IQueryHandler<,>), typeof(ResourceAuthorizationQueryDecorator<,>));
         services.TryDecorate(typeof(IQueryHandler<,>), typeof(ValidationQueryDecorator<,>));
         services.TryDecorate(typeof(IQueryHandler<,>), typeof(LoggingQueryDecorator<,>));
 

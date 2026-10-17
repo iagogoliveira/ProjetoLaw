@@ -22,6 +22,8 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
 
     public DbSet<OrganizationMember> Members => Set<OrganizationMember>();
 
+    public DbSet<UserOrganization> UserOrganizations => Set<UserOrganization>();
+
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<MemberRoleAssignment> RoleAssignments => Set<MemberRoleAssignment>();
@@ -63,6 +65,17 @@ internal sealed class OrganizationMemberConfiguration : IEntityTypeConfiguration
         builder.HasIndex(m => m.UserId);
         builder.HasOne<OrganizationEntity>().WithMany().HasForeignKey(m => m.OrganizationId).OnDelete(DeleteBehavior.Restrict);
         builder.HasStandardColumns();
+    }
+}
+
+/// <summary>Diretório sem tenant: a chave é o par usuário + organização.</summary>
+internal sealed class UserOrganizationConfiguration : IEntityTypeConfiguration<UserOrganization>
+{
+    public void Configure(EntityTypeBuilder<UserOrganization> builder)
+    {
+        builder.ToTable("user_organizations");
+        builder.HasKey(u => new { u.UserId, u.OrganizationId });
+        builder.HasOne<OrganizationEntity>().WithMany().HasForeignKey(u => u.OrganizationId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

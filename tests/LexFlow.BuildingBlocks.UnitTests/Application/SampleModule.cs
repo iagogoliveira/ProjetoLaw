@@ -1,6 +1,7 @@
 using FluentValidation;
 using LexFlow.Application.Abstractions.Data;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Application.Abstractions.Security;
 using LexFlow.SharedKernel.Results;
 
 // Namespace no formato LexFlow.{Modulo}.Application para exercitar a descoberta do módulo pelo decorator de transação.
@@ -31,6 +32,27 @@ internal sealed class GetThingValidator : AbstractValidator<GetThing>
     public GetThingValidator()
     {
         RuleFor(x => x.Id).NotEmpty().WithErrorCode("thing.id_required");
+    }
+}
+
+/// <summary>Autorização de recurso de exemplo: nega títulos "secreto" (como um caso sigiloso fora da lista).</summary>
+internal sealed class CreateThingAuthorizer(Trace trace) : IResourceAuthorizer<CreateThing>
+{
+    public static readonly Error Denied = Error.NotFound("thing.not_found", "Não encontrado.");
+
+    public Task<Result> AuthorizeAsync(CreateThing request, CancellationToken cancellationToken)
+    {
+        trace.Steps.Add("authorize");
+        return Task.FromResult(string.Equals(request.Title, "secreto", StringComparison.Ordinal) ? Result.Failure(Denied) : Result.Success);
+    }
+}
+
+internal sealed class GetThingAuthorizer(Trace trace) : IResourceAuthorizer<GetThing>
+{
+    public Task<Result> AuthorizeAsync(GetThing request, CancellationToken cancellationToken)
+    {
+        trace.Steps.Add("authorize-query");
+        return Task.FromResult(request.Id == Guid.AllBitsSet ? Result.Failure(CreateThingAuthorizer.Denied) : Result.Success);
     }
 }
 

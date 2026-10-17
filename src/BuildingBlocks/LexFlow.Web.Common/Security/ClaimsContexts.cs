@@ -10,6 +10,7 @@ public static class LexFlowClaims
     public const string Subject = "sub";
     public const string OrganizationId = "org_id";
     public const string SessionId = "sid";
+    public const string AuthenticationMethods = "amr";
 }
 
 /// <summary>Usuário a partir da claim <c>sub</c> do token.</summary>
@@ -24,14 +25,12 @@ internal sealed class HttpContextCurrentUser(IHttpContextAccessor accessor) : IC
 }
 
 /// <summary>
-/// Organização ativa a partir da claim <c>org_id</c>. Provisório: a validação contra <c>OrganizationMember</c>
-/// e a troca de organização (cabeçalho <c>X-Organization-Id</c>) chegam na Etapa 3.
+/// Organização ativa já validada contra a pertença pelo <see cref="TenantResolutionMiddleware"/> (seção 6.2, item 2).
+/// O <see cref="TenantOverride"/> do onboarding tem precedência.
 /// </summary>
 internal sealed class HttpContextTenantContext(IHttpContextAccessor accessor, TenantOverride tenantOverride) : ITenantContext
 {
     public Guid? OrganizationId =>
         tenantOverride.OrganizationId
-        ?? (accessor.HttpContext?.User is { Identity.IsAuthenticated: true } user
-            ? HttpContextCurrentUser.ParseGuid(user, LexFlowClaims.OrganizationId)
-            : null);
+        ?? (accessor.HttpContext?.Items.TryGetValue(TenantResolutionMiddleware.ItemKey, out var value) == true ? value as Guid? : null);
 }

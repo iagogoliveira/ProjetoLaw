@@ -31,6 +31,7 @@ internal sealed class CreateOrganizationHandler(
     IOrganizationDbContext db,
     ICurrentUser user,
     TenantOverride tenant,
+    IAccessCache cache,
     IIdGenerator ids,
     IClock clock)
     : ICommandHandler<CreateOrganizationCommand, OrganizationCreatedResponse>
@@ -56,10 +57,14 @@ internal sealed class CreateOrganizationHandler(
 
             var member = OrganizationMember.Join(ids.NewId(), organization.Id, userId, clock.UtcNow);
             db.Members.Add(member);
+            db.UserOrganizations.Add(new UserOrganization(userId, organization.Id));
             db.RoleAssignments.Add(MemberRoleAssignment.Assign(ids.NewId(), member.Id, admin!.Id, DataScope.Organization).Value);
 
             await db.SaveChangesAsync(cancellationToken);
         }
+
+        // A lista de organizações do criador mudou: a próxima requisição já enxerga o escritório novo.
+        await cache.InvalidateMembershipsAsync(userId, cancellationToken);
 
         return new OrganizationCreatedResponse(organization.Id, organization.Name);
     }

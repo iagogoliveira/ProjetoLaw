@@ -97,7 +97,9 @@ public sealed class OidcFlowTests(DependenciesFixture dependencies) : IAsyncLife
         using var authenticated = await api.SendAsync(request, Ct);
 
         anonymous.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-        authenticated.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
+        // Autenticado (não é 401), mas sem organização: a permissão do endpoint é negada.
+        authenticated.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Fact]

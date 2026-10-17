@@ -37,25 +37,6 @@ public sealed class SecurityAndCorrelationTests
     }
 
     [Fact]
-    public async Task Authenticated_user_and_tenant_come_from_claims()
-    {
-        await using var app = await TestWebHost.StartAsync(MapSample, withTestAuthentication: true);
-        using var client = app.GetTestClient();
-        var userId = Guid.CreateVersion7();
-        var orgId = Guid.CreateVersion7();
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/protected");
-        request.Headers.Add(TestWebHost.UserHeader, userId.ToString());
-        request.Headers.Add(TestWebHost.OrganizationHeader, orgId.ToString());
-
-        using var response = await client.SendAsync(request, Ct);
-
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(Ct)).RootElement;
-        body.GetProperty("userId").GetGuid().ShouldBe(userId);
-        body.GetProperty("organizationId").GetGuid().ShouldBe(orgId);
-    }
-
-    [Fact]
     public async Task Permission_is_recorded_in_endpoint_metadata()
     {
         await using var app = await TestWebHost.StartAsync(MapSample);

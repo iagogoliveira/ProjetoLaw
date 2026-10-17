@@ -20,6 +20,7 @@ internal sealed class TestAuthenticationHandler(
     public const string UserHeader = "X-Test-User";
     public const string OrganizationHeader = "X-Test-Org";
     public const string SessionHeader = "X-Test-Session";
+    public const string AmrHeader = "X-Test-Amr";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -41,6 +42,10 @@ internal sealed class TestAuthenticationHandler(
         {
             claims.Add(new Claim(LexFlowClaims.SessionId, session));
         }
+
+        claims.AddRange(Request.Headers[AmrHeader].ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(amr => new Claim(LexFlowClaims.AuthenticationMethods, amr)));
 
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));
         return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, SchemeName)));
