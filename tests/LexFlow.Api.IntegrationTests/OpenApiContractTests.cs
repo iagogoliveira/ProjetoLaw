@@ -61,7 +61,10 @@ public sealed class OpenApiContractTests(DependenciesFixture dependencies)
     {
         var document = JsonNode.Parse(json)!.AsObject();
         document.Remove("servers");
-        return document.ToJsonString(Indented).ReplaceLineEndings("\n") + "\n";
+
+        // Comentários XML de várias linhas viram descrições com a quebra de linha do sistema que compilou
+        // (\r\n no Windows, \n no Linux do CI): dentro das strings, vale sempre \n.
+        return document.ToJsonString(Indented).Replace("\\r\\n", "\\n", StringComparison.Ordinal).ReplaceLineEndings("\n") + "\n";
     }
 
     private static string RepositoryRoot()

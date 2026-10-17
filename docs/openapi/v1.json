@@ -1117,7 +1117,7 @@
             "type": "boolean"
           }
         },
-        "description": "Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA\r\nesconder o que não cabe (a UI só esconde; quem bloqueia é o servidor)."
+        "description": "Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA\nesconder o que não cabe (a UI só esconde; quem bloqueia é o servidor)."
       },
       "OrganizationCreatedResponse": {
         "required": [
