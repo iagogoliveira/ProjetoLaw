@@ -1,3 +1,5 @@
+using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Identity.Application.Mfa;
 using LexFlow.Identity.Domain.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,9 +9,12 @@ namespace LexFlow.Identity.Endpoints.Pages.Conta;
 
 /// <summary>
 /// Login com e-mail e senha. A 6ª tentativa errada seguida bloqueia a conta por 15 minutos. Em sucesso, volta ao
-/// endpoint de autorização que pediu o login (só endereços locais, para não virar redirecionamento aberto).
+/// endpoint de autorização que pediu o login (só endereços locais, para não virar redirecionamento aberto). Com MFA
+/// ligado, segue para o segundo fator; quem usa código por e-mail recebe o código nesse momento.
 /// </summary>
-public sealed class EntrarModel(SignInManager<ApplicationUser> signIn) : PageModel
+public sealed class EntrarModel(
+    SignInManager<ApplicationUser> signIn,
+    ICommandHandler<SendSignInCodeCommand, Unit> sendCode) : PageModel
 {
     public const string InvalidCredentials = "E-mail ou senha inválidos.";
     public const string LockedOut = "Conta bloqueada por 15 minutos depois de várias tentativas erradas. Tente mais tarde ou redefina a senha.";
@@ -30,7 +35,18 @@ public sealed class EntrarModel(SignInManager<ApplicationUser> signIn) : PageMod
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var result = await signIn.PasswordSignInAsync(Email.Trim().ToLowerInvariant(), Password, isPersistent: false, lockoutOnFailure: true);
+        var email = Email.Trim().ToLowerInvariant();
+        var result = await signIn.PasswordSignInAsync(email, Password, isPersistent: false, lockoutOnFailure: true);
+        if (result.RequiresTwoFactor)
+        {
+            if (await signIn.UserManager.FindByEmailAsync(email) is { MfaMethod: MfaMethod.Email } user)
+            {
+                await sendCode.Handle(new SendSignInCodeCommand(user.Id), HttpContext.RequestAborted);
+            }
+
+            return RedirectToPage("/Conta/SegundoFator", new { ReturnUrl });
+        }
+
         if (result.Succeeded)
         {
             if (ReturnUrl is { Length: > 0 } returnUrl && Url.IsLocalUrl(returnUrl))

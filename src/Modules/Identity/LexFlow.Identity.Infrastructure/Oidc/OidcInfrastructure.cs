@@ -15,9 +15,26 @@ public static class OidcScopes
     public const string Api = "api";
 }
 
-/// <summary>Revoga a autorização da sessão e todos os tokens dela (sessão encerrada, senha redefinida).</summary>
-internal sealed class OpenIddictSessionTokenRevoker(IOpenIddictAuthorizationManager authorizations, IOpenIddictTokenManager tokens) : ISessionTokenRevoker
+/// <summary>Tokens da sessão sobre o OpenIddict: revogação (sessão encerrada, senha redefinida) e consulta de refresh válido.</summary>
+internal sealed class OpenIddictSessionTokens(IOpenIddictAuthorizationManager authorizations, IOpenIddictTokenManager tokens, IClock clock) : ISessionTokens
 {
+    public async Task<bool> HasActiveRefreshTokenAsync(string authorizationId, CancellationToken cancellationToken)
+    {
+        var now = clock.UtcNow;
+        await foreach (var token in tokens.FindByAuthorizationIdAsync(authorizationId, cancellationToken))
+        {
+            var type = await tokens.GetTypeAsync(token, cancellationToken);
+            if ((string.Equals(type, TokenTypeHints.RefreshToken, StringComparison.Ordinal) || string.Equals(type, TokenTypeIdentifiers.RefreshToken, StringComparison.Ordinal))
+                && await tokens.HasStatusAsync(token, Statuses.Valid, cancellationToken)
+                && (await tokens.GetExpirationDateAsync(token, cancellationToken) ?? DateTimeOffset.MaxValue) > now)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public async Task RevokeAsync(string authorizationId, CancellationToken cancellationToken)
     {
         if (await authorizations.FindByIdAsync(authorizationId, cancellationToken) is { } authorization)

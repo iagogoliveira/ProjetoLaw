@@ -6,7 +6,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Em andamento** (PR A #7 mergeado; B1 pronto no branch; faltam B2 e C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login` |
+| 2 — Identidade e autenticação | **Em andamento** (PRs A #7 e B1 #8 mergeados; B2 pronto no branch; falta C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me` |
 
 ---
 
@@ -28,7 +28,26 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - **B1:** OpenIddict (Authorization Code + PKCE, refresh rotativo com revogação em reuso), validação de token no lugar do esquema provisório (ADR 0008), páginas Razor de conta em pt-BR, sessões ligadas aos tokens (`sid`), bloqueio na 6ª senha errada, rate limit por IP e limpeza de tokens expirados.
 - **B2:** MFA (TOTP com códigos de recuperação e código por e-mail), `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
 
-### PR B1 — servidor OIDC, login e sessões (pronto no branch `etapa-2b-oidc-login`, sem PR)
+### PR B2 — MFA e minha conta (pronto no branch `etapa-2b2-mfa-me`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 2.16 | TOTP em duas etapas (`POST /api/v1/me/mfa/totp` e `/confirm`), com 10 códigos de recuperação | `MfaAndProfileTests.Totp_is_enabled_in_two_steps_and_then_required_at_login`, `Confirming_without_starting_the_setup_is_refused` |
+| 2.17 | Código por e-mail como segundo fator (`POST /api/v1/me/mfa/email`), enviado pelo Worker a cada login | `Email_code_is_sent_by_the_worker_at_each_login`, `AccountEmailConsumerTests.Sign_in_code_generated_by_the_worker_is_accepted_as_the_email_second_factor` |
+| 2.18 | Página `/conta/segundo-fator` (TOTP, e-mail, recuperação); `amr` com `mfa` no token | `Wrong_second_factor_is_refused_and_a_recovery_code_works_only_once`, `SessionAndUserTests.Enabling_mfa_*` |
+| 2.19 | `GET /api/v1/me`, `GET /api/v1/me/sessions` (com `current`, sem as sessões de refresh reutilizado) e `DELETE /api/v1/me/sessions/{id}` | `Profile_is_returned_for_the_signed_in_user_only`, `Open_sessions_are_listed_with_the_current_one_and_a_reused_refresh_hides_its_session`, `A_user_ends_their_own_session_but_not_someone_elses` |
+| 2.20 | Contrato OpenAPI e cliente TypeScript atualizados (só adições) | `OpenApiContractTests` |
+
+**Migration:** `MfaMethod` (coluna `identity.users.mfa_method`, padrão `None`).
+**ADR:** [0015 — MFA e "minha conta"](adr/0015-mfa-e-minha-conta.md).
+
+**Última verificação local (PR B2):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 412 testes .NET em 10 projetos (Testcontainers), 5 Vitest, 4 Playwright, `npm run lint`, sem pacotes vulneráveis. Cobertura: Identity.Application 94,3% e Identity.Domain 100%. A migration `MfaMethod` não tem mudança de modelo pendente.
+
+**Pendências do PR B2:**
+1. Desligar o MFA ou trocar o método exige reautenticação (*step-up*), que não está na especificação.
+2. Etapa 3: conceder `identity.profile.read` e `identity.profile.manage` a todo usuário autenticado no `PermissionCatalog`.
+
+### PR B1 — servidor OIDC, login e sessões (concluído: PR #8 mergeado em 2026-10-16)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -56,7 +75,7 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 
 **Pendências do PR B1:**
 1. `ForwardedHeaders` no deploy (IP real do rate limit e HTTPS atrás de proxy).
-2. PR B2: marcar como revogada a sessão cujo refresh token foi reutilizado; MFA; `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
+2. ~~PR B2: sessão de refresh reutilizado; MFA; `/api/v1/me`~~: feitos no PR B2 (a sessão some da lista e não renova).
 3. Client Credentials na Etapa 14.
 
 ### PR A — contas, senhas e e-mails (concluído: PR #7 mergeado em 2026-10-16, CI verde)

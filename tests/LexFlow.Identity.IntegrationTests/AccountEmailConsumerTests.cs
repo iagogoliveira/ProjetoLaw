@@ -131,4 +131,19 @@ public sealed class AccountEmailConsumerTests(IdentityDatabaseFixture fixture)
         changes.ShouldNotContain("concurrencyStamp");
         (await fixture.ScalarAsync<long>("SELECT count(*) FROM audit.audit_logs WHERE entity_type = 'DataProtectionKey'")).ShouldBe(0);
     }
+
+    [Fact]
+    public async Task Sign_in_code_generated_by_the_worker_is_accepted_as_the_email_second_factor()
+    {
+        var user = await CreateUserAsync(confirmed: true);
+
+        await ConsumeAsync(Event(user.Id, AccountEmailKind.SignInCode));
+
+        var html = _email.Sent.Single().HtmlBody;
+        var code = System.Text.RegularExpressions.Regex.Match(html, @"letter-spacing:6px;"">(?<code>\d{6})<", System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(1)).Groups["code"].Value;
+        await using var api = IdentityDatabaseFixture.BuildProvider(fixture.ConnectionString, new FakeEmailSender());
+        await using var scope = api.CreateAsyncScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        (await users.VerifyTwoFactorTokenAsync((await users.FindByIdAsync(user.Id.ToString()))!, TokenOptions.DefaultEmailProvider, code)).ShouldBeTrue();
+    }
 }

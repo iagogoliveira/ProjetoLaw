@@ -99,7 +99,7 @@ public static class IdentityInfrastructure
         }
 
         services.AddOpenIddict().AddOidcCore();
-        services.AddScoped<ISessionTokenRevoker, OpenIddictSessionTokenRevoker>();
+        services.AddScoped<ISessionTokens, OpenIddictSessionTokens>();
         services.AddScoped<OidcTokensCleanupJob>();
         services.AddSingleton<AccountEmailComposer>();
         return services;

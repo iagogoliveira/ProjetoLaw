@@ -72,4 +72,14 @@ public sealed class AccountEmailComposerTests
     [InlineData(AccountEmailKind.ResetPassword)]
     public void Token_emails_require_a_token(AccountEmailKind kind) =>
         Should.Throw<ArgumentException>(() => Composer.Compose(kind, NewUser(), token: null));
+
+    [Fact]
+    public void Sign_in_code_goes_in_the_body_without_any_link()
+    {
+        var email = Composer.Compose(AccountEmailKind.SignInCode, NewUser(), "482913");
+
+        email.Subject.ShouldBe("Seu código de acesso ao LexFlow");
+        email.HtmlBody.ShouldContain("482913");
+        email.HtmlBody.ShouldNotContain("href=");
+    }
 }

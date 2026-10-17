@@ -16,12 +16,24 @@ public sealed class AccountEmailComposer(IdentitySettings settings)
     private static readonly Template ConfirmEmail = Load("confirm-email");
     private static readonly Template ResetPassword = Load("reset-password");
     private static readonly Template AlreadyRegistered = Load("already-registered");
+    private static readonly Template SignInCode = Load("sign-in-code");
 
-    /// <summary><paramref name="token"/> é o token do Identity, ainda sem codificação; obrigatório para confirmação e redefinição.</summary>
+    /// <summary>
+    /// <paramref name="token"/> é o token do Identity, ainda sem codificação: obrigatório na confirmação e na redefinição
+    /// (vai no link) e no código de acesso (vai no corpo, sem link).
+    /// </summary>
     public EmailMessage Compose(AccountEmailKind kind, ApplicationUser user, string? token)
     {
         ArgumentNullException.ThrowIfNull(user);
         var address = user.Email ?? throw new ArgumentException("Usuário sem e-mail.", nameof(user));
+
+        if (kind == AccountEmailKind.SignInCode)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(token);
+            const string codeSubject = "Seu código de acesso ao LexFlow";
+            var codeHtml = Layout.Render(new { subject = codeSubject, content = SignInCode.Render(new { name = user.FullName, code = token }) });
+            return new EmailMessage([address], codeSubject, codeHtml);
+        }
 
         var (subject, body, link) = kind switch
         {

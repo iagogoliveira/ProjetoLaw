@@ -3,14 +3,11 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Web;
 using LexFlow.Application.Abstractions;
 using LexFlow.Identity.Application.Accounts;
 using LexFlow.Identity.Domain.Users;
 using LexFlow.Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,11 +17,11 @@ namespace LexFlow.Api.IntegrationTests;
 /// Servidor OIDC pela API real: login na página Razor, Authorization Code + PKCE do cliente <c>lexflow-web</c>,
 /// refresh rotativo, sessões, bloqueio por tentativas e rate limit (Etapa 2, PR B1).
 /// </summary>
-public sealed partial class OidcFlowTests(DependenciesFixture dependencies) : IAsyncLifetime
+public sealed class OidcFlowTests(DependenciesFixture dependencies) : IAsyncLifetime
 {
-    private const string ClientId = "lexflow-web";
-    private const string RedirectUri = "http://localhost:4200/auth/callback";
-    private const string Password = "uma senha bem longa";
+    private const string ClientId = OidcTestClient.ClientId;
+    private const string RedirectUri = OidcTestClient.RedirectUri;
+    private const string Password = OidcTestClient.Password;
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
 
     private readonly LexFlowApiFactory _factory = new(dependencies.Settings);
@@ -42,112 +39,24 @@ public sealed partial class OidcFlowTests(DependenciesFixture dependencies) : IA
         await _factory.DisposeAsync();
     }
 
-    private sealed record Tokens(string AccessToken, string RefreshToken, string IdToken);
+    private static HttpClient NewBrowser(LexFlowApiFactory factory) => OidcTestClient.NewBrowser(factory);
 
-    /// <summary>Cliente com cookies e sem seguir redirecionamentos, para inspecionar cada passo do fluxo.</summary>
-    private static HttpClient NewBrowser(LexFlowApiFactory factory) =>
-        factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+    private Task<ApplicationUser> CreateConfirmedUserAsync() => OidcTestClient.CreateUserAsync(_factory);
 
-    private async Task<ApplicationUser> CreateConfirmedUserAsync()
-    {
-        await using var scope = _factory.Services.CreateAsyncScope();
-        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var user = ApplicationUser.Register(Guid.CreateVersion7(), $"{Guid.CreateVersion7():N}@exemplo.com.br", "Ana Souza", new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.Zero));
-        user.EmailConfirmed = true;
-        (await users.CreateAsync(user, Password)).Succeeded.ShouldBeTrue();
-        return user;
-    }
+    private static Task<HttpResponseMessage> PostLoginAsync(HttpClient browser, string email, string password, string? returnUrl = null) =>
+        OidcTestClient.PostLoginAsync(browser, email, password, returnUrl);
 
-    [GeneratedRegex("name=\"__RequestVerificationToken\" type=\"hidden\" value=\"(?<token>[^\"]+)\"", RegexOptions.None, 1000)]
-    private static partial Regex AntiforgeryToken();
+    private static Task<OidcTokens> SignInAsync(HttpClient browser, string email) => OidcTestClient.SignInAsync(browser, email);
 
-    /// <summary>Envia o formulário de login; devolve a resposta (redirecionamento em sucesso, página com erro em falha).</summary>
-    private static async Task<HttpResponseMessage> PostLoginAsync(HttpClient browser, string email, string password, string? returnUrl = null)
-    {
-        var page = await browser.GetStringAsync(new Uri("/conta/entrar", UriKind.Relative), Ct);
-        var fields = new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["Email"] = email,
-            ["Password"] = password,
-            ["__RequestVerificationToken"] = AntiforgeryToken().Match(page).Groups["token"].Value,
-        };
-        if (returnUrl is not null)
-        {
-            fields["ReturnUrl"] = returnUrl;
-        }
+    private static Task<HttpResponseMessage> RefreshAsync(HttpClient client, string refreshToken) => OidcTestClient.RefreshAsync(client, refreshToken);
 
-        using var form = new FormUrlEncodedContent(fields);
-        return await browser.PostAsync(new Uri("/conta/entrar", UriKind.Relative), form, Ct);
-    }
+    private static Task<OidcTokens> ReadTokensAsync(HttpResponseMessage response) => OidcTestClient.ReadTokensAsync(response);
 
-    /// <summary>Authorization Code + PKCE completo, como o SPA faria: authorize → login → authorize → token.</summary>
-    private async Task<Tokens> SignInAsync(HttpClient browser, string email)
-    {
-        var verifier = Base64Url(RandomNumberGenerator.GetBytes(32));
-        var challenge = Base64Url(SHA256.HashData(Encoding.ASCII.GetBytes(verifier)));
-        var authorize = "/connect/authorize?" + string.Join('&',
-            $"client_id={ClientId}",
-            "response_type=code",
-            $"redirect_uri={Uri.EscapeDataString(RedirectUri)}",
-            $"scope={Uri.EscapeDataString("openid profile email offline_access api")}",
-            $"code_challenge={challenge}",
-            "code_challenge_method=S256",
-            "state=estado-1");
+    private static Task<string?> ErrorOfAsync(HttpResponseMessage response) => OidcTestClient.ErrorOfAsync(response);
 
-        using var toLogin = await browser.GetAsync(new Uri(authorize, UriKind.Relative), Ct);
-        toLogin.StatusCode.ShouldBe(HttpStatusCode.Redirect);
-        var login = Absolute(toLogin.Headers.Location!);
-        login.AbsolutePath.ShouldBe("/conta/entrar");
-        var returnUrl = HttpUtility.ParseQueryString(login.Query)["ReturnUrl"]!;
+    private static Uri Absolute(Uri location) => OidcTestClient.Absolute(location);
 
-        using var loggedIn = await PostLoginAsync(browser, email, Password, returnUrl);
-        loggedIn.StatusCode.ShouldBe(HttpStatusCode.Redirect);
-
-        using var toClient = await browser.GetAsync(loggedIn.Headers.Location, Ct);
-        toClient.StatusCode.ShouldBe(HttpStatusCode.Redirect);
-        var callback = toClient.Headers.Location!;
-        callback.GetLeftPart(UriPartial.Path).ShouldBe(RedirectUri);
-        var query = HttpUtility.ParseQueryString(callback.Query);
-        query["state"].ShouldBe("estado-1");
-
-        using var token = await TokenRequestAsync(browser, new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["grant_type"] = "authorization_code",
-            ["client_id"] = ClientId,
-            ["code"] = query["code"]!,
-            ["redirect_uri"] = RedirectUri,
-            ["code_verifier"] = verifier,
-        });
-        token.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return await ReadTokensAsync(token);
-    }
-
-    private static async Task<HttpResponseMessage> TokenRequestAsync(HttpClient client, Dictionary<string, string> fields)
-    {
-        using var form = new FormUrlEncodedContent(fields);
-        return await client.PostAsync(new Uri("/connect/token", UriKind.Relative), form, Ct);
-    }
-
-    private static Task<HttpResponseMessage> RefreshAsync(HttpClient client, string refreshToken) =>
-        TokenRequestAsync(client, new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["grant_type"] = "refresh_token",
-            ["client_id"] = ClientId,
-            ["refresh_token"] = refreshToken,
-        });
-
-    private static async Task<Tokens> ReadTokensAsync(HttpResponseMessage response)
-    {
-        var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(Ct)).RootElement;
-        return new Tokens(body.GetProperty("access_token").GetString()!, body.GetProperty("refresh_token").GetString()!, body.GetProperty("id_token").GetString()!);
-    }
-
-    private static async Task<string?> ErrorOfAsync(HttpResponseMessage response) =>
-        JsonDocument.Parse(await response.Content.ReadAsStringAsync(Ct)).RootElement.GetProperty("error").GetString();
-
-    private static Uri Absolute(Uri location) => location.IsAbsoluteUri ? location : new Uri(new Uri("http://localhost"), location);
-
-    private static string Base64Url(byte[] bytes) => System.Buffers.Text.Base64Url.EncodeToString(bytes);
+    private static string Base64Url(byte[] bytes) => OidcTestClient.Base64Url(bytes);
 
     private async Task<List<LexFlow.Identity.Domain.Sessions.Session>> SessionsOfAsync(Guid userId)
     {

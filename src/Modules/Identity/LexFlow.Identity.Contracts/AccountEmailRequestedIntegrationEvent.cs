@@ -13,6 +13,9 @@ public enum AccountEmailKind
 
     /// <summary>Aviso de que alguém tentou cadastrar um e-mail que já tem conta (a resposta do cadastro não revela isso).</summary>
     AlreadyRegistered,
+
+    /// <summary>Código de acesso do segundo fator por e-mail, a cada login de quem escolheu esse método.</summary>
+    SignInCode,
 }
 
 /// <summary>

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses } from './types.gen';
+import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -22,6 +22,43 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Estado de uma operação longa
  */
 export const getJob = <ThrowOnError extends boolean = false>(options: Options<GetJobData, ThrowOnError>): RequestResult<GetJobResponses, GetJobErrors, ThrowOnError> => (options.client ?? client).get<GetJobResponses, GetJobErrors, ThrowOnError>({ url: '/api/v1/jobs/{id}', ...options });
+
+/**
+ * Perfil do usuário logado
+ */
+export const getMe = <ThrowOnError extends boolean = false>(options?: Options<GetMeData, ThrowOnError>): RequestResult<GetMeResponses, GetMeErrors, ThrowOnError> => (options?.client ?? client).get<GetMeResponses, GetMeErrors, ThrowOnError>({ url: '/api/v1/me', ...options });
+
+/**
+ * Sessões abertas do usuário logado
+ */
+export const listMySessions = <ThrowOnError extends boolean = false>(options?: Options<ListMySessionsData, ThrowOnError>): RequestResult<ListMySessionsResponses, ListMySessionsErrors, ThrowOnError> => (options?.client ?? client).get<ListMySessionsResponses, ListMySessionsErrors, ThrowOnError>({ url: '/api/v1/me/sessions', ...options });
+
+/**
+ * Encerra uma sessão do usuário logado e revoga os tokens dela
+ */
+export const endMySession = <ThrowOnError extends boolean = false>(options: Options<EndMySessionData, ThrowOnError>): RequestResult<EndMySessionResponses, EndMySessionErrors, ThrowOnError> => (options.client ?? client).delete<EndMySessionResponses, EndMySessionErrors, ThrowOnError>({ url: '/api/v1/me/sessions/{id}', ...options });
+
+/**
+ * Gera a chave do aplicativo autenticador (o MFA só liga na confirmação)
+ */
+export const startTotpSetup = <ThrowOnError extends boolean = false>(options?: Options<StartTotpSetupData, ThrowOnError>): RequestResult<StartTotpSetupResponses, StartTotpSetupErrors, ThrowOnError> => (options?.client ?? client).post<StartTotpSetupResponses, StartTotpSetupErrors, ThrowOnError>({ url: '/api/v1/me/mfa/totp', ...options });
+
+/**
+ * Confirma o aplicativo autenticador com um código e liga o MFA; devolve os códigos de recuperação
+ */
+export const confirmTotp = <ThrowOnError extends boolean = false>(options: Options<ConfirmTotpData, ThrowOnError>): RequestResult<ConfirmTotpResponses, ConfirmTotpErrors, ThrowOnError> => (options.client ?? client).post<ConfirmTotpResponses, ConfirmTotpErrors, ThrowOnError>({
+    url: '/api/v1/me/mfa/totp/confirm',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Liga o código por e-mail como segundo fator
+ */
+export const enableEmailMfa = <ThrowOnError extends boolean = false>(options?: Options<EnableEmailMfaData, ThrowOnError>): RequestResult<EnableEmailMfaResponses, EnableEmailMfaErrors, ThrowOnError> => (options?.client ?? client).post<EnableEmailMfaResponses, EnableEmailMfaErrors, ThrowOnError>({ url: '/api/v1/me/mfa/email', ...options });
 
 /**
  * Cadastra uma conta e envia o e-mail de confirmação
