@@ -7,11 +7,11 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 a 3F1 #16 mergeados; 3F2 pronto para revisão, com os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
+| 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 
 ---
 
-## Etapa 3 — Organizações, estrutura e permissões (em andamento)
+## Etapa 3 — Organizações, estrutura e permissões (concluída em 2026-10-17)
 
 **RFs:** RF-01 (convites, MFA obrigatório por organização), RF-02, RF-03 (campos customizados e tabelas auxiliares) e seção 3 da especificação. Revisão humana dos PRs obrigatória (seção 14.4).
 
@@ -56,7 +56,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 1. O token do convite fica no `sessionStorage` da aba: se a confirmação do e-mail for aberta em outra aba ou navegador, a pessoa abre o link do convite de novo depois de entrar.
 2. Quem precisa ativar o MFA exigido pelo escritório recebe 403 `organization.mfa_required` nas telas do escritório, mas ainda não há aviso dedicado no shell (entra no 3F2).
 
-**3F2 — telas de configurações, que fecham a Etapa 3 (pronto para revisão):**
+**3F2 — telas de configurações, que fecham a Etapa 3 (concluído: PR #17 mergeado em 2026-10-17):**
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
