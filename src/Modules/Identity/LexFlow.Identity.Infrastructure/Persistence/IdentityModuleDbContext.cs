@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using OpenIddict.EntityFrameworkCore.Models;
 
 namespace LexFlow.Identity.Infrastructure.Persistence;
 
@@ -41,6 +42,9 @@ public sealed class IdentityModuleDbContext(DbContextOptions<IdentityModuleDbCon
         // Passkeys ficam para a Etapa 16 (WebAuthn, seção 7.1); sem isso o modelo varia com a versão de schema do Identity.
         builder.Ignore<IdentityUserPasskey<Guid>>();
         builder.Ignore<IdentityPasskeyData>();
+
+        // Aplicações, autorizações, escopos e tokens do servidor OIDC (seção 7.1), com chave Guid.
+        builder.UseOpenIddict<Guid>();
 
         ModuleModel.Apply(builder, this, SchemaName, ownsAuditLog: false, typeof(IdentityModuleDbContext).Assembly);
     }
@@ -87,6 +91,38 @@ internal sealed class DataProtectionKeyConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<DataProtectionKey> builder)
     {
         builder.ToTable("data_protection_keys");
+        builder.IsNotAudited();
+    }
+}
+
+/// <summary>
+/// Tabelas do OpenIddict em snake_case. Autorizações e tokens ficam fora da trilha (volume e conteúdo secreto); o
+/// que importa para auditoria é o início e o fim da sessão, gravados em <c>sessions</c>.
+/// </summary>
+internal sealed class OpenIddictTablesConfiguration :
+    IEntityTypeConfiguration<OpenIddictEntityFrameworkCoreApplication<Guid>>,
+    IEntityTypeConfiguration<OpenIddictEntityFrameworkCoreAuthorization<Guid>>,
+    IEntityTypeConfiguration<OpenIddictEntityFrameworkCoreScope<Guid>>,
+    IEntityTypeConfiguration<OpenIddictEntityFrameworkCoreToken<Guid>>
+{
+    public void Configure(EntityTypeBuilder<OpenIddictEntityFrameworkCoreApplication<Guid>> builder)
+    {
+        builder.ToTable("openiddict_applications");
+        builder.Property(a => a.ClientSecret).IsSensitive();
+        builder.Property(a => a.JsonWebKeySet).IsSensitive();
+    }
+
+    public void Configure(EntityTypeBuilder<OpenIddictEntityFrameworkCoreAuthorization<Guid>> builder)
+    {
+        builder.ToTable("openiddict_authorizations");
+        builder.IsNotAudited();
+    }
+
+    public void Configure(EntityTypeBuilder<OpenIddictEntityFrameworkCoreScope<Guid>> builder) => builder.ToTable("openiddict_scopes");
+
+    public void Configure(EntityTypeBuilder<OpenIddictEntityFrameworkCoreToken<Guid>> builder)
+    {
+        builder.ToTable("openiddict_tokens");
         builder.IsNotAudited();
     }
 }

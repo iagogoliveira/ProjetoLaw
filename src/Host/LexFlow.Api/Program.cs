@@ -27,6 +27,7 @@ builder.Services.AddWebCommon();
 builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly);
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
+builder.Services.AddIdentityServer(builder.Environment);
 
 // A API só publica eventos (outbox) e agenda jobs; consumidores e servidor de jobs rodam no Worker.
 builder.Services.AddLexFlowMessaging(builder.Configuration);
@@ -41,6 +42,7 @@ foreach (var module in modules)
 var app = builder.Build();
 
 app.UseWebCommon();
+app.UseRateLimiter();
 app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())

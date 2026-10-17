@@ -1,5 +1,8 @@
 using FluentValidation;
+using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Identity.Application.Abstractions;
+using LexFlow.Identity.Application.Sessions;
 using LexFlow.Identity.Domain;
 using LexFlow.Identity.Domain.Users;
 using LexFlow.SharedKernel.Results;
@@ -7,7 +10,10 @@ using Microsoft.AspNetCore.Identity;
 
 namespace LexFlow.Identity.Application.Accounts;
 
-/// <summary>Redefine a senha com o token do link (Base64Url). O token é de uso único: a troca renova o security stamp.</summary>
+/// <summary>
+/// Redefine a senha com o token do link (Base64Url). O token é de uso único: a troca renova o security stamp. Todas as
+/// sessões abertas são encerradas, e quem estava com a senha antiga precisa entrar de novo.
+/// </summary>
 public sealed record ResetPasswordCommand(Guid UserId, string Token, string NewPassword) : ICommand
 {
     /// <summary>Token e senha nunca aparecem em logs ou mensagens de exceção.</summary>
@@ -24,7 +30,12 @@ internal sealed class ResetPasswordValidator : AbstractValidator<ResetPasswordCo
     }
 }
 
-internal sealed class ResetPasswordHandler(UserManager<ApplicationUser> users) : ICommandHandler<ResetPasswordCommand, Unit>
+internal sealed class ResetPasswordHandler(
+    UserManager<ApplicationUser> users,
+    IIdentityDbContext db,
+    ISessionTokenRevoker tokens,
+    IClock clock)
+    : ICommandHandler<ResetPasswordCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
@@ -35,6 +46,12 @@ internal sealed class ResetPasswordHandler(UserManager<ApplicationUser> users) :
         }
 
         var reset = await users.ResetPasswordAsync(user, token, command.NewPassword);
-        return reset.Succeeded ? Unit.Value : PasswordPolicy.ToError(reset);
+        if (!reset.Succeeded)
+        {
+            return PasswordPolicy.ToError(reset);
+        }
+
+        await SessionTermination.EndAllAsync(user.Id, SessionEndReasons.PasswordReset, db, tokens, clock, cancellationToken);
+        return Unit.Value;
     }
 }

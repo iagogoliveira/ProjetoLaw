@@ -1,0 +1,18 @@
+@page "/conta/confirmar-email"
+@model LexFlow.Identity.Endpoints.Pages.Conta.ConfirmarEmailModel
+@{
+    ViewData["Title"] = "Confirmar e-mail";
+}
+
+<h1>Confirmar e-mail</h1>
+
+@if (Model.Confirmed)
+{
+    <p role="status">E-mail confirmado. Agora você já pode entrar no LexFlow.</p>
+    <div class="links"><a href="/conta/entrar">Entrar</a></div>
+}
+else
+{
+    <p class="error" role="alert">@AccountMessages.LinkInvalid</p>
+    <div class="links"><a href="/conta/esqueci-a-senha">Receber um novo link</a></div>
+}

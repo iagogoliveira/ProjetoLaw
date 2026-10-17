@@ -22,4 +22,7 @@ public static class IdentityErrors
 
     public static readonly Error SessionNotFound =
         Error.NotFound("identity.session_not_found", "Sessão não encontrada.");
+
+    public static readonly Error SessionExpired =
+        Error.BusinessRule("identity.session_expired", "A sessão expirou ou foi encerrada. Entre novamente.");
 }

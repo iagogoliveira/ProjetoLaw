@@ -1,0 +1,34 @@
+@page "/conta/redefinir-senha"
+@model LexFlow.Identity.Endpoints.Pages.Conta.RedefinirSenhaModel
+@{
+    ViewData["Title"] = "Redefinir senha";
+}
+
+<h1>Redefinir senha</h1>
+
+@if (Model.Reset)
+{
+    <p role="status">Senha alterada. Por segurança, encerramos as sessões abertas: entre de novo com a nova senha.</p>
+    <div class="links"><a href="/conta/entrar">Entrar</a></div>
+}
+else
+{
+    @if (Model.Errors.Count > 0)
+    {
+        <div class="error" role="alert">
+            @foreach (var error in Model.Errors)
+            {
+                <p>@error</p>
+            }
+        </div>
+    }
+
+    <form method="post" novalidate>
+        <input type="hidden" asp-for="UserId">
+        <input type="hidden" asp-for="Token">
+        <label for="new-password">Nova senha</label>
+        <input id="new-password" name="NewPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="128" aria-describedby="password-hint">
+        <p id="password-hint" class="hint">Pelo menos 12 caracteres.</p>
+        <button type="submit">Salvar nova senha</button>
+    </form>
+}

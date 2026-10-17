@@ -6,7 +6,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Em andamento** (PR A #7 mergeado; faltam B e C) | `etapa-2a-identity-accounts` |
+| 2 — Identidade e autenticação | **Em andamento** (PR A #7 mergeado; B1 pronto no branch; faltam B2 e C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login` |
 
 ---
 
@@ -21,6 +21,43 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - MFA por TOTP e também por código enviado por e-mail.
 - O refresh token é renovado a cada uso, vale 14 dias sem uso e no máximo 30 dias; depois disso é preciso entrar de novo.
 - A verificação de senhas vazadas (Have I Been Pwned, k-anonymity) fica ligada por padrão, com chave para desligar.
+- MFA é opcional por usuário nesta etapa: quem ativa escolhe TOTP ou código por e-mail como segundo fator (decisão de 2026-10-16). O MFA obrigatório por organização fica para a Etapa 3.
+- Sem "lembrar este dispositivo" por enquanto: todo login de quem tem MFA pede o segundo fator.
+
+**Plano do PR B (proposto em 2026-10-16), dividido em dois:**
+- **B1:** OpenIddict (Authorization Code + PKCE, refresh rotativo com revogação em reuso), validação de token no lugar do esquema provisório (ADR 0008), páginas Razor de conta em pt-BR, sessões ligadas aos tokens (`sid`), bloqueio na 6ª senha errada, rate limit por IP e limpeza de tokens expirados.
+- **B2:** MFA (TOTP com códigos de recuperação e código por e-mail), `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
+
+### PR B1 — servidor OIDC, login e sessões (pronto no branch `etapa-2b-oidc-login`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 2.8 | OpenIddict 7.7.2 (passthrough): `/connect/authorize`, `/connect/token`, `/connect/logout`; cliente `lexflow-web` público com PKCE, cadastrado pelo MigrationService (`IDatabaseSeeder`) | `OidcFlowTests.Login_with_pkce_issues_tokens_bound_to_a_new_session`, `OidcStoreTests.Web_client_is_public_requires_pkce_and_seeding_twice_keeps_a_single_client` |
+| 2.9 | Validação local dos access tokens como esquema padrão (substitui a ADR 0008) | `OidcFlowTests.Access_token_authenticates_api_requests` (sem esquema de teste) |
+| 2.10 | Refresh rotativo, tolerância zero de reuso; access token de 10 min | `OidcFlowTests.Reusing_an_old_refresh_token_revokes_the_whole_family` |
+| 2.11 | Sessão ligada à autorização (`sid`): renovada a cada troca, recusada se revogada ou expirada; logout e redefinição de senha encerram a sessão e revogam os tokens | `Refresh_renews_the_session_and_is_refused_once_the_session_ends`, `Logout_ends_the_session_and_revokes_its_tokens`, `Password_reset_ends_every_open_session` |
+| 2.12 | Páginas Razor pt-BR (`/conta/entrar`, `cadastro`, `confirmar-email`, `esqueci-a-senha`, `redefinir-senha`); cookie de login apagado ao emitir o código | `Account_pages_are_served_in_portuguese`, `Login_cookie_is_dropped_after_the_code_so_a_new_authorization_asks_for_the_password`, `AccountMessagesTests` |
+| 2.13 | Bloqueio por tentativas; e-mail não confirmado não entra | `Sixth_attempt_after_five_wrong_passwords_is_blocked_for_15_minutes`, `Unconfirmed_email_cannot_sign_in` |
+| 2.14 | Rate limit por IP (10/min) nas páginas de conta e em `/api/v1/auth/*` | `Public_account_endpoints_are_rate_limited_per_ip` |
+| 2.15 | Limpeza diária de tokens no Worker | `OidcStoreTests.Cleanup_job_runs_against_the_real_tables` |
+
+**Tabelas novas:** `identity.openiddict_applications`, `openiddict_authorizations`, `openiddict_scopes`, `openiddict_tokens` (migration `OpenIddict`).
+**ADR:** [0014 — Servidor OIDC, login e sessões](adr/0014-servidor-oidc-login-e-sessoes.md).
+
+**Critérios de aceite da etapa:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Refresh token rotativo: reutilizar um antigo revoga a família inteira | ✅ | `OidcFlowTests.Reusing_an_old_refresh_token_revokes_the_whole_family` |
+| 6ª tentativa de senha errada bloqueia a conta por 15 min | ✅ | `OidcFlowTests.Sixth_attempt_after_five_wrong_passwords_is_blocked_for_15_minutes` |
+| Fluxo e2e cadastro → confirmação → login → TOTP → logout → login com TOTP | Pendente | depende do PR B2 (TOTP) e do PR C (telas e Playwright) |
+
+**Última verificação local (PR B1):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 397 testes .NET em 10 projetos (Testcontainers), 5 Vitest, 4 Playwright, `npm run lint`, sem pacotes vulneráveis, contrato OpenAPI sem mudança. Cobertura: Identity.Application 96,5% e Identity.Domain 100%. A migration `OpenIddict` não tem mudança de modelo pendente.
+
+**Pendências do PR B1:**
+1. `ForwardedHeaders` no deploy (IP real do rate limit e HTTPS atrás de proxy).
+2. PR B2: marcar como revogada a sessão cujo refresh token foi reutilizado; MFA; `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
+3. Client Credentials na Etapa 14.
 
 ### PR A — contas, senhas e e-mails (concluído: PR #7 mergeado em 2026-10-16, CI verde)
 

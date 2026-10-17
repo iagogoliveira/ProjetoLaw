@@ -7,6 +7,7 @@ using LexFlow.Identity.Infrastructure;
 using LexFlow.Identity.Infrastructure.Emails;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
+using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Platform.Infrastructure;
 using LexFlow.Platform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,11 @@ public sealed class DependenciesFixture : IAsyncLifetime
 
         // Os testes não dependem da internet; a verificação de vazamentos tem testes próprios com API falsa.
         ["Identity:CheckBreachedPasswords"] = "false",
+
+        // Chaves OIDC só em memória (cada fábrica tem as suas) e limite por IP alto: no TestServer todos os pedidos
+        // vêm do mesmo "IP". O limite tem teste próprio.
+        ["Identity:Server:UseEphemeralKeys"] = "true",
+        ["Identity:PublicPermitsPerMinute"] = "10000",
     };
 
     public async ValueTask InitializeAsync()
@@ -68,6 +74,12 @@ public sealed class DependenciesFixture : IAsyncLifetime
         await using var scope = provider.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
+
+        // Mesmo papel do MigrationService: cliente lexflow-web cadastrado.
+        foreach (var seeder in scope.ServiceProvider.GetServices<IDatabaseSeeder>())
+        {
+            await seeder.SeedAsync(default);
+        }
     }
 
     /// <summary>Serviços do módulo Platform fora da API (para migrar e preparar dados de teste).</summary>
@@ -82,6 +94,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddSystemContexts();
         services.AddPlatformInfrastructure(configuration);
         services.AddIdentityPersistence(configuration);
+        services.AddIdentitySeeding(configuration);
         return services.BuildServiceProvider();
     }
 

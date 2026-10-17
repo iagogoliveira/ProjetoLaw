@@ -6,6 +6,7 @@ namespace LexFlow.Identity.Application.Accounts;
 /// </summary>
 public static class AccountLinks
 {
+    public const string LoginPath = "/conta/entrar";
     public const string ConfirmEmailPath = "/conta/confirmar-email";
     public const string ResetPasswordPath = "/conta/redefinir-senha";
     public const string ForgotPasswordPath = "/conta/esqueci-a-senha";

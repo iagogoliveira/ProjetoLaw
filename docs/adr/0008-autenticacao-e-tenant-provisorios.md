@@ -1,6 +1,6 @@
 # ADR 0008 — Autenticação, permissão e tenant provisórios até as Etapas 2 e 3
 
-- **Status:** Aceita
+- **Status:** Aceita; a parte de autenticação foi substituída pela [ADR 0014](0014-servidor-oidc-login-e-sessoes.md) (OpenIddict) na Etapa 2
 - **Data:** 2026-10-16
 - **Etapa:** 1
 

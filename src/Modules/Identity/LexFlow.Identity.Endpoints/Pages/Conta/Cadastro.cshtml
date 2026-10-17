@@ -1,0 +1,38 @@
+@page "/conta/cadastro"
+@model LexFlow.Identity.Endpoints.Pages.Conta.CadastroModel
+@{
+    ViewData["Title"] = "Criar conta";
+}
+
+<h1>Criar conta</h1>
+
+@if (Model.Registered)
+{
+    <p role="status">Pronto! Enviamos um e-mail para <strong>@Model.Email</strong>. Abra o link da mensagem para confirmar o endereço e depois entre no LexFlow.</p>
+    <div class="links"><a href="/conta/entrar">Ir para o login</a></div>
+}
+else
+{
+    @if (Model.Errors.Count > 0)
+    {
+        <div class="error" role="alert">
+            @foreach (var error in Model.Errors)
+            {
+                <p>@error</p>
+            }
+        </div>
+    }
+
+    <form method="post" novalidate>
+        <label for="full-name">Nome completo</label>
+        <input id="full-name" name="FullName" autocomplete="name" required maxlength="200" value="@Model.FullName">
+        <label for="email">E-mail</label>
+        <input id="email" name="Email" type="email" autocomplete="email" required value="@Model.Email">
+        <label for="password">Senha</label>
+        <input id="password" name="Password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" aria-describedby="password-hint">
+        <p id="password-hint" class="hint">Pelo menos 12 caracteres. Uma frase é mais fácil de lembrar.</p>
+        <button type="submit">Criar conta</button>
+    </form>
+
+    <div class="links"><a href="/conta/entrar">Já tenho conta</a></div>
+}
