@@ -17,6 +17,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 **Decisões de negócio confirmadas (2026-10-17):**
 - O MFA obrigatório por organização entra na Etapa 3 (PR 3B): o escritório pode exigir segundo fator de todos os membros.
+- A matriz de permissões dos perfis padrão da ADR 0017 foi aprovada.
 - No onboarding são criados só os perfis internos da seção 3.2 (Administrador do escritório, Sócio, Advogado, Estagiário/paralegal, Controladoria jurídica e Financeiro). Cliente do portal e Correspondente ficam para a Etapa 12; Administrador da plataforma, para a Etapa 13.
 
 **Plano (proposto em 2026-10-17), em 6 PRs sequenciais:**
@@ -37,7 +38,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 3.4 | Onboarding `POST /api/v1/organizations`: organização, perfis padrão e criador como Administrador do escritório; `TenantOverride` para os primeiros dados da organização nova | `OrganizationOnboardingTests`, `TenantOverrideTests` |
 | 3.5 | Contrato OpenAPI e cliente TypeScript atualizados (só adições) | `OpenApiContractTests` |
 
-**ADR:** [0017 — Organizações, catálogo de permissões e perfis padrão](adr/0017-organizacoes-catalogo-e-perfis-padrao.md) (Proposta: a matriz dos perfis precisa de aprovação humana antes do merge).
+**ADR:** [0017 — Organizações, catálogo de permissões e perfis padrão](adr/0017-organizacoes-catalogo-e-perfis-padrao.md) (Aceita em 2026-10-17: matriz dos perfis padrão aprovada).
 
 **Última verificação local (PR 3A):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 454 testes .NET em 12 projetos (Testcontainers), 23 Vitest, 4 Playwright (`ng serve`), `npm run lint`, sem pacotes vulneráveis. Cobertura: Organization.Application 100% e Organization.Domain 84,8%. A migration `Initial` do Organization não tem mudança de modelo pendente.
 

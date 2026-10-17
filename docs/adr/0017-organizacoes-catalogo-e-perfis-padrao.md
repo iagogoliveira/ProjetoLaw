@@ -1,6 +1,6 @@
 # ADR 0017 — Organizações, catálogo de permissões e perfis padrão
 
-- **Status:** Proposta (revisão humana: a matriz de permissões dos perfis padrão, item 4, não está na especificação)
+- **Status:** Aceita em 2026-10-17 (matriz dos perfis padrão, item 4, aprovada pelo responsável)
 - **Data:** 2026-10-17
 - **Etapa:** 3 (PR 3A)
 
@@ -22,7 +22,7 @@ A Etapa 3 pede o módulo `Organization`, um `PermissionCatalog` com todas as per
 3. **Onboarding:** `POST /api/v1/organizations`, aberto a qualquer usuário autenticado. Cria a organização, os 6 perfis padrão e o membro do criador com o perfil Administrador do escritório e escopo organização.
    - Os primeiros dados da organização recém-criada são gravados com um `TenantOverride` de escopo, só para esse caso.
    - Tudo fica na trilha de auditoria, sob a organização nova.
-4. **Matriz dos perfis padrão (proposta, editável por escritório):**
+4. **Matriz dos perfis padrão (aprovada em 2026-10-17, editável por escritório):**
 
 | Perfil | Permissões | Escopo sugerido |
 | --- | --- | --- |
