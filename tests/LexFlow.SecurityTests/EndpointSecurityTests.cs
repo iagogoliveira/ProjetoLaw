@@ -25,6 +25,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
 {
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
     private static readonly string[] CasesRead = ["cases.read"];
+    private static readonly string[] ClientRole = ["client"];
 
     private readonly LexFlowApiFactory _factory = new(dependencies.Settings);
     private HttpClient _client = null!;
@@ -89,6 +90,13 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         ["PUT /api/v1/lookup-tables/{id:guid}"] = async owner =>
             new CrossTenantCase(await LookupTableOfAsync(owner), new { name = $"Tomada {Guid.CreateVersion7():N}", isActive = true }),
         ["POST /api/v1/lookup-tables/{id:guid}/items"] = async owner => new CrossTenantCase(await LookupTableOfAsync(owner), new { name = "Item" }),
+        ["GET /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner)),
+        ["PUT /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner), new { name = "Tomada", roles = ClientRole }),
+        ["DELETE /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner)),
+        ["PUT /api/v1/economic-groups/{id:guid}"] = async owner =>
+            new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" }), new { name = "Tomado" }),
+        ["DELETE /api/v1/economic-groups/{id:guid}"] = async owner =>
+            new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
     };
@@ -157,6 +165,9 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync(Ct));
         return (await response.Content.ReadFromJsonAsync<CreatedResource>(Ct))!.Id;
     }
+
+    private Task<Guid> PersonOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/people", new { kind = "company", name = $"Pessoa {Guid.CreateVersion7():N}", roles = ClientRole });
 
     private Task<Guid> LookupTableOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/lookup-tables", new { name = $"Tabela {Guid.CreateVersion7():N}" });

@@ -1,4 +1,6 @@
 using LexFlow.Application.Abstractions;
+using LexFlow.Crm.Application;
+using LexFlow.Crm.Infrastructure;
 using LexFlow.Identity.Application;
 using LexFlow.Identity.Infrastructure;
 using LexFlow.Infrastructure.Common.Context;
@@ -14,14 +16,15 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
-builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly);
+builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly);
 builder.Services.AddSystemContexts();
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddOrganizationInfrastructure(builder.Configuration);
+builder.Services.AddCrmInfrastructure(builder.Configuration);
 
 // Consumidores de eventos de integração: assemblies Infrastructure dos módulos.
-builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly, typeof(IdentityInfrastructure).Assembly, typeof(OrganizationInfrastructure).Assembly);
+builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly, typeof(IdentityInfrastructure).Assembly, typeof(OrganizationInfrastructure).Assembly, typeof(CrmInfrastructure).Assembly);
 builder.Services.AddExternalAdapters(builder.Configuration);
 builder.Services.AddJobScheduling(builder.Configuration, runServer: true);
 builder.Services.AddPlatformRecurringJobs();

@@ -2,6 +2,8 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Integrations;
+using LexFlow.Crm.Infrastructure;
+using LexFlow.Crm.Infrastructure.Persistence;
 using LexFlow.Identity.Application;
 using LexFlow.Identity.Infrastructure;
 using LexFlow.Identity.Infrastructure.Emails;
@@ -79,6 +81,9 @@ public sealed class DependenciesFixture : IAsyncLifetime
         // vêm do mesmo "IP". O limite tem teste próprio.
         ["Identity:Server:UseEphemeralKeys"] = "true",
         ["Identity:PublicPermitsPerMinute"] = "10000",
+
+        // Consulta de CNPJ falsa e determinística: os testes não dependem da BrasilAPI.
+        ["Crm:CnpjLookup:Provider"] = "Fake",
     };
 
     public async ValueTask InitializeAsync()
@@ -92,6 +97,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
             await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<CrmDbContext>().Database.MigrateAsync();
             await using (var connection = new Npgsql.NpgsqlConnection(AdminConnectionString))
             {
                 await connection.OpenAsync();
@@ -121,6 +127,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddIdentityPersistence(configuration);
         services.AddIdentitySeeding(configuration);
         services.AddOrganizationInfrastructure(configuration);
+        services.AddCrmPersistence(configuration);
         return services.BuildServiceProvider();
     }
 

@@ -1,4 +1,5 @@
 using LexFlow.Api.IntegrationTests;
+using LexFlow.Crm.Infrastructure.Persistence;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Organization.Infrastructure.Persistence;
 using LexFlow.Platform.Infrastructure.Persistence;
@@ -51,6 +52,7 @@ public sealed class RowLevelSecurityTests(DependenciesFixture dependencies)
             scope.ServiceProvider.GetRequiredService<PlatformDbContext>(),
             scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>(),
             scope.ServiceProvider.GetRequiredService<OrganizationDbContext>(),
+            scope.ServiceProvider.GetRequiredService<CrmDbContext>(),
         ];
         var tables = contexts
             .SelectMany(c => c.Model.GetEntityTypes())

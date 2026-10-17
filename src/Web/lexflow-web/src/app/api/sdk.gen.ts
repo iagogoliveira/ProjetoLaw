@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
+import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateEconomicGroupData, CreateEconomicGroupErrors, CreateEconomicGroupResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePersonData, CreatePersonErrors, CreatePersonResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeleteEconomicGroupData, DeleteEconomicGroupErrors, DeleteEconomicGroupResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePersonData, DeletePersonErrors, DeletePersonResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, FindSimilarPeopleData, FindSimilarPeopleErrors, FindSimilarPeopleResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, GetPersonData, GetPersonErrors, GetPersonResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListEconomicGroupsData, ListEconomicGroupsErrors, ListEconomicGroupsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPeopleData, ListPeopleErrors, ListPeopleResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, LookupCnpjData, LookupCnpjErrors, LookupCnpjResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameEconomicGroupData, RenameEconomicGroupErrors, RenameEconomicGroupResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePersonData, UpdatePersonErrors, UpdatePersonResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -559,6 +559,89 @@ export const updatePartner = <ThrowOnError extends boolean = false>(options: Opt
  */
 export const setTeamMembers = <ThrowOnError extends boolean = false>(options: Options<SetTeamMembersData, ThrowOnError>): RequestResult<SetTeamMembersResponses, SetTeamMembersErrors, ThrowOnError> => (options.client ?? client).put<SetTeamMembersResponses, SetTeamMembersErrors, ThrowOnError>({
     url: '/api/v1/organization/teams/{id}/members',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Pessoas em ordem alfabética (cursor) ou buscadas por nome aproximado, sem acentos, ou documento
+ */
+export const listPeople = <ThrowOnError extends boolean = false>(options?: Options<ListPeopleData, ThrowOnError>): RequestResult<ListPeopleResponses, ListPeopleErrors, ThrowOnError> => (options?.client ?? client).get<ListPeopleResponses, ListPeopleErrors, ThrowOnError>({ url: '/api/v1/people', ...options });
+
+/**
+ * Cadastra uma pessoa; CPF/CNPJ é único no escritório
+ */
+export const createPerson = <ThrowOnError extends boolean = false>(options: Options<CreatePersonData, ThrowOnError>): RequestResult<CreatePersonResponses, CreatePersonErrors, ThrowOnError> => (options.client ?? client).post<CreatePersonResponses, CreatePersonErrors, ThrowOnError>({
+    url: '/api/v1/people',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Possíveis duplicatas: mesmo documento ou nome parecido
+ */
+export const findSimilarPeople = <ThrowOnError extends boolean = false>(options?: Options<FindSimilarPeopleData, ThrowOnError>): RequestResult<FindSimilarPeopleResponses, FindSimilarPeopleErrors, ThrowOnError> => (options?.client ?? client).get<FindSimilarPeopleResponses, FindSimilarPeopleErrors, ThrowOnError>({ url: '/api/v1/people/similar', ...options });
+
+/**
+ * Dados da empresa na Receita Federal (BrasilAPI) para preencher o cadastro
+ */
+export const lookupCnpj = <ThrowOnError extends boolean = false>(options: Options<LookupCnpjData, ThrowOnError>): RequestResult<LookupCnpjResponses, LookupCnpjErrors, ThrowOnError> => (options.client ?? client).get<LookupCnpjResponses, LookupCnpjErrors, ThrowOnError>({ url: '/api/v1/people/cnpj-lookup', ...options });
+
+/**
+ * Exclui (logicamente) uma pessoa
+ */
+export const deletePerson = <ThrowOnError extends boolean = false>(options: Options<DeletePersonData, ThrowOnError>): RequestResult<DeletePersonResponses, DeletePersonErrors, ThrowOnError> => (options.client ?? client).delete<DeletePersonResponses, DeletePersonErrors, ThrowOnError>({ url: '/api/v1/people/{id}', ...options });
+
+/**
+ * Cadastro completo de uma pessoa
+ */
+export const getPerson = <ThrowOnError extends boolean = false>(options: Options<GetPersonData, ThrowOnError>): RequestResult<GetPersonResponses, GetPersonErrors, ThrowOnError> => (options.client ?? client).get<GetPersonResponses, GetPersonErrors, ThrowOnError>({ url: '/api/v1/people/{id}', ...options });
+
+/**
+ * Substitui o cadastro de uma pessoa (o tipo, física ou jurídica, não muda)
+ */
+export const updatePerson = <ThrowOnError extends boolean = false>(options: Options<UpdatePersonData, ThrowOnError>): RequestResult<UpdatePersonResponses, UpdatePersonErrors, ThrowOnError> => (options.client ?? client).put<UpdatePersonResponses, UpdatePersonErrors, ThrowOnError>({
+    url: '/api/v1/people/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Grupos econômicos e quantas pessoas cada um tem
+ */
+export const listEconomicGroups = <ThrowOnError extends boolean = false>(options?: Options<ListEconomicGroupsData, ThrowOnError>): RequestResult<ListEconomicGroupsResponses, ListEconomicGroupsErrors, ThrowOnError> => (options?.client ?? client).get<ListEconomicGroupsResponses, ListEconomicGroupsErrors, ThrowOnError>({ url: '/api/v1/economic-groups', ...options });
+
+/**
+ * Cria um grupo econômico
+ */
+export const createEconomicGroup = <ThrowOnError extends boolean = false>(options: Options<CreateEconomicGroupData, ThrowOnError>): RequestResult<CreateEconomicGroupResponses, CreateEconomicGroupErrors, ThrowOnError> => (options.client ?? client).post<CreateEconomicGroupResponses, CreateEconomicGroupErrors, ThrowOnError>({
+    url: '/api/v1/economic-groups',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Exclui um grupo econômico sem pessoas vinculadas
+ */
+export const deleteEconomicGroup = <ThrowOnError extends boolean = false>(options: Options<DeleteEconomicGroupData, ThrowOnError>): RequestResult<DeleteEconomicGroupResponses, DeleteEconomicGroupErrors, ThrowOnError> => (options.client ?? client).delete<DeleteEconomicGroupResponses, DeleteEconomicGroupErrors, ThrowOnError>({ url: '/api/v1/economic-groups/{id}', ...options });
+
+/**
+ * Renomeia um grupo econômico
+ */
+export const renameEconomicGroup = <ThrowOnError extends boolean = false>(options: Options<RenameEconomicGroupData, ThrowOnError>): RequestResult<RenameEconomicGroupResponses, RenameEconomicGroupErrors, ThrowOnError> => (options.client ?? client).put<RenameEconomicGroupResponses, RenameEconomicGroupErrors, ThrowOnError>({
+    url: '/api/v1/economic-groups/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
