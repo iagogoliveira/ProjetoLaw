@@ -23,7 +23,7 @@ namespace LexFlow.Identity.Endpoints;
 /// </summary>
 internal static class OidcEndpoints
 {
-    public const string SessionClaim = "sid";
+    public const string SessionClaim = LexFlow.Web.Common.Security.LexFlowClaims.SessionId;
 
     private const string LoginScheme = "Identity.Application";
 
@@ -70,7 +70,7 @@ internal static class OidcEndpoints
         identity.SetClaim(Claims.Subject, user.Id.ToString())
             .SetClaim(Claims.Email, user.Email)
             .SetClaim(Claims.Name, user.FullName)
-            .SetClaims(Claims.AuthenticationMethodReference, ["pwd"]);
+            .SetClaims(Claims.AuthenticationMethodReference, login.Principal!.HasClaim(Claims.AuthenticationMethodReference, "mfa") ? ["pwd", "mfa"] : ["pwd"]);
         identity.SetScopes(request.GetScopes());
 
         var authorization = await authorizations.CreateAsync(

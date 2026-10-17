@@ -9,6 +9,10 @@ export type ConfirmEmailRequest = {
     token: string;
 };
 
+export type ConfirmTotpRequest = {
+    code: string;
+};
+
 export type ForgotPasswordRequest = {
     email: string;
 };
@@ -27,12 +31,29 @@ export type JobResponse = {
     completedAt: null | string;
 };
 
+/**
+ * Perfil do usuário logado. `mfaMethod`: `none`, `totp` ou `email`.
+ */
+export type MeResponse = {
+    id: string;
+    email: string;
+    fullName: string;
+    emailConfirmed: boolean;
+    mfaMethod: string;
+    createdAt: string;
+    lastLoginAt: null | string;
+};
+
 export type ProblemDetails = {
     type?: null | string;
     title?: null | string;
     status?: null | number | string;
     detail?: null | string;
     instance?: null | string;
+};
+
+export type RecoveryCodesResponse = {
+    recoveryCodes: Array<string>;
 };
 
 export type RegisterRequest = {
@@ -45,6 +66,27 @@ export type ResetPasswordRequest = {
     userId: string;
     token: string;
     newPassword: string;
+};
+
+/**
+ * Sessão aberta. `current` marca a do token que fez a consulta.
+ */
+export type SessionResponse = {
+    id: string;
+    createdAt: string;
+    lastSeenAt: string;
+    expiresAt: string;
+    ipAddress: null | string;
+    userAgent: null | string;
+    current: boolean;
+};
+
+/**
+ * Chave para o aplicativo autenticador: digitada à mão ou lida pelo QR code gerado a partir do `otpauth://`.
+ */
+export type TotpSetupResponse = {
+    sharedKey: string;
+    authenticatorUri: string;
 };
 
 export type GetJobData = {
@@ -77,6 +119,182 @@ export type GetJobResponses = {
 };
 
 export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type GetMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me';
+};
+
+export type GetMeErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+};
+
+export type GetMeError = GetMeErrors[keyof GetMeErrors];
+
+export type GetMeResponses = {
+    /**
+     * OK
+     */
+    200: MeResponse;
+};
+
+export type GetMeResponse = GetMeResponses[keyof GetMeResponses];
+
+export type ListMySessionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/sessions';
+};
+
+export type ListMySessionsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+};
+
+export type ListMySessionsError = ListMySessionsErrors[keyof ListMySessionsErrors];
+
+export type ListMySessionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<SessionResponse>;
+};
+
+export type ListMySessionsResponse = ListMySessionsResponses[keyof ListMySessionsResponses];
+
+export type EndMySessionData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/me/sessions/{id}';
+};
+
+export type EndMySessionErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type EndMySessionError = EndMySessionErrors[keyof EndMySessionErrors];
+
+export type EndMySessionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type EndMySessionResponse = EndMySessionResponses[keyof EndMySessionResponses];
+
+export type StartTotpSetupData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/mfa/totp';
+};
+
+export type StartTotpSetupErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type StartTotpSetupError = StartTotpSetupErrors[keyof StartTotpSetupErrors];
+
+export type StartTotpSetupResponses = {
+    /**
+     * OK
+     */
+    200: TotpSetupResponse;
+};
+
+export type StartTotpSetupResponse = StartTotpSetupResponses[keyof StartTotpSetupResponses];
+
+export type ConfirmTotpData = {
+    body: ConfirmTotpRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/mfa/totp/confirm';
+};
+
+export type ConfirmTotpErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ConfirmTotpError = ConfirmTotpErrors[keyof ConfirmTotpErrors];
+
+export type ConfirmTotpResponses = {
+    /**
+     * OK
+     */
+    200: RecoveryCodesResponse;
+};
+
+export type ConfirmTotpResponse = ConfirmTotpResponses[keyof ConfirmTotpResponses];
+
+export type EnableEmailMfaData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/mfa/email';
+};
+
+export type EnableEmailMfaErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type EnableEmailMfaError = EnableEmailMfaErrors[keyof EnableEmailMfaErrors];
+
+export type EnableEmailMfaResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type EnableEmailMfaResponse = EnableEmailMfaResponses[keyof EnableEmailMfaResponses];
 
 export type RegisterData = {
     body: RegisterRequest;

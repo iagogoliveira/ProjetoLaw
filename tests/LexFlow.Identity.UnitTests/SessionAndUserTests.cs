@@ -93,4 +93,26 @@ public sealed class SessionAndUserTests
     [InlineData("ana@exemplo.com.br", " ")]
     public void User_requires_email_and_name(string email, string name) =>
         Should.Throw<ArgumentException>(() => ApplicationUser.Register(Guid.CreateVersion7(), email, name, Now));
+
+    [Theory]
+    [InlineData(MfaMethod.Totp)]
+    [InlineData(MfaMethod.Email)]
+    public void Enabling_mfa_records_the_method_and_turns_on_two_factor(MfaMethod method)
+    {
+        var user = ApplicationUser.Register(Guid.CreateVersion7(), "ana@exemplo.com.br", "Ana", Now);
+
+        user.EnableMfa(method);
+
+        user.MfaMethod.ShouldBe(method);
+        user.TwoFactorEnabled.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Mfa_needs_a_method()
+    {
+        var user = ApplicationUser.Register(Guid.CreateVersion7(), "ana@exemplo.com.br", "Ana", Now);
+
+        Should.Throw<ArgumentOutOfRangeException>(() => user.EnableMfa(MfaMethod.None));
+        user.TwoFactorEnabled.ShouldBeFalse();
+    }
 }

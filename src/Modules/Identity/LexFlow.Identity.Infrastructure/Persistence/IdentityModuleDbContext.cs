@@ -56,6 +56,7 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
     {
         builder.ToTable("users");
         builder.Property(u => u.FullName).HasMaxLength(ApplicationUser.MaxFullNameLength);
+        builder.Property(u => u.MfaMethod).HasConversion<string>().HasMaxLength(20).HasDefaultValue(MfaMethod.None);
 
         // Nomes no padrão snake_case (seção 6.1). O e-mail também é o login: único no banco, não só na aplicação.
         builder.HasIndex(u => u.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");

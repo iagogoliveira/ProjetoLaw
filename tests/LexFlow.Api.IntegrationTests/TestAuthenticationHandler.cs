@@ -19,6 +19,7 @@ internal sealed class TestAuthenticationHandler(
     public const string SchemeName = "Test";
     public const string UserHeader = "X-Test-User";
     public const string OrganizationHeader = "X-Test-Org";
+    public const string SessionHeader = "X-Test-Session";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -33,6 +34,12 @@ internal sealed class TestAuthenticationHandler(
         if (!string.IsNullOrEmpty(organization))
         {
             claims.Add(new Claim(LexFlowClaims.OrganizationId, organization));
+        }
+
+        var session = Request.Headers[SessionHeader].ToString();
+        if (!string.IsNullOrEmpty(session))
+        {
+            claims.Add(new Claim(LexFlowClaims.SessionId, session));
         }
 
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));

@@ -1,0 +1,4 @@
+        <p>Olá, {{ name | html.escape }}.</p>
+        <p>Use este código para concluir a entrada no LexFlow:</p>
+        <p style="font-size:28px;font-weight:bold;letter-spacing:6px;">{{ code | html.escape }}</p>
+        <p>O código vale por poucos minutos. Se você não tentou entrar agora, troque sua senha: alguém pode conhecê-la.</p>

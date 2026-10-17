@@ -1,0 +1,64 @@
+@page "/conta/segundo-fator"
+@using LexFlow.Identity.Domain.Users
+@model LexFlow.Identity.Endpoints.Pages.Conta.SegundoFatorModel
+@{
+    ViewData["Title"] = "Verificação em duas etapas";
+}
+
+<h1>Verificação em duas etapas</h1>
+
+@if (Model.SignedInWithoutReturn)
+{
+    <p role="status">Você entrou. Volte ao LexFlow para continuar.</p>
+}
+else
+{
+    @if (Model.Message is not null)
+    {
+        <p role="status">@Model.Message</p>
+    }
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <p class="error" role="alert">@Model.ErrorMessage</p>
+    }
+
+    <p id="code-hint">
+        @if (Model.UseRecoveryCode)
+        {
+            @:Digite um dos códigos de recuperação que você guardou. Cada código só pode ser usado uma vez.
+        }
+        else if (Model.Method == MfaMethod.Email)
+        {
+            @:Enviamos um código para o seu e-mail. Digite-o abaixo.
+        }
+        else
+        {
+            @:Digite o código de 6 dígitos do seu aplicativo autenticador.
+        }
+    </p>
+
+    <form method="post" novalidate>
+        <input type="hidden" asp-for="ReturnUrl">
+        <input type="hidden" asp-for="UseRecoveryCode">
+        <label for="code">Código</label>
+        <input id="code" name="Code" autocomplete="one-time-code" inputmode="@(Model.UseRecoveryCode ? "text" : "numeric")" required aria-describedby="code-hint">
+        <button type="submit">Confirmar</button>
+    </form>
+
+    <div class="links">
+        @if (Model.Method == MfaMethod.Email)
+        {
+            <form method="post" asp-page-handler="Resend">
+                <input type="hidden" asp-for="ReturnUrl">
+                <button type="submit">Enviar outro código</button>
+            </form>
+        }
+        else if (!Model.UseRecoveryCode)
+        {
+            <a href="/conta/segundo-fator?UseRecoveryCode=true&amp;ReturnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? string.Empty)">Usar um código de recuperação</a>
+        }
+
+        <a href="/conta/entrar">Voltar ao login</a>
+    </div>
+}

@@ -40,6 +40,9 @@ public sealed class AccountEmailConsumer(
             case AccountEmailKind.ResetPassword:
                 token = await users.GeneratePasswordResetTokenAsync(user);
                 break;
+            case AccountEmailKind.SignInCode:
+                token = await users.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+                break;
             default:
                 token = null;
                 break;

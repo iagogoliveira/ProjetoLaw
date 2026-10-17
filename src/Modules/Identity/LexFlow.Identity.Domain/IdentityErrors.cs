@@ -23,6 +23,15 @@ public static class IdentityErrors
     public static readonly Error SessionNotFound =
         Error.NotFound("identity.session_not_found", "Sessão não encontrada.");
 
+    public static readonly Error MfaAlreadyEnabled =
+        Error.Conflict("identity.mfa_already_enabled", "A verificação em duas etapas já está ativa.");
+
+    public static readonly Error MfaCodeInvalid =
+        Error.Validation("identity.mfa_code_invalid", "Código inválido ou expirado.");
+
+    public static readonly Error MfaSetupNotStarted =
+        Error.BusinessRule("identity.mfa_setup_not_started", "Comece a configuração do aplicativo autenticador antes de confirmar.");
+
     public static readonly Error SessionExpired =
         Error.BusinessRule("identity.session_expired", "A sessão expirou ou foi encerrada. Entre novamente.");
 }

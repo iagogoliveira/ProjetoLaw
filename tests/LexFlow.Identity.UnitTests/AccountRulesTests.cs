@@ -81,4 +81,11 @@ public sealed class AccountRulesTests
         reset.Errors.Select(e => e.ErrorCode).ShouldBe(["identity.user_id_required", "identity.token_required", "identity.password_required"], ignoreOrder: true);
         forgot.Errors.Single().ErrorCode.ShouldBe("identity.email_invalid");
     }
+
+    [Theory]
+    [InlineData("123 456", "123456")]
+    [InlineData("123-456", "123456")]
+    [InlineData("123456", "123456")]
+    public void Mfa_codes_accept_the_spacing_shown_by_authenticator_apps(string typed, string expected) =>
+        LexFlow.Identity.Application.Mfa.MfaCodes.Normalize(typed).ShouldBe(expected);
 }

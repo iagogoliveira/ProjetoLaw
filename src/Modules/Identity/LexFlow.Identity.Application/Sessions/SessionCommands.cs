@@ -78,7 +78,7 @@ internal sealed class RenewSessionHandler(IIdentityDbContext db, IClock clock) :
 /// <summary>Encerra a sessão e revoga os tokens dela. Repetir não tem efeito (logout duplo, sessão já expirada).</summary>
 public sealed record EndSessionCommand(Guid SessionId, string Reason) : ICommand;
 
-internal sealed class EndSessionHandler(IIdentityDbContext db, ISessionTokenRevoker tokens, IClock clock) : ICommandHandler<EndSessionCommand, Unit>
+internal sealed class EndSessionHandler(IIdentityDbContext db, ISessionTokens tokens, IClock clock) : ICommandHandler<EndSessionCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(EndSessionCommand command, CancellationToken cancellationToken)
     {
@@ -96,13 +96,13 @@ internal sealed class EndSessionHandler(IIdentityDbContext db, ISessionTokenRevo
 internal static class SessionTermination
 {
     /// <summary>Encerra todas as sessões ainda não revogadas do usuário (ex.: senha redefinida).</summary>
-    public static async Task EndAllAsync(Guid userId, string reason, IIdentityDbContext db, ISessionTokenRevoker tokens, IClock clock, CancellationToken cancellationToken)
+    public static async Task EndAllAsync(Guid userId, string reason, IIdentityDbContext db, ISessionTokens tokens, IClock clock, CancellationToken cancellationToken)
     {
         var sessions = await db.Sessions.Where(s => s.UserId == userId && s.RevokedAt == null).ToListAsync(cancellationToken);
         await EndAsync(sessions, reason, db, tokens, clock, cancellationToken);
     }
 
-    public static async Task EndAsync(IReadOnlyList<Session> sessions, string reason, IIdentityDbContext db, ISessionTokenRevoker tokens, IClock clock, CancellationToken cancellationToken)
+    public static async Task EndAsync(IReadOnlyList<Session> sessions, string reason, IIdentityDbContext db, ISessionTokens tokens, IClock clock, CancellationToken cancellationToken)
     {
         var now = clock.UtcNow;
         foreach (var session in sessions)

@@ -57,6 +57,7 @@ public sealed class IdentityModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         OidcEndpoints.Map(endpoints);
+        ProfileEndpoints.Map(endpoints);
         endpoints.MapRazorPages().RequireRateLimiting(PublicRateLimitPolicy);
 
         var auth = endpoints.MapGroup("/api/v1/auth").WithTags("Auth").RequireRateLimiting(PublicRateLimitPolicy);

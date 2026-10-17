@@ -33,7 +33,7 @@ internal sealed class ResetPasswordValidator : AbstractValidator<ResetPasswordCo
 internal sealed class ResetPasswordHandler(
     UserManager<ApplicationUser> users,
     IIdentityDbContext db,
-    ISessionTokenRevoker tokens,
+    ISessionTokens tokens,
     IClock clock)
     : ICommandHandler<ResetPasswordCommand, Unit>
 {

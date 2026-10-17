@@ -9,6 +9,7 @@ public static class LexFlowClaims
 {
     public const string Subject = "sub";
     public const string OrganizationId = "org_id";
+    public const string SessionId = "sid";
 }
 
 /// <summary>Usuário a partir da claim <c>sub</c> do token.</summary>
