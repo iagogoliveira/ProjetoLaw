@@ -7,7 +7,9 @@
     "mainNavigation": "Main navigation",
     "home": "Home",
     "account": "My account",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "organization": "Active office",
+    "invite": "Invite someone"
   },
   "dashboard": {
     "title": "Home",
@@ -66,6 +68,44 @@
       "end": "End"
     }
   },
+  "organization": {
+    "create": {
+      "title": "Create your office",
+      "lead": "You are not part of any office yet. Create yours to get started; you will be the office administrator. If you received an invitation, open the link in the email.",
+      "name": "Office name",
+      "nameRequired": "Enter the office name.",
+      "action": "Create office"
+    }
+  },
+  "settings": {
+    "invite": {
+      "title": "Invite someone",
+      "lead": "The person receives an email with the invitation link, valid for 7 days. Anyone without an account creates one from the same link.",
+      "email": "Email",
+      "emailInvalid": "Enter a valid email.",
+      "role": "Role",
+      "roleRequired": "Choose the role.",
+      "scope": "Data scope",
+      "action": "Send invitation",
+      "sent": "Invitation sent to {{email}}."
+    },
+    "scope": {
+      "own": "Only their own",
+      "organization": "The whole office"
+    }
+  },
+  "invitation": {
+    "loading": "Loading the invitation…",
+    "title": "Invitation to {{organization}}",
+    "lead": "Invitation for {{email}}, valid until {{date}}.",
+    "signedInAs": "You are signed in as {{email}}.",
+    "accept": "Accept invitation",
+    "switchAccount": "Use another account",
+    "signIn": "Sign in",
+    "register": "Create account",
+    "registerHint": "No account yet? Create one with the invited email, confirm the email and sign in: the invitation will still be here.",
+    "invalidTitle": "Invitation unavailable"
+  },
   "errors": {
     "http": {
       "error": "The operation could not be completed. Please try again.",
@@ -96,6 +136,20 @@
       "invalid_date": "Invalid date.",
       "unknown_option": "Option does not exist or is inactive.",
       "unknown_user": "User is not a member of the office."
+    },
+    "organization": {
+      "name_required": "Enter the office name.",
+      "name_too_long": "Name is too long.",
+      "not_a_member": "You are not a member of this office.",
+      "mfa_required": "This office requires two-step verification. Turn it on in My account and sign in again.",
+      "email_invalid": "Invalid email.",
+      "invitation_roles_required": "Choose at least one role.",
+      "invitation_not_found": "Invitation not found, already used or cancelled.",
+      "invitation_expired": "The invitation has expired. Ask whoever sent it for a new one.",
+      "invitation_pending": "There is already a pending invitation for this email.",
+      "invitation_email_mismatch": "This invitation was sent to another email. Sign in with the invited email account.",
+      "already_a_member": "This person is already a member of the office.",
+      "role_not_found": "Role not found."
     }
   }
 }

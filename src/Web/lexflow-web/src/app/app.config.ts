@@ -22,6 +22,7 @@ import { routes } from './app.routes';
 import { oidcConfiguration } from './core/auth/auth-config';
 import { AuthSession } from './core/auth/auth-session';
 import { APP_CONFIG, AppConfig } from './core/config/app-config';
+import { organizationInterceptor } from './core/organization/active-organization';
 import { DEFAULT_LANG, provideI18n } from './core/i18n/transloco.config';
 
 registerLocaleData(localePt, DEFAULT_LANG);
@@ -35,7 +36,7 @@ export function createAppConfig(config: AppConfig): ApplicationConfig {
       { provide: LOCALE_ID, useValue: DEFAULT_LANG },
       { provide: APP_CONFIG, useValue: config },
       provideI18n(),
-      provideHttpClient(withInterceptors([authInterceptor()])),
+      provideHttpClient(withInterceptors([authInterceptor(), organizationInterceptor])),
       provideAuth({ config: oidcConfiguration(config, window.location.origin) }),
       // Tokens na sessão da aba (decisão de 2026-10-16): sobrevivem ao F5 e somem ao fechar a aba; nunca em localStorage.
       { provide: AbstractSecurityStorage, useClass: DefaultSessionStorageService },

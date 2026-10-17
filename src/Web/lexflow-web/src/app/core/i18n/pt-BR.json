@@ -7,7 +7,9 @@
     "mainNavigation": "Navegação principal",
     "home": "Início",
     "account": "Minha conta",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "organization": "Escritório ativo",
+    "invite": "Convidar pessoa"
   },
   "dashboard": {
     "title": "Início",
@@ -66,6 +68,44 @@
       "end": "Encerrar"
     }
   },
+  "organization": {
+    "create": {
+      "title": "Crie seu escritório",
+      "lead": "Você ainda não faz parte de nenhum escritório. Crie o seu para começar; você será o Administrador do escritório. Se recebeu um convite, abra o link do e-mail.",
+      "name": "Nome do escritório",
+      "nameRequired": "Informe o nome do escritório.",
+      "action": "Criar escritório"
+    }
+  },
+  "settings": {
+    "invite": {
+      "title": "Convidar pessoa",
+      "lead": "A pessoa recebe um e-mail com o link do convite, válido por 7 dias. Quem ainda não tem conta cria uma pelo próprio link.",
+      "email": "E-mail",
+      "emailInvalid": "Informe um e-mail válido.",
+      "role": "Perfil",
+      "roleRequired": "Escolha o perfil.",
+      "scope": "Escopo de dados",
+      "action": "Enviar convite",
+      "sent": "Convite enviado para {{email}}."
+    },
+    "scope": {
+      "own": "Só o que é dela",
+      "organization": "Todo o escritório"
+    }
+  },
+  "invitation": {
+    "loading": "Carregando o convite…",
+    "title": "Convite para {{organization}}",
+    "lead": "Convite para {{email}}, válido até {{date}}.",
+    "signedInAs": "Você entrou como {{email}}.",
+    "accept": "Aceitar convite",
+    "switchAccount": "Usar outra conta",
+    "signIn": "Entrar",
+    "register": "Criar conta",
+    "registerHint": "Ainda não tem conta? Crie uma com o e-mail convidado, confirme o e-mail e entre: o convite continua aqui.",
+    "invalidTitle": "Convite indisponível"
+  },
   "errors": {
     "http": {
       "error": "Não foi possível concluir a operação. Tente de novo.",
@@ -96,6 +136,20 @@
       "invalid_date": "Data inválida.",
       "unknown_option": "Opção inexistente ou desativada.",
       "unknown_user": "Usuário não é membro do escritório."
+    },
+    "organization": {
+      "name_required": "Informe o nome do escritório.",
+      "name_too_long": "Nome longo demais.",
+      "not_a_member": "Você não é membro deste escritório.",
+      "mfa_required": "Este escritório exige verificação em duas etapas. Ative-a em Minha conta e entre de novo.",
+      "email_invalid": "E-mail inválido.",
+      "invitation_roles_required": "Escolha ao menos um perfil.",
+      "invitation_not_found": "Convite não encontrado, já usado ou cancelado.",
+      "invitation_expired": "O convite expirou. Peça um novo convite a quem o enviou.",
+      "invitation_pending": "Já existe um convite pendente para este e-mail.",
+      "invitation_email_mismatch": "Este convite foi enviado para outro e-mail. Entre com a conta do e-mail convidado.",
+      "already_a_member": "Esta pessoa já é membro do escritório.",
+      "role_not_found": "Perfil não encontrado."
     }
   }
 }

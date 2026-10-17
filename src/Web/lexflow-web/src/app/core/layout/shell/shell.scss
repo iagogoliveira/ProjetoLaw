@@ -27,6 +27,12 @@
   font: var(--mat-sys-title-large);
 }
 
+.organization {
+  margin-inline-start: var(--lf-space-md);
+  max-width: 280px;
+  font: var(--mat-sys-title-small);
+}
+
 .spacer {
   flex: 1;
 }

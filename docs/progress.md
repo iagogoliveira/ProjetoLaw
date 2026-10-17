@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13, 3D #14 e 3E #15 mergeados; falta 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13, 3D #14 e 3E #15 mergeados; 3F1 pronto para revisão; falta 3F2) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens` |
 
 ---
 
@@ -28,6 +28,32 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3D:** convites (token de uso único, 7 dias), membros, estrutura (filiais, áreas, equipes, centros de custo, sócios) e perfis editáveis.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
+
+### PR 3F — frontend da Etapa 3 (plano aprovado em 2026-10-17, em duas partes)
+
+**3F1 — organização no SPA, convites e onboarding (pronto para revisão):**
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.29 | `AccessStore` (`GET /api/v1/me/access`), organização ativa na aba e `X-Organization-Id` só nas chamadas à API; organização que deixou de valer volta à escolha do servidor | `organization.spec.ts` (`AccessStore`, `organizationInterceptor`) |
+| 3.30 | Troca de organização no shell; diretiva `*lfCan` e guards `organizationGuard` (sem escritório → onboarding) e `permissionGuard` | `organization.spec.ts` (`CanDirective`, guards) |
+| 3.31 | Onboarding "Crie seu escritório" e tela mínima "Convidar pessoa" (perfil e escopo próprio ou escritório), que o 3F2 amplia | `e2e/onboarding-flow.spec.ts` |
+| 3.32 | Página pública `/convite`: consulta, "Entrar" ou "Criar conta" com o e-mail preenchido, token guardado na aba e retomado depois do login, aceite e entrada no escritório | `invitation-store.spec.ts`, `e2e/onboarding-flow.spec.ts` |
+| 3.33 | E2E do onboarding contra o AppHost: cadastro → criar escritório → convidar → a convidada cria a conta, confirma, entra e aceita | `e2e/onboarding-flow.spec.ts`; `e2e/account-flow.spec.ts` ajustado (sem escritório, o login leva ao onboarding) |
+
+**Última verificação local (PR 3F1):** 42 Vitest, `npm run lint`, `npm run build`, Playwright 4 contra o `ng serve` (os 2 fluxos completos são pulados sem Mailpit) e 6 de 6 contra o AppHost, em duas rodadas. Este PR não muda código .NET; a suíte .NET é a verificada no 3E.
+
+**Pendências do PR 3F1:**
+1. O token do convite fica no `sessionStorage` da aba: se a confirmação do e-mail for aberta em outra aba ou navegador, a pessoa abre o link do convite de novo depois de entrar.
+2. Quem precisa ativar o MFA exigido pelo escritório recebe 403 `organization.mfa_required` nas telas do escritório, mas ainda não há aviso dedicado no shell (entra no 3F2).
+
+**3F2 — telas de configurações (fecha a Etapa 3):**
+1. Usuários e convites: membros, perfis com escopo, remover; convidar, reenviar e cancelar.
+2. Perfis, com a matriz de permissões por grupo.
+3. Estrutura: filiais, áreas, equipes (e membros), centros de custo e sócios.
+4. Organização: nome e MFA obrigatório. Inclui um endpoint de renomear, que ainda não existe.
+5. Campos customizados e tabelas auxiliares, com formulário de teste (`lf-custom-fields` + validação na API).
+6. E2E do critério de aceite: campo obrigatório criado na tela aparece e é validado no formulário de teste.
 
 ### PR 3E — campos customizados e tabelas auxiliares (concluído: PR #15 mergeado em 2026-10-17)
 

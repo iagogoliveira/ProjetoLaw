@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
 import { APP_CONFIG } from '../config/app-config';
+import { AccessStore } from '../organization/access-store';
 
 /** Dados do id token usados pela interface (o perfil completo vem de `GET /api/v1/me`). */
 export interface SignedInUser {
@@ -18,6 +19,7 @@ export interface SignedInUser {
 export class AuthSession {
   private readonly oidc = inject(OidcSecurityService);
   private readonly config = inject(APP_CONFIG);
+  private readonly access = inject(AccessStore);
   private readonly state = signal<SignedInUser | null>(null);
   private initialization?: Promise<void>;
 
@@ -26,6 +28,11 @@ export class AuthSession {
 
   /** Cadastro na página do servidor de identidade (o SPA não recebe senha). */
   readonly registerUrl = computed(() => `${this.config.authority}/conta/cadastro`);
+
+  /** Cadastro a partir de um convite, com o e-mail convidado já preenchido. */
+  registerUrlFor(email: string): string {
+    return `${this.registerUrl()}?email=${encodeURIComponent(email)}`;
+  }
 
   initialize(): Promise<void> {
     this.initialization ??= firstValueFrom(this.oidc.checkAuth())
@@ -42,6 +49,7 @@ export class AuthSession {
   async signOut(): Promise<void> {
     await firstValueFrom(this.oidc.logoff()).catch(() => undefined);
     this.state.set(null);
+    this.access.reset();
   }
 }
 
