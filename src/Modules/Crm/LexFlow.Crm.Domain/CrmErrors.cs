@@ -35,4 +35,25 @@ public static class CrmErrors
 
     public static readonly Error CnpjLookupUnavailable =
         Error.BusinessRule("crm.cnpj_lookup_unavailable", "A consulta de CNPJ está indisponível agora. Preencha os dados à mão.");
+
+    public static readonly Error PersonAnonymized =
+        Error.BusinessRule("crm.person_anonymized", "Este cadastro foi anonimizado (LGPD) e não pode mais ser alterado.");
+
+    public static readonly Error MergeSamePerson =
+        Error.Validation("crm.merge_same_person", "Escolha dois cadastros diferentes para unificar.");
+
+    public static readonly Error MergeKindMismatch =
+        Error.BusinessRule("crm.merge_kind_mismatch", "Só é possível unificar cadastros do mesmo tipo (física com física, jurídica com jurídica).");
+
+    public static readonly Error MergeDocumentConflict =
+        Error.BusinessRule("crm.merge_document_conflict", "Os cadastros têm documentos diferentes e não são a mesma pessoa.");
+
+    public static readonly Error ConflictCheckNotFound =
+        Error.NotFound("crm.conflict_check_not_found", "Verificação de conflito não encontrada.");
+
+    public static readonly Error ConflictJustificationRequired =
+        Error.Validation("crm.conflict_justification_required", "Há conflito apontado: escreva a justificativa para prosseguir.");
+
+    public static readonly Error ConflictAlreadyDecided =
+        Error.BusinessRule("crm.conflict_already_decided", "Esta verificação já foi concluída.");
 }

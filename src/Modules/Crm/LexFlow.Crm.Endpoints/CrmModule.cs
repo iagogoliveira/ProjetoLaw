@@ -23,6 +23,9 @@ public static class CrmPermissions
     public const string PeopleCreate = "crm.people.create";
     public const string PeopleEdit = "crm.people.edit";
     public const string PeopleDelete = "crm.people.delete";
+    public const string PeopleMerge = "crm.people.merge";
+    public const string PeopleAnonymize = "crm.people.anonymize";
+    public const string ConflictsCheck = "crm.conflicts.check";
 }
 
 /// <summary>Pessoa enviada na criação: o tipo (física ou jurídica) e o cadastro.</summary>
@@ -50,8 +53,9 @@ public sealed record EconomicGroupRequest(string Name);
 public sealed record PeoplePageResponse(IReadOnlyList<PersonSummary> Items, string? NextCursor);
 
 /// <summary>
-/// Endpoints do módulo Crm (Etapa 4, PR 4A): cadastro único de pessoas com papéis, endereços, contatos, dados
-/// fiscais e campos customizados; busca aproximada; possíveis duplicatas; consulta de CNPJ; grupos econômicos.
+/// Endpoints do módulo Crm (Etapa 4): cadastro único de pessoas com papéis, endereços, contatos, dados fiscais e campos
+/// customizados; busca aproximada; possíveis duplicatas; consulta de CNPJ; grupos econômicos; conflito de interesses,
+/// fusão e anonimização (<see cref="ConflictEndpoints"/>).
 /// </summary>
 public sealed class CrmModule : IModule
 {
@@ -64,35 +68,15 @@ public sealed class CrmModule : IModule
         MapQueries(endpoints);
         MapCommands(endpoints);
         MapEconomicGroups(endpoints);
+        ConflictEndpoints.Map(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)
     {
         var people = endpoints.MapGroup("/api/v1/people").WithTags("People");
 
-        people.MapGet("/", async (string? q, PersonRoleKind? role, string? cursor, int? limit, IQueryHandler<SearchPeopleQuery, PeoplePage> handler, CancellationToken cancellationToken) =>
-            {
-                var page = CursorPageRequest.Create(cursor, limit);
-                if (page.IsFailure)
-                {
-                    return page.Error.ToProblem();
-                }
-
-                PeoplePosition? after = null;
-                if (page.Value.Cursor is { } value)
-                {
-                    var decoded = CursorCodec.Decode<PeoplePosition>(value);
-                    if (decoded.IsFailure)
-                    {
-                        return decoded.Error.ToProblem();
-                    }
-
-                    after = decoded.Value;
-                }
-
-                var result = await handler.Handle(new SearchPeopleQuery(q, role, after, page.Value.Limit), cancellationToken);
-                return result.ToHttpResult(p => TypedResults.Ok(new PeoplePageResponse(p.Items, p.Next is null ? null : CursorCodec.Encode(p.Next))));
-            })
+        people.MapGet("/", ListPeopleAsync)
+            .DocumentEnumQuery<PersonRoleKind>("role")
             .RequirePermission(CrmPermissions.PeopleRead)
             .WithName("ListPeople")
             .WithSummary("Pessoas em ordem alfabética (cursor) ou buscadas por nome aproximado, sem acentos, ou documento")
@@ -127,6 +111,37 @@ public sealed class CrmModule : IModule
             .Produces<PersonResponse>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+
+    /// <summary>Lista ou busca (<c>?q=&amp;role=&amp;cursor=&amp;limit=</c>).</summary>
+    private static async Task<IResult> ListPeopleAsync(string? q, string? role, string? cursor, int? limit, IQueryHandler<SearchPeopleQuery, PeoplePage> handler, CancellationToken cancellationToken)
+    {
+        var page = CursorPageRequest.Create(cursor, limit);
+        if (page.IsFailure)
+        {
+            return page.Error.ToProblem();
+        }
+
+        var roleFilter = QueryEnums.Parse<PersonRoleKind>(role);
+        if (roleFilter.IsFailure)
+        {
+            return roleFilter.Error.ToProblem();
+        }
+
+        PeoplePosition? after = null;
+        if (page.Value.Cursor is { } value)
+        {
+            var decoded = CursorCodec.Decode<PeoplePosition>(value);
+            if (decoded.IsFailure)
+            {
+                return decoded.Error.ToProblem();
+            }
+
+            after = decoded.Value;
+        }
+
+        var result = await handler.Handle(new SearchPeopleQuery(q, roleFilter.Value, after, page.Value.Limit), cancellationToken);
+        return result.ToHttpResult(p => TypedResults.Ok(new PeoplePageResponse(p.Items, p.Next is null ? null : CursorCodec.Encode(p.Next))));
     }
 
     private static void MapCommands(IEndpointRouteBuilder endpoints)

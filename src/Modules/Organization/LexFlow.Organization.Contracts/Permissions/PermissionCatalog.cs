@@ -75,6 +75,7 @@ public static partial class PermissionCatalog
         new("crm.people.delete", Groups.Crm, "Excluir pessoas"),
         new("crm.people.export", Groups.Crm, "Exportar pessoas"),
         new("crm.people.merge", Groups.Crm, "Unificar cadastros duplicados"),
+        new("crm.people.anonymize", Groups.Crm, "Anonimizar pessoas (LGPD, irreversível)"),
         new("crm.conflicts.check", Groups.Crm, "Consultar conflito de interesses"),
         new("crm.opportunities.read", Groups.Crm, "Ver oportunidades"),
         new("crm.opportunities.manage", Groups.Crm, "Gerenciar oportunidades"),

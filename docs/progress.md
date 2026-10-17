@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18 mergeado; faltam 4B a 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18 mergeado; 4B pronto para revisão; faltam 4C e 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos` |
 
 ---
 
@@ -41,6 +41,33 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - lista e detalhe de pessoas (abas dados, contatos, processos, documentos, financeiro; as três últimas como espaço reservado até as etapas delas);
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
+
+### PR 4B — conflito de interesses, fusão e LGPD (pronto para revisão)
+
+**Decisões de negócio (2026-10-17):**
+- A consulta de conflito informa o lado: a pessoa vai ser cliente ou parte contrária.
+- Na fusão, o cadastro mantido fica com os próprios dados, e os campos vazios recebem os do duplicado.
+- A anonimização usa a permissão nova `crm.people.anonymize` (só Administrador do escritório e Sócio) e exige motivo.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.8 | Verificação de conflito: direto (documento, nome ou parte em processo de outro cliente) e indireto (nome parecido, grupo econômico, e-mail compartilhado), conforme o lado | `ConflictTests` (6 casos), `ConflictAndLifecycleTests.A_check_takes_the_highest_risk_of_its_hits` |
+| 4.9 | Prosseguir com justificativa obrigatória quando há risco; relatório das verificações por risco e cursor | `A_future_client_who_is_already_an_opponent_is_a_direct_conflict_that_needs_a_justification`, `The_report_lists_checks_by_risk_newest_first` |
+| 4.10 | `ILitigationLookup` como stub até a Etapa 5, com o critério de aceite provado por uma implementação falsa | `An_opponent_in_a_case_of_another_client_is_a_direct_conflict` |
+| 4.11 | Fusão de duplicados: vazios completados, papéis, endereços, contatos e campos somados, achados de conflito reatribuídos, evento `PeopleMergedIntegrationEvent` | `Merging_moves_data_and_conflict_hits_to_the_kept_record`, `Merging_keeps_the_record_fills_the_blanks_and_sums_roles_addresses_and_contacts` |
+| 4.12 | Anonimização LGPD com motivo, também nos achados e consultas de conflito; cadastro congelado; permissão nova com migration de dados | `Anonymizing_removes_personal_data_everywhere_and_freezes_the_record`, `Existing_admin_and_partner_roles_receive_the_anonymize_permission` |
+| 4.13 | Filtros `?role=` e `?risk=` sem diferenciar maiúsculas (400 `crm.filter_invalid`), com o contrato OpenAPI mantido no schema do enum | `The_list_filters_by_role_written_in_camel_case`, `OpenApiContractTests` |
+| 4.14 | RLS nas 2 tabelas novas, casos entre organizações nas 4 rotas novas com id, OpenAPI (6 operações novas, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests` |
+
+**ADR:** [0023 — Conflito de interesses, fusão de cadastros e anonimização LGPD](adr/0023-conflito-fusao-e-anonimizacao.md) (proposta, para revisão no PR).
+
+**Critério de aceite da Etapa 4:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ com processos falsos (`ConflictTests.An_opponent_in_a_case_of_another_client_is_a_direct_conflict`). A prova com processos reais fica para a Etapa 5.
+
+**Última verificação local (PR 4B):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 553 testes .NET em 13 projetos e 14 do AppHost, 44 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Crm.Application 96,6% e Crm.Domain 100%. Sem mudança de modelo pendente nas migrations. Sem mudança de tela.
+
+**Pendências do PR 4B:**
+1. LGPD × auditoria: a trilha só de inserção guarda os valores anteriores; o prazo de retenção e o tratamento dela para titulares é decisão jurídica antes de produção.
+2. O contato compartilhado compara só e-mails; telefones exigem normalização (entra quando houver demanda).
 
 ### PR 4A — cadastro de pessoas (concluído: PR #18 mergeado em 2026-10-17)
 

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateEconomicGroupData, CreateEconomicGroupErrors, CreateEconomicGroupResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePersonData, CreatePersonErrors, CreatePersonResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeleteEconomicGroupData, DeleteEconomicGroupErrors, DeleteEconomicGroupResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePersonData, DeletePersonErrors, DeletePersonResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, FindSimilarPeopleData, FindSimilarPeopleErrors, FindSimilarPeopleResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, GetPersonData, GetPersonErrors, GetPersonResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListEconomicGroupsData, ListEconomicGroupsErrors, ListEconomicGroupsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPeopleData, ListPeopleErrors, ListPeopleResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, LookupCnpjData, LookupCnpjErrors, LookupCnpjResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameEconomicGroupData, RenameEconomicGroupErrors, RenameEconomicGroupResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePersonData, UpdatePersonErrors, UpdatePersonResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
+import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AnonymizePersonData, AnonymizePersonErrors, AnonymizePersonResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, CheckConflictData, CheckConflictErrors, CheckConflictResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateEconomicGroupData, CreateEconomicGroupErrors, CreateEconomicGroupResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePersonData, CreatePersonErrors, CreatePersonResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeleteEconomicGroupData, DeleteEconomicGroupErrors, DeleteEconomicGroupResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePersonData, DeletePersonErrors, DeletePersonResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, FindSimilarPeopleData, FindSimilarPeopleErrors, FindSimilarPeopleResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetConflictCheckData, GetConflictCheckErrors, GetConflictCheckResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, GetPersonData, GetPersonErrors, GetPersonResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListConflictChecksData, ListConflictChecksErrors, ListConflictChecksResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListEconomicGroupsData, ListEconomicGroupsErrors, ListEconomicGroupsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPeopleData, ListPeopleErrors, ListPeopleResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, LookupCnpjData, LookupCnpjErrors, LookupCnpjResponses, MergePeopleData, MergePeopleErrors, MergePeopleResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, ProceedConflictData, ProceedConflictErrors, ProceedConflictResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameEconomicGroupData, RenameEconomicGroupErrors, RenameEconomicGroupResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePersonData, UpdatePersonErrors, UpdatePersonResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -642,6 +642,64 @@ export const deleteEconomicGroup = <ThrowOnError extends boolean = false>(option
  */
 export const renameEconomicGroup = <ThrowOnError extends boolean = false>(options: Options<RenameEconomicGroupData, ThrowOnError>): RequestResult<RenameEconomicGroupResponses, RenameEconomicGroupErrors, ThrowOnError> => (options.client ?? client).put<RenameEconomicGroupResponses, RenameEconomicGroupErrors, ThrowOnError>({
     url: '/api/v1/economic-groups/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Relatório das verificações de conflito, das mais recentes às mais antigas
+ */
+export const listConflictChecks = <ThrowOnError extends boolean = false>(options?: Options<ListConflictChecksData, ThrowOnError>): RequestResult<ListConflictChecksResponses, ListConflictChecksErrors, ThrowOnError> => (options?.client ?? client).get<ListConflictChecksResponses, ListConflictChecksErrors, ThrowOnError>({ url: '/api/v1/conflict-checks', ...options });
+
+/**
+ * Verifica conflito de interesses (direto, indireto ou nenhum) e grava a verificação
+ */
+export const checkConflict = <ThrowOnError extends boolean = false>(options: Options<CheckConflictData, ThrowOnError>): RequestResult<CheckConflictResponses, CheckConflictErrors, ThrowOnError> => (options.client ?? client).post<CheckConflictResponses, CheckConflictErrors, ThrowOnError>({
+    url: '/api/v1/conflict-checks',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Uma verificação de conflito com os achados
+ */
+export const getConflictCheck = <ThrowOnError extends boolean = false>(options: Options<GetConflictCheckData, ThrowOnError>): RequestResult<GetConflictCheckResponses, GetConflictCheckErrors, ThrowOnError> => (options.client ?? client).get<GetConflictCheckResponses, GetConflictCheckErrors, ThrowOnError>({ url: '/api/v1/conflict-checks/{id}', ...options });
+
+/**
+ * Segue com o cliente ou caso; com conflito apontado, exige justificativa
+ */
+export const proceedConflict = <ThrowOnError extends boolean = false>(options: Options<ProceedConflictData, ThrowOnError>): RequestResult<ProceedConflictResponses, ProceedConflictErrors, ThrowOnError> => (options.client ?? client).post<ProceedConflictResponses, ProceedConflictErrors, ThrowOnError>({
+    url: '/api/v1/conflict-checks/{id}/proceed',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Unifica um cadastro duplicado neste: vazios completados, papéis, endereços e contatos somados
+ */
+export const mergePeople = <ThrowOnError extends boolean = false>(options: Options<MergePeopleData, ThrowOnError>): RequestResult<MergePeopleResponses, MergePeopleErrors, ThrowOnError> => (options.client ?? client).post<MergePeopleResponses, MergePeopleErrors, ThrowOnError>({
+    url: '/api/v1/people/{id}/merge',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Anonimiza os dados pessoais (LGPD, irreversível), mantendo o cadastro e os vínculos
+ */
+export const anonymizePerson = <ThrowOnError extends boolean = false>(options: Options<AnonymizePersonData, ThrowOnError>): RequestResult<AnonymizePersonResponses, AnonymizePersonErrors, ThrowOnError> => (options.client ?? client).post<AnonymizePersonResponses, AnonymizePersonErrors, ThrowOnError>({
+    url: '/api/v1/people/{id}/anonymize',
     ...options,
     headers: {
         'Content-Type': 'application/json',
