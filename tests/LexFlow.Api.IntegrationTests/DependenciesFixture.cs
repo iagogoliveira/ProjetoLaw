@@ -12,6 +12,7 @@ using LexFlow.Organization.Infrastructure;
 using LexFlow.Organization.Infrastructure.Invitations;
 using LexFlow.Organization.Infrastructure.Persistence;
 using LexFlow.Platform.Infrastructure;
+using LexFlow.Platform.Infrastructure.CustomFields;
 using LexFlow.Platform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -137,11 +138,13 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddLogging();
         services.AddApplication(IdentityApplication.Assembly);
         services.AddSystemContexts();
+        services.AddPlatformInfrastructure(configuration);
         services.AddIdentityInfrastructure(configuration);
         services.AddOrganizationInfrastructure(configuration);
         services.AddSingleton(email);
         services.AddScoped<AccountEmailConsumer>();
         services.AddScoped<InvitationEmailConsumer>();
+        services.AddScoped<OrganizationCreatedConsumer>();
         return services.BuildServiceProvider();
     }
 

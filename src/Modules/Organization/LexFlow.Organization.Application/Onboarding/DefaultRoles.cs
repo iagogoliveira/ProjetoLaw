@@ -29,7 +29,7 @@ public static class DefaultRoles
             DataScope.Organization, Everything),
 
         new(Partner, "Sócio", "Visão completa da área ou do escritório, aprovações e BI.",
-            DataScope.Organization, [.. BusinessArea, PermissionCatalog.SettingsUsersRead, PermissionCatalog.SettingsAuditRead]),
+            DataScope.Organization, [.. BusinessArea, PermissionCatalog.SettingsUsersRead, PermissionCatalog.SettingsAuditRead, PermissionCatalog.SettingsCustomFieldsRead]),
 
         new(Lawyer, "Advogado", "Casos sob sua responsabilidade ou da equipe: peças, prazos e timesheet.",
             DataScope.Team,
@@ -44,7 +44,7 @@ public static class DefaultRoles
                 "documents.read", "documents.upload", "documents.edit", "documents.export", "documents.sign",
                 "finance.fee_agreements.read", "finance.timesheet.log", "finance.timesheet.read", "finance.expenses.read", "finance.expenses.manage",
                 "ai.research.use", "ai.drafts.generate",
-                "reports.read", PermissionCatalog.PlatformJobsRead,
+                "reports.read", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,
             ]),
 
         new(Paralegal, "Estagiário/paralegal", "Tarefas atribuídas, cadastro e anexos, sem aprovação ou exclusão.",
@@ -55,7 +55,7 @@ public static class DefaultRoles
                 "schedule.deadlines.read", "schedule.events.read", "schedule.tasks.read", "schedule.tasks.manage",
                 "documents.read", "documents.upload",
                 "finance.timesheet.log", "finance.timesheet.read",
-                "ai.research.use", PermissionCatalog.PlatformJobsRead,
+                "ai.research.use", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,
             ]),
 
         new(Controller, "Controladoria jurídica", "Triagem de publicações, cadastro de prazos, distribuição e conferência de cumprimento.",
@@ -64,14 +64,14 @@ public static class DefaultRoles
                 "cases.read", "publications.read", "publications.triage", "publications.distribute",
                 "schedule.deadlines.read", "schedule.deadlines.manage", "schedule.deadlines.verify",
                 "schedule.events.read", "schedule.events.manage", "schedule.tasks.read", "schedule.tasks.manage",
-                "workflow.read", "documents.read", "reports.read", PermissionCatalog.PlatformJobsRead,
+                "workflow.read", "documents.read", "reports.read", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,
             ]),
 
         new(Finance, "Financeiro", "Contas, faturamento, NFS-e e conciliação, sem conteúdo jurídico.",
             DataScope.Organization,
             [
                 .. Everything.Where(p => p.StartsWith("finance.", StringComparison.Ordinal)),
-                "crm.people.read", "reports.read", "reports.export", PermissionCatalog.PlatformJobsRead,
+                "crm.people.read", "reports.read", "reports.export", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,
             ]),
     ];
 }

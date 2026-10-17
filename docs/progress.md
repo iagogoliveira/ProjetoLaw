@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13 e 3D #14 mergeados; faltam 3E e 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13 e 3D #14 mergeados; 3E pronto para revisão; falta 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields` |
 
 ---
 
@@ -28,6 +28,31 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3D:** convites (token de uso único, 7 dias), membros, estrutura (filiais, áreas, equipes, centros de custo, sócios) e perfis editáveis.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
+
+### PR 3E — campos customizados e tabelas auxiliares (pronto para revisão)
+
+**Decisões de negócio (2026-10-17):**
+- O campo do tipo lista tira as opções de uma tabela auxiliar do escritório.
+- As 6 tabelas auxiliares (tipos de ação, fases, objetos/pedidos, motivos de encerramento, tipos de despesa, tipos de tarefa) nascem no onboarding com itens sugeridos, que vão para aprovação numa ADR.
+- Nova permissão `settings.custom_fields.read`, dada a todos os perfis padrão (inclusive os já criados); editar continua com `settings.custom_fields.manage`.
+- Entidades com campos customizados: processos e casos, pessoas e clientes, contratos de honorários e oportunidades.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.23 | Definições de campos (texto, número, data, lista, moeda, usuário) por entidade, com chave, entidade e tipo fixos e desativação no lugar da exclusão | `CustomFieldTests` (unitários e da API) |
+| 3.24 | `ICustomFieldValidator` (Platform.Contracts) com códigos `custom_fields.*` e `POST /api/v1/custom-fields/validate` | `Each_rule_reports_its_own_code`, `Required_field_created_by_the_office_is_enforced_on_validation` |
+| 3.25 | Tabelas auxiliares e itens editáveis; as 6 do sistema nascem no onboarding (`OrganizationCreatedIntegrationEvent` → Worker), com itens sugeridos | `Onboarding_creates_the_system_lookup_tables_once_with_suggested_items`, `Office_maintains_lookup_tables_and_items_without_deleting_them` |
+| 3.26 | Permissão `settings.custom_fields.read` em todos os perfis padrão, inclusive os existentes (migration de dados) | `Every_default_role_reads_the_fields_but_only_managers_change_them`, `Existing_default_roles_receive_the_custom_fields_read_permission` |
+| 3.27 | RLS nas 3 tabelas novas, casos entre organizações nas 4 rotas novas com id, OpenAPI (9 operações novas) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests`, `OpenApiContractTests` |
+| 3.28 | Componente `lf-custom-fields` (controles com os limites do servidor, opções ativas da tabela, erros traduzidos, inclusive os da API) | `custom-fields.spec.ts` |
+
+**ADR:** [0021 — Campos customizados e tabelas auxiliares](adr/0021-campos-customizados-e-tabelas-auxiliares.md) (proposta; a lista de itens sugeridos aguarda aprovação).
+
+**Última verificação local (PR 3E):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 519 testes .NET em 11 projetos (Testcontainers) e 14 do AppHost, 30 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Platform.Application 95,5% e Platform.Domain 98,8%. As migrations não têm mudança de modelo pendente; o OpenAPI só ganhou adições. O Playwright não foi rodado de novo (nenhuma tela mudou; o componente entra nas telas do 3F).
+
+**Pendências do PR 3E:**
+1. A tela de campos customizados e o e2e do critério de aceite (campo obrigatório criado na tela aparece e é validado no formulário de teste) entram no 3F.
+2. Os módulos donos de entidade (Etapas 4, 5 e 10) criam a coluna `custom_fields jsonb`, chamam o `ICustomFieldValidator` e indexam (GIN) os campos filtráveis.
 
 ### PR 3D — convites, membros, estrutura e perfis editáveis (concluído: PR #14 mergeado em 2026-10-17)
 

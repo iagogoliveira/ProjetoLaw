@@ -2,6 +2,7 @@ using FluentValidation;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Organization.Application.Abstractions;
+using LexFlow.Organization.Contracts;
 using LexFlow.Organization.Domain.Members;
 using LexFlow.Organization.Domain.Roles;
 using LexFlow.SharedKernel.Results;
@@ -32,6 +33,7 @@ internal sealed class CreateOrganizationHandler(
     ICurrentUser user,
     TenantOverride tenant,
     IAccessCache cache,
+    IIntegrationEventPublisher events,
     IIdGenerator ids,
     IClock clock)
     : ICommandHandler<CreateOrganizationCommand, OrganizationCreatedResponse>
@@ -60,6 +62,8 @@ internal sealed class CreateOrganizationHandler(
             db.UserOrganizations.Add(new UserOrganization(userId, organization.Id));
             db.RoleAssignments.Add(MemberRoleAssignment.Assign(ids.NewId(), member.Id, admin!.Id, DataScope.Organization).Value);
 
+            // Os outros módulos preparam os dados iniciais do escritório (ex.: tabelas auxiliares do Platform).
+            events.Publish(new OrganizationCreatedIntegrationEvent(organization.Name) { OrganizationId = organization.Id });
             await db.SaveChangesAsync(cancellationToken);
         }
 
