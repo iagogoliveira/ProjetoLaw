@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 e 3B #12 mergeados; 3C pronto no branch; faltam 3D a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12 e 3C #13 mergeados; 3D pronto para revisão; faltam 3E e 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure` |
 
 ---
 
@@ -19,6 +19,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - O MFA obrigatório por organização entra na Etapa 3 (PR 3B): o escritório pode exigir segundo fator de todos os membros.
 - A matriz de permissões dos perfis padrão da ADR 0017 foi aprovada.
 - No onboarding são criados só os perfis internos da seção 3.2 (Administrador do escritório, Sócio, Advogado, Estagiário/paralegal, Controladoria jurídica e Financeiro). Cliente do portal e Correspondente ficam para a Etapa 12; Administrador da plataforma, para a Etapa 13.
+- Convites (PR 3D): quem ainda não tem conta se cadastra pelo link, com o e-mail já preenchido; só a conta cujo e-mail confirmado é o convidado aceita; os perfis (com escopo de dados) são escolhidos no convite.
 
 **Plano (proposto em 2026-10-17), em 6 PRs sequenciais:**
 - **3A:** módulo Organization (schema `org`), `PermissionCatalog` completo e onboarding com perfis padrão. A matriz de permissões dos perfis vai numa ADR para aprovação.
@@ -28,7 +29,26 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
 
-### PR 3C — RLS, papéis do banco e SecurityTests (pronto no branch `etapa-3c-rls-security-tests`, sem PR)
+### PR 3D — convites, membros, estrutura e perfis editáveis (pronto para revisão)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.17 | Convites por e-mail: token de uso único gerado pelo Worker (só o hash no banco), 7 dias, reenvio e cancelamento; consulta pública do convite e aceite pela conta do e-mail confirmado, com os perfis do convite | `InvitationTests` (API: aceite único, e-mail errado ou não confirmado, expiração e reenvio, cancelamento, duplicados), `InvitationTests` (domínio) |
+| 3.18 | `IUserDirectory` (Identity.Contracts): membros com nome e e-mail; cadastro com `?email=` vindo do convite | `Invited_person_accepts_once_and_joins_with_the_roles_of_the_invitation` |
+| 3.19 | Remoção de membro (acesso termina na próxima requisição; último administrador protegido) | `MemberAndRoleManagementTests.Removed_member_loses_access_and_the_last_admin_stays` |
+| 3.20 | Estrutura: filiais (CNPJ), áreas, equipes e seus membros, centros de custo e sócios (soma até 100%), com exclusão barrada enquanto em uso | `StructureTests` |
+| 3.21 | Perfis editáveis (criar, renomear, excluir sem uso) e catálogo para a matriz (`GET /api/v1/permissions`) | `MemberAndRoleManagementTests` |
+| 3.22 | RLS nas tabelas novas, casos entre organizações para as 16 rotas novas com id, contrato OpenAPI (32 operações novas, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0020 — Convites, membros, estrutura e perfis editáveis](adr/0020-convites-estrutura-e-perfis-editaveis.md) (proposta, para revisão no PR).
+
+**Última verificação local (PR 3D):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 501 testes .NET em 11 projetos (Testcontainers; API e SecurityTests no login da aplicação) e 14 do AppHost, 23 Vitest, Playwright 4 contra o `ng serve` (o fluxo completo é pulado sem Mailpit; não rodado contra o AppHost neste PR), `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Organization.Application 94,6% e Organization.Domain 100%. As migrations dos três módulos não têm mudança de modelo pendente; o OpenAPI só ganhou adições.
+
+**Pendências do PR 3D:**
+1. A leitura da estrutura exige `settings.structure.manage`. Quando os formulários de outros módulos precisarem escolher equipe ou área, será preciso uma permissão de leitura.
+2. A página do convite no SPA (`/convite?token=…`: consulta, entrar ou criar conta com o e-mail preenchido, aceitar) entra no PR 3F, com o e2e do onboarding.
+
+### PR 3C — RLS, papéis do banco e SecurityTests (concluído: PR #13 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |

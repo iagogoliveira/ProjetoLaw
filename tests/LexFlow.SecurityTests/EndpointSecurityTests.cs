@@ -60,6 +60,30 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             Task.FromResult(new CrossTenantCase(owner.MemberId, new { roles = new[] { new { roleId = owner.RoleId, scope = "organization", scopeRefId = (Guid?)null } } })),
         ["PUT /api/v1/roles/{id:guid}/permissions"] = owner =>
             Task.FromResult(new CrossTenantCase(owner.RoleId, new { permissions = CasesRead })),
+        ["PUT /api/v1/roles/{id:guid}"] = owner => Task.FromResult(new CrossTenantCase(owner.RoleId, new { name = "Tomado" })),
+        ["DELETE /api/v1/roles/{id:guid}"] = owner => Task.FromResult(new CrossTenantCase(owner.RoleId)),
+        ["DELETE /api/v1/organization/members/{id:guid}"] = owner => Task.FromResult(new CrossTenantCase(owner.MemberId)),
+        ["POST /api/v1/organization/invitations/{id:guid}/resend"] = async owner => new CrossTenantCase(await InvitationOfAsync(owner)),
+        ["DELETE /api/v1/organization/invitations/{id:guid}"] = async owner => new CrossTenantCase(await InvitationOfAsync(owner)),
+        ["PUT /api/v1/organization/branches/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "branches", new { name = "Matriz" }), new { name = "Tomada" }),
+        ["DELETE /api/v1/organization/branches/{id:guid}"] = async owner => new CrossTenantCase(await CreateAsOwnerAsync(owner, "branches", new { name = "Matriz" })),
+        ["PUT /api/v1/organization/practice-areas/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "practice-areas", new { name = "Cível" }), new { name = "Tomada" }),
+        ["DELETE /api/v1/organization/practice-areas/{id:guid}"] = async owner => new CrossTenantCase(await CreateAsOwnerAsync(owner, "practice-areas", new { name = "Cível" })),
+        ["PUT /api/v1/organization/teams/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "teams", new { name = "Equipe" }), new { name = "Tomada" }),
+        ["DELETE /api/v1/organization/teams/{id:guid}"] = async owner => new CrossTenantCase(await CreateAsOwnerAsync(owner, "teams", new { name = "Equipe" })),
+        ["PUT /api/v1/organization/teams/{id:guid}/members"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "teams", new { name = "Equipe" }), new { memberIds = Array.Empty<Guid>() }),
+        ["PUT /api/v1/organization/cost-centers/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "cost-centers", new { code = "ADM", name = "Administrativo" }), new { code = "TOM", name = "Tomado" }),
+        ["DELETE /api/v1/organization/cost-centers/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "cost-centers", new { code = "ADM", name = "Administrativo" })),
+        ["PUT /api/v1/organization/partners/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "partners", new { name = "Sócia", sharePercentage = 10m }), new { name = "Tomada", sharePercentage = 10m }),
+        ["DELETE /api/v1/organization/partners/{id:guid}"] = async owner =>
+            new CrossTenantCase(await CreateAsOwnerAsync(owner, "partners", new { name = "Sócia", sharePercentage = 10m })),
     };
 
     private IReadOnlyList<ApiEndpoint> Endpoints() =>
@@ -97,6 +121,43 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     /// <summary>Membro com todas as permissões atribuíveis numa organização nova.</summary>
     private Task<SeededMember> FullAccessMemberAsync() =>
         TestOrganizations.CreateWithMemberAsync(dependencies, [.. PermissionCatalog.Assignable.Select(p => p.Name)]);
+
+    /// <summary>
+    /// Cadastro de estrutura da organização do dono, pela própria API. O nome leva um sufixo único porque a mesma
+    /// organização recebe vários casos.
+    /// </summary>
+    private async Task<Guid> CreateAsOwnerAsync(SeededMember owner, string resource, object body)
+    {
+        var values = System.Text.Json.JsonSerializer.SerializeToNode(body)!.AsObject();
+        values["name"] = $"{values["name"]} {Guid.CreateVersion7():N}";
+        if (values.ContainsKey("code"))
+        {
+            values["code"] = $"C{Guid.CreateVersion7():N}"[..20];
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/organization/{resource}") { Content = JsonContent.Create(values) };
+        request.Headers.Add(TestAuthenticationHandler.UserHeader, owner.UserId.ToString());
+        request.Headers.Add(TenantResolutionMiddleware.HeaderName, owner.OrganizationId.ToString());
+        using var response = await _client.SendAsync(request, Ct);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync(Ct));
+        return (await response.Content.ReadFromJsonAsync<CreatedResource>(Ct))!.Id;
+    }
+
+    private sealed record CreatedResource(Guid Id);
+
+    /// <summary>Convite pendente da organização do dono, para o perfil dele.</summary>
+    private async Task<Guid> InvitationOfAsync(SeededMember owner)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/organization/invitations")
+        {
+            Content = JsonContent.Create(new { email = $"{Guid.CreateVersion7():N}@exemplo.com.br", roles = new[] { new { roleId = owner.RoleId, scope = "own" } } }),
+        };
+        request.Headers.Add(TestAuthenticationHandler.UserHeader, owner.UserId.ToString());
+        request.Headers.Add(TenantResolutionMiddleware.HeaderName, owner.OrganizationId.ToString());
+        using var response = await _client.SendAsync(request, Ct);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync(Ct));
+        return (await response.Content.ReadFromJsonAsync<CreatedResource>(Ct))!.Id;
+    }
 
     private async Task<Guid> CreateJobAsync(Guid organization)
     {

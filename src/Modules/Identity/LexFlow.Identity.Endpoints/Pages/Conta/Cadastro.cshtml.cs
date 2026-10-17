@@ -21,6 +21,9 @@ public sealed class CadastroModel(ICommandHandler<RegisterUserCommand, Unit> reg
 
     public bool Registered { get; private set; }
 
+    /// <summary>Cadastro a partir de um convite: a página do convite manda o e-mail convidado já preenchido.</summary>
+    public void OnGet(string? email) => Email = email?.Trim() ?? string.Empty;
+
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         var result = await register.Handle(new RegisterUserCommand(Email, FullName, Password), cancellationToken);

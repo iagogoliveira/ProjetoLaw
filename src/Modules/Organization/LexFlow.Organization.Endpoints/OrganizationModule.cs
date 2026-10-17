@@ -24,10 +24,15 @@ public sealed record AssignMemberRolesRequest(IReadOnlyList<RoleAssignmentInput>
 
 public sealed record MfaPolicyRequest(bool MfaRequired);
 
+public sealed record CreateRoleRequest(string Name, string? Description, IReadOnlyList<string> Permissions);
+
+public sealed record UpdateRoleRequest(string Name, string? Description);
+
 /// <summary>
-/// Endpoints do módulo Organization (Etapa 3): onboarding, acesso do usuário e troca de organização, perfis e
-/// atribuições, política de MFA. A organização é a ativa da requisição (<c>X-Organization-Id</c>, validado contra a
-/// pertença). O cadastro de estrutura e os convites entram no PR 3D.
+/// Endpoints do módulo Organization (Etapa 3): onboarding, acesso do usuário e troca de organização, membros, perfis
+/// e atribuições, política de MFA, convites (<see cref="InvitationEndpoints"/>) e estrutura
+/// (<see cref="StructureEndpoints"/>). A organização é a ativa da requisição (<c>X-Organization-Id</c>, validado
+/// contra a pertença).
 /// </summary>
 public sealed class OrganizationModule : IModule
 {
@@ -51,6 +56,9 @@ public sealed class OrganizationModule : IModule
 
         MapAccess(endpoints);
         MapAdministration(endpoints);
+        MapRoles(endpoints);
+        InvitationEndpoints.Map(endpoints);
+        StructureEndpoints.Map(endpoints);
     }
 
     private static void MapAccess(IEndpointRouteBuilder endpoints)
@@ -100,6 +108,16 @@ public sealed class OrganizationModule : IModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
+        organization.MapDelete("/members/{id:guid}", async (Guid id, ICommandHandler<RemoveMemberCommand, Unit> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new RemoveMemberCommand(id), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent()))
+            .RequirePermission(PermissionCatalog.SettingsUsersManage)
+            .WithName("RemoveMember")
+            .WithSummary("Remove um membro do escritório; o acesso termina na próxima requisição")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
         organization.MapPut("/security", async (MfaPolicyRequest request, ICommandHandler<SetMfaPolicyCommand, Unit> handler, CancellationToken cancellationToken) =>
                 (await handler.Handle(new SetMfaPolicyCommand(request.MfaRequired), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent()))
             .RequirePermission(PermissionCatalog.SettingsOrganizationManage)
@@ -107,6 +125,21 @@ public sealed class OrganizationModule : IModule
             .WithSummary("Exige (ou não) verificação em duas etapas de todos os membros")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status403Forbidden);
+    }
+
+    private static void MapPermissionCatalog(IEndpointRouteBuilder endpoints) =>
+        endpoints.MapGet("/api/v1/permissions", async (IQueryHandler<ListPermissionsQuery, IReadOnlyList<PermissionGroupResponse>> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new ListPermissionsQuery(), cancellationToken)).ToHttpResult())
+            .WithTags("Roles")
+            .RequirePermission(PermissionCatalog.SettingsUsersRead)
+            .WithName("ListPermissions")
+            .WithSummary("Catálogo de permissões atribuíveis, por grupo, para a matriz de perfis")
+            .Produces<IReadOnlyList<PermissionGroupResponse>>()
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+
+    private static void MapRoles(IEndpointRouteBuilder endpoints)
+    {
+        MapPermissionCatalog(endpoints);
 
         var roles = endpoints.MapGroup("/api/v1/roles").WithTags("Roles");
 
@@ -117,6 +150,38 @@ public sealed class OrganizationModule : IModule
             .WithSummary("Perfis da organização ativa com as permissões")
             .Produces<IReadOnlyList<RoleResponse>>()
             .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        roles.MapPost("/", async (CreateRoleRequest request, ICommandHandler<CreateRoleCommand, RoleResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new CreateRoleCommand(request.Name, request.Description, request.Permissions), cancellationToken))
+                    .ToHttpResult(created => TypedResults.Created((string?)null, created)))
+            .RequirePermission(PermissionCatalog.SettingsRolesManage)
+            .WithName("CreateRole")
+            .WithSummary("Cria um perfil do escritório com a matriz de permissões inicial")
+            .Produces<RoleResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        roles.MapPut("/{id:guid}", async (Guid id, UpdateRoleRequest request, ICommandHandler<UpdateRoleCommand, RoleResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new UpdateRoleCommand(id, request.Name, request.Description), cancellationToken)).ToHttpResult())
+            .RequirePermission(PermissionCatalog.SettingsRolesManage)
+            .WithName("UpdateRole")
+            .WithSummary("Renomeia um perfil e troca a descrição")
+            .Produces<RoleResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        roles.MapDelete("/{id:guid}", async (Guid id, ICommandHandler<DeleteRoleCommand, Unit> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new DeleteRoleCommand(id), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent()))
+            .RequirePermission(PermissionCatalog.SettingsRolesManage)
+            .WithName("DeleteRole")
+            .WithSummary("Exclui um perfil sem membros nem convites pendentes (o Administrador do escritório não sai)")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         roles.MapPut("/{id:guid}/permissions", async (Guid id, UpdateRolePermissionsRequest request, ICommandHandler<UpdateRolePermissionsCommand, Unit> handler, CancellationToken cancellationToken) =>
                 (await handler.Handle(new UpdateRolePermissionsCommand(id, request.Permissions), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent()))

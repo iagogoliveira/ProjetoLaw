@@ -7,6 +7,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Scriban" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Invitations\EmailTemplates\*.sbn" />
   </ItemGroup>
 
   <ItemGroup>

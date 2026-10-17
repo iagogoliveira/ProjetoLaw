@@ -1,0 +1,6 @@
+        <p>Olá.</p>
+        <p>{{ inviter | html.escape }} convidou você para entrar no escritório <strong>{{ organization | html.escape }}</strong> no LexFlow.</p>
+        <p><a href="{{ link | html.escape }}" style="display:inline-block;padding:12px 20px;background:#1d4ed8;color:#ffffff;text-decoration:none;border-radius:6px;">Aceitar convite</a></p>
+        <p>Se o botão não funcionar, copie este endereço no navegador:<br>{{ link | html.escape }}</p>
+        <p>Ainda não tem conta? Pelo mesmo link você cria a sua com este e-mail ({{ email | html.escape }}); depois de confirmar o e-mail, é só aceitar.</p>
+        <p>O convite vale até {{ expires | html.escape }} e só pode ser usado uma vez. Se você não esperava este convite, ignore este e-mail.</p>

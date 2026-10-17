@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LexFlow.Organization.Domain\LexFlow.Organization.Domain.csproj" />
     <ProjectReference Include="..\LexFlow.Organization.Contracts\LexFlow.Organization.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\LexFlow.Identity.Contracts\LexFlow.Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
   </ItemGroup>
 

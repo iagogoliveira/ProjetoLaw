@@ -1,6 +1,7 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Organization.Application.Abstractions;
+using LexFlow.Organization.Domain.Invitations;
 using LexFlow.Organization.Domain.Members;
 using LexFlow.Organization.Domain.OrgStructure;
 using LexFlow.Organization.Domain.Roles;
@@ -39,6 +40,10 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
     public DbSet<CostCenter> CostCenters => Set<CostCenter>();
 
     public DbSet<Partner> Partners => Set<Partner>();
+
+    public DbSet<Invitation> Invitations => Set<Invitation>();
+
+    public DbSet<InvitationToken> InvitationTokens => Set<InvitationToken>();
 
     protected override string Schema => SchemaName;
 }
@@ -186,6 +191,47 @@ internal sealed class StructureConfiguration :
         builder.Property(e => e.Name).HasMaxLength(StructureEntity.MaxNameLength);
         builder.HasIndex(e => new { e.OrganizationId, e.Name }).IsUnique().HasFilter("NOT is_deleted");
         builder.HasStandardColumns();
+    }
+}
+
+internal sealed class InvitationConfiguration :
+    IEntityTypeConfiguration<Invitation>,
+    IEntityTypeConfiguration<InvitationRole>,
+    IEntityTypeConfiguration<InvitationToken>
+{
+    public void Configure(EntityTypeBuilder<Invitation> builder)
+    {
+        builder.ToTable("invitations");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Email).HasMaxLength(254);
+        builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(20);
+        builder.HasIndex(i => new { i.OrganizationId, i.Email });
+        builder.HasOne<OrganizationEntity>().WithMany().HasForeignKey(i => i.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(i => i.Roles).WithOne().HasForeignKey(r => r.InvitationId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(i => i.Roles).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<InvitationRole> builder)
+    {
+        builder.ToTable("invitation_roles");
+        builder.HasKey(r => r.Id);
+        builder.HasIndex(r => r.InvitationId);
+        builder.Property(r => r.Scope).HasConversion<string>().HasMaxLength(20);
+        builder.HasIndex(r => new { r.OrganizationId, r.RoleId });
+        builder.HasOne<Role>().WithMany().HasForeignKey(r => r.RoleId).OnDelete(DeleteBehavior.Restrict);
+    }
+
+    /// <summary>Diretório sem tenant: a chave é o hash do token; um por convite.</summary>
+    public void Configure(EntityTypeBuilder<InvitationToken> builder)
+    {
+        builder.ToTable("invitation_tokens");
+        builder.HasKey(t => t.TokenHash);
+        builder.Property(t => t.TokenHash).HasMaxLength(InvitationToken.HashLength).IsFixedLength();
+        builder.Property(t => t.Email).HasMaxLength(254);
+        builder.HasIndex(t => t.InvitationId).IsUnique();
+        builder.HasOne<Invitation>().WithMany().HasForeignKey(t => t.InvitationId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<OrganizationEntity>().WithMany().HasForeignKey(t => t.OrganizationId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

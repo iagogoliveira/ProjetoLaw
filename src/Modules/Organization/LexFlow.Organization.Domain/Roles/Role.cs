@@ -65,7 +65,14 @@ public sealed class Role : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISoftD
     public static Role Create(Guid id, string name, string? description = null, string? systemKey = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        return new Role(id, name.Trim(), string.IsNullOrWhiteSpace(description) ? null : description.Trim(), systemKey);
+        return new Role(id, name.Trim(), Clean(description), systemKey);
+    }
+
+    public void Rename(string name, string? description)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        Name = name.Trim();
+        Description = Clean(description);
     }
 
     /// <summary>Substitui o conjunto de permissões (a tela de perfis envia a matriz inteira).</summary>
@@ -79,6 +86,8 @@ public sealed class Role : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISoftD
             _permissions.Add(new RolePermission(Id, permission));
         }
     }
+
+    private static string? Clean(string? description) => string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
     public bool Grants(string permission) => _permissions.Exists(p => string.Equals(p.Permission, permission, StringComparison.Ordinal));
 }

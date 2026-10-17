@@ -209,7 +209,7 @@ public sealed class AccessAndPermissionsTests(DependenciesFixture dependencies) 
         ambiguous.GetProperty("organizations").GetArrayLength().ShouldBe(2);
         ambiguous.GetProperty("activeOrganizationId").ValueKind.ShouldBe(JsonValueKind.Null);
         ambiguous.GetProperty("permissions").EnumerateArray().Select(p => p.GetString()).ShouldBe(
-            [PermissionCatalog.ProfileManage, PermissionCatalog.ProfileRead, PermissionCatalog.OrganizationsCreate], ignoreOrder: true);
+            [PermissionCatalog.ProfileManage, PermissionCatalog.ProfileRead, PermissionCatalog.OrganizationsCreate, PermissionCatalog.InvitationsAccept], ignoreOrder: true);
         explicitFirst.GetProperty("activeOrganizationId").GetGuid().ShouldBe(first);
         explicitFirst.GetProperty("permissions").EnumerateArray().Select(p => p.GetString()).ShouldContain(PermissionCatalog.SettingsRolesManage);
         afterSwitch.GetProperty("activeOrganizationId").GetGuid().ShouldBe(second);
