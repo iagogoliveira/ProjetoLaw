@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A pronto no branch) | `etapa-3a-organizations` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 mergeado; faltam 3B a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions` |
 
 ---
 
@@ -28,7 +28,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
 
-### PR 3A — módulo Organization, catálogo e onboarding (pronto no branch `etapa-3a-organizations`, sem PR)
+### PR 3A — módulo Organization, catálogo e onboarding (concluído: PR #11 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
