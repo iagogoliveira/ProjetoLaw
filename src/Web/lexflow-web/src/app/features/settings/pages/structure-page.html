@@ -1,0 +1,346 @@
+<section class="page" *transloco="let t">
+  <h2>{{ t('settings.structure.title') }}</h2>
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+
+  <mat-tab-group>
+    <mat-tab [label]="t('settings.structure.branches')">
+      <div class="page">
+        <form [formGroup]="branch" (ngSubmit)="saveBranch()" class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.cnpj') }}</mat-label>
+            <input matInput formControlName="cnpj" maxlength="18" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.municipalRegistration') }}</mat-label>
+            <input matInput formControlName="municipalRegistration" maxlength="30" />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="store.busy()">
+            {{ t(editingId('branches') ? 'settings.save' : 'settings.add') }}
+          </button>
+          @if (editingId('branches')) {
+            <button mat-button type="button" (click)="cancel('branches', branch)">
+              {{ t('settings.cancel') }}
+            </button>
+          }
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('settings.structure.name') }}</th>
+              <th scope="col">{{ t('settings.structure.cnpj') }}</th>
+              <th scope="col">
+                <span class="cdk-visually-hidden">{{ t('settings.actions') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of store.branches(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.cnpj ?? '—' }}</td>
+                <td class="actions">
+                  <button mat-button type="button" (click)="editBranch(item)">
+                    {{ t('settings.edit') }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    [disabled]="store.busy()"
+                    (click)="store.remove('branches', item.id)"
+                  >
+                    {{ t('settings.remove') }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty">{{ t('settings.empty') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="t('settings.structure.practiceAreas')">
+      <div class="page">
+        <form [formGroup]="area" (ngSubmit)="saveArea()" class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="store.busy()">
+            {{ t(editingId('practiceAreas') ? 'settings.save' : 'settings.add') }}
+          </button>
+          @if (editingId('practiceAreas')) {
+            <button mat-button type="button" (click)="cancel('practiceAreas', area)">
+              {{ t('settings.cancel') }}
+            </button>
+          }
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('settings.structure.name') }}</th>
+              <th scope="col">
+                <span class="cdk-visually-hidden">{{ t('settings.actions') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of store.practiceAreas(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="actions">
+                  <button mat-button type="button" (click)="editArea(item)">
+                    {{ t('settings.edit') }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    [disabled]="store.busy()"
+                    (click)="store.remove('practiceAreas', item.id)"
+                  >
+                    {{ t('settings.remove') }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="2" class="empty">{{ t('settings.empty') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="t('settings.structure.teams')">
+      <div class="page">
+        <form [formGroup]="team" (ngSubmit)="saveTeam()" class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.practiceArea') }}</mat-label>
+            <mat-select formControlName="practiceAreaId">
+              <mat-option [value]="null">—</mat-option>
+              @for (option of store.practiceAreas(); track option.id) {
+                <mat-option [value]="option.id">{{ option.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.branch') }}</mat-label>
+            <mat-select formControlName="branchId">
+              <mat-option [value]="null">—</mat-option>
+              @for (option of store.branches(); track option.id) {
+                <mat-option [value]="option.id">{{ option.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.members') }}</mat-label>
+            <mat-select formControlName="memberIds" multiple>
+              @for (member of store.members(); track member.id) {
+                <mat-option [value]="member.id">{{ member.fullName ?? member.email }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="store.busy()">
+            {{ t(editingId('teams') ? 'settings.save' : 'settings.add') }}
+          </button>
+          @if (editingId('teams')) {
+            <button mat-button type="button" (click)="cancel('teams', team)">
+              {{ t('settings.cancel') }}
+            </button>
+          }
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('settings.structure.name') }}</th>
+              <th scope="col">{{ t('settings.structure.practiceArea') }}</th>
+              <th scope="col">{{ t('settings.structure.branch') }}</th>
+              <th scope="col">{{ t('settings.structure.members') }}</th>
+              <th scope="col">
+                <span class="cdk-visually-hidden">{{ t('settings.actions') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of store.teams(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ areaName(item.practiceAreaId) }}</td>
+                <td>{{ branchName(item.branchId) }}</td>
+                <td>{{ item.memberIds.length }}</td>
+                <td class="actions">
+                  <button mat-button type="button" (click)="editTeam(item)">
+                    {{ t('settings.edit') }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    [disabled]="store.busy()"
+                    (click)="store.remove('teams', item.id)"
+                  >
+                    {{ t('settings.remove') }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty">{{ t('settings.empty') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="t('settings.structure.costCenters')">
+      <div class="page">
+        <form [formGroup]="costCenter" (ngSubmit)="saveCostCenter()" class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.code') }}</mat-label>
+            <input matInput formControlName="code" maxlength="30" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="store.busy()">
+            {{ t(editingId('costCenters') ? 'settings.save' : 'settings.add') }}
+          </button>
+          @if (editingId('costCenters')) {
+            <button mat-button type="button" (click)="cancel('costCenters', costCenter)">
+              {{ t('settings.cancel') }}
+            </button>
+          }
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('settings.structure.code') }}</th>
+              <th scope="col">{{ t('settings.structure.name') }}</th>
+              <th scope="col">
+                <span class="cdk-visually-hidden">{{ t('settings.actions') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of store.costCenters(); track item.id) {
+              <tr>
+                <td>{{ item.code }}</td>
+                <td>{{ item.name }}</td>
+                <td class="actions">
+                  <button mat-button type="button" (click)="editCostCenter(item)">
+                    {{ t('settings.edit') }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    [disabled]="store.busy()"
+                    (click)="store.remove('costCenters', item.id)"
+                  >
+                    {{ t('settings.remove') }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty">{{ t('settings.empty') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="t('settings.structure.partners')">
+      <div class="page">
+        <form [formGroup]="partner" (ngSubmit)="savePartner()" class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.share') }}</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="sharePercentage"
+              min="0"
+              max="100"
+              step="0.01"
+            />
+            <span matTextSuffix>%</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('settings.structure.partnerMember') }}</mat-label>
+            <mat-select formControlName="memberId">
+              <mat-option [value]="null">—</mat-option>
+              @for (member of store.members(); track member.id) {
+                <mat-option [value]="member.id">{{ member.fullName ?? member.email }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="store.busy()">
+            {{ t(editingId('partners') ? 'settings.save' : 'settings.add') }}
+          </button>
+          @if (editingId('partners')) {
+            <button mat-button type="button" (click)="cancel('partners', partner)">
+              {{ t('settings.cancel') }}
+            </button>
+          }
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('settings.structure.name') }}</th>
+              <th scope="col">{{ t('settings.structure.share') }}</th>
+              <th scope="col">{{ t('settings.structure.partnerMember') }}</th>
+              <th scope="col">
+                <span class="cdk-visually-hidden">{{ t('settings.actions') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of store.partners(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.sharePercentage }}%</td>
+                <td>{{ store.memberName(item.memberId) }}</td>
+                <td class="actions">
+                  <button mat-button type="button" (click)="editPartner(item)">
+                    {{ t('settings.edit') }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    [disabled]="store.busy()"
+                    (click)="store.remove('partners', item.id)"
+                  >
+                    {{ t('settings.remove') }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty">{{ t('settings.empty') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</section>

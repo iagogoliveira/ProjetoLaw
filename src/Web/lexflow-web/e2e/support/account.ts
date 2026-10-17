@@ -54,3 +54,21 @@ export async function registerAndConfirm(
   await page.goto(await linkFromEmail(request, mailpitUrl!, email, '/conta/confirmar-email'));
   await expect(page.getByRole('status')).toContainText('E-mail confirmado');
 }
+
+/** Conta nova (cadastro, confirmação e login) que cria o próprio escritório; termina no Início, já no escritório. */
+export async function createOfficeAsNewAdmin(
+  page: Page,
+  request: APIRequestContext,
+  office: string,
+  email = newEmail('admin'),
+): Promise<string> {
+  await page.goto('/entrar');
+  await page.getByRole('link', { name: 'Criar conta' }).click();
+  await registerAndConfirm(page, request, 'Ana Administradora', email);
+  await signInWithPassword(page, email);
+  await expect(page.getByRole('heading', { level: 1, name: 'Crie seu escritório' })).toBeVisible();
+  await page.getByLabel('Nome do escritório').fill(office);
+  await page.getByRole('button', { name: 'Criar escritório' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Início' })).toBeVisible();
+  return email;
+}

@@ -1,0 +1,76 @@
+// Estilos comuns das telas de configurações (formulários, tabelas e mensagens).
+:host {
+  display: block;
+}
+
+.page {
+  display: grid;
+  gap: var(--lf-space-md);
+}
+
+h2,
+h3 {
+  margin: 0;
+}
+
+form,
+.form {
+  display: grid;
+  gap: var(--lf-space-sm);
+  justify-items: start;
+  max-width: 560px;
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lf-space-sm);
+  align-items: baseline;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.inline mat-form-field {
+  width: auto;
+  min-width: 200px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: var(--lf-space-xs, 4px) var(--lf-space-sm);
+  text-align: start;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  vertical-align: middle;
+}
+
+th {
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lf-space-xs, 4px);
+}
+
+.hint,
+.empty {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.status {
+  color: var(--mat-sys-primary);
+}

@@ -261,6 +261,15 @@ export type OrganizationCreatedResponse = {
     name: string;
 };
 
+/**
+ * Dados do escritório ativo para a tela de configurações.
+ */
+export type OrganizationDetailsResponse = {
+    id: string;
+    name: string;
+    mfaRequired: boolean;
+};
+
 export type OrganizationSummary = {
     id: string;
     name: string;
@@ -314,6 +323,10 @@ export type RegisterRequest = {
     email: string;
     fullName: string;
     password: string;
+};
+
+export type RenameOrganizationRequest = {
+    name: string;
 };
 
 export type ResetPasswordRequest = {
@@ -1438,6 +1451,60 @@ export type UpdateRolePermissionsResponses = {
 };
 
 export type UpdateRolePermissionsResponse = UpdateRolePermissionsResponses[keyof UpdateRolePermissionsResponses];
+
+export type GetOrganizationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization';
+};
+
+export type GetOrganizationErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetOrganizationError = GetOrganizationErrors[keyof GetOrganizationErrors];
+
+export type GetOrganizationResponses = {
+    /**
+     * OK
+     */
+    200: OrganizationDetailsResponse;
+};
+
+export type GetOrganizationResponse = GetOrganizationResponses[keyof GetOrganizationResponses];
+
+export type RenameOrganizationData = {
+    body: RenameOrganizationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization';
+};
+
+export type RenameOrganizationErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type RenameOrganizationError = RenameOrganizationErrors[keyof RenameOrganizationErrors];
+
+export type RenameOrganizationResponses = {
+    /**
+     * OK
+     */
+    200: OrganizationDetailsResponse;
+};
+
+export type RenameOrganizationResponse = RenameOrganizationResponses[keyof RenameOrganizationResponses];
 
 export type ListInvitationsData = {
     body?: never;

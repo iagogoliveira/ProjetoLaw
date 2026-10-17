@@ -9,7 +9,9 @@
     "account": "Minha conta",
     "signOut": "Sair",
     "organization": "Escritório ativo",
-    "invite": "Convidar pessoa"
+    "invite": "Convidar pessoa",
+    "settings": "Configurações",
+    "mfaRequired": "Este escritório exige verificação em duas etapas. Ative-a em"
   },
   "dashboard": {
     "title": "Início",
@@ -91,7 +93,121 @@
     },
     "scope": {
       "own": "Só o que é dela",
-      "organization": "Todo o escritório"
+      "organization": "Todo o escritório",
+      "team": "Equipe",
+      "practiceArea": "Área de atuação",
+      "branch": "Filial"
+    },
+    "title": "Configurações",
+    "sections": "Seções das configurações",
+    "tabs": {
+      "organization": "Escritório",
+      "users": "Usuários e convites",
+      "roles": "Perfis",
+      "structure": "Estrutura",
+      "customFields": "Campos customizados"
+    },
+    "save": "Salvar",
+    "saved": "Alterações salvas.",
+    "cancel": "Cancelar",
+    "add": "Adicionar",
+    "edit": "Editar",
+    "remove": "Remover",
+    "actions": "Ações",
+    "empty": "Nada cadastrado ainda.",
+    "organization": {
+      "title": "Escritório",
+      "name": "Nome do escritório",
+      "mfaRequired": "Exigir verificação em duas etapas de todos os membros",
+      "mfaHint": "Quem ainda não ativou o segundo fator perde o acesso aos dados do escritório até ativar e entrar de novo."
+    },
+    "users": {
+      "members": "Membros",
+      "name": "Nome",
+      "email": "E-mail",
+      "roles": "Perfis e escopo",
+      "scopeReference": "Equipe, área ou filial",
+      "addRole": "Adicionar perfil",
+      "editRoles": "Editar perfis",
+      "remove": "Remover do escritório",
+      "invitations": "Convites",
+      "noInvitations": "Nenhum convite enviado.",
+      "status": "Situação",
+      "expiresAt": "Vale até",
+      "invitationStatus": {
+        "pending": "Pendente",
+        "accepted": "Aceito",
+        "revoked": "Cancelado",
+        "expired": "Expirado"
+      },
+      "resend": "Reenviar",
+      "revoke": "Cancelar convite"
+    },
+    "roles": {
+      "title": "Perfis",
+      "newName": "Nome do novo perfil",
+      "create": "Criar perfil",
+      "name": "Nome",
+      "description": "Descrição",
+      "rename": "Salvar nome",
+      "delete": "Excluir perfil",
+      "adminLocked": "O Administrador do escritório tem sempre todas as permissões.",
+      "savePermissions": "Salvar permissões"
+    },
+    "structure": {
+      "title": "Estrutura",
+      "branches": "Filiais",
+      "practiceAreas": "Áreas",
+      "teams": "Equipes",
+      "costCenters": "Centros de custo",
+      "partners": "Sócios",
+      "name": "Nome",
+      "cnpj": "CNPJ",
+      "municipalRegistration": "Inscrição municipal",
+      "practiceArea": "Área",
+      "branch": "Filial",
+      "members": "Membros",
+      "code": "Código",
+      "share": "Participação",
+      "partnerMember": "Usuário do sistema"
+    },
+    "customFields": {
+      "title": "Campos customizados",
+      "entity": "Entidade",
+      "entities": {
+        "cases": "Processos e casos",
+        "people": "Pessoas e clientes",
+        "fee_agreements": "Contratos de honorários",
+        "opportunities": "Oportunidades"
+      },
+      "label": "Rótulo",
+      "key": "Chave",
+      "type": "Tipo",
+      "types": {
+        "text": "Texto",
+        "number": "Número",
+        "date": "Data",
+        "list": "Lista",
+        "currency": "Moeda",
+        "user": "Usuário"
+      },
+      "required": "Obrigatório",
+      "active": "Ativo",
+      "noFields": "Nenhum campo para esta entidade.",
+      "lookupTable": "Tabela de opções",
+      "allowMultiple": "Aceita várias opções",
+      "create": "Criar campo",
+      "testTitle": "Formulário de teste",
+      "testHint": "Os campos ativos aparecem aqui como nos formulários da entidade; \"Validar\" confere os valores no servidor, sem gravar.",
+      "testValid": "Valores válidos.",
+      "testInvalid": "Corrija os campos destacados.",
+      "validate": "Validar",
+      "lookupTables": "Tabelas auxiliares",
+      "deactivate": "Desativar",
+      "activate": "Ativar",
+      "newItem": "Novo item",
+      "newTable": "Nova tabela",
+      "createTable": "Criar tabela"
     }
   },
   "invitation": {
@@ -149,7 +265,36 @@
       "invitation_pending": "Já existe um convite pendente para este e-mail.",
       "invitation_email_mismatch": "Este convite foi enviado para outro e-mail. Entre com a conta do e-mail convidado.",
       "already_a_member": "Esta pessoa já é membro do escritório.",
-      "role_not_found": "Perfil não encontrado."
+      "role_not_found": "Perfil não encontrado.",
+      "name_taken": "Já existe um cadastro com este nome.",
+      "code_taken": "Já existe um centro de custo com este código.",
+      "structure_in_use": "Este cadastro está em uso por equipes, perfis atribuídos ou convites pendentes.",
+      "structure_not_found": "Cadastro não encontrado.",
+      "structure_reference_not_found": "A área ou a filial escolhida não existe.",
+      "cnpj_invalid": "CNPJ inválido.",
+      "partner_shares_exceed_total": "A soma das participações dos sócios passaria de 100%.",
+      "invalid_partner_share": "A participação deve ser maior que 0 e no máximo 100%.",
+      "role_in_use": "O perfil está atribuído a membros ou em convites pendentes.",
+      "admin_role_locked": "O perfil Administrador do escritório tem sempre todas as permissões.",
+      "last_admin": "O escritório precisa de pelo menos um Administrador do escritório.",
+      "member_not_found": "Membro não encontrado.",
+      "scope_reference_required": "Escolha a equipe, a área ou a filial do escopo.",
+      "scope_reference_not_allowed": "Os escopos \"próprio\" e \"organização\" não levam referência.",
+      "scope_reference_not_found": "A equipe, a área ou a filial do escopo não existe.",
+      "unknown_permission": "Permissão inexistente no catálogo.",
+      "invitation_not_pending": "O convite já foi aceito ou cancelado.",
+      "role_name_required": "Informe o nome do perfil."
+    },
+    "platform": {
+      "custom_field_key_taken": "Já existe um campo com esta chave nesta entidade.",
+      "custom_field_key_invalid": "Chave inválida.",
+      "custom_field_lookup_table_required": "Escolha a tabela auxiliar com as opções da lista.",
+      "custom_field_label_required": "Informe o rótulo do campo.",
+      "custom_field_unknown_entity": "Esta entidade não aceita campos customizados.",
+      "lookup_name_taken": "Já existe um cadastro com este nome.",
+      "lookup_name_required": "Informe o nome.",
+      "lookup_table_system_locked": "As tabelas auxiliares do sistema não podem ser desativadas.",
+      "lookup_table_not_found": "Tabela auxiliar não encontrada."
     }
   }
 }

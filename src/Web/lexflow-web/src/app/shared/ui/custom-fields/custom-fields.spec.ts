@@ -50,7 +50,7 @@ describe('CustomFields', () => {
       imports: [CustomFields, translocoTesting()],
     }).compileComponents();
     const fixture = TestBed.createComponent(CustomFields);
-    const group = new FormGroup({});
+    const group = new FormGroup<Record<string, FormControl<unknown>>>({});
     fixture.componentRef.setInput('definitions', definitions);
     fixture.componentRef.setInput('group', group);
     fixture.componentRef.setInput('lookupTables', [phases]);
@@ -83,6 +83,39 @@ describe('CustomFields', () => {
 
     expect(group.valid).toBe(false);
     expect(element.querySelector('mat-error')?.textContent?.trim()).toBe('Preencha este campo.');
+  });
+
+  it('redraws on its own when the form is submitted or the api returns errors', async () => {
+    const { fixture, group, element } = await render([
+      field({ key: 'numero_pasta', label: 'Número da pasta', required: true }),
+    ]);
+
+    group.markAllAsTouched();
+    await fixture.whenStable();
+    expect(element.querySelector('mat-error')?.textContent?.trim()).toBe('Preencha este campo.');
+
+    group.get('numero_pasta')?.setValue('P-1');
+    applyServerErrors(group, { 'customFields.numero_pasta': [{ code: 'custom_fields.too_long' }] });
+    await fixture.whenStable();
+    expect(element.querySelector('mat-error')?.textContent?.trim()).toBe(
+      'Texto maior que o permitido.',
+    );
+  });
+
+  it('keeps one control per active field in the same group as the definitions change', async () => {
+    const { fixture, group } = await render([
+      field({ key: 'a', required: false }),
+      field({ key: 'b' }),
+    ]);
+
+    fixture.componentRef.setInput('definitions', [
+      field({ key: 'a', required: true }),
+      field({ key: 'c' }),
+    ]);
+    await fixture.whenStable();
+
+    expect(Object.keys(group.controls).sort()).toEqual(['a', 'c']);
+    expect(group.get('a')?.hasError('required')).toBe(true);
   });
 
   it('offers only the active options of the lookup table of a list field', async () => {

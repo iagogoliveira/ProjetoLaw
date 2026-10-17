@@ -10,7 +10,7 @@ import { InviteStore } from '../data/invite-store';
 
 /**
  * Convidar uma pessoa por e-mail (RF-01): o convite vale 7 dias e a pessoa entra com o perfil escolhido. A tela
- * completa de usuários e convites (lista, reenviar, cancelar) entra no PR 3F2.
+ * de usuários e convites (`users-page`) lista, reenvia e cancela.
  */
 @Component({
   selector: 'lf-invite-page',
@@ -25,7 +25,7 @@ import { InviteStore } from '../data/invite-store';
   providers: [InviteStore],
   template: `
     <section class="page" *transloco="let t">
-      <h1>{{ t('settings.invite.title') }}</h1>
+      <h2>{{ t('settings.invite.title') }}</h2>
       <p class="lead">{{ t('settings.invite.lead') }}</p>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <mat-form-field appearance="outline">

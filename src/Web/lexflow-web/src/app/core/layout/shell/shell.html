@@ -46,12 +46,12 @@
             >{{ t('shell.account') }}</a
           >
           <a
-            *lfCan="'settings.users.manage'"
+            *lfCan="'settings.users.read'"
             mat-list-item
-            routerLink="/configuracoes/convites/novo"
+            routerLink="/configuracoes"
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
-            >{{ t('shell.invite') }}</a
+            >{{ t('shell.settings') }}</a
           >
         </mat-nav-list>
       </nav>
@@ -59,6 +59,12 @@
 
     <mat-sidenav-content>
       <main id="main-content" class="content" tabindex="-1">
+        @if (access.mfaMissing()) {
+          <p class="mfa-banner" role="alert">
+            {{ t('shell.mfaRequired') }}
+            <a routerLink="/conta">{{ t('shell.account') }}</a>
+          </p>
+        }
         <router-outlet />
       </main>
     </mat-sidenav-content>

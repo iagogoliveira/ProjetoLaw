@@ -3,6 +3,7 @@ import {
   acceptInvitation,
   createInvitation,
   createOrganization,
+  getMe,
   getMyAccess,
   listRoles,
   previewInvitation,
@@ -13,6 +14,7 @@ import type {
   InvitationAcceptedResponse,
   InvitationPreviewResponse,
   InvitationResponse,
+  MeResponse,
   MyAccessResponse,
   OrganizationCreatedResponse,
   RoleResponse,
@@ -25,6 +27,11 @@ export class OrganizationApi {
   /** Sem `organization`, vale a do interceptor (ou a que o servidor escolher: preferida ou única). */
   access(): Promise<ApiResult<MyAccessResponse>> {
     return toResult(getMyAccess());
+  }
+
+  /** Perfil do usuário: usado para saber se ele já tem segundo fator quando o escritório exige. */
+  me(): Promise<ApiResult<MeResponse>> {
+    return toResult(getMe());
   }
 
   /** Grava a escolha no servidor, para os próximos logins sem `X-Organization-Id`. */

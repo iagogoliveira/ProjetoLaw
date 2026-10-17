@@ -24,6 +24,8 @@ public sealed record AssignMemberRolesRequest(IReadOnlyList<RoleAssignmentInput>
 
 public sealed record MfaPolicyRequest(bool MfaRequired);
 
+public sealed record RenameOrganizationRequest(string Name);
+
 public sealed record CreateRoleRequest(string Name, string? Description, IReadOnlyList<string> Permissions);
 
 public sealed record UpdateRoleRequest(string Name, string? Description);
@@ -57,6 +59,7 @@ public sealed class OrganizationModule : IModule
         MapAccess(endpoints);
         MapAdministration(endpoints);
         MapRoles(endpoints);
+        MapOrganizationProfile(endpoints);
         InvitationEndpoints.Map(endpoints);
         StructureEndpoints.Map(endpoints);
     }
@@ -124,6 +127,28 @@ public sealed class OrganizationModule : IModule
             .WithName("SetMfaPolicy")
             .WithSummary("Exige (ou não) verificação em duas etapas de todos os membros")
             .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+    }
+
+    private static void MapOrganizationProfile(IEndpointRouteBuilder endpoints)
+    {
+        var organization = endpoints.MapGroup("/api/v1/organization").WithTags("Organization");
+
+        organization.MapGet("/", async (IQueryHandler<GetOrganizationQuery, OrganizationDetailsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new GetOrganizationQuery(), cancellationToken)).ToHttpResult())
+            .RequirePermission(PermissionCatalog.SettingsOrganizationManage)
+            .WithName("GetOrganization")
+            .WithSummary("Nome e política de MFA do escritório ativo")
+            .Produces<OrganizationDetailsResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        organization.MapPut("/", async (RenameOrganizationRequest request, ICommandHandler<RenameOrganizationCommand, OrganizationDetailsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new RenameOrganizationCommand(request.Name), cancellationToken)).ToHttpResult())
+            .RequirePermission(PermissionCatalog.SettingsOrganizationManage)
+            .WithName("RenameOrganization")
+            .WithSummary("Renomeia o escritório ativo")
+            .Produces<OrganizationDetailsResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 
