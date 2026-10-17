@@ -91,6 +91,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.Organization.UnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.Organization.IntegrationTests", "tests\LexFlow.Organization.IntegrationTests\LexFlow.Organization.IntegrationTests.csproj", "{F3E0BD75-3F73-4DAC-B7DB-3D0F6F58E2A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexFlow.SecurityTests", "tests\LexFlow.SecurityTests\LexFlow.SecurityTests.csproj", "{339B341E-B898-490C-8237-231F6940E33D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -521,6 +523,18 @@ Global
 		{F3E0BD75-3F73-4DAC-B7DB-3D0F6F58E2A3}.Release|x64.Build.0 = Release|Any CPU
 		{F3E0BD75-3F73-4DAC-B7DB-3D0F6F58E2A3}.Release|x86.ActiveCfg = Release|Any CPU
 		{F3E0BD75-3F73-4DAC-B7DB-3D0F6F58E2A3}.Release|x86.Build.0 = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|x64.Build.0 = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Debug|x86.Build.0 = Debug|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|x64.ActiveCfg = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|x64.Build.0 = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|x86.ActiveCfg = Release|Any CPU
+		{339B341E-B898-490C-8237-231F6940E33D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -568,5 +582,6 @@ Global
 		{CDCCC855-0BDB-473A-A6F3-F4D0BE1A3CB3} = {DA0BA8AC-146F-3151-8AAB-4B1C3358FD7A}
 		{02318A3A-3A01-406D-B630-F0D5ACE9C27C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{F3E0BD75-3F73-4DAC-B7DB-3D0F6F58E2A3} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{339B341E-B898-490C-8237-231F6940E33D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

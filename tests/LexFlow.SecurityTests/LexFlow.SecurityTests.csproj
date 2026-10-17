@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Testcontainers.RabbitMq" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Host\LexFlow.Api\LexFlow.Api.csproj" />
+  </ItemGroup>
+
+  <!-- Mesma infraestrutura dos testes de integração da API: containers, fábrica da API e dados de organização. -->
+  <ItemGroup>
+    <Compile Include="..\LexFlow.Api.IntegrationTests\DependenciesFixture.cs" Link="Infrastructure\DependenciesFixture.cs" />
+    <Compile Include="..\LexFlow.Api.IntegrationTests\LexFlowApiFactory.cs" Link="Infrastructure\LexFlowApiFactory.cs" />
+    <Compile Include="..\LexFlow.Api.IntegrationTests\TestAuthenticationHandler.cs" Link="Infrastructure\TestAuthenticationHandler.cs" />
+    <Compile Include="..\LexFlow.Api.IntegrationTests\TestImages.cs" Link="Infrastructure\TestImages.cs" />
+    <Compile Include="..\LexFlow.Api.IntegrationTests\TestOrganizations.cs" Link="Infrastructure\TestOrganizations.cs" />
+  </ItemGroup>
+
+</Project>

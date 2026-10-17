@@ -16,6 +16,14 @@ if (useDataVolumes)
 
 var database = postgres.AddDatabase("lexflow");
 
+// A API e o Worker conectam com um login próprio, membro de lexflow_app (sem superusuário nem BYPASSRLS): é isso que
+// faz a Row-Level Security valer (ADR 0019). O MigrationService, que roda como dono, cria o login com esta senha.
+const string appLogin = "lexflow_api";
+var appPassword = ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, "app-db-password", special: false);
+var postgresEndpoint = postgres.Resource.PrimaryEndpoint;
+var appConnection = ReferenceExpression.Create(
+    $"Host={postgresEndpoint.Property(EndpointProperty.Host)};Port={postgresEndpoint.Property(EndpointProperty.Port)};Database=lexflow;Username={appLogin};Password={appPassword}");
+
 var redis = builder.AddRedis("redis")
     .WithImageTag("8.8");
 
@@ -57,13 +65,15 @@ var clamd = clamav.GetEndpoint("clamd");
 // Migrations aplicadas por um processo próprio, nunca no startup da API (seção 6.5).
 var migrations = builder.AddProject<Projects.LexFlow_MigrationService>("migrations")
     .WithReference(database).WaitFor(database)
+    .WithEnvironment("Database__ApplicationLogin__Username", appLogin)
+    .WithEnvironment("Database__ApplicationLogin__Password", appPassword)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
     .WithEnvironment("Storage__AccessKey", storageAccessKey)
     .WithEnvironment("Storage__SecretKey", storageSecretKey)
     .WaitFor(storage);
 
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
-    .WithReference(database).WaitForCompletion(migrations)
+    .WithEnvironment("ConnectionStrings__lexflow", appConnection).WaitFor(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)
@@ -81,7 +91,7 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
 // O Worker monta os links dos e-mails de conta com o endereço público da API (servidor de identidade).
 builder.AddProject<Projects.LexFlow_Worker>("worker")
     .WithEnvironment("Identity__PublicUrl", api.GetEndpoint("http"))
-    .WithReference(database).WaitForCompletion(migrations)
+    .WithEnvironment("ConnectionStrings__lexflow", appConnection).WaitFor(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
     .WithEnvironment("Storage__ServiceUrl", storageEndpoint)

@@ -121,7 +121,7 @@ public sealed class OrganizationOnboardingTests(DependenciesFixture dependencies
     {
         var organizationId = await CreateOrganizationAsync(Guid.CreateVersion7(), "Escritório Auditado");
 
-        await using var connection = new Npgsql.NpgsqlConnection(dependencies.Settings["ConnectionStrings:lexflow"]);
+        await using var connection = new Npgsql.NpgsqlConnection(dependencies.AdminConnectionString);
         await connection.OpenAsync(Ct);
         await using var command = new Npgsql.NpgsqlCommand(
             "SELECT count(*) FROM audit.audit_logs WHERE organization_id = $1 AND entity_type IN ('OrganizationMember', 'Role', 'MemberRoleAssignment')", connection);

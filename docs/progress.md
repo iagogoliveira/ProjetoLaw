@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 e 3B #12 mergeados; faltam 3C a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 e 3B #12 mergeados; 3C pronto no branch; faltam 3D a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests` |
 
 ---
 
@@ -27,6 +27,32 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3D:** convites (token de uso único, 7 dias), membros, estrutura (filiais, áreas, equipes, centros de custo, sócios) e perfis editáveis.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
+
+### PR 3C — RLS, papéis do banco e SecurityTests (pronto no branch `etapa-3c-rls-security-tests`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.12 | Papel `lexflow_app` (sem `BYPASSRLS`, só DML) e login da aplicação criado pelo MigrationService; API e Worker conectam com ele (AppHost e testes) | `RowLevelSecurityTests.The_application_login_has_no_special_powers`, toda a suíte de integração da API rodando com o login |
+| 3.13 | `app.organization_id` na sessão (`TenantSessionInterceptor`) e RLS forçada em toda tabela `ITenantOwned` | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `Raw_sql_as_the_application_only_sees_the_organization_of_the_session`, `The_application_cannot_write_rows_of_another_organization` |
+| 3.14 | Auditoria só de inserção para a aplicação (`REVOKE UPDATE, DELETE, TRUNCATE`), leitura por organização, encadeamento como dono | `The_audit_trail_is_append_only_for_the_application` |
+| 3.15 | Limpeza de chaves de idempotência por função do dono (sai o último `IgnoreQueryFilters`) | `IdempotencyStoreTests` (existentes) |
+| 3.16 | `LexFlow.SecurityTests` com descoberta de endpoints: 401 anônimo, 403 sem permissão, 404 entre organizações, listas sem dados alheios | `EndpointSecurityTests` |
+
+**ADR:** [0019 — Row-Level Security, papéis do banco e SecurityTests](adr/0019-rls-papeis-do-banco-e-securitytests.md).
+
+**Critérios de aceite da Etapa 3 que fecham aqui:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Usuário da Org A recebe 404 em qualquer recurso da Org B (teste automático cobre 100% dos endpoints) | ✅ | `EndpointSecurityTests.Resources_of_another_organization_or_user_answer_404` e `Every_route_with_an_id_has_a_cross_tenant_case` |
+| SQL cru com `app.organization_id` da Org A não retorna linhas da Org B | ✅ | `RowLevelSecurityTests.Raw_sql_as_the_application_only_sees_the_organization_of_the_session` |
+
+**Última verificação local (PR 3C):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 482 testes .NET em 13 projetos (Testcontainers; a API e os SecurityTests conectam como o login da aplicação) e 14 do AppHost, 23 Vitest, Playwright 4 contra o `ng serve` e 5 contra o AppHost (fluxo completo, com a API e o Worker no login da aplicação), `npm run lint`, sem pacotes vulneráveis. As migrations dos três módulos não têm mudança de modelo pendente.
+
+**Pendências do PR 3C:**
+1. Produção: provisionar o papel dono das migrations com `CREATEROLE` e `BYPASSRLS` e guardar no cofre a senha do login da aplicação (runbook do deploy).
+2. O painel do Hangfire continua sem rota; a autorização dele entra quando houver painel.
+3. Desempenho: um `set_config` por abertura de conexão; reavaliar no teste de carga.
 
 ### PR 3B — tenant real e permissões (concluído: PR #12 mergeado em 2026-10-17)
 
@@ -252,11 +278,11 @@ Plano aprovado em 2026-10-16, em 3 PRs empilhados e mergeados: **A** #4 (SharedK
 1. **Etapa 2:** substituir o esquema de autenticação provisório pelo OpenIddict.
 2. **Etapa 3:**
    - validar `org_id` contra `OrganizationMember` e aceitar o cabeçalho `X-Organization-Id`;
-   - RLS e papéis do banco, incluindo o `REVOKE UPDATE, DELETE` em `audit.audit_logs`;
+   - ~~RLS e papéis do banco, incluindo o `REVOKE UPDATE, DELETE` em `audit.audit_logs`~~: feito no PR 3C;
    - permissão `platform.jobs.read` no `PermissionCatalog`;
    - decorator de autorização de recurso;
-   - painel do Hangfire com autorização;
-   - `SecurityTests` cobrindo `GET /api/v1/jobs/{id}`.
+   - painel do Hangfire com autorização (sem rota exposta até hoje; ver ADR 0019);
+   - ~~`SecurityTests` cobrindo `GET /api/v1/jobs/{id}`~~: coberto no PR 3C.
 3. **Etapa 7:** feriados forenses, estaduais e municipais, recesso e feriados do escritório.
 4. **Desempenho:** pré-gerar o código do Wolverine (`TypeLoadMode.Static`) para a inicialização em produção.
 5. **Etapa 9:** `StreamMaxLength` do ClamAV alinhado ao limite de upload.

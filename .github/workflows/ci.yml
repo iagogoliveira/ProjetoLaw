@@ -48,7 +48,7 @@ jobs:
           done
       - name: Testes de integração (Testcontainers)
         run: |
-          for project in tests/*.IntegrationTests; do
+          for project in tests/*.IntegrationTests tests/LexFlow.SecurityTests; do
             dotnet test --project "$project" --no-build -c Release               --coverlet --coverlet-output-format cobertura --results-directory "TestResults/$(basename "$project")"
           done
       - name: Cobertura ≥ 80% em Domain/Application
