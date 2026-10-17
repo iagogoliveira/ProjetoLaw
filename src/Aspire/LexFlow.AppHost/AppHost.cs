@@ -44,8 +44,9 @@ var clamav = builder.AddContainer("clamav", "clamav/clamav", "1.5.4-debian")
     .WithEndpoint(targetPort: 3310, name: "clamd", scheme: "tcp")
     .WithClamAvHealthCheck();
 
+// Porta fixa: o e2e lê os e-mails de confirmação pela API do Mailpit em http://localhost:8025.
 var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "v1.31.6")
-    .WithHttpEndpoint(targetPort: 8025, name: "http")
+    .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "http", isProxied: false)
     .WithEndpoint(targetPort: 1025, name: "smtp", scheme: "tcp")
     .WithHttpHealthCheck("/livez");
 
@@ -73,7 +74,9 @@ var api = builder.AddProject<Projects.LexFlow_Api>("api")
     .WithEnvironment("Email__Port", smtp.Property(EndpointProperty.Port))
     .WithEnvironment("ClamAv__Host", clamd.Property(EndpointProperty.Host))
     .WithEnvironment("ClamAv__Port", clamd.Property(EndpointProperty.Port))
-    .WithHttpHealthCheck("/health/ready", endpointName: "http");
+    .WithHttpHealthCheck("/health/ready", endpointName: "http")
+    // Local e e2e: o fluxo completo (cadastro, confirmação, dois logins com segundo fator) passa de 10 req/min por IP.
+    .WithEnvironment("Identity__PublicPermitsPerMinute", builder.Configuration["LexFlow:PublicPermitsPerMinute"] ?? "120");
 
 // O Worker monta os links dos e-mails de conta com o endereço público da API (servidor de identidade).
 builder.AddProject<Projects.LexFlow_Worker>("worker")

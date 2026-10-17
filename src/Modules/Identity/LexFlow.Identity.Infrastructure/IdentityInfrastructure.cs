@@ -114,6 +114,7 @@ public static class IdentityInfrastructure
         ArgumentNullException.ThrowIfNull(environment);
 
         new IdentityBuilder(typeof(ApplicationUser), services).AddSignInManager();
+        AddWebClientCors(services);
         services.AddAuthentication(options =>
             {
                 options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
@@ -167,6 +168,28 @@ public static class IdentityInfrastructure
     public static IServiceCollection AddIdentityRecurringJobs(this IServiceCollection services) =>
         services.AddHostedService<IdentityRecurringJobsRegistration>();
 
+    /// <summary>
+    /// CORS só para a origem do SPA (seção 7.3), tirada dos endereços de retorno do cliente <c>lexflow-web</c>: o SPA
+    /// chama o endpoint de token e a API de outra origem. Sem credenciais de cookie: a API usa só o access token.
+    /// </summary>
+    private static void AddWebClientCors(IServiceCollection services)
+    {
+        var settings = RegisteredSettings(services);
+        var origins = settings.WebClient.EffectiveRedirectUris
+            .Concat(settings.WebClient.EffectivePostLogoutRedirectUris)
+            .Select(uri => uri.GetLeftPart(UriPartial.Authority))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        services.AddCors(options => options.AddDefaultPolicy(policy => policy
+            .WithOrigins(origins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()));
+    }
+
+    private static IdentitySettings RegisteredSettings(IServiceCollection services) =>
+        (IdentitySettings?)services.FirstOrDefault(d => d.ServiceType == typeof(IdentitySettings))?.ImplementationInstance
+            ?? throw new InvalidOperationException("Registre AddIdentityInfrastructure antes de AddIdentityServer.");
+
     /// <summary>O cookie só vive entre a senha e a emissão do código: o endpoint de autorização o apaga (ADR 0014).</summary>
     private static void ConfigureLoginCookie(IServiceCollection services, IHostEnvironment environment) =>
         services.ConfigureApplicationCookie(options =>
@@ -182,9 +205,7 @@ public static class IdentityInfrastructure
 
     private static void AddKeys(OpenIddictServerBuilder options, IServiceCollection services, IHostEnvironment environment)
     {
-        var settings = (IdentitySettings?)services.FirstOrDefault(d => d.ServiceType == typeof(IdentitySettings))?.ImplementationInstance
-            ?? throw new InvalidOperationException("Registre AddIdentityInfrastructure antes de AddIdentityServer.");
-        var server = settings.Server;
+        var server = RegisteredSettings(services).Server;
 
         if (server is { SigningCertificate: { Length: > 0 } signing, EncryptionCertificate: { Length: > 0 } encryption })
         {

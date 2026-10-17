@@ -4,13 +4,34 @@
   <header>
     <mat-toolbar class="toolbar">
       <span class="brand">{{ t('app.name') }}</span>
+      <span class="spacer"></span>
+      @if (session.user(); as user) {
+        <span class="user">{{ user.name }}</span>
+      }
+      <button mat-button type="button" (click)="session.signOut()">{{ t('shell.signOut') }}</button>
     </mat-toolbar>
   </header>
 
   <mat-sidenav-container class="container">
     <mat-sidenav class="sidenav" mode="side" opened>
       <nav [attr.aria-label]="t('shell.mainNavigation')">
-        <p class="empty-navigation">{{ t('shell.emptyNavigation') }}</p>
+        <mat-nav-list>
+          <a
+            mat-list-item
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.home') }}</a
+          >
+          <a
+            mat-list-item
+            routerLink="/conta"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.account') }}</a
+          >
+        </mat-nav-list>
       </nav>
     </mat-sidenav>
 

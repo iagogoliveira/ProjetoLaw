@@ -134,6 +134,7 @@ jobs:
         env:
           CI: 'true'
           E2E_BASE_URL: http://localhost:4200
+          E2E_MAILPIT_URL: http://localhost:8025
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

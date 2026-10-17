@@ -41,6 +41,7 @@ foreach (var module in modules)
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseWebCommon();
 app.UseRateLimiter();
 app.UseSerilogRequestLogging();

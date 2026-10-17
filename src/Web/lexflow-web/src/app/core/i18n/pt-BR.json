@@ -5,10 +5,85 @@
   },
   "shell": {
     "mainNavigation": "Navegação principal",
-    "emptyNavigation": "Nenhum módulo disponível ainda."
+    "home": "Início",
+    "account": "Minha conta",
+    "signOut": "Sair"
   },
   "dashboard": {
     "title": "Início",
     "empty": "Seu painel aparecerá aqui."
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bem-vindo ao LexFlow",
+      "lead": "Entre com seu e-mail e senha para continuar.",
+      "action": "Entrar",
+      "register": "Criar conta"
+    },
+    "callback": {
+      "signingIn": "Entrando…"
+    }
+  },
+  "account": {
+    "title": "Minha conta",
+    "loading": "Carregando…",
+    "profile": {
+      "title": "Perfil",
+      "name": "Nome",
+      "email": "E-mail",
+      "since": "Conta criada em"
+    },
+    "mfa": {
+      "title": "Verificação em duas etapas",
+      "intro": "Proteja sua conta pedindo um segundo fator a cada login: um código do aplicativo autenticador ou um código enviado por e-mail.",
+      "enabled": {
+        "totp": "Ativa: código do aplicativo autenticador.",
+        "email": "Ativa: código enviado por e-mail."
+      },
+      "recovery": {
+        "title": "Códigos de recuperação",
+        "hint": "Guarde estes códigos em lugar seguro. Cada um serve uma vez, se você ficar sem o celular. Eles não serão mostrados de novo."
+      },
+      "totp": {
+        "start": "Usar aplicativo autenticador",
+        "scan": "Leia o QR code com o aplicativo autenticador (Google Authenticator, Microsoft Authenticator ou outro).",
+        "qrAlt": "QR code para configurar o aplicativo autenticador",
+        "key": "Ou digite esta chave no aplicativo:",
+        "code": "Código de 6 dígitos",
+        "confirm": "Confirmar e ativar",
+        "cancel": "Cancelar"
+      },
+      "email": {
+        "enable": "Receber código por e-mail"
+      }
+    },
+    "sessions": {
+      "title": "Sessões abertas",
+      "empty": "Nenhuma sessão aberta.",
+      "unknownDevice": "Dispositivo desconhecido",
+      "current": "(esta sessão)",
+      "lastSeen": "Último uso: {{date}}",
+      "end": "Encerrar"
+    }
+  },
+  "errors": {
+    "http": {
+      "error": "Não foi possível concluir a operação. Tente de novo.",
+      "too_many_requests": "Muitas tentativas. Aguarde um minuto e tente de novo."
+    },
+    "auth": {
+      "unauthenticated": "Sua sessão expirou. Entre novamente."
+    },
+    "validation": {
+      "failed": "Verifique os campos informados."
+    },
+    "identity": {
+      "mfa_code_invalid": "Código inválido ou expirado.",
+      "mfa_code_required": "Informe o código.",
+      "mfa_already_enabled": "A verificação em duas etapas já está ativa.",
+      "mfa_setup_not_started": "Comece a configuração do aplicativo autenticador antes de confirmar.",
+      "session_not_found": "Sessão não encontrada.",
+      "user_not_found": "Usuário não encontrado."
+    }
   }
 }

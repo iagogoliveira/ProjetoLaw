@@ -68,6 +68,9 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | @playwright/test | 1.64.1 | Apache-2.0 |
 | @axe-core/playwright | 4.14.0 | MPL-2.0 (só em dev, sem redistribuição) |
 | @hey-api/openapi-ts | 0.99.0 | MIT (dev; gera `src/app/api`, ADR 0012) |
+| angular-auth-oidc-client | 22.0.1 | MIT (OIDC no SPA, ADR 0016) |
+| @ngrx/signals | 22.0.1 | MIT (SignalStore, ADR 0016) |
+| qrcode-generator | 2.0.4 | MIT (QR code do TOTP, ADR 0016) |
 | js-yaml (override npm) | 4.3.2 | MIT | Corrige GHSA-52cp-r559-cp3m, GHSA-5p4m-2wfm-xmqj e GHSA-2883-xcg3-v3hh (altas), transitivas do `@hey-api/openapi-ts` |
 
 ### Ferramentas de CI

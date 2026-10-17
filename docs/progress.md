@@ -6,11 +6,11 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Em andamento** (PRs A #7 e B1 #8 mergeados; B2 pronto no branch; falta C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me` |
+| 2 — Identidade e autenticação | **Concluída no branch** (PRs A #7, B1 #8 e B2 #9 mergeados; C pronto, aguardando PR) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 
 ---
 
-## Etapa 2 — Identidade e autenticação (em andamento)
+## Etapa 2 — Identidade e autenticação (todos os critérios de aceite com teste; PR C aguardando merge)
 
 **RFs:** RF-01 (cadastro, login, logout, recuperação de senha, MFA, bloqueio por tentativas, sessões). Ficam para depois: MFA obrigatório por organização, convites, troca de organização e restrição por IP/horário (Etapa 3); SSO, SCIM e passkeys (Etapa 16).
 
@@ -23,12 +23,41 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - A verificação de senhas vazadas (Have I Been Pwned, k-anonymity) fica ligada por padrão, com chave para desligar.
 - MFA é opcional por usuário nesta etapa: quem ativa escolhe TOTP ou código por e-mail como segundo fator (decisão de 2026-10-16). O MFA obrigatório por organização fica para a Etapa 3.
 - Sem "lembrar este dispositivo" por enquanto: todo login de quem tem MFA pede o segundo fator.
+- O SPA guarda os tokens em `sessionStorage` (decisão de 2026-10-16): sobrevive ao F5 na mesma aba e some ao fechar a aba; nada em `localStorage` (seção 5.3).
+
+**Plano do PR C (proposto em 2026-10-16):** CORS só para a origem do SPA; Mailpit em porta fixa e rate limit configurável no AppHost; `core/auth` com `angular-auth-oidc-client` (PKCE, refresh rotativo, guard, interceptor); configuração em tempo de execução (`config.json`); página pública `/entrar`; feature `account` (perfil, sessões, ativação de TOTP com QR code e códigos de recuperação, ou código por e-mail) com SignalStore (`@ngrx/signals`); Vitest; e2e contra o AppHost do fluxo cadastro → confirmação (Mailpit) → login → TOTP → logout → login com TOTP.
 
 **Plano do PR B (proposto em 2026-10-16), dividido em dois:**
 - **B1:** OpenIddict (Authorization Code + PKCE, refresh rotativo com revogação em reuso), validação de token no lugar do esquema provisório (ADR 0008), páginas Razor de conta em pt-BR, sessões ligadas aos tokens (`sid`), bloqueio na 6ª senha errada, rate limit por IP e limpeza de tokens expirados.
 - **B2:** MFA (TOTP com códigos de recuperação e código por e-mail), `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
 
-### PR B2 — MFA e minha conta (pronto no branch `etapa-2b2-mfa-me`, sem PR)
+### PR C — frontend e e2e (pronto no branch `etapa-2c-frontend-e2e`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 2.21 | CORS só para as origens do SPA; Mailpit em porta fixa e rate limit configurável no AppHost | `CorsTests`, `AppHostTests` |
+| 2.22 | `core/auth`: `angular-auth-oidc-client` (PKCE, refresh rotativo com trava entre abas, `sessionStorage`), guards `canMatch`, `/entrar`, `/auth/callback`; configuração em tempo de execução (`config.json`) | `auth.spec.ts`, `load-app-config.spec.ts`, e2e `shell.spec.ts` |
+| 2.23 | Shell com usuário, navegação e "Sair" (logout no servidor) | `shell.spec.ts` (Vitest) |
+| 2.24 | "Minha conta": perfil, TOTP (QR code, chave, confirmação, códigos de recuperação), código por e-mail, sessões com "Encerrar"; SignalStore e erros traduzidos | `account-store.spec.ts`, `account-components.spec.ts` |
+| 2.25 | E2E do critério de aceite contra o AppHost | `e2e/account-flow.spec.ts` |
+
+**ADR:** [0016 — Autenticação no SPA e "minha conta"](adr/0016-autenticacao-no-spa.md).
+
+**Critérios de aceite da Etapa 2:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Fluxo e2e: cadastro → confirmação de e-mail (Mailpit) → login → ativação de TOTP → logout → login com TOTP | ✅ | `e2e/account-flow.spec.ts` (Playwright contra o AppHost; no CI com `E2E_MAILPIT_URL`) |
+| Refresh token rotativo: reutilizar um antigo revoga a família inteira | ✅ | `OidcFlowTests.Reusing_an_old_refresh_token_revokes_the_whole_family` |
+| 6ª tentativa de senha errada bloqueia a conta por 15 min | ✅ | `OidcFlowTests.Sixth_attempt_after_five_wrong_passwords_is_blocked_for_15_minutes` |
+
+**Última verificação local (PR C):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 415 testes .NET em 10 projetos e 14 do AppHost, 23 Vitest, `npm run lint`, `npm run build`, `npm audit` e pacotes .NET sem vulnerabilidades. Playwright: 5 de 5 contra o AppHost (duas rodadas, incluindo o fluxo completo) e 4 contra o `ng serve` (o fluxo completo é pulado sem Mailpit).
+
+**Pendências do PR C:**
+1. CSP restritiva e demais cabeçalhos da seção 7.3 (HSTS, `Referrer-Policy`), que são a defesa principal dos tokens no `sessionStorage`.
+2. Diretiva `lfCan` e permissões no `GET /api/v1/me` entram com o `PermissionCatalog` (Etapa 3).
+
+### PR B2 — MFA e minha conta (concluído: PR #9 mergeado em 2026-10-16)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
