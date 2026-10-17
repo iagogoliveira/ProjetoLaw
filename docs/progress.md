@@ -6,11 +6,47 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Concluída no branch** (PRs A #7, B1 #8 e B2 #9 mergeados; C pronto, aguardando PR) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
+| 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A pronto no branch) | `etapa-3a-organizations` |
 
 ---
 
-## Etapa 2 — Identidade e autenticação (todos os critérios de aceite com teste; PR C aguardando merge)
+## Etapa 3 — Organizações, estrutura e permissões (em andamento)
+
+**RFs:** RF-01 (convites, MFA obrigatório por organização), RF-02, RF-03 (campos customizados e tabelas auxiliares) e seção 3 da especificação. Revisão humana dos PRs obrigatória (seção 14.4).
+
+**Decisões de negócio confirmadas (2026-10-17):**
+- O MFA obrigatório por organização entra na Etapa 3 (PR 3B): o escritório pode exigir segundo fator de todos os membros.
+- A matriz de permissões dos perfis padrão da ADR 0017 foi aprovada.
+- No onboarding são criados só os perfis internos da seção 3.2 (Administrador do escritório, Sócio, Advogado, Estagiário/paralegal, Controladoria jurídica e Financeiro). Cliente do portal e Correspondente ficam para a Etapa 12; Administrador da plataforma, para a Etapa 13.
+
+**Plano (proposto em 2026-10-17), em 6 PRs sequenciais:**
+- **3A:** módulo Organization (schema `org`), `PermissionCatalog` completo e onboarding com perfis padrão. A matriz de permissões dos perfis vai numa ADR para aprovação.
+- **3B:** `ITenantContext` real (`X-Organization-Id` validado contra `OrganizationMember`), troca de organização, `PermissionService` com cache Redis e invalidação por evento, `IResourceAuthorizer<T>`, MFA obrigatório por organização e permissões no `GET /api/v1/me`.
+- **3C:** RLS e papéis do banco (incluindo `REVOKE UPDATE, DELETE` em `audit.audit_logs`), `LexFlow.SecurityTests` com descoberta automática de endpoints e autorização do painel do Hangfire.
+- **3D:** convites (token de uso único, 7 dias), membros, estrutura (filiais, áreas, equipes, centros de custo, sócios) e perfis editáveis.
+- **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
+- **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
+
+### PR 3A — módulo Organization, catálogo e onboarding (pronto no branch `etapa-3a-organizations`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.1 | Módulo `Organization` (schema `org`): organização, membros, filiais, áreas, equipes, membros de equipe, centros de custo, sócios, perfis, permissões dos perfis e atribuições com escopo de dados | `DomainTests`, `OrganizationDatabaseTests` (migrations do zero e revertidas, unicidade dentro do tenant) |
+| 3.2 | `PermissionCatalog` com todas as permissões previstas, agrupadas por módulo; permissões universais da própria conta | `PermissionCatalogTests`, `EndpointSecurityConventionTests.Every_required_permission_is_in_the_catalog` |
+| 3.3 | Perfis padrão internos (seção 3.2) com matriz proposta (ADR 0017) | `PermissionCatalogTests.Default_roles_*` |
+| 3.4 | Onboarding `POST /api/v1/organizations`: organização, perfis padrão e criador como Administrador do escritório; `TenantOverride` para os primeiros dados da organização nova | `OrganizationOnboardingTests`, `TenantOverrideTests` |
+| 3.5 | Contrato OpenAPI e cliente TypeScript atualizados (só adições) | `OpenApiContractTests` |
+
+**ADR:** [0017 — Organizações, catálogo de permissões e perfis padrão](adr/0017-organizacoes-catalogo-e-perfis-padrao.md) (Aceita em 2026-10-17: matriz dos perfis padrão aprovada).
+
+**Última verificação local (PR 3A):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 454 testes .NET em 12 projetos (Testcontainers), 23 Vitest, 4 Playwright (`ng serve`), `npm run lint`, sem pacotes vulneráveis. Cobertura: Organization.Application 100% e Organization.Domain 84,8%. A migration `Initial` do Organization não tem mudança de modelo pendente.
+
+**Fora da etapa (outras etapas da spec):** SSO, SCIM e restrição por IP (Etapa 16); planos e administrador da plataforma (Etapa 13); delegação temporária e alçadas (Etapa 8); feriados do escritório (Etapa 7).
+
+---
+
+## Etapa 2 — Identidade e autenticação (concluída em 2026-10-16)
 
 **RFs:** RF-01 (cadastro, login, logout, recuperação de senha, MFA, bloqueio por tentativas, sessões). Ficam para depois: MFA obrigatório por organização, convites, troca de organização e restrição por IP/horário (Etapa 3); SSO, SCIM e passkeys (Etapa 16).
 
@@ -31,7 +67,7 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - **B1:** OpenIddict (Authorization Code + PKCE, refresh rotativo com revogação em reuso), validação de token no lugar do esquema provisório (ADR 0008), páginas Razor de conta em pt-BR, sessões ligadas aos tokens (`sid`), bloqueio na 6ª senha errada, rate limit por IP e limpeza de tokens expirados.
 - **B2:** MFA (TOTP com códigos de recuperação e código por e-mail), `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
 
-### PR C — frontend e e2e (pronto no branch `etapa-2c-frontend-e2e`, sem PR)
+### PR C — frontend e e2e (concluído: PR #10 mergeado em 2026-10-16)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |

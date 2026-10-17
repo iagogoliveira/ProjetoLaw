@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<IClock, TimeProviderClock>();
         services.TryAddSingleton<IIdGenerator, GuidV7IdGenerator>();
+        services.TryAddScoped<TenantOverride>();
 
         services.Scan(scan => scan
             .FromAssemblies(assemblies)

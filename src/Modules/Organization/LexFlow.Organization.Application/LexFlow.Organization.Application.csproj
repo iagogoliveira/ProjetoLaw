@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Organization.Domain\LexFlow.Organization.Domain.csproj" />
+    <ProjectReference Include="..\LexFlow.Organization.Contracts\LexFlow.Organization.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Consultas LINQ assíncronas sobre a abstração do DbContext do módulo (sem provedor de banco). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.Organization.Infrastructure" />
+    <InternalsVisibleTo Include="LexFlow.Organization.UnitTests" />
+    <InternalsVisibleTo Include="LexFlow.Organization.IntegrationTests" />
+  </ItemGroup>
+
+</Project>

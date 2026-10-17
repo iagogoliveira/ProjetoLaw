@@ -75,3 +75,34 @@ public interface IRequestContext
 
     string? UserAgent { get; }
 }
+
+/// <summary>
+/// Tenant definido pelo próprio caso de uso, por escopo de DI. Único uso permitido: gravar os primeiros dados de uma
+/// organização <b>recém-criada</b> no mesmo comando (onboarding), quando ainda não existe tenant ativo. As
+/// implementações de <see cref="ITenantContext"/> dão precedência a ele.
+/// </summary>
+public sealed class TenantOverride
+{
+    public Guid? OrganizationId { get; private set; }
+
+    public IDisposable BeginForNewOrganization(Guid organizationId)
+    {
+        if (organizationId == Guid.Empty)
+        {
+            throw new ArgumentException("Organização obrigatória.", nameof(organizationId));
+        }
+
+        if (OrganizationId is not null)
+        {
+            throw new InvalidOperationException("Já existe um tenant definido neste escopo.");
+        }
+
+        OrganizationId = organizationId;
+        return new End(this);
+    }
+
+    private sealed class End(TenantOverride owner) : IDisposable
+    {
+        public void Dispose() => owner.OrganizationId = null;
+    }
+}

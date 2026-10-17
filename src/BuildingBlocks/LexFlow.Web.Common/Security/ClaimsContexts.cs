@@ -27,10 +27,11 @@ internal sealed class HttpContextCurrentUser(IHttpContextAccessor accessor) : IC
 /// Organização ativa a partir da claim <c>org_id</c>. Provisório: a validação contra <c>OrganizationMember</c>
 /// e a troca de organização (cabeçalho <c>X-Organization-Id</c>) chegam na Etapa 3.
 /// </summary>
-internal sealed class HttpContextTenantContext(IHttpContextAccessor accessor) : ITenantContext
+internal sealed class HttpContextTenantContext(IHttpContextAccessor accessor, TenantOverride tenantOverride) : ITenantContext
 {
     public Guid? OrganizationId =>
-        accessor.HttpContext?.User is { Identity.IsAuthenticated: true } user
+        tenantOverride.OrganizationId
+        ?? (accessor.HttpContext?.User is { Identity.IsAuthenticated: true } user
             ? HttpContextCurrentUser.ParseGuid(user, LexFlowClaims.OrganizationId)
-            : null;
+            : null);
 }

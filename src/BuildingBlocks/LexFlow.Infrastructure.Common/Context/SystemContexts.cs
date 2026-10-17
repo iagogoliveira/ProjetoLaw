@@ -21,6 +21,7 @@ public static class SystemContextRegistration
     public static IServiceCollection AddSystemContexts(this IServiceCollection services)
     {
         services.TryAddScoped<ICurrentUser, SystemCurrentUser>();
+        services.TryAddScoped<TenantOverride>();
         services.TryAddScoped<ITenantContext, AmbientTenantContext>();
         services.TryAddScoped<IRequestContext, AmbientRequestContext>();
         return services;
