@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A pronto para revisão; faltam 4B a 4D) | `etapa-4-pessoas-crm` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18 mergeado; faltam 4B a 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos` |
 
 ---
 
@@ -42,7 +42,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
 
-### PR 4A — cadastro de pessoas (pronto para revisão)
+### PR 4A — cadastro de pessoas (concluído: PR #18 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 4.6 | Consulta de CNPJ (`ICnpjLookup`: BrasilAPI, falsa nos testes) | `The_cnpj_lookup_fills_in_the_company_or_explains_why_not` |
 | 4.7 | Endpoints com permissões `crm.people.*`, casos entre organizações nos SecurityTests, OpenAPI (11 operações novas, só adições) e cliente TypeScript | `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0022 — Módulo Crm: cadastro de pessoas, busca aproximada e consulta de CNPJ](adr/0022-modulo-crm-pessoas-busca-e-cnpj.md) (proposta, para revisão no PR).
+**ADR:** [0022 — Módulo Crm: cadastro de pessoas, busca aproximada e consulta de CNPJ](adr/0022-modulo-crm-pessoas-busca-e-cnpj.md) (Aceita em 2026-10-17, com o merge do PR #18).
 
 **Critérios de aceite da Etapa 4 que fecham aqui:**
 
