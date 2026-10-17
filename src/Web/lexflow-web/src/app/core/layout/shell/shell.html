@@ -4,6 +4,20 @@
   <header>
     <mat-toolbar class="toolbar">
       <span class="brand">{{ t('app.name') }}</span>
+      @if (access.organizations().length > 1) {
+        <mat-select
+          class="organization"
+          [value]="access.activeOrganization()?.id"
+          [aria-label]="t('shell.organization')"
+          (selectionChange)="switchTo($event.value)"
+        >
+          @for (organization of access.organizations(); track organization.id) {
+            <mat-option [value]="organization.id">{{ organization.name }}</mat-option>
+          }
+        </mat-select>
+      } @else if (access.activeOrganization(); as organization) {
+        <span class="organization" data-testid="active-organization">{{ organization.name }}</span>
+      }
       <span class="spacer"></span>
       @if (session.user(); as user) {
         <span class="user">{{ user.name }}</span>
@@ -30,6 +44,14 @@
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             >{{ t('shell.account') }}</a
+          >
+          <a
+            *lfCan="'settings.users.manage'"
+            mat-list-item
+            routerLink="/configuracoes/convites/novo"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.invite') }}</a
           >
         </mat-nav-list>
       </nav>

@@ -13,11 +13,9 @@ import type {
   SessionResponse,
   TotpSetupResponse,
 } from '../../../api/types.gen';
+import { ApiResult, toResult } from '../../../core/data/api-result';
 
-/** Resultado de uma chamada: o valor, ou o `code` estável do ProblemDetails (traduzido em `errors.*`). */
-export type ApiResult<T> = { ok: true; value: T } | { ok: false; code: string };
-
-export const UNEXPECTED_ERROR = 'http.error';
+export type { ApiResult } from '../../../core/data/api-result';
 
 /** Único ponto do feature que fala HTTP (seção 5.2), sobre o cliente gerado do OpenAPI. */
 @Injectable({ providedIn: 'root' })
@@ -45,21 +43,4 @@ export class AccountApi {
   enableEmailMfa(): Promise<ApiResult<unknown>> {
     return toResult(enableEmailMfa());
   }
-}
-
-async function toResult<T>(call: Promise<{ data?: T; error?: unknown }>): Promise<ApiResult<T>> {
-  try {
-    const { data, error } = await call;
-    return error === undefined
-      ? { ok: true, value: data as T }
-      : { ok: false, code: codeOf(error) };
-  } catch (error) {
-    return { ok: false, code: codeOf(error) };
-  }
-}
-
-function codeOf(error: unknown): string {
-  const body = (error as { error?: unknown } | null)?.error ?? error;
-  const code = (body as { code?: unknown } | null)?.code;
-  return typeof code === 'string' ? code : UNEXPECTED_ERROR;
 }
