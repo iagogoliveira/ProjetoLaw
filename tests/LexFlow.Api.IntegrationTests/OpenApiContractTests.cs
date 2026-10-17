@@ -35,7 +35,25 @@ public sealed class OpenApiContractTests(DependenciesFixture dependencies)
 
         File.Exists(path).ShouldBeTrue($"Contrato ausente. Gere com {UpdateVariable}=1.");
         var committed = (await File.ReadAllTextAsync(path, TestContext.Current.CancellationToken)).ReplaceLineEndings("\n");
-        served.ShouldBe(committed, $"A API mudou: revise e atualize docs/openapi/v1.json com {UpdateVariable}=1 (e regenere o cliente TypeScript).");
+        if (!string.Equals(served, committed, StringComparison.Ordinal))
+        {
+            Assert.Fail($"A API mudou: revise e atualize docs/openapi/v1.json com {UpdateVariable}=1 (e regenere o cliente TypeScript).\n{FirstDifference(committed, served)}");
+        }
+    }
+
+    /// <summary>A primeira linha diferente, com contexto (o documento inteiro é grande demais para a mensagem).</summary>
+    private static string FirstDifference(string committed, string served)
+    {
+        var expected = committed.Split('\n');
+        var actual = served.Split('\n');
+        var line = 0;
+        while (line < expected.Length && line < actual.Length && string.Equals(expected[line], actual[line], StringComparison.Ordinal))
+        {
+            line++;
+        }
+
+        string Context(string[] lines) => string.Join('\n', lines.Skip(Math.Max(0, line - 3)).Take(7));
+        return $"Primeira diferença na linha {line + 1}.\n--- contrato versionado:\n{Context(expected)}\n--- servido:\n{Context(actual)}";
     }
 
     /// <summary>Remove o que varia por ambiente (servidores) e fixa a formatação.</summary>
