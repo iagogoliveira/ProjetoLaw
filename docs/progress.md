@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12 e 3C #13 mergeados; 3D pronto para revisão; faltam 3E e 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13 e 3D #14 mergeados; faltam 3E e 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields` |
 
 ---
 
@@ -29,7 +29,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
 
-### PR 3D — convites, membros, estrutura e perfis editáveis (pronto para revisão)
+### PR 3D — convites, membros, estrutura e perfis editáveis (concluído: PR #14 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 3.21 | Perfis editáveis (criar, renomear, excluir sem uso) e catálogo para a matriz (`GET /api/v1/permissions`) | `MemberAndRoleManagementTests` |
 | 3.22 | RLS nas tabelas novas, casos entre organizações para as 16 rotas novas com id, contrato OpenAPI (32 operações novas, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0020 — Convites, membros, estrutura e perfis editáveis](adr/0020-convites-estrutura-e-perfis-editaveis.md) (proposta, para revisão no PR).
+**ADR:** [0020 — Convites, membros, estrutura e perfis editáveis](adr/0020-convites-estrutura-e-perfis-editaveis.md) (Aceita em 2026-10-17, com o merge do PR #14).
 
 **Última verificação local (PR 3D):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 501 testes .NET em 11 projetos (Testcontainers; API e SecurityTests no login da aplicação) e 14 do AppHost, 23 Vitest, Playwright 4 contra o `ng serve` (o fluxo completo é pulado sem Mailpit; não rodado contra o AppHost neste PR), `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Organization.Application 94,6% e Organization.Domain 100%. As migrations dos três módulos não têm mudança de modelo pendente; o OpenAPI só ganhou adições.
 
