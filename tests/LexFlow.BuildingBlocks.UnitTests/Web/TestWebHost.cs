@@ -18,6 +18,7 @@ internal static class TestWebHost
     public const string TestScheme = "Test";
     public const string UserHeader = "X-Test-User";
     public const string OrganizationHeader = "X-Test-Org";
+    public const string AmrHeader = "X-Test-Amr";
 
     public static async Task<WebApplication> StartAsync(
         Action<WebApplication> mapEndpoints,
@@ -63,6 +64,10 @@ internal static class TestWebHost
             {
                 claims.Add(new Claim(LexFlowClaims.OrganizationId, org));
             }
+
+            claims.AddRange(Request.Headers[AmrHeader].ToString()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(amr => new Claim(LexFlowClaims.AuthenticationMethods, amr)));
 
             var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, TestScheme));
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, TestScheme)));

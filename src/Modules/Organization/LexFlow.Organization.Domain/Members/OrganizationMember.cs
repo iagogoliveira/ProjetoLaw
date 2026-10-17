@@ -48,3 +48,30 @@ public sealed class OrganizationMember : AggregateRoot<Guid>, ITenantOwned, IAud
         return new OrganizationMember(id, organizationId, userId, now);
     }
 }
+
+/// <summary>
+/// Diretório usuário → organizações (dado da plataforma, sem tenant): permite saber de quais escritórios alguém é
+/// membro sem consultar entre tenants. Mantido na mesma transação que <see cref="OrganizationMember"/> e guarda a
+/// última organização escolhida (troca de organização, RF-02).
+/// </summary>
+[NotAudited]
+public sealed class UserOrganization
+{
+    private UserOrganization()
+    {
+    }
+
+    public UserOrganization(Guid userId, Guid organizationId)
+    {
+        UserId = userId;
+        OrganizationId = organizationId;
+    }
+
+    public Guid UserId { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
+
+    public DateTimeOffset? LastSelectedAt { get; private set; }
+
+    public void Select(DateTimeOffset now) => LastSelectedAt = now;
+}

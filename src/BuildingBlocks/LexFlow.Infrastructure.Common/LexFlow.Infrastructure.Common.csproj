@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+    <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="RabbitMQ.Client" />
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />

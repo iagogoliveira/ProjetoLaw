@@ -1,5 +1,10 @@
+using LexFlow.Application.Abstractions;
+using LexFlow.Application.Abstractions.Security;
+using LexFlow.Web.Common.Results;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace LexFlow.Web.Common.Security;
@@ -49,16 +54,73 @@ public static class PermissionEndpointExtensions
     }
 }
 
-/// <summary>
-/// Provedor dinâmico de políticas <c>permission:*</c>. Placeholder da Etapa 1: exige só autenticação.
-/// Na Etapa 3 passa a consultar o <c>PermissionService</c> (perfil + escopo, cache com invalidação por evento).
-/// </summary>
+/// <summary>Exige a permissão nomeada na organização ativa.</summary>
+public sealed class PermissionRequirement(string permission) : IAuthorizationRequirement
+{
+    public string Permission { get; } = permission;
+}
+
+/// <summary>Provedor dinâmico de políticas <c>permission:*</c>: usuário autenticado + <see cref="PermissionRequirement"/>.</summary>
 public sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : DefaultAuthorizationPolicyProvider(options)
 {
-    private static readonly AuthorizationPolicy AuthenticatedOnly = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    public override Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+    {
+        ArgumentNullException.ThrowIfNull(policyName);
+        if (!policyName.StartsWith(PermissionEndpointExtensions.PolicyPrefix, StringComparison.Ordinal))
+        {
+            return base.GetPolicyAsync(policyName);
+        }
 
-    public override Task<AuthorizationPolicy?> GetPolicyAsync(string policyName) =>
-        policyName.StartsWith(PermissionEndpointExtensions.PolicyPrefix, StringComparison.Ordinal)
-            ? Task.FromResult<AuthorizationPolicy?>(AuthenticatedOnly)
-            : base.GetPolicyAsync(policyName);
+        var permission = policyName[PermissionEndpointExtensions.PolicyPrefix.Length..];
+        return Task.FromResult<AuthorizationPolicy?>(new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .AddRequirements(new PermissionRequirement(permission))
+            .Build());
+    }
+}
+
+/// <summary>
+/// Primeira etapa da autorização (seção 7.2): consulta o <see cref="IPermissionChecker"/> (perfil do membro na
+/// organização ativa, com cache e invalidação por evento). Sem verificador registrado, nega.
+/// </summary>
+internal sealed class PermissionAuthorizationHandler(IPermissionChecker? checker, ITenantContext tenant) : AuthorizationHandler<PermissionRequirement>
+{
+    public const string MfaRequiredReason = "organization.mfa_required";
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(requirement);
+        if (checker is null || HttpContextCurrentUser.ParseGuid(context.User, LexFlowClaims.Subject) is not { } userId)
+        {
+            return;
+        }
+
+        var mfa = context.User.FindAll(LexFlowClaims.AuthenticationMethods).Any(c => string.Equals(c.Value, "mfa", StringComparison.Ordinal));
+        var decision = await checker.CheckAsync(new PermissionCheck(userId, tenant.OrganizationId, requirement.Permission, mfa), CancellationToken.None);
+        switch (decision)
+        {
+            case PermissionDecision.Allowed:
+                context.Succeed(requirement);
+                break;
+            case PermissionDecision.MfaRequired:
+                context.Fail(new AuthorizationFailureReason(this, MfaRequiredReason));
+                break;
+        }
+    }
+}
+
+/// <summary>403 por MFA exigido sai com o código próprio, para o SPA mandar o usuário ativar o segundo fator.</summary>
+internal sealed class LexFlowAuthorizationResultHandler : IAuthorizationMiddlewareResultHandler
+{
+    private readonly AuthorizationMiddlewareResultHandler _default = new();
+
+    public Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
+    {
+        ArgumentNullException.ThrowIfNull(authorizeResult);
+        return authorizeResult.Forbidden
+            && authorizeResult.AuthorizationFailure?.FailureReasons.Any(r => string.Equals(r.Message, PermissionAuthorizationHandler.MfaRequiredReason, StringComparison.Ordinal)) == true
+            ? SecurityProblems.MfaRequired.ToProblem().ExecuteAsync(context)
+            : _default.HandleAsync(next, context, policy, authorizeResult);
+    }
 }

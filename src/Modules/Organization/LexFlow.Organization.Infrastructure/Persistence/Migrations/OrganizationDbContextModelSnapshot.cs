@@ -176,6 +176,29 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                     b.ToTable("members", "org");
                 });
 
+            modelBuilder.Entity("LexFlow.Organization.Domain.Members.UserOrganization", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("LastSelectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_selected_at");
+
+                    b.HasKey("UserId", "OrganizationId")
+                        .HasName("pk_user_organizations");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_user_organizations_organization_id");
+
+                    b.ToTable("user_organizations", "org");
+                });
+
             modelBuilder.Entity("LexFlow.Organization.Domain.OrgStructure.Branch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -885,6 +908,16 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_members_organizations_organization_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Organization.Domain.Members.UserOrganization", b =>
+                {
+                    b.HasOne("LexFlow.Organization.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_organizations_organizations_organization_id");
                 });
 
             modelBuilder.Entity("LexFlow.Organization.Domain.OrgStructure.Partner", b =>

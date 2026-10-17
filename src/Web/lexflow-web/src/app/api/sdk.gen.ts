@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses } from './types.gen';
+import type { AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -113,6 +113,69 @@ export const resetPassword = <ThrowOnError extends boolean = false>(options: Opt
  */
 export const createOrganization = <ThrowOnError extends boolean = false>(options: Options<CreateOrganizationData, ThrowOnError>): RequestResult<CreateOrganizationResponses, CreateOrganizationErrors, ThrowOnError> => (options.client ?? client).post<CreateOrganizationResponses, CreateOrganizationErrors, ThrowOnError>({
     url: '/api/v1/organizations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Organizações do usuário, a ativa e as permissões nela
+ */
+export const getMyAccess = <ThrowOnError extends boolean = false>(options?: Options<GetMyAccessData, ThrowOnError>): RequestResult<GetMyAccessResponses, GetMyAccessErrors, ThrowOnError> => (options?.client ?? client).get<GetMyAccessResponses, GetMyAccessErrors, ThrowOnError>({ url: '/api/v1/me/access', ...options });
+
+/**
+ * Troca a organização usada quando a requisição não traz X-Organization-Id
+ */
+export const selectActiveOrganization = <ThrowOnError extends boolean = false>(options: Options<SelectActiveOrganizationData, ThrowOnError>): RequestResult<SelectActiveOrganizationResponses, SelectActiveOrganizationErrors, ThrowOnError> => (options.client ?? client).post<SelectActiveOrganizationResponses, SelectActiveOrganizationErrors, ThrowOnError>({
+    url: '/api/v1/me/active-organization',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Membros da organização ativa e os perfis de cada um
+ */
+export const listMembers = <ThrowOnError extends boolean = false>(options?: Options<ListMembersData, ThrowOnError>): RequestResult<ListMembersResponses, ListMembersErrors, ThrowOnError> => (options?.client ?? client).get<ListMembersResponses, ListMembersErrors, ThrowOnError>({ url: '/api/v1/organization/members', ...options });
+
+/**
+ * Substitui os perfis de um membro, com o escopo de dados de cada um
+ */
+export const assignMemberRoles = <ThrowOnError extends boolean = false>(options: Options<AssignMemberRolesData, ThrowOnError>): RequestResult<AssignMemberRolesResponses, AssignMemberRolesErrors, ThrowOnError> => (options.client ?? client).put<AssignMemberRolesResponses, AssignMemberRolesErrors, ThrowOnError>({
+    url: '/api/v1/organization/members/{id}/roles',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Exige (ou não) verificação em duas etapas de todos os membros
+ */
+export const setMfaPolicy = <ThrowOnError extends boolean = false>(options: Options<SetMfaPolicyData, ThrowOnError>): RequestResult<SetMfaPolicyResponses, SetMfaPolicyErrors, ThrowOnError> => (options.client ?? client).put<SetMfaPolicyResponses, SetMfaPolicyErrors, ThrowOnError>({
+    url: '/api/v1/organization/security',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Perfis da organização ativa com as permissões
+ */
+export const listRoles = <ThrowOnError extends boolean = false>(options?: Options<ListRolesData, ThrowOnError>): RequestResult<ListRolesResponses, ListRolesErrors, ThrowOnError> => (options?.client ?? client).get<ListRolesResponses, ListRolesErrors, ThrowOnError>({ url: '/api/v1/roles', ...options });
+
+/**
+ * Substitui as permissões de um perfil; vale para os membros em até 5 s, sem novo login
+ */
+export const updateRolePermissions = <ThrowOnError extends boolean = false>(options: Options<UpdateRolePermissionsData, ThrowOnError>): RequestResult<UpdateRolePermissionsResponses, UpdateRolePermissionsErrors, ThrowOnError> => (options.client ?? client).put<UpdateRolePermissionsResponses, UpdateRolePermissionsErrors, ThrowOnError>({
+    url: '/api/v1/roles/{id}/permissions',
     ...options,
     headers: {
         'Content-Type': 'application/json',

@@ -21,7 +21,7 @@ builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddOrganizationInfrastructure(builder.Configuration);
 
 // Consumidores de eventos de integração: assemblies Infrastructure dos módulos.
-builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly, typeof(IdentityInfrastructure).Assembly);
+builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(PlatformInfrastructure).Assembly, typeof(IdentityInfrastructure).Assembly, typeof(OrganizationInfrastructure).Assembly);
 builder.Services.AddExternalAdapters(builder.Configuration);
 builder.Services.AddJobScheduling(builder.Configuration, runServer: true);
 builder.Services.AddPlatformRecurringJobs();

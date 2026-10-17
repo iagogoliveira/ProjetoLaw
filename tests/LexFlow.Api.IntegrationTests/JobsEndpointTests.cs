@@ -29,24 +29,27 @@ public sealed class JobsEndpointTests(DependenciesFixture dependencies)
         return id;
     }
 
-    private static HttpRequestMessage Get(Guid id, Guid? organization)
+    /// <summary>Requisição de um membro (com <c>platform.jobs.read</c>) da organização dele.</summary>
+    private static HttpRequestMessage Get(Guid id, SeededMember? member)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/jobs/{id}");
-        if (organization is { } org)
+        if (member is not null)
         {
-            request.Headers.Add(TestAuthenticationHandler.UserHeader, Guid.CreateVersion7().ToString());
-            request.Headers.Add(TestAuthenticationHandler.OrganizationHeader, org.ToString());
+            request.Headers.Add(TestAuthenticationHandler.UserHeader, member.UserId.ToString());
+            request.Headers.Add(TestAuthenticationHandler.OrganizationHeader, member.OrganizationId.ToString());
         }
 
         return request;
     }
+
+    private Task<SeededMember> MemberAsync() => TestOrganizations.CreateWithMemberAsync(dependencies, PlatformPermissions.JobsRead);
 
     [Fact]
     public async Task Anonymous_request_returns_401()
     {
         await using var factory = new LexFlowApiFactory(dependencies.Settings);
         using var client = factory.CreateClient();
-        using var request = Get(Guid.CreateVersion7(), organization: null);
+        using var request = Get(Guid.CreateVersion7(), member: null);
 
         using var response = await client.SendAsync(request, Ct);
 
@@ -56,11 +59,11 @@ public sealed class JobsEndpointTests(DependenciesFixture dependencies)
     [Fact]
     public async Task Own_job_is_returned_with_api_status()
     {
-        var organization = Guid.CreateVersion7();
-        var id = await CreateJobAsync(organization, job => job.Start(new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.Zero)));
+        var member = await MemberAsync();
+        var id = await CreateJobAsync(member.OrganizationId, job => job.Start(new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.Zero)));
         await using var factory = new LexFlowApiFactory(dependencies.Settings);
         using var client = factory.CreateClient();
-        using var request = Get(id, organization);
+        using var request = Get(id, member);
 
         using var response = await client.SendAsync(request, Ct);
 
@@ -74,10 +77,11 @@ public sealed class JobsEndpointTests(DependenciesFixture dependencies)
     [Fact]
     public async Task Job_of_another_organization_returns_404()
     {
-        var id = await CreateJobAsync(Guid.CreateVersion7());
+        var id = await CreateJobAsync((await MemberAsync()).OrganizationId);
+        var outsider = await MemberAsync();
         await using var factory = new LexFlowApiFactory(dependencies.Settings);
         using var client = factory.CreateClient();
-        using var request = Get(id, Guid.CreateVersion7());
+        using var request = Get(id, outsider);
 
         using var response = await client.SendAsync(request, Ct);
 
@@ -90,7 +94,7 @@ public sealed class JobsEndpointTests(DependenciesFixture dependencies)
     {
         await using var factory = new LexFlowApiFactory(dependencies.Settings);
         using var client = factory.CreateClient();
-        using var request = Get(Guid.CreateVersion7(), Guid.CreateVersion7());
+        using var request = Get(Guid.CreateVersion7(), await MemberAsync());
 
         (await client.SendAsync(request, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }

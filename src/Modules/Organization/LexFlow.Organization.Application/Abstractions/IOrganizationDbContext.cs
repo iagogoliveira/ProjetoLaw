@@ -13,6 +13,9 @@ public interface IOrganizationDbContext
 
     DbSet<OrganizationMember> Members { get; }
 
+    /// <summary>Diretório usuário → organizações, sem tenant (ver <see cref="UserOrganization"/>).</summary>
+    DbSet<UserOrganization> UserOrganizations { get; }
+
     DbSet<Role> Roles { get; }
 
     DbSet<MemberRoleAssignment> RoleAssignments { get; }

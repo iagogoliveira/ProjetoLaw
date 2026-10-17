@@ -55,6 +55,7 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | Microsoft.AspNetCore.DataProtection.EntityFrameworkCore | 10.0.13 | MIT | Anel de chaves compartilhado por API e Worker (ADR 0013) |
 | Scriban | 7.5.1 | BSD-2-Clause | Templates dos e-mails transacionais (ADR 0013) |
 | OpenIddict.Server.AspNetCore, Validation.AspNetCore, Validation.ServerIntegration, EntityFrameworkCore | 7.7.2 | Apache-2.0 | Servidor OIDC e validação de tokens (ADR 0014) |
+| StackExchange.Redis | 2.13.17 | MIT | Cache de permissões e pertenças (ADR 0018); antes vinha só transitivo, na 2.7.4, pelo health check |
 
 ### Frontend (npm)
 

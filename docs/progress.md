@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A pronto no branch) | `etapa-3a-organizations` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 mergeado; 3B pronto no branch; faltam 3C a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions` |
 
 ---
 
@@ -28,7 +28,28 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
 
-### PR 3A — módulo Organization, catálogo e onboarding (pronto no branch `etapa-3a-organizations`, sem PR)
+### PR 3B — tenant real e permissões (pronto no branch `etapa-3b-tenant-permissions`, sem PR)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.6 | Organização ativa (`X-Organization-Id`, claim, última escolhida ou única) validada contra a pertença; diretório `org.user_organizations` | `TenantAndPermissionTests` (Web.Common), `AccessAndPermissionsTests.Requests_for_an_organization_the_user_is_not_part_of_are_refused` |
+| 3.7 | Política de permissão real (`PermissionRequirement`) e `PermissionService` (`IPermissionChecker`) com cache Redis de 5 min, invalidação imediata e por `RolePermissionsChangedIntegrationEvent` | `Member_without_the_permission_gets_403`, `Removing_a_permission_from_a_role_blocks_the_action_within_5_seconds_without_a_new_login` |
+| 3.8 | `IResourceAuthorizer<T>` e decorators na ordem da seção 4.3; `ICurrentAccess` com os escopos do usuário | `PipelineTests.Resource_authorization_runs_after_validation_and_before_the_transaction`, `Denied_query_never_reaches_the_handler` |
+| 3.9 | MFA obrigatório por organização (`PUT /api/v1/organization/security`), 403 `organization.mfa_required` | `Required_mfa_blocks_office_data_until_the_token_has_a_second_factor` |
+| 3.10 | `GET /api/v1/me/access` e troca de organização (`POST /api/v1/me/active-organization`) | `Access_lists_organizations_and_permissions_and_the_user_can_switch_organization` |
+| 3.11 | Membros e perfis: `GET /api/v1/organization/members`, `PUT .../members/{id}/roles`, `GET /api/v1/roles`, `PUT /api/v1/roles/{id}/permissions`, com as salvaguardas (administrador travado, último administrador, escopo da própria organização) | `Role_permissions_must_come_from_the_catalog_and_the_admin_role_is_locked`, `The_office_never_loses_its_last_admin_and_scopes_must_reference_its_structure` |
+
+**ADR:** [0018 — Tenant real, permissões e MFA por organização](adr/0018-tenant-real-e-autorizacao.md). A ADR 0008 fica substituída.
+
+**Critério de aceite da Etapa 3 que fecha aqui:** remover `settings.users.manage` de um perfil bloqueia a ação em até 5 s, sem novo login ✅ (`AccessAndPermissionsTests.Removing_a_permission_from_a_role_blocks_the_action_within_5_seconds_without_a_new_login`).
+
+**Última verificação local (PR 3B):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 471 testes .NET em 12 projetos (Testcontainers, com Redis real) e 14 do AppHost, 23 Vitest, 4 Playwright (`ng serve`), `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Organization.Application 92,4% e Organization.Domain 88,3%. O OpenAPI só ganhou adições.
+
+**Pendências do PR 3B:**
+1. O consumidor `RolePermissionsChangedConsumer` (Worker) não tem teste próprio.
+2. O SPA ainda não manda `X-Organization-Id` nem usa `GET /api/v1/me/access` (PR 3F); até lá vale a organização escolhida ou a única.
+
+### PR 3A — módulo Organization, catálogo e onboarding (concluído: PR #11 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |

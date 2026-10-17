@@ -38,7 +38,7 @@ public sealed class PipelineTests : IDisposable
         var result = await Handler.Handle(new CreateThing("ok"), _ct);
 
         result.IsSuccess.ShouldBeTrue();
-        Trace.Steps.ShouldBe(["begin", "handler", "commit"]);
+        Trace.Steps.ShouldBe(["authorize", "begin", "handler", "commit"]);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public sealed class PipelineTests : IDisposable
         var result = await Handler.Handle(new CreateThing("ok", Fail: true), _ct);
 
         result.Error.ShouldBe(CreateThingHandler.Rejected);
-        Trace.Steps.ShouldBe(["begin", "handler", "rollback"]);
+        Trace.Steps.ShouldBe(["authorize", "begin", "handler", "rollback"]);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class PipelineTests : IDisposable
     {
         await Should.ThrowAsync<InvalidOperationException>(() => Handler.Handle(new CreateThing("ok", Throw: true), _ct));
 
-        Trace.Steps.ShouldBe(["begin", "handler", "dispose-rollback"]);
+        Trace.Steps.ShouldBe(["authorize", "begin", "handler", "dispose-rollback"]);
         Logs.GetSnapshot().ShouldContain(r => r.Level == LogLevel.Error && r.Exception is InvalidOperationException);
     }
 
@@ -77,7 +77,7 @@ public sealed class PipelineTests : IDisposable
 
         await Handler.Handle(new CreateThing("ok"), _ct);
 
-        Trace.Steps.ShouldBe(["handler"]);
+        Trace.Steps.ShouldBe(["authorize", "handler"]);
     }
 
     [Fact]
@@ -99,7 +99,25 @@ public sealed class PipelineTests : IDisposable
 
         (await handler.Handle(new GetThing(Guid.Empty), _ct)).Error.ShouldBeOfType<ValidationError>();
         (await handler.Handle(new GetThing(Guid.CreateVersion7()), _ct)).Value.ShouldBe("thing");
-        Trace.Steps.ShouldBe(["query-handler"]);
+        Trace.Steps.ShouldBe(["authorize-query", "query-handler"]);
+    }
+
+    [Fact]
+    public async Task Resource_authorization_runs_after_validation_and_before_the_transaction()
+    {
+        var denied = await Handler.Handle(new CreateThing("secreto"), _ct);
+
+        denied.Error.ShouldBe(CreateThingAuthorizer.Denied);
+        Trace.Steps.ShouldBe(["authorize"]);
+    }
+
+    [Fact]
+    public async Task Denied_query_never_reaches_the_handler()
+    {
+        var handler = _scope.ServiceProvider.GetRequiredService<IQueryHandler<GetThing, string>>();
+
+        (await handler.Handle(new GetThing(Guid.AllBitsSet), _ct)).Error.ShouldBe(CreateThingAuthorizer.Denied);
+        Trace.Steps.ShouldBe(["authorize-query"]);
     }
 
     [Fact]

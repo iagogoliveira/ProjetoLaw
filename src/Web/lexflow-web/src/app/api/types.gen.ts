@@ -4,6 +4,16 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type AssignMemberRolesRequest = {
+    roles: Array<RoleAssignmentInput>;
+};
+
+export type AssignmentResponse = {
+    roleId: string;
+    scope: DataScope;
+    scopeRefId: null | string;
+};
+
 export type ConfirmEmailRequest = {
     userId: string;
     token: string;
@@ -16,6 +26,11 @@ export type ConfirmTotpRequest = {
 export type CreateOrganizationRequest = {
     name: string;
 };
+
+/**
+ * Escopo de dados de uma atribuição de perfil (seção 7.2).
+ */
+export type DataScope = 'own' | 'team' | 'practiceArea' | 'branch' | 'organization';
 
 export type ForgotPasswordRequest = {
     email: string;
@@ -35,6 +50,13 @@ export type JobResponse = {
     completedAt: null | string;
 };
 
+export type MemberResponse = {
+    id: string;
+    userId: string;
+    joinedAt: string;
+    roles: Array<AssignmentResponse>;
+};
+
 /**
  * Perfil do usuário logado. `mfaMethod`: `none`, `totp` ou `email`.
  */
@@ -48,7 +70,27 @@ export type MeResponse = {
     lastLoginAt: null | string;
 };
 
+export type MfaPolicyRequest = {
+    mfaRequired: boolean;
+};
+
+/**
+ * Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA
+ * esconder o que não cabe (a UI só esconde; quem bloqueia é o servidor).
+ */
+export type MyAccessResponse = {
+    activeOrganizationId: null | string;
+    organizations: Array<OrganizationSummary>;
+    permissions: Array<string>;
+    mfaRequired: boolean;
+};
+
 export type OrganizationCreatedResponse = {
+    id: string;
+    name: string;
+};
+
+export type OrganizationSummary = {
     id: string;
     name: string;
 };
@@ -77,6 +119,24 @@ export type ResetPasswordRequest = {
     newPassword: string;
 };
 
+export type RoleAssignmentInput = {
+    roleId: string;
+    scope: DataScope;
+    scopeRefId: null | string;
+};
+
+export type RoleResponse = {
+    id: string;
+    name: string;
+    description: null | string;
+    systemKey: null | string;
+    permissions: Array<string>;
+};
+
+export type SelectActiveOrganizationRequest = {
+    organizationId: string;
+};
+
 /**
  * Sessão aberta. `current` marca a do token que fez a consulta.
  */
@@ -96,6 +156,10 @@ export type SessionResponse = {
 export type TotpSetupResponse = {
     sharedKey: string;
     authenticatorUri: string;
+};
+
+export type UpdateRolePermissionsRequest = {
+    permissions: Array<string>;
 };
 
 export type GetJobData = {
@@ -429,3 +493,218 @@ export type CreateOrganizationResponses = {
 };
 
 export type CreateOrganizationResponse = CreateOrganizationResponses[keyof CreateOrganizationResponses];
+
+export type GetMyAccessData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/access';
+};
+
+export type GetMyAccessErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetMyAccessError = GetMyAccessErrors[keyof GetMyAccessErrors];
+
+export type GetMyAccessResponses = {
+    /**
+     * OK
+     */
+    200: MyAccessResponse;
+};
+
+export type GetMyAccessResponse = GetMyAccessResponses[keyof GetMyAccessResponses];
+
+export type SelectActiveOrganizationData = {
+    body: SelectActiveOrganizationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/active-organization';
+};
+
+export type SelectActiveOrganizationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type SelectActiveOrganizationError = SelectActiveOrganizationErrors[keyof SelectActiveOrganizationErrors];
+
+export type SelectActiveOrganizationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SelectActiveOrganizationResponse = SelectActiveOrganizationResponses[keyof SelectActiveOrganizationResponses];
+
+export type ListMembersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/members';
+};
+
+export type ListMembersErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListMembersError = ListMembersErrors[keyof ListMembersErrors];
+
+export type ListMembersResponses = {
+    /**
+     * OK
+     */
+    200: Array<MemberResponse>;
+};
+
+export type ListMembersResponse = ListMembersResponses[keyof ListMembersResponses];
+
+export type AssignMemberRolesData = {
+    body: AssignMemberRolesRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/organization/members/{id}/roles';
+};
+
+export type AssignMemberRolesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AssignMemberRolesError = AssignMemberRolesErrors[keyof AssignMemberRolesErrors];
+
+export type AssignMemberRolesResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type AssignMemberRolesResponse = AssignMemberRolesResponses[keyof AssignMemberRolesResponses];
+
+export type SetMfaPolicyData = {
+    body: MfaPolicyRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/security';
+};
+
+export type SetMfaPolicyErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type SetMfaPolicyError = SetMfaPolicyErrors[keyof SetMfaPolicyErrors];
+
+export type SetMfaPolicyResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SetMfaPolicyResponse = SetMfaPolicyResponses[keyof SetMfaPolicyResponses];
+
+export type ListRolesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/roles';
+};
+
+export type ListRolesErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListRolesError = ListRolesErrors[keyof ListRolesErrors];
+
+export type ListRolesResponses = {
+    /**
+     * OK
+     */
+    200: Array<RoleResponse>;
+};
+
+export type ListRolesResponse = ListRolesResponses[keyof ListRolesResponses];
+
+export type UpdateRolePermissionsData = {
+    body: UpdateRolePermissionsRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/roles/{id}/permissions';
+};
+
+export type UpdateRolePermissionsErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateRolePermissionsError = UpdateRolePermissionsErrors[keyof UpdateRolePermissionsErrors];
+
+export type UpdateRolePermissionsResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type UpdateRolePermissionsResponse = UpdateRolePermissionsResponses[keyof UpdateRolePermissionsResponses];
