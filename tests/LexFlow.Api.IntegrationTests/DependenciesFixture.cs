@@ -47,10 +47,22 @@ public sealed class DependenciesFixture : IAsyncLifetime
 
     public Uri ObjectStorageUrl => new($"http://{ObjectStorage.Hostname}:{ObjectStorage.GetMappedPublicPort(StoragePort)}");
 
+    /// <summary>Login da aplicação nos testes, criado como no MigrationService (ADR 0019).</summary>
+    public const string ApplicationLoginName = "lexflow_api_test";
+
+    private readonly string _applicationPassword = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+
+    /// <summary>Dono do banco (superusuário do container): migrations e leituras de verificação acima da RLS.</summary>
+    public string AdminConnectionString => Postgres.GetConnectionString();
+
+    /// <summary>Como a API e o Worker conectam: login membro de <c>lexflow_app</c>, sujeito à RLS e aos privilégios.</summary>
+    public string ApplicationConnectionString =>
+        new Npgsql.NpgsqlConnectionStringBuilder(AdminConnectionString) { Username = ApplicationLoginName, Password = _applicationPassword }.ConnectionString;
+
     /// <summary>Configuração que a API recebe do AppHost, apontando para os containers de teste.</summary>
     public IReadOnlyDictionary<string, string> Settings => new Dictionary<string, string>(StringComparer.Ordinal)
     {
-        ["ConnectionStrings:lexflow"] = Postgres.GetConnectionString(),
+        ["ConnectionStrings:lexflow"] = ApplicationConnectionString,
         ["ConnectionStrings:redis"] = Redis.GetConnectionString(),
         ["ConnectionStrings:rabbit"] = RabbitMq.GetConnectionString(),
         ["Storage:ServiceUrl"] = ObjectStorageUrl.ToString(),
@@ -71,26 +83,34 @@ public sealed class DependenciesFixture : IAsyncLifetime
     {
         await Task.WhenAll(Postgres.StartAsync(), Redis.StartAsync(), RabbitMq.StartAsync(), ObjectStorage.StartAsync());
 
-        // Mesmo papel do MigrationService: schema do banco antes da API subir.
-        await using var provider = PlatformServices();
-        await using var scope = provider.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
-        await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
-        await scope.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync();
-
-        // Mesmo papel do MigrationService: cliente lexflow-web cadastrado.
-        foreach (var seeder in scope.ServiceProvider.GetServices<IDatabaseSeeder>())
+        // Mesmo papel do MigrationService: schema do banco (como dono), login da aplicação e cliente lexflow-web.
+        await using (var provider = ServicesFor(AdminConnectionString))
+        await using (var scope = provider.CreateAsyncScope())
         {
-            await seeder.SeedAsync(default);
+            await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync();
+            await using (var connection = new Npgsql.NpgsqlConnection(AdminConnectionString))
+            {
+                await connection.OpenAsync();
+                await ApplicationLogin.EnsureAsync(connection, ApplicationLoginName, _applicationPassword, default);
+            }
+
+            foreach (var seeder in scope.ServiceProvider.GetServices<IDatabaseSeeder>())
+            {
+                await seeder.SeedAsync(default);
+            }
         }
     }
 
-    /// <summary>Serviços do módulo Platform fora da API (para migrar e preparar dados de teste).</summary>
-    public ServiceProvider PlatformServices()
+    /// <summary>Serviços dos módulos fora da API, conectando como a aplicação (sujeitos à RLS), para preparar dados de teste.</summary>
+    public ServiceProvider PlatformServices() => ServicesFor(ApplicationConnectionString);
+
+    private ServiceProvider ServicesFor(string connectionString)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(Settings.ToDictionary(p => p.Key, p => (string?)p.Value, StringComparer.Ordinal))
-            .Build();
+        var values = Settings.ToDictionary(p => p.Key, p => (string?)p.Value, StringComparer.Ordinal);
+        values["ConnectionStrings:lexflow"] = connectionString;
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(values).Build();
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddApplication();

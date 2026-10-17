@@ -15,7 +15,8 @@ public static class PersistenceRegistration
     /// <summary>
     /// Registra o DbContext do módulo sobre o <see cref="NpgsqlDataSource"/> compartilhado, com snake_case, histórico
     /// de migrations no schema do módulo e os interceptors na ordem: eventos de domínio → tenant → colunas de
-    /// auditoria/exclusão lógica → trilha de auditoria → outbox (se houver mensageria). Também expõe o contexto como <see cref="IUnitOfWork"/> do módulo.
+    /// auditoria/exclusão lógica → trilha de auditoria → outbox (se houver mensageria), além do que leva o tenant à
+    /// sessão do PostgreSQL para a RLS. Também expõe o contexto como <see cref="IUnitOfWork"/> do módulo.
     /// </summary>
     public static IServiceCollection AddModuleDbContext<TContext>(
         this IServiceCollection services,
@@ -37,6 +38,7 @@ public static class PersistenceRegistration
         services.TryAddScoped<TenantSaveChangesInterceptor>();
         services.TryAddScoped<AuditableEntitiesInterceptor>();
         services.TryAddScoped<AuditSaveChangesInterceptor>();
+        services.TryAddScoped<TenantSessionInterceptor>();
 
         services.AddDbContext<TContext>((sp, options) =>
         {
@@ -49,7 +51,8 @@ public static class PersistenceRegistration
                     sp.GetRequiredService<DomainEventsInterceptor>(),
                     sp.GetRequiredService<TenantSaveChangesInterceptor>(),
                     sp.GetRequiredService<AuditableEntitiesInterceptor>(),
-                    sp.GetRequiredService<AuditSaveChangesInterceptor>());
+                    sp.GetRequiredService<AuditSaveChangesInterceptor>(),
+                    sp.GetRequiredService<TenantSessionInterceptor>());
 
             // Só quando a mensageria está configurada (API e Worker); o MigrationService não publica eventos.
             if (sp.GetService<OutboxInterceptor>() is { } outbox)

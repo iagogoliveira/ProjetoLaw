@@ -2,6 +2,7 @@ using System.Diagnostics;
 using LexFlow.Infrastructure.Common.Integrations;
 using LexFlow.Infrastructure.Common.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace LexFlow.MigrationService;
 
@@ -10,6 +11,7 @@ public sealed record MigrationPlan(IReadOnlyList<Type> DbContextTypes);
 
 internal sealed partial class MigrationRunner(
     IServiceProvider services,
+    IConfiguration configuration,
     MigrationPlan plan,
     IHostApplicationLifetime lifetime,
     ILogger<MigrationRunner> logger) : BackgroundService
@@ -28,6 +30,14 @@ internal sealed partial class MigrationRunner(
                 var pending = (await context.Database.GetPendingMigrationsAsync(stoppingToken)).ToList();
                 await context.Database.MigrateAsync(stoppingToken);
                 LogApplied(logger, contextType.Name, pending.Count);
+            }
+
+            // Login da API e do Worker: membro do papel da aplicação, sem superusuário nem BYPASSRLS (ADR 0019).
+            if (configuration.GetSection(ApplicationLoginSettings.SectionName).Get<ApplicationLoginSettings>() is { Username: { Length: > 0 } username, Password: { Length: > 0 } password })
+            {
+                await using var connection = await services.GetRequiredService<NpgsqlDataSource>().OpenConnectionAsync(stoppingToken);
+                await ApplicationLogin.EnsureAsync(connection, username, password, stoppingToken);
+                LogLogin(logger, username);
             }
 
             // Dados que dependem do ambiente (ex.: cliente OIDC), depois de todas as migrations.
@@ -56,6 +66,9 @@ internal sealed partial class MigrationRunner(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "{Context}: {Count} migration(s) aplicada(s)")]
     private static partial void LogApplied(ILogger logger, string context, int count);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Login da aplicação {Username} pronto")]
+    private static partial void LogLogin(ILogger logger, string username);
 
     [LoggerMessage(Level = LogLevel.Critical, Message = "Falha ao aplicar migrations")]
     private static partial void LogFailed(ILogger logger, Exception exception);

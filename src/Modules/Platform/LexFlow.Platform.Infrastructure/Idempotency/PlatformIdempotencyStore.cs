@@ -88,14 +88,13 @@ public sealed class IdempotencyKeysCleanupJob(PlatformDbContext db, IClock clock
     /// <summary>Todo dia às 03:00 (America/Sao_Paulo).</summary>
     public const string Cron = "0 3 * * *";
 
+    /// <summary>
+    /// Operação de plataforma, entre organizações. Com a RLS, a aplicação não enxerga outros tenants: a exclusão roda
+    /// numa função do dono do banco (<c>platform.delete_expired_idempotency_keys</c>, ADR 0019).
+    /// </summary>
     public Task<int> RunAsync()
     {
         var now = clock.UtcNow;
-
-        // Operação de plataforma, entre organizações: único lugar onde ignorar o filtro de tenant é permitido (ADR 0006).
-        return db.IdempotencyKeys
-            .IgnoreQueryFilters([ModuleDbContextBase.TenantFilter])
-            .Where(k => k.ExpiresAt <= now)
-            .ExecuteDeleteAsync();
+        return db.Database.SqlQuery<int>($"SELECT platform.delete_expired_idempotency_keys({now}) AS \"Value\"").SingleAsync();
     }
 }
