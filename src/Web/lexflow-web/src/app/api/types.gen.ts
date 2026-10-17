@@ -4,6 +4,31 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+/**
+ * Endereço como informado no cadastro; o CEP e a UF são validados.
+ */
+export type AddressInput = {
+    street: string;
+    number: null | string;
+    complement: null | string;
+    district: null | string;
+    city: string;
+    state: string;
+    postalCode: string;
+    isBilling: boolean;
+};
+
+export type AddressResponse = {
+    street: string;
+    number: null | string;
+    complement: null | string;
+    district: null | string;
+    city: string;
+    state: string;
+    postalCode: string;
+    isBilling: boolean;
+};
+
 export type AssignMemberRolesRequest = {
     roles: Array<RoleAssignmentInput>;
 };
@@ -27,6 +52,19 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+/**
+ * Dados de uma empresa na Receita Federal, para preencher o cadastro.
+ */
+export type CompanyRegistration = {
+    cnpj: string;
+    legalName: string;
+    tradeName: null | string;
+    email: null | string;
+    phone: null | string;
+    status: null | string;
+    address: null | AddressInput;
+};
+
 export type ConfirmEmailRequest = {
     userId: string;
     token: string;
@@ -34,6 +72,27 @@ export type ConfirmEmailRequest = {
 
 export type ConfirmTotpRequest = {
     code: string;
+};
+
+export type ContactChannel = 'email' | 'phone' | 'whatsApp';
+
+/**
+ * Contato da pessoa (financeiro, jurídico interno, diretoria…) com o canal preferido.
+ */
+export type ContactInput = {
+    name: string;
+    department: null | string;
+    email: null | string;
+    phone: null | string;
+    preferredChannel: ContactChannel;
+};
+
+export type ContactResponse = {
+    name: string;
+    department: null | string;
+    email: null | string;
+    phone: null | string;
+    preferredChannel: ContactChannel;
 };
 
 export type CostCenterRequest = {
@@ -66,6 +125,25 @@ export type CreateInvitationRequest = {
 
 export type CreateOrganizationRequest = {
     name: string;
+};
+
+/**
+ * Pessoa enviada na criação: o tipo (física ou jurídica) e o cadastro.
+ */
+export type CreatePersonRequest = {
+    kind: PersonKind;
+    name: string;
+    alternateName: null | string;
+    document: null | string;
+    email: null | string;
+    phone: null | string;
+    notes: null | string;
+    fiscal: null | FiscalData;
+    economicGroupId: null | string;
+    roles: Array<PersonRoleKind>;
+    addresses: null | Array<AddressInput>;
+    contacts: null | Array<ContactInput>;
+    customFields: null | JsonObject;
 };
 
 export type CreateRoleRequest = {
@@ -131,6 +209,27 @@ export type CustomFieldValuesResponse = {
  * Escopo de dados de uma atribuição de perfil (seção 7.2).
  */
 export type DataScope = 'own' | 'team' | 'practiceArea' | 'branch' | 'organization';
+
+export type EconomicGroupRequest = {
+    name: string;
+};
+
+export type EconomicGroupResponse = {
+    id: string;
+    name: string;
+    memberCount: number | string;
+};
+
+/**
+ * Dados fiscais para faturamento (RF-06): inscrições e retenções aplicáveis.
+ */
+export type FiscalData = {
+    stateRegistration?: null | string;
+    municipalRegistration?: null | string;
+    withholdsIss?: boolean;
+    withholdsIncomeTax?: boolean;
+    withholdsPisCofinsCsll?: boolean;
+};
 
 export type ForgotPasswordRequest = {
     email: string;
@@ -288,6 +387,14 @@ export type PartnerResponse = {
     memberId: null | string;
 };
 
+/**
+ * Página da lista de pessoas; string? PeoplePageResponse.NextCursor nulo é a última (ou uma busca por termo).
+ */
+export type PeoplePageResponse = {
+    items: Array<PersonSummary>;
+    nextCursor: null | string;
+};
+
 export type PermissionGroupResponse = {
     group: string;
     permissions: Array<PermissionResponse>;
@@ -296,6 +403,65 @@ export type PermissionGroupResponse = {
 export type PermissionResponse = {
     name: string;
     description: string;
+};
+
+/**
+ * Cadastro enviado pela tela (criação e edição): dados, papéis, endereços, contatos e campos customizados.
+ */
+export type PersonInput = {
+    name: string;
+    alternateName: null | string;
+    document: null | string;
+    email: null | string;
+    phone: null | string;
+    notes: null | string;
+    fiscal: null | FiscalData;
+    economicGroupId: null | string;
+    roles: Array<PersonRoleKind>;
+    addresses: null | Array<AddressInput>;
+    contacts: null | Array<ContactInput>;
+    customFields: null | JsonObject;
+};
+
+/**
+ * Pessoa física (CPF) ou jurídica (CNPJ).
+ */
+export type PersonKind = 'individual' | 'company';
+
+export type PersonResponse = {
+    id: string;
+    kind: PersonKind;
+    name: string;
+    alternateName: null | string;
+    document: null | string;
+    email: null | string;
+    phone: null | string;
+    notes: null | string;
+    fiscal: FiscalData;
+    economicGroupId: null | string;
+    roles: Array<PersonRoleKind>;
+    addresses: Array<AddressResponse>;
+    contacts: Array<ContactResponse>;
+    customFields: JsonObject;
+    createdAt: string;
+};
+
+/**
+ * Papéis de uma pessoa no escritório (RF-06); a mesma pessoa pode ter vários.
+ */
+export type PersonRoleKind = 'client' | 'opponent' | 'witness' | 'expert' | 'correspondent' | 'supplier';
+
+/**
+ * Linha da lista de pessoas; double? PersonSummary.Score é a semelhança com o termo buscado (0 a 1), quando houver.
+ */
+export type PersonSummary = {
+    id: string;
+    kind: PersonKind;
+    name: string;
+    alternateName: null | string;
+    document: null | string;
+    roles: Array<PersonRoleKind>;
+    score: null | number | string;
 };
 
 export type PracticeAreaRequest = {
@@ -364,6 +530,18 @@ export type SessionResponse = {
     ipAddress: null | string;
     userAgent: null | string;
     current: boolean;
+};
+
+/**
+ * Possível duplicidade (RF-06): mesmo documento ou nome parecido, para avisar antes de cadastrar.
+ */
+export type SimilarPerson = {
+    id: string;
+    kind: PersonKind;
+    name: string;
+    document: null | string;
+    sameDocument: boolean;
+    score: number | string;
 };
 
 export type TeamMembersRequest = {
@@ -2438,3 +2616,375 @@ export type SetTeamMembersResponses = {
 };
 
 export type SetTeamMembersResponse = SetTeamMembersResponses[keyof SetTeamMembersResponses];
+
+export type ListPeopleData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+        role?: PersonRoleKind;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/people';
+};
+
+export type ListPeopleErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListPeopleError = ListPeopleErrors[keyof ListPeopleErrors];
+
+export type ListPeopleResponses = {
+    /**
+     * OK
+     */
+    200: PeoplePageResponse;
+};
+
+export type ListPeopleResponse = ListPeopleResponses[keyof ListPeopleResponses];
+
+export type CreatePersonData = {
+    body: CreatePersonRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/people';
+};
+
+export type CreatePersonErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreatePersonError = CreatePersonErrors[keyof CreatePersonErrors];
+
+export type CreatePersonResponses = {
+    /**
+     * Created
+     */
+    201: PersonResponse;
+};
+
+export type CreatePersonResponse = CreatePersonResponses[keyof CreatePersonResponses];
+
+export type FindSimilarPeopleData = {
+    body?: never;
+    path?: never;
+    query?: {
+        name?: string;
+        document?: string;
+        excludeId?: string;
+    };
+    url: '/api/v1/people/similar';
+};
+
+export type FindSimilarPeopleErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type FindSimilarPeopleError = FindSimilarPeopleErrors[keyof FindSimilarPeopleErrors];
+
+export type FindSimilarPeopleResponses = {
+    /**
+     * OK
+     */
+    200: Array<SimilarPerson>;
+};
+
+export type FindSimilarPeopleResponse = FindSimilarPeopleResponses[keyof FindSimilarPeopleResponses];
+
+export type LookupCnpjData = {
+    body?: never;
+    path?: never;
+    query: {
+        cnpj: string;
+    };
+    url: '/api/v1/people/cnpj-lookup';
+};
+
+export type LookupCnpjErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type LookupCnpjError = LookupCnpjErrors[keyof LookupCnpjErrors];
+
+export type LookupCnpjResponses = {
+    /**
+     * OK
+     */
+    200: CompanyRegistration;
+};
+
+export type LookupCnpjResponse = LookupCnpjResponses[keyof LookupCnpjResponses];
+
+export type DeletePersonData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/people/{id}';
+};
+
+export type DeletePersonErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type DeletePersonError = DeletePersonErrors[keyof DeletePersonErrors];
+
+export type DeletePersonResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeletePersonResponse = DeletePersonResponses[keyof DeletePersonResponses];
+
+export type GetPersonData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/people/{id}';
+};
+
+export type GetPersonErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetPersonError = GetPersonErrors[keyof GetPersonErrors];
+
+export type GetPersonResponses = {
+    /**
+     * OK
+     */
+    200: PersonResponse;
+};
+
+export type GetPersonResponse = GetPersonResponses[keyof GetPersonResponses];
+
+export type UpdatePersonData = {
+    body: PersonInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/people/{id}';
+};
+
+export type UpdatePersonErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type UpdatePersonError = UpdatePersonErrors[keyof UpdatePersonErrors];
+
+export type UpdatePersonResponses = {
+    /**
+     * OK
+     */
+    200: PersonResponse;
+};
+
+export type UpdatePersonResponse = UpdatePersonResponses[keyof UpdatePersonResponses];
+
+export type ListEconomicGroupsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/economic-groups';
+};
+
+export type ListEconomicGroupsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListEconomicGroupsError = ListEconomicGroupsErrors[keyof ListEconomicGroupsErrors];
+
+export type ListEconomicGroupsResponses = {
+    /**
+     * OK
+     */
+    200: Array<EconomicGroupResponse>;
+};
+
+export type ListEconomicGroupsResponse = ListEconomicGroupsResponses[keyof ListEconomicGroupsResponses];
+
+export type CreateEconomicGroupData = {
+    body: EconomicGroupRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/economic-groups';
+};
+
+export type CreateEconomicGroupErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateEconomicGroupError = CreateEconomicGroupErrors[keyof CreateEconomicGroupErrors];
+
+export type CreateEconomicGroupResponses = {
+    /**
+     * Created
+     */
+    201: EconomicGroupResponse;
+};
+
+export type CreateEconomicGroupResponse = CreateEconomicGroupResponses[keyof CreateEconomicGroupResponses];
+
+export type DeleteEconomicGroupData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/economic-groups/{id}';
+};
+
+export type DeleteEconomicGroupErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteEconomicGroupError = DeleteEconomicGroupErrors[keyof DeleteEconomicGroupErrors];
+
+export type DeleteEconomicGroupResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteEconomicGroupResponse = DeleteEconomicGroupResponses[keyof DeleteEconomicGroupResponses];
+
+export type RenameEconomicGroupData = {
+    body: EconomicGroupRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/economic-groups/{id}';
+};
+
+export type RenameEconomicGroupErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type RenameEconomicGroupError = RenameEconomicGroupErrors[keyof RenameEconomicGroupErrors];
+
+export type RenameEconomicGroupResponses = {
+    /**
+     * OK
+     */
+    200: EconomicGroupResponse;
+};
+
+export type RenameEconomicGroupResponse = RenameEconomicGroupResponses[keyof RenameEconomicGroupResponses];

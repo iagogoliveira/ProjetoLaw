@@ -3447,10 +3447,784 @@
           }
         }
       }
+    },
+    "/api/v1/people": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Pessoas em ordem alfabética (cursor) ou buscadas por nome aproximado, sem acentos, ou documento",
+        "operationId": "ListPeople",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PersonRoleKind"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeoplePageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Cadastra uma pessoa; CPF/CNPJ é único no escritório",
+        "operationId": "CreatePerson",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/people/similar": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Possíveis duplicatas: mesmo documento ou nome parecido",
+        "operationId": "FindSimilarPeople",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "document",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimilarPerson"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/people/cnpj-lookup": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Dados da empresa na Receita Federal (BrasilAPI) para preencher o cadastro",
+        "operationId": "LookupCnpj",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyRegistration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Cadastro completo de uma pessoa",
+        "operationId": "GetPerson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Substitui o cadastro de uma pessoa (o tipo, física ou jurídica, não muda)",
+        "operationId": "UpdatePerson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Exclui (logicamente) uma pessoa",
+        "operationId": "DeletePerson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/economic-groups": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Grupos econômicos e quantas pessoas cada um tem",
+        "operationId": "ListEconomicGroups",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EconomicGroupResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Cria um grupo econômico",
+        "operationId": "CreateEconomicGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EconomicGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EconomicGroupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/economic-groups/{id}": {
+      "put": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Renomeia um grupo econômico",
+        "operationId": "RenameEconomicGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EconomicGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EconomicGroupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Exclui um grupo econômico sem pessoas vinculadas",
+        "operationId": "DeleteEconomicGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AddressInput": {
+        "required": [
+          "street",
+          "number",
+          "complement",
+          "district",
+          "city",
+          "state",
+          "postalCode",
+          "isBilling"
+        ],
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "complement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "district": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "isBilling": {
+            "type": "boolean"
+          }
+        },
+        "description": "Endereço como informado no cadastro; o CEP e a UF são validados."
+      },
+      "AddressResponse": {
+        "required": [
+          "street",
+          "number",
+          "complement",
+          "district",
+          "city",
+          "state",
+          "postalCode",
+          "isBilling"
+        ],
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "complement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "district": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "isBilling": {
+            "type": "boolean"
+          }
+        }
+      },
       "AssignMemberRolesRequest": {
         "required": [
           "roles"
@@ -3544,6 +4318,61 @@
           }
         }
       },
+      "CompanyRegistration": {
+        "required": [
+          "cnpj",
+          "legalName",
+          "tradeName",
+          "email",
+          "phone",
+          "status",
+          "address"
+        ],
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "tradeName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "address": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AddressInput"
+              }
+            ]
+          }
+        },
+        "description": "Dados de uma empresa na Receita Federal, para preencher o cadastro."
+      },
       "ConfirmEmailRequest": {
         "required": [
           "userId",
@@ -3568,6 +4397,86 @@
         "properties": {
           "code": {
             "type": "string"
+          }
+        }
+      },
+      "ContactChannel": {
+        "enum": [
+          "email",
+          "phone",
+          "whatsApp"
+        ]
+      },
+      "ContactInput": {
+        "required": [
+          "name",
+          "department",
+          "email",
+          "phone",
+          "preferredChannel"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "department": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "preferredChannel": {
+            "$ref": "#/components/schemas/ContactChannel"
+          }
+        },
+        "description": "Contato da pessoa (financeiro, jurídico interno, diretoria…) com o canal preferido."
+      },
+      "ContactResponse": {
+        "required": [
+          "name",
+          "department",
+          "email",
+          "phone",
+          "preferredChannel"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "department": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "preferredChannel": {
+            "$ref": "#/components/schemas/ContactChannel"
           }
         }
       },
@@ -3692,6 +4601,114 @@
             "type": "string"
           }
         }
+      },
+      "CreatePersonRequest": {
+        "required": [
+          "kind",
+          "name",
+          "alternateName",
+          "document",
+          "email",
+          "phone",
+          "notes",
+          "fiscal",
+          "economicGroupId",
+          "roles",
+          "addresses",
+          "contacts",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PersonKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alternateName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscal": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FiscalData"
+              }
+            ]
+          },
+          "economicGroupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRoleKind"
+            }
+          },
+          "addresses": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AddressInput"
+            }
+          },
+          "contacts": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ContactInput"
+            }
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            ]
+          }
+        },
+        "description": "Pessoa enviada na criação: o tipo (física ou jurídica) e o cadastro."
       },
       "CreateRoleRequest": {
         "required": [
@@ -3868,6 +4885,72 @@
           "organization"
         ],
         "description": "Escopo de dados de uma atribuição de perfil (seção 7.2)."
+      },
+      "EconomicGroupRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "EconomicGroupResponse": {
+        "required": [
+          "id",
+          "name",
+          "memberCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "memberCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "FiscalData": {
+        "type": "object",
+        "properties": {
+          "stateRegistration": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipalRegistration": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "withholdsIss": {
+            "type": "boolean",
+            "default": false
+          },
+          "withholdsIncomeTax": {
+            "type": "boolean",
+            "default": false
+          },
+          "withholdsPisCofinsCsll": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Dados fiscais para faturamento (RF-06): inscrições e retenções aplicáveis."
       },
       "ForgotPasswordRequest": {
         "required": [
@@ -4392,6 +5475,28 @@
           }
         }
       },
+      "PeoplePageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonSummary"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Página da lista de pessoas; string? PeoplePageResponse.NextCursor nulo é a última (ou uma busca por termo)."
+      },
       "PermissionGroupResponse": {
         "required": [
           "group",
@@ -4424,6 +5529,277 @@
             "type": "string"
           }
         }
+      },
+      "PersonInput": {
+        "required": [
+          "name",
+          "alternateName",
+          "document",
+          "email",
+          "phone",
+          "notes",
+          "fiscal",
+          "economicGroupId",
+          "roles",
+          "addresses",
+          "contacts",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "alternateName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscal": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FiscalData"
+              }
+            ]
+          },
+          "economicGroupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRoleKind"
+            }
+          },
+          "addresses": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AddressInput"
+            }
+          },
+          "contacts": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ContactInput"
+            }
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            ]
+          }
+        },
+        "description": "Cadastro enviado pela tela (criação e edição): dados, papéis, endereços, contatos e campos customizados."
+      },
+      "PersonKind": {
+        "enum": [
+          "individual",
+          "company"
+        ],
+        "description": "Pessoa física (CPF) ou jurídica (CNPJ)."
+      },
+      "PersonResponse": {
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "alternateName",
+          "document",
+          "email",
+          "phone",
+          "notes",
+          "fiscal",
+          "economicGroupId",
+          "roles",
+          "addresses",
+          "contacts",
+          "customFields",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PersonKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alternateName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscal": {
+            "$ref": "#/components/schemas/FiscalData"
+          },
+          "economicGroupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRoleKind"
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressResponse"
+            }
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactResponse"
+            }
+          },
+          "customFields": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PersonRoleKind": {
+        "enum": [
+          "client",
+          "opponent",
+          "witness",
+          "expert",
+          "correspondent",
+          "supplier"
+        ],
+        "description": "Papéis de uma pessoa no escritório (RF-06); a mesma pessoa pode ter vários."
+      },
+      "PersonSummary": {
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "alternateName",
+          "document",
+          "roles",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PersonKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alternateName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonRoleKind"
+            }
+          },
+          "score": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Linha da lista de pessoas; double? PersonSummary.Score é a semelhança com o termo buscado (0 a 1), quando houver."
       },
       "PracticeAreaRequest": {
         "required": [
@@ -4672,6 +6048,47 @@
           }
         },
         "description": "Sessão aberta. `current` marca a do token que fez a consulta."
+      },
+      "SimilarPerson": {
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "document",
+          "sameDocument",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PersonKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sameDocument": {
+            "type": "boolean"
+          },
+          "score": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Possível duplicidade (RF-06): mesmo documento ou nome parecido, para avisar antes de cadastrar."
       },
       "TeamMembersRequest": {
         "required": [
@@ -4946,6 +6363,9 @@
     },
     {
       "name": "Structure"
+    },
+    {
+      "name": "People"
     }
   ]
 }

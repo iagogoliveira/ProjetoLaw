@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Crm\LexFlow.Crm.Infrastructure\LexFlow.Crm.Infrastructure.csproj" />
+    <!-- O Platform cria as extensões (pg_trgm, unaccent) e a trilha audit.audit_logs: as migrations dele vêm antes. -->
+    <ProjectReference Include="..\..\src\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

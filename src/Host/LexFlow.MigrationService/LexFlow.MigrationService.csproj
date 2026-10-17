@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Organization\LexFlow.Organization.Infrastructure\LexFlow.Organization.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Crm\LexFlow.Crm.Infrastructure\LexFlow.Crm.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

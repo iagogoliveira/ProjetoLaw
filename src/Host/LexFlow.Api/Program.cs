@@ -1,4 +1,7 @@
 using LexFlow.Application.Abstractions;
+using LexFlow.Crm.Application;
+using LexFlow.Crm.Endpoints;
+using LexFlow.Crm.Infrastructure;
 using LexFlow.Identity.Application;
 using LexFlow.Identity.Endpoints;
 using LexFlow.Identity.Infrastructure;
@@ -19,7 +22,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Módulos da API (seção 4.2): cada um registra serviços e mapeia os próprios endpoints.
-IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule()];
+IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule(), new CrmModule()];
 
 builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
@@ -27,11 +30,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddWebCommon();
 
 // Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
-builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly);
+builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly);
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServer(builder.Environment);
 builder.Services.AddOrganizationInfrastructure(builder.Configuration);
+builder.Services.AddCrmInfrastructure(builder.Configuration);
 
 // A API só publica eventos (outbox) e agenda jobs; consumidores e servidor de jobs rodam no Worker.
 builder.Services.AddLexFlowMessaging(builder.Configuration);

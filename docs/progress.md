@@ -8,6 +8,67 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
+| 4 — Pessoas e CRM | **Em andamento** (4A pronto para revisão; faltam 4B a 4D) | `etapa-4-pessoas-crm` |
+
+---
+
+## Etapa 4 — Pessoas e CRM (em andamento; plano aprovado em 2026-10-17)
+
+**RFs:** RF-06 (pessoas, contatos e partes), RF-07 (conflito de interesses) e RF-08 (prospecção, propostas e contratação).
+
+**Decisões de negócio (2026-10-17):**
+- A consulta de CNPJ usa a BrasilAPI, atrás de `ICnpjLookup` (troca de provedor sem mexer no módulo). Se ela estiver fora do ar, o cadastro continua manual.
+- O conflito indireto cobre três casos: mesmo grupo econômico, nome parecido (busca aproximada, com a semelhança exibida) e contato compartilhado com uma parte já cadastrada.
+- O critério "conflito detecta parte contrária em processo de outro cliente" usa `ILitigationLookup`. Nesta etapa a interface é um stub, testado com dados falsos; o teste com processos reais fecha na Etapa 5.
+
+**Plano, em 4 PRs sequenciais:**
+- **4A — cadastro de pessoas:**
+  - módulo `Crm` (schema `crm`, RLS): `Person` (PF ou PJ, CPF ou CNPJ único no escritório), `PersonRole`, `Address`, `Contact`, `EconomicGroup` e dados fiscais;
+  - campos customizados (`custom_fields jsonb` validado pelo `ICustomFieldValidator`);
+  - busca com `unaccent` e `pg_trgm` sobre o nome normalizado;
+  - `ICnpjLookup` com BrasilAPI e implementação falsa;
+  - permissões `crm.people.*`.
+- **4B — conflito, fusão e LGPD:**
+  - `ConflictCheck` e `ConflictCheckHit` (direto, indireto ou nenhum, com justificativa obrigatória para prosseguir com alerta);
+  - `ILitigationLookup` como stub e relatório das verificações;
+  - fusão de duplicados reatribuindo vínculos, auditada;
+  - anonimização LGPD que mantém a integridade referencial.
+- **4C — funil e propostas:**
+  - `Opportunity` no funil lead → reunião → proposta → aceita ou perdida, com origem e motivo de perda;
+  - `Proposal` e `ProposalItem`, com DOCX por mesclagem simples de modelo (pacote OpenXml, que precisa de ADR e checagem de licença);
+  - proposta aceita vira cliente e publica `ProposalAccepted` (o contrato de honorários entra na Etapa 10).
+- **4D — frontend e e2e:**
+  - lista e detalhe de pessoas (abas dados, contatos, processos, documentos, financeiro; as três últimas como espaço reservado até as etapas delas);
+  - tela de conflito e kanban do funil;
+  - e2e dos critérios de aceite.
+
+### PR 4A — cadastro de pessoas (pronto para revisão)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.1 | Módulo `Crm` (schema `crm`, RLS nas 5 tabelas): pessoa física ou jurídica, papéis, endereços (CEP e UF), contatos (área, canal), dados fiscais e grupos econômicos | `PersonTests`, `CrmDatabaseTests.Migrations_apply_from_scratch_and_revert`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy` |
+| 4.2 | Documento conferido pelo tipo e único no escritório (índice parcial e 409 `crm.document_taken`) | `A_document_is_unique_inside_the_organization_only`, `PeopleTests.A_duplicate_document_is_refused_in_the_same_office_and_allowed_in_another` |
+| 4.3 | Busca sem acentos e aproximada (`word_similarity` do pg_trgm, índice GIN), por documento, e lista alfabética com cursor | `Word_similarity_finds_a_name_without_accents_inside_a_longer_name`, `Searching_without_accents_finds_the_longer_name_and_documents_are_searchable` |
+| 4.4 | Possíveis duplicatas (mesmo documento ou nome parecido) | `Similar_names_and_documents_are_reported_as_possible_duplicates` |
+| 4.5 | Campos customizados de pessoas validados pelo `ICustomFieldValidator` | `Custom_fields_of_people_are_validated_and_stored` |
+| 4.6 | Consulta de CNPJ (`ICnpjLookup`: BrasilAPI, falsa nos testes) | `The_cnpj_lookup_fills_in_the_company_or_explains_why_not` |
+| 4.7 | Endpoints com permissões `crm.people.*`, casos entre organizações nos SecurityTests, OpenAPI (11 operações novas, só adições) e cliente TypeScript | `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0022 — Módulo Crm: cadastro de pessoas, busca aproximada e consulta de CNPJ](adr/0022-modulo-crm-pessoas-busca-e-cnpj.md) (proposta, para revisão no PR).
+
+**Critérios de aceite da Etapa 4 que fecham aqui:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| CPF/CNPJ duplicado no mesmo tenant é bloqueado; em tenants diferentes é permitido | ✅ | `PeopleTests.A_duplicate_document_is_refused_in_the_same_office_and_allowed_in_another`, `CrmDatabaseTests.A_document_is_unique_inside_the_organization_only` |
+| Busca por "Joao da Silva" encontra "João da Silva Ltda." | ✅ | `PeopleTests.Searching_without_accents_finds_the_longer_name_and_documents_are_searchable` |
+
+**Última verificação local (PR 4A):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 538 testes .NET em 13 projetos (Testcontainers; API e SecurityTests no login da aplicação) e 14 do AppHost, 44 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Crm.Application 93,5% e Crm.Domain 100%. As migrations dos quatro módulos não têm mudança de modelo pendente. Sem mudança de tela (Playwright não rodado de novo).
+
+**Pendências do PR 4A:**
+1. O índice GIN de trigramas não começa por `organization_id`. Reavaliar `btree_gin` (ou o operador `%>` com índice) no teste de carga.
+2. A exportação de pessoas (`crm.people.export`) ainda não tem endpoint.
+3. A BrasilAPI não tem SLA: indisponível vira 422 e o cadastro segue manual.
 
 ---
 

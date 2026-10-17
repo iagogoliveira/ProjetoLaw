@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Crm.Application\LexFlow.Crm.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Infrastructure.Common\LexFlow.Infrastructure.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- HttpClientFactory da consulta de CNPJ, pelo framework compartilhado (como no Identity), sem pacote novo. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.Crm.IntegrationTests" />
+  </ItemGroup>
+
+</Project>
