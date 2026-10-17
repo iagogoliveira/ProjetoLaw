@@ -8,6 +8,8 @@ using LexFlow.Identity.Infrastructure.Emails;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.Persistence;
+using LexFlow.Organization.Infrastructure;
+using LexFlow.Organization.Infrastructure.Persistence;
 using LexFlow.Platform.Infrastructure;
 using LexFlow.Platform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +76,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         await using var scope = provider.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync();
 
         // Mesmo papel do MigrationService: cliente lexflow-web cadastrado.
         foreach (var seeder in scope.ServiceProvider.GetServices<IDatabaseSeeder>())
@@ -95,6 +98,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddPlatformInfrastructure(configuration);
         services.AddIdentityPersistence(configuration);
         services.AddIdentitySeeding(configuration);
+        services.AddOrganizationInfrastructure(configuration);
         return services.BuildServiceProvider();
     }
 

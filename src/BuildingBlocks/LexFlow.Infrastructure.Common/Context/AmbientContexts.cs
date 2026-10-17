@@ -31,9 +31,9 @@ public static class AmbientContext
 }
 
 /// <summary>Tenant do escopo ambiente; sem escopo, nenhum (dados de escritório invisíveis, gravações rejeitadas).</summary>
-internal sealed class AmbientTenantContext : ITenantContext
+internal sealed class AmbientTenantContext(TenantOverride tenantOverride) : ITenantContext
 {
-    public Guid? OrganizationId => AmbientContext.OrganizationId;
+    public Guid? OrganizationId => tenantOverride.OrganizationId ?? AmbientContext.OrganizationId;
 }
 
 internal sealed class AmbientRequestContext : IRequestContext

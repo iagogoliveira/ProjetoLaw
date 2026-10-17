@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses } from './types.gen';
+import type { ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, RegisterData, RegisterErrors, RegisterResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -101,6 +101,18 @@ export const forgotPassword = <ThrowOnError extends boolean = false>(options: Op
  */
 export const resetPassword = <ThrowOnError extends boolean = false>(options: Options<ResetPasswordData, ThrowOnError>): RequestResult<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError> => (options.client ?? client).post<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError>({
     url: '/api/v1/auth/reset-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Cria um escritório com os perfis padrão; quem cria vira Administrador do escritório
+ */
+export const createOrganization = <ThrowOnError extends boolean = false>(options: Options<CreateOrganizationData, ThrowOnError>): RequestResult<CreateOrganizationResponses, CreateOrganizationErrors, ThrowOnError> => (options.client ?? client).post<CreateOrganizationResponses, CreateOrganizationErrors, ThrowOnError>({
+    url: '/api/v1/organizations',
     ...options,
     headers: {
         'Content-Type': 'application/json',

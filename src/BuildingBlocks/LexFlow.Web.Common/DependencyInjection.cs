@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddLexFlowProblemDetails();
         services.TryAddScoped<IRequestContext, HttpRequestContext>();
         services.TryAddScoped<ICurrentUser, HttpContextCurrentUser>();
+        services.TryAddScoped<TenantOverride>();
         services.TryAddScoped<ITenantContext, HttpContextTenantContext>();
 
         services.AddAuthentication(UnconfiguredAuthenticationHandler.SchemeName)

@@ -13,6 +13,10 @@ export type ConfirmTotpRequest = {
     code: string;
 };
 
+export type CreateOrganizationRequest = {
+    name: string;
+};
+
 export type ForgotPasswordRequest = {
     email: string;
 };
@@ -42,6 +46,11 @@ export type MeResponse = {
     mfaMethod: string;
     createdAt: string;
     lastLoginAt: null | string;
+};
+
+export type OrganizationCreatedResponse = {
+    id: string;
+    name: string;
 };
 
 export type ProblemDetails = {
@@ -391,3 +400,32 @@ export type ResetPasswordResponses = {
 };
 
 export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
+
+export type CreateOrganizationData = {
+    body: CreateOrganizationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organizations';
+};
+
+export type CreateOrganizationErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+};
+
+export type CreateOrganizationError = CreateOrganizationErrors[keyof CreateOrganizationErrors];
+
+export type CreateOrganizationResponses = {
+    /**
+     * Created
+     */
+    201: OrganizationCreatedResponse;
+};
+
+export type CreateOrganizationResponse = CreateOrganizationResponses[keyof CreateOrganizationResponses];

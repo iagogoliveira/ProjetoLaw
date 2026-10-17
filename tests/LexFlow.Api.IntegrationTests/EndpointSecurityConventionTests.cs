@@ -1,3 +1,4 @@
+using LexFlow.Organization.Contracts.Permissions;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,5 +27,21 @@ public sealed class EndpointSecurityConventionTests(DependenciesFixture dependen
             .Select(e => e.RoutePattern.RawText)
             .ToList();
         violations.ShouldBeEmpty();
+    }
+
+    /// <summary>Permissão usada num endpoint e ausente do catálogo nunca apareceria na tela de perfis.</summary>
+    [Fact]
+    public async Task Every_required_permission_is_in_the_catalog()
+    {
+        await using var factory = new LexFlowApiFactory(dependencies.Settings);
+
+        var unknown = factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
+            .SelectMany(e => e.Metadata.GetOrderedMetadata<RequiredPermissionAttribute>())
+            .Select(p => p.Permission)
+            .Where(p => !PermissionCatalog.Exists(p))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        unknown.ShouldBeEmpty();
     }
 }
