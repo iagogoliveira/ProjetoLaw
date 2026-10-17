@@ -1,6 +1,6 @@
 # ADR 0021 — Campos customizados e tabelas auxiliares
 
-- **Status:** Proposta (para revisão no PR 3E; a lista de itens sugeridos precisa de aprovação)
+- **Status:** Aceita (PR #15 mergeado em 2026-10-17, com os itens sugeridos)
 - **Data:** 2026-10-17
 - **Etapa:** 3 (PR 3E)
 
