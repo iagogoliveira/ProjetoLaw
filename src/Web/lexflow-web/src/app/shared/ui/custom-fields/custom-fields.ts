@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -227,15 +235,32 @@ export class CustomFields {
       .sort((a, b) => Number(a.position) - Number(b.position)),
   );
 
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   constructor() {
-    // Mantém os controles do grupo iguais aos campos ativos (definições podem chegar depois do formulário).
+    // Erros e "tocado" mudam fora dos signals (validação no envio, erros da API): redesenha os campos.
+    effect((onCleanup) => {
+      const subscription = this.group().events.subscribe(() => this.changeDetector.markForCheck());
+      onCleanup(() => subscription.unsubscribe());
+    });
+
+    // Mantém os controles do grupo iguais aos campos ativos, no mesmo grupo: definições chegam depois do formulário e
+    // mudam (obrigatório, limites, desativação) sem que o formulário seja recriado.
     effect(() => {
       const group = this.group();
       const fields = this.visible();
+      const keys = new Set(fields.map((f) => f.key));
       for (const field of fields) {
-        if (!group.contains(field.key)) {
+        const control = group.get(field.key);
+        if (control) {
+          control.setValidators(validatorsFor(field));
+          control.updateValueAndValidity({ emitEvent: false });
+        } else {
           group.addControl(field.key, new FormControl<unknown>(null, validatorsFor(field)));
         }
+      }
+      for (const key of Object.keys(group.controls).filter((k) => !keys.has(k))) {
+        group.removeControl(key);
       }
     });
   }

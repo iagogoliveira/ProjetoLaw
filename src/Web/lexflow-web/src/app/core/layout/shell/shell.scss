@@ -54,3 +54,15 @@
   padding: var(--lf-space-lg);
   outline: none;
 }
+
+.mfa-banner {
+  margin: 0 0 var(--lf-space-md);
+  padding: var(--lf-space-sm) var(--lf-space-md);
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+
+  a {
+    color: inherit;
+  }
+}

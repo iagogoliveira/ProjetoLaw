@@ -116,4 +116,22 @@ public sealed class MemberAndRoleManagementTests(DependenciesFixture dependencie
         againStatus.ShouldBe(HttpStatusCode.NotFound);
         (await _api.SendAsync(HttpMethod.Get, "/api/v1/organization/members", admin, organization)).Body.GetArrayLength().ShouldBe(1);
     }
+
+    [Fact]
+    public async Task Office_admin_renames_the_office()
+    {
+        var (organization, admin) = await _api.OnboardAsync("Nome antigo");
+
+        var (renameStatus, renamed) = await _api.SendAsync(HttpMethod.Put, "/api/v1/organization", admin, organization, new { name = " Souza & Lima " });
+        var (emptyStatus, empty) = await _api.SendAsync(HttpMethod.Put, "/api/v1/organization", admin, organization, new { name = "" });
+        var (getStatus, details) = await _api.SendAsync(HttpMethod.Get, "/api/v1/organization", admin, organization);
+
+        renameStatus.ShouldBe(HttpStatusCode.OK);
+        renamed.GetProperty("name").GetString().ShouldBe("Souza & Lima");
+        emptyStatus.ShouldBe(HttpStatusCode.BadRequest);
+        empty.GetProperty("errors").GetProperty("name")[0].GetProperty("code").GetString().ShouldBe("organization.name_required");
+        getStatus.ShouldBe(HttpStatusCode.OK);
+        details.GetProperty("name").GetString().ShouldBe("Souza & Lima");
+        details.GetProperty("mfaRequired").GetBoolean().ShouldBeFalse();
+    }
 }

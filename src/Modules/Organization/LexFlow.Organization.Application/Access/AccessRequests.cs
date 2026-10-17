@@ -10,6 +10,7 @@ using LexFlow.Organization.Domain;
 using LexFlow.Organization.Domain.Roles;
 using LexFlow.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
+using OrganizationEntity = LexFlow.Organization.Domain.Organizations.Organization;
 
 namespace LexFlow.Organization.Application.Access;
 
@@ -207,6 +208,43 @@ internal sealed class AssignMemberRolesHandler(IOrganizationDbContext db, Access
         db.RoleAssignments.AddRange(assignments.Value);
         await changes.SaveAsync(null, cancellationToken);
         return Unit.Value;
+    }
+}
+
+/// <summary>Dados do escritório ativo para a tela de configurações.</summary>
+public sealed record OrganizationDetailsResponse(Guid Id, string Name, bool MfaRequired);
+
+public sealed record GetOrganizationQuery : IQuery<OrganizationDetailsResponse>;
+
+internal sealed class GetOrganizationHandler(IOrganizationDbContext db, ITenantContext tenant) : IQueryHandler<GetOrganizationQuery, OrganizationDetailsResponse>
+{
+    public async Task<Result<OrganizationDetailsResponse>> Handle(GetOrganizationQuery query, CancellationToken cancellationToken) =>
+        await db.Organizations.AsNoTracking()
+            .Where(o => o.Id == tenant.RequiredOrganizationId)
+            .Select(o => new OrganizationDetailsResponse(o.Id, o.Name, o.MfaRequired))
+            .SingleAsync(cancellationToken);
+}
+
+/// <summary>Renomeia o escritório ativo.</summary>
+public sealed record RenameOrganizationCommand(string Name) : ICommand<OrganizationDetailsResponse>;
+
+internal sealed class RenameOrganizationValidator : AbstractValidator<RenameOrganizationCommand>
+{
+    public RenameOrganizationValidator()
+    {
+        RuleFor(c => c.Name).NotEmpty().WithErrorCode("organization.name_required")
+            .MaximumLength(OrganizationEntity.MaxNameLength).WithErrorCode("organization.name_too_long");
+    }
+}
+
+internal sealed class RenameOrganizationHandler(IOrganizationDbContext db, ITenantContext tenant) : ICommandHandler<RenameOrganizationCommand, OrganizationDetailsResponse>
+{
+    public async Task<Result<OrganizationDetailsResponse>> Handle(RenameOrganizationCommand command, CancellationToken cancellationToken)
+    {
+        var organization = await db.Organizations.SingleAsync(o => o.Id == tenant.RequiredOrganizationId, cancellationToken);
+        organization.Rename(command.Name);
+        await db.SaveChangesAsync(cancellationToken);
+        return new OrganizationDetailsResponse(organization.Id, organization.Name, organization.MfaRequired);
     }
 }
 

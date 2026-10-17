@@ -1,0 +1,178 @@
+<section class="page" *transloco="let t">
+  <div class="inline">
+    <h2>{{ t('settings.customFields.title') }}</h2>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('settings.customFields.entity') }}</mat-label>
+      <mat-select [value]="store.entity()" (selectionChange)="selectEntity($event.value)">
+        @for (entity of entities; track entity) {
+          <mat-option [value]="entity">{{
+            t('settings.customFields.entities.' + entity)
+          }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{{ t('settings.customFields.label') }}</th>
+        <th scope="col">{{ t('settings.customFields.key') }}</th>
+        <th scope="col">{{ t('settings.customFields.type') }}</th>
+        <th scope="col">{{ t('settings.customFields.required') }}</th>
+        <th scope="col">{{ t('settings.customFields.active') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of store.fields(); track item.id) {
+        <tr>
+          <td>{{ item.label }}</td>
+          <td>
+            <code>{{ item.key }}</code>
+          </td>
+          <td>{{ t('settings.customFields.types.' + item.type) }}</td>
+          <td>
+            <mat-checkbox
+              [checked]="item.required"
+              [disabled]="store.busy()"
+              [attr.aria-label]="t('settings.customFields.required') + ': ' + item.label"
+              (change)="toggleField(item.id, { required: $event.checked })"
+            ></mat-checkbox>
+          </td>
+          <td>
+            <mat-checkbox
+              [checked]="item.isActive"
+              [disabled]="store.busy()"
+              [attr.aria-label]="t('settings.customFields.active') + ': ' + item.label"
+              (change)="toggleField(item.id, { isActive: $event.checked })"
+            ></mat-checkbox>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="empty">{{ t('settings.customFields.noFields') }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <form
+    [formGroup]="field"
+    (ngSubmit)="createField()"
+    class="inline"
+    *lfCan="'settings.custom_fields.manage'"
+  >
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('settings.customFields.label') }}</mat-label>
+      <input matInput formControlName="label" maxlength="100" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('settings.customFields.type') }}</mat-label>
+      <mat-select formControlName="type">
+        @for (type of types; track type) {
+          <mat-option [value]="type">{{ t('settings.customFields.types.' + type) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (field.controls.type.value === 'list') {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('settings.customFields.lookupTable') }}</mat-label>
+        <mat-select formControlName="lookupTableId">
+          @for (table of store.tables(); track table.id) {
+            <mat-option [value]="table.id">{{ table.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-checkbox formControlName="allowMultiple">{{
+        t('settings.customFields.allowMultiple')
+      }}</mat-checkbox>
+    }
+    <mat-checkbox formControlName="required">{{
+      t('settings.customFields.required')
+    }}</mat-checkbox>
+    <button mat-flat-button type="submit" [disabled]="store.busy()">
+      {{ t('settings.customFields.create') }}
+    </button>
+  </form>
+
+  <h3>{{ t('settings.customFields.testTitle') }}</h3>
+  <p class="hint">{{ t('settings.customFields.testHint') }}</p>
+  <div class="form" role="group" [attr.aria-label]="t('settings.customFields.testTitle')">
+    <lf-custom-fields
+      [definitions]="store.fields()"
+      [group]="testForm"
+      [lookupTables]="store.tables()"
+      [users]="store.users()"
+    />
+    @if (store.test(); as test) {
+      @if (test.valid) {
+        <p class="status" role="status">{{ t('settings.customFields.testValid') }}</p>
+      } @else {
+        <p class="error" role="alert">{{ t('settings.customFields.testInvalid') }}</p>
+      }
+    }
+    <button mat-stroked-button type="button" [disabled]="store.busy()" (click)="runTest()">
+      {{ t('settings.customFields.validate') }}
+    </button>
+  </div>
+
+  <h3>{{ t('settings.customFields.lookupTables') }}</h3>
+  @for (table of store.tables(); track table.id) {
+    <details>
+      <summary>{{ table.name }}</summary>
+      <ul>
+        @for (item of table.items; track item.id) {
+          <li>
+            <span [class.empty]="!item.isActive">{{ item.name }}</span>
+            <button
+              *lfCan="'settings.custom_fields.manage'"
+              mat-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="store.setItemActive(item, !item.isActive)"
+            >
+              {{
+                t(
+                  item.isActive
+                    ? 'settings.customFields.deactivate'
+                    : 'settings.customFields.activate'
+                )
+              }}
+            </button>
+          </li>
+        }
+      </ul>
+      <div class="inline" *lfCan="'settings.custom_fields.manage'">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('settings.customFields.newItem') }}</mat-label>
+          <input
+            matInput
+            [value]="itemDraft(table.id)"
+            (input)="setItemDraft(table.id, $any($event.target).value)"
+            maxlength="200"
+          />
+        </mat-form-field>
+        <button
+          mat-button
+          type="button"
+          [disabled]="store.busy() || !itemDraft(table.id).trim()"
+          (click)="addItem(table.id)"
+        >
+          {{ t('settings.add') }}
+        </button>
+      </div>
+    </details>
+  }
+  <div class="inline" *lfCan="'settings.custom_fields.manage'">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('settings.customFields.newTable') }}</mat-label>
+      <input matInput [formControl]="newTable" maxlength="100" />
+    </mat-form-field>
+    <button mat-button type="button" [disabled]="store.busy()" (click)="createTable()">
+      {{ t('settings.customFields.createTable') }}
+    </button>
+  </div>
+</section>

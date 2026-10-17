@@ -9,7 +9,9 @@
     "account": "My account",
     "signOut": "Sign out",
     "organization": "Active office",
-    "invite": "Invite someone"
+    "invite": "Invite someone",
+    "settings": "Settings",
+    "mfaRequired": "This office requires two-step verification. Turn it on in"
   },
   "dashboard": {
     "title": "Home",
@@ -91,7 +93,121 @@
     },
     "scope": {
       "own": "Only their own",
-      "organization": "The whole office"
+      "organization": "The whole office",
+      "team": "Team",
+      "practiceArea": "Practice area",
+      "branch": "Branch"
+    },
+    "title": "Settings",
+    "sections": "Settings sections",
+    "tabs": {
+      "organization": "Office",
+      "users": "Users and invitations",
+      "roles": "Roles",
+      "structure": "Structure",
+      "customFields": "Custom fields"
+    },
+    "save": "Save",
+    "saved": "Changes saved.",
+    "cancel": "Cancel",
+    "add": "Add",
+    "edit": "Edit",
+    "remove": "Remove",
+    "actions": "Actions",
+    "empty": "Nothing here yet.",
+    "organization": {
+      "title": "Office",
+      "name": "Office name",
+      "mfaRequired": "Require two-step verification from every member",
+      "mfaHint": "Members without a second factor lose access to office data until they turn it on and sign in again."
+    },
+    "users": {
+      "members": "Members",
+      "name": "Name",
+      "email": "Email",
+      "roles": "Roles and scope",
+      "scopeReference": "Team, area or branch",
+      "addRole": "Add role",
+      "editRoles": "Edit roles",
+      "remove": "Remove from office",
+      "invitations": "Invitations",
+      "noInvitations": "No invitations sent.",
+      "status": "Status",
+      "expiresAt": "Valid until",
+      "invitationStatus": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Cancelled",
+        "expired": "Expired"
+      },
+      "resend": "Resend",
+      "revoke": "Cancel invitation"
+    },
+    "roles": {
+      "title": "Roles",
+      "newName": "New role name",
+      "create": "Create role",
+      "name": "Name",
+      "description": "Description",
+      "rename": "Save name",
+      "delete": "Delete role",
+      "adminLocked": "The office administrator always has every permission.",
+      "savePermissions": "Save permissions"
+    },
+    "structure": {
+      "title": "Structure",
+      "branches": "Branches",
+      "practiceAreas": "Areas",
+      "teams": "Teams",
+      "costCenters": "Cost centers",
+      "partners": "Partners",
+      "name": "Name",
+      "cnpj": "CNPJ",
+      "municipalRegistration": "Municipal registration",
+      "practiceArea": "Area",
+      "branch": "Branch",
+      "members": "Members",
+      "code": "Code",
+      "share": "Share",
+      "partnerMember": "System user"
+    },
+    "customFields": {
+      "title": "Custom fields",
+      "entity": "Record type",
+      "entities": {
+        "cases": "Cases",
+        "people": "People and clients",
+        "fee_agreements": "Fee agreements",
+        "opportunities": "Opportunities"
+      },
+      "label": "Label",
+      "key": "Key",
+      "type": "Type",
+      "types": {
+        "text": "Text",
+        "number": "Number",
+        "date": "Date",
+        "list": "List",
+        "currency": "Currency",
+        "user": "User"
+      },
+      "required": "Required",
+      "active": "Active",
+      "noFields": "No fields for this record type.",
+      "lookupTable": "Options table",
+      "allowMultiple": "Allows several options",
+      "create": "Create field",
+      "testTitle": "Test form",
+      "testHint": "Active fields appear here as they will in the record forms; \"Validate\" checks the values on the server without saving.",
+      "testValid": "Valid values.",
+      "testInvalid": "Fix the highlighted fields.",
+      "validate": "Validate",
+      "lookupTables": "Lookup tables",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "newItem": "New item",
+      "newTable": "New table",
+      "createTable": "Create table"
     }
   },
   "invitation": {
@@ -149,7 +265,36 @@
       "invitation_pending": "There is already a pending invitation for this email.",
       "invitation_email_mismatch": "This invitation was sent to another email. Sign in with the invited email account.",
       "already_a_member": "This person is already a member of the office.",
-      "role_not_found": "Role not found."
+      "role_not_found": "Role not found.",
+      "name_taken": "There is already a record with this name.",
+      "code_taken": "There is already a cost center with this code.",
+      "structure_in_use": "This record is used by teams, assigned roles or pending invitations.",
+      "structure_not_found": "Record not found.",
+      "structure_reference_not_found": "The chosen area or branch does not exist.",
+      "cnpj_invalid": "Invalid CNPJ.",
+      "partner_shares_exceed_total": "Partner shares would add up to more than 100%.",
+      "invalid_partner_share": "The share must be greater than 0 and at most 100%.",
+      "role_in_use": "The role is assigned to members or used in pending invitations.",
+      "admin_role_locked": "The office administrator role always has every permission.",
+      "last_admin": "The office needs at least one office administrator.",
+      "member_not_found": "Member not found.",
+      "scope_reference_required": "Choose the team, area or branch of the scope.",
+      "scope_reference_not_allowed": "The \"own\" and \"organization\" scopes take no reference.",
+      "scope_reference_not_found": "The team, area or branch of the scope does not exist.",
+      "unknown_permission": "Permission not in the catalog.",
+      "invitation_not_pending": "The invitation was already accepted or cancelled.",
+      "role_name_required": "Enter the role name."
+    },
+    "platform": {
+      "custom_field_key_taken": "There is already a field with this key for this record type.",
+      "custom_field_key_invalid": "Invalid key.",
+      "custom_field_lookup_table_required": "Choose the lookup table with the list options.",
+      "custom_field_label_required": "Enter the field label.",
+      "custom_field_unknown_entity": "This record type does not accept custom fields.",
+      "lookup_name_taken": "There is already a record with this name.",
+      "lookup_name_required": "Enter the name.",
+      "lookup_table_system_locked": "System lookup tables cannot be deactivated.",
+      "lookup_table_not_found": "Lookup table not found."
     }
   }
 }

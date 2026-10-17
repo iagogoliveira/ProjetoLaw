@@ -7,13 +7,22 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13, 3D #14 e 3E #15 mergeados; 3F1 pronto para revisão; falta 3F2) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 a 3F1 #16 mergeados; 3F2 pronto para revisão, com os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 
 ---
 
 ## Etapa 3 — Organizações, estrutura e permissões (em andamento)
 
 **RFs:** RF-01 (convites, MFA obrigatório por organização), RF-02, RF-03 (campos customizados e tabelas auxiliares) e seção 3 da especificação. Revisão humana dos PRs obrigatória (seção 14.4).
+
+**Critérios de aceite da Etapa 3:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Usuário da Org A recebe 404 em qualquer recurso da Org B (100% dos endpoints) | ✅ (3C) | `EndpointSecurityTests.Resources_of_another_organization_or_user_answer_404` |
+| SQL cru com `app.organization_id` da Org A não retorna linhas da Org B | ✅ (3C) | `RowLevelSecurityTests.Raw_sql_as_the_application_only_sees_the_organization_of_the_session` |
+| Remover `settings.users.manage` de um perfil bloqueia a ação em até 5 s, sem novo login | ✅ (3B) | `AccessAndPermissionsTests.Removing_a_permission_from_a_role_blocks_the_action_within_5_seconds_without_a_new_login` |
+| Campo customizado obrigatório criado na tela aparece e é validado no formulário de teste | ✅ (3F2) | `e2e/custom-fields-flow.spec.ts` (contra o AppHost) |
 
 **Decisões de negócio confirmadas (2026-10-17):**
 - O MFA obrigatório por organização entra na Etapa 3 (PR 3B): o escritório pode exigir segundo fator de todos os membros.
@@ -31,7 +40,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 ### PR 3F — frontend da Etapa 3 (plano aprovado em 2026-10-17, em duas partes)
 
-**3F1 — organização no SPA, convites e onboarding (pronto para revisão):**
+**3F1 — organização no SPA, convites e onboarding (concluído: PR #16 mergeado em 2026-10-17):**
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -47,13 +56,28 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 1. O token do convite fica no `sessionStorage` da aba: se a confirmação do e-mail for aberta em outra aba ou navegador, a pessoa abre o link do convite de novo depois de entrar.
 2. Quem precisa ativar o MFA exigido pelo escritório recebe 403 `organization.mfa_required` nas telas do escritório, mas ainda não há aviso dedicado no shell (entra no 3F2).
 
-**3F2 — telas de configurações (fecha a Etapa 3):**
-1. Usuários e convites: membros, perfis com escopo, remover; convidar, reenviar e cancelar.
-2. Perfis, com a matriz de permissões por grupo.
-3. Estrutura: filiais, áreas, equipes (e membros), centros de custo e sócios.
-4. Organização: nome e MFA obrigatório. Inclui um endpoint de renomear, que ainda não existe.
-5. Campos customizados e tabelas auxiliares, com formulário de teste (`lf-custom-fields` + validação na API).
-6. E2E do critério de aceite: campo obrigatório criado na tela aparece e é validado no formulário de teste.
+**3F2 — telas de configurações, que fecham a Etapa 3 (pronto para revisão):**
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 3.34 | `GET` e `PUT /api/v1/organization` (nome e política de MFA do escritório ativo, com `settings.organization.manage`) | `MemberAndRoleManagementTests.Office_admin_renames_the_office`, SecurityTests (descoberta automática) |
+| 3.35 | `/configuracoes` com uma aba por tela, cada uma visível só com a permissão dela (`*lfCan`); link "Configurações" no shell e aviso quando o escritório exige MFA e a conta não tem segundo fator | `e2e/onboarding-flow.spec.ts`, `e2e/settings-flow.spec.ts` |
+| 3.36 | Usuários e convites: membros com nome, e-mail e perfis por escopo (editar, remover); convites com situação, reenviar e cancelar | `e2e/onboarding-flow.spec.ts` |
+| 3.37 | Perfis: criar, renomear, excluir e matriz de permissões por grupo (Administrador do escritório travado) | `e2e/settings-flow.spec.ts` |
+| 3.38 | Estrutura: filiais, áreas, equipes (com membros), centros de custo e sócios, com os erros do servidor (ex.: item em uso) | `e2e/settings-flow.spec.ts` |
+| 3.39 | Campos customizados por entidade (criar, obrigatório, ativo), tabelas auxiliares e itens, formulário de teste com `lf-custom-fields` e validação no servidor | `e2e/custom-fields-flow.spec.ts`, `custom-fields.spec.ts` |
+
+**Critério de aceite da Etapa 3 que fecha aqui:** campo customizado obrigatório criado na tela aparece e é validado no formulário de teste ✅ (`e2e/custom-fields-flow.spec.ts`, contra o AppHost).
+
+**Correções no `lf-custom-fields`:**
+- O componente mantém um único `FormGroup` e sincroniza nele os controles (adiciona, remove e atualiza validadores). Trocar de grupo deixava o campo preso ao grupo antigo.
+- Ele também se redesenha quando o formulário muda fora dos signals (envio, erros da API).
+
+**Última verificação local (PR 3F2):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 519 testes .NET em 11 projetos e 14 do AppHost, 44 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis; Playwright 4 contra o `ng serve` (os 4 fluxos completos são pulados sem Mailpit) e 8 de 8 contra o AppHost, em duas rodadas. O OpenAPI só ganhou as 2 operações do escritório.
+
+**Pendências do PR 3F2:**
+1. As telas usam tabelas simples, sem paginação: bastam para a estrutura de um escritório, mas listas grandes (membros de escritórios grandes) vão precisar de paginação no servidor.
+2. O escopo por equipe, área ou filial só aparece para quem também administra a estrutura (`settings.structure.manage`); é a mesma pendência de permissão de leitura da ADR 0020.
 
 ### PR 3E — campos customizados e tabelas auxiliares (concluído: PR #15 mergeado em 2026-10-17)
 

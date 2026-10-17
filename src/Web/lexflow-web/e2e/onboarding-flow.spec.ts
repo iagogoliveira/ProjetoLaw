@@ -44,8 +44,12 @@ test.describe('Onboarding flow', () => {
     await expect(page.getByTestId('active-organization')).toHaveText(office);
 
     // Convite para a advogada, com o perfil Advogado.
+    await page.getByRole('link', { name: 'Configurações' }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Membros' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: adminEmail })).toBeVisible();
+    await expectAccessible(page);
     await page.getByRole('link', { name: 'Convidar pessoa' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Convidar pessoa' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Convidar pessoa' })).toBeVisible();
     await page.getByLabel('E-mail').fill(lawyerEmail);
     await page.getByRole('combobox', { name: 'Perfil' }).click();
     await page.getByRole('option', { name: 'Advogado' }).click();
@@ -76,6 +80,6 @@ test.describe('Onboarding flow', () => {
     await page.getByRole('button', { name: 'Aceitar convite' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Início' })).toBeVisible();
     await expect(page.getByTestId('active-organization')).toHaveText(office);
-    await expect(page.getByRole('link', { name: 'Convidar pessoa' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Configurações' })).toHaveCount(0);
   });
 });

@@ -6,11 +6,18 @@ import { OrganizationApi } from './data/organization-api';
 
 interface AccessState {
   access: MyAccessResponse | null;
+  /** O escritório exige MFA e a conta ainda não tem segundo fator: o shell avisa. */
+  mfaMissing: boolean;
   loading: boolean;
   errorCode: string | null;
 }
 
-const initialState: AccessState = { access: null, loading: false, errorCode: null };
+const initialState: AccessState = {
+  access: null,
+  mfaMissing: false,
+  loading: false,
+  errorCode: null,
+};
 
 /**
  * Acesso do usuário (`GET /api/v1/me/access`): escritórios, o ativo e as permissões nele, usados pelo `*lfCan`, pelos
@@ -49,7 +56,13 @@ export const AccessStore = signalStore(
         active.set(result.value.activeOrganizationId);
       }
 
-      patchState(store, { access: result.value, errorCode: null });
+      let mfaMissing = false;
+      if (result.value.mfaRequired) {
+        const me = await api.me();
+        mfaMissing = me.ok && me.value.mfaMethod === 'none';
+      }
+
+      patchState(store, { access: result.value, mfaMissing, errorCode: null });
     }
 
     async function reload(): Promise<void> {
