@@ -27,18 +27,21 @@
   font: var(--mat-sys-title-large);
 }
 
+.spacer {
+  flex: 1;
+}
+
+.user {
+  margin-inline-end: var(--lf-space-sm);
+  font: var(--mat-sys-body-medium);
+}
+
 .container {
   flex: 1;
 }
 
 .sidenav {
   width: var(--lf-sidenav-width);
-}
-
-.empty-navigation {
-  margin: var(--lf-space-md);
-  color: var(--mat-sys-on-surface-variant);
-  font: var(--mat-sys-body-medium);
 }
 
 .content {

@@ -5,10 +5,85 @@
   },
   "shell": {
     "mainNavigation": "Main navigation",
-    "emptyNavigation": "No modules available yet."
+    "home": "Home",
+    "account": "My account",
+    "signOut": "Sign out"
   },
   "dashboard": {
     "title": "Home",
     "empty": "Your dashboard will appear here."
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome to LexFlow",
+      "lead": "Sign in with your email and password to continue.",
+      "action": "Sign in",
+      "register": "Create account"
+    },
+    "callback": {
+      "signingIn": "Signing in…"
+    }
+  },
+  "account": {
+    "title": "My account",
+    "loading": "Loading…",
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "since": "Account created on"
+    },
+    "mfa": {
+      "title": "Two-step verification",
+      "intro": "Protect your account by asking for a second factor at every sign-in: a code from an authenticator app or a code sent by email.",
+      "enabled": {
+        "totp": "On: authenticator app code.",
+        "email": "On: code sent by email."
+      },
+      "recovery": {
+        "title": "Recovery codes",
+        "hint": "Keep these codes somewhere safe. Each one works once if you lose your phone. They will not be shown again."
+      },
+      "totp": {
+        "start": "Use an authenticator app",
+        "scan": "Scan the QR code with your authenticator app (Google Authenticator, Microsoft Authenticator or another).",
+        "qrAlt": "QR code to set up the authenticator app",
+        "key": "Or type this key into the app:",
+        "code": "6-digit code",
+        "confirm": "Confirm and turn on",
+        "cancel": "Cancel"
+      },
+      "email": {
+        "enable": "Get codes by email"
+      }
+    },
+    "sessions": {
+      "title": "Open sessions",
+      "empty": "No open sessions.",
+      "unknownDevice": "Unknown device",
+      "current": "(this session)",
+      "lastSeen": "Last used: {{date}}",
+      "end": "End"
+    }
+  },
+  "errors": {
+    "http": {
+      "error": "The operation could not be completed. Please try again.",
+      "too_many_requests": "Too many attempts. Wait a minute and try again."
+    },
+    "auth": {
+      "unauthenticated": "Your session has expired. Please sign in again."
+    },
+    "validation": {
+      "failed": "Check the fields you entered."
+    },
+    "identity": {
+      "mfa_code_invalid": "Invalid or expired code.",
+      "mfa_code_required": "Enter the code.",
+      "mfa_already_enabled": "Two-step verification is already on.",
+      "mfa_setup_not_started": "Start the authenticator app setup before confirming.",
+      "session_not_found": "Session not found.",
+      "user_not_found": "User not found."
+    }
   }
 }
