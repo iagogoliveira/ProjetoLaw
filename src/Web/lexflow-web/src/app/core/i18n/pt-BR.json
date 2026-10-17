@@ -84,6 +84,18 @@
       "mfa_setup_not_started": "Comece a configuração do aplicativo autenticador antes de confirmar.",
       "session_not_found": "Sessão não encontrada.",
       "user_not_found": "Usuário não encontrado."
+    },
+    "custom_fields": {
+      "required": "Preencha este campo.",
+      "unknown_field": "Campo inexistente para esta entidade.",
+      "invalid_value": "Valor inválido para este campo.",
+      "too_long": "Texto maior que o permitido.",
+      "below_minimum": "Valor abaixo do mínimo.",
+      "above_maximum": "Valor acima do máximo.",
+      "too_many_decimals": "Casas decimais demais.",
+      "invalid_date": "Data inválida.",
+      "unknown_option": "Opção inexistente ou desativada.",
+      "unknown_user": "Usuário não é membro do escritório."
     }
   }
 }

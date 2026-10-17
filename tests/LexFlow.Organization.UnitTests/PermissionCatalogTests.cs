@@ -91,7 +91,9 @@ public sealed class PermissionCatalogTests
         finance.Permissions.ShouldNotContain(p => p.StartsWith("cases.", StringComparison.Ordinal) || p.StartsWith("documents.", StringComparison.Ordinal) || p.StartsWith("publications.", StringComparison.Ordinal));
         finance.Permissions.ShouldContain("finance.invoices.approve");
         lawyer.SuggestedScope.ShouldBe(DataScope.Team);
-        lawyer.Permissions.ShouldNotContain(p => p.StartsWith("settings.", StringComparison.Ordinal));
+        // Exceção decidida em 2026-10-17 (ADR 0021): todo perfil lê os campos customizados para preencher formulários.
+        lawyer.Permissions.Where(p => p.StartsWith("settings.", StringComparison.Ordinal)).ShouldBe([PermissionCatalog.SettingsCustomFieldsRead]);
+        DefaultRoles.All.ShouldAllBe(r => r.Permissions.Contains(PermissionCatalog.SettingsCustomFieldsRead));
     }
 
     [Fact]

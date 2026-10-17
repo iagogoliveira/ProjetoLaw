@@ -148,4 +148,48 @@ public sealed class OrganizationDatabaseTests(OrganizationDatabaseFixture fixtur
             SaveAsync(organizationId, db => db.Roles.Add(Role.Create(Guid.CreateVersion7(), "Outro administrador", systemKey: "office_admin"))));
         await SaveAsync(organizationId, db => db.Roles.Add(Role.Create(Guid.CreateVersion7(), "Perfil do escritório")));
     }
+
+    /// <summary>Migration de dados do PR 3E: perfis padrão já existentes ganham <c>settings.custom_fields.read</c>.</summary>
+    [Fact]
+    public async Task Existing_default_roles_receive_the_custom_fields_read_permission()
+    {
+        var connectionString = await fixture.CreateEmptyDatabaseAsync();
+        await using var provider = OrganizationDatabaseFixture.BuildProvider(connectionString);
+        await using (var setup = provider.CreateAsyncScope())
+        {
+            await setup.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync(Ct);
+            await setup.ServiceProvider.GetRequiredService<OrganizationDbContext>().GetService<IMigrator>().MigrateAsync("20261017133643_Invitations", cancellationToken: Ct);
+        }
+
+        var organizationId = Guid.CreateVersion7();
+        var lawyer = Role.Create(Guid.CreateVersion7(), "Advogado", systemKey: "lawyer");
+        lawyer.SetPermissions(["cases.read"]);
+        var custom = Role.Create(Guid.CreateVersion7(), "Perfil do escritório");
+        custom.SetPermissions(["cases.read"]);
+        using (AmbientContext.Begin(organizationId, "organization-tests"))
+        await using (var seed = provider.CreateAsyncScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+            db.Organizations.Add(OrganizationEntity.Create(organizationId, "Escritório antigo"));
+            db.Roles.AddRange(lawyer, custom);
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var upgrade = provider.CreateAsyncScope())
+        {
+            await upgrade.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync(Ct);
+        }
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(Ct);
+        await using var command = new NpgsqlCommand("SELECT role_id FROM org.role_permissions WHERE permission = 'settings.custom_fields.read'", connection);
+        await using var reader = await command.ExecuteReaderAsync(Ct);
+        var granted = new List<Guid>();
+        while (await reader.ReadAsync(Ct))
+        {
+            granted.Add(reader.GetGuid(0));
+        }
+
+        granted.ShouldBe([lawyer.Id]);
+    }
 }

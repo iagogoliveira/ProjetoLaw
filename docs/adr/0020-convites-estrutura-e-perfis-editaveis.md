@@ -1,6 +1,6 @@
 # ADR 0020 — Convites, membros, estrutura e perfis editáveis
 
-- **Status:** Proposta (para revisão no PR 3D)
+- **Status:** Aceita (PR #14 mergeado em 2026-10-17)
 - **Data:** 2026-10-17
 - **Etapa:** 3 (PR 3D)
 

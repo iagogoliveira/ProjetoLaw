@@ -3,6 +3,7 @@ using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Platform.Application.Abstractions;
 using LexFlow.Platform.Domain.Calendar;
 using LexFlow.Platform.Domain.Courts;
+using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Jobs;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,12 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<Holiday> Holidays => Set<Holiday>();
 
     public DbSet<Court> Courts => Set<Court>();
+
+    public DbSet<CustomFieldDefinition> CustomFields => Set<CustomFieldDefinition>();
+
+    public DbSet<LookupTable> LookupTables => Set<LookupTable>();
+
+    public DbSet<LookupItem> LookupItems => Set<LookupItem>();
 
     protected override string Schema => SchemaName;
 

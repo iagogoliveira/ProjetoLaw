@@ -1,6 +1,7 @@
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Platform.Domain.Calendar;
 using LexFlow.Platform.Domain.Courts;
+using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Jobs;
 using Microsoft.EntityFrameworkCore;
@@ -62,5 +63,53 @@ internal sealed class CourtConfiguration : IEntityTypeConfiguration<Court>
         builder.Property(c => c.State).HasMaxLength(2).IsFixedLength();
         builder.HasIndex(c => new { c.Segment, c.Code }).IsUnique();
         builder.HasData(ReferenceData.Courts);
+    }
+}
+
+/// <summary>Chave única por entidade dentro do escritório, inclusive entre campos inativos (os valores usam a chave).</summary>
+internal sealed class CustomFieldDefinitionConfiguration : IEntityTypeConfiguration<CustomFieldDefinition>
+{
+    public void Configure(EntityTypeBuilder<CustomFieldDefinition> builder)
+    {
+        builder.ToTable("custom_field_definitions");
+        builder.HasKey(f => f.Id);
+        builder.Property(f => f.Entity).HasMaxLength(50);
+        builder.Property(f => f.Key).HasMaxLength(CustomFieldDefinition.MaxKeyLength);
+        builder.Property(f => f.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(f => f.Label).HasMaxLength(CustomFieldDefinition.MaxLabelLength);
+        builder.Property(f => f.HelpText).HasMaxLength(CustomFieldDefinition.MaxHelpTextLength);
+        builder.Property(f => f.Minimum).HasPrecision(19, 4);
+        builder.Property(f => f.Maximum).HasPrecision(19, 4);
+        builder.Ignore(f => f.Settings);
+        builder.HasIndex(f => new { f.OrganizationId, f.Entity, f.Key }).IsUnique();
+        builder.HasOne<LookupTable>().WithMany().HasForeignKey(f => f.LookupTableId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasStandardColumns();
+    }
+}
+
+internal sealed class LookupTableConfiguration : IEntityTypeConfiguration<LookupTable>
+{
+    public void Configure(EntityTypeBuilder<LookupTable> builder)
+    {
+        builder.ToTable("lookup_tables");
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.Name).HasMaxLength(LookupTable.MaxNameLength);
+        builder.Property(t => t.SystemKey).HasMaxLength(50);
+        builder.HasIndex(t => new { t.OrganizationId, t.Name }).IsUnique();
+        builder.HasIndex(t => new { t.OrganizationId, t.SystemKey }).IsUnique().HasFilter("system_key IS NOT NULL");
+        builder.HasStandardColumns();
+    }
+}
+
+internal sealed class LookupItemConfiguration : IEntityTypeConfiguration<LookupItem>
+{
+    public void Configure(EntityTypeBuilder<LookupItem> builder)
+    {
+        builder.ToTable("lookup_items");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Name).HasMaxLength(LookupItem.MaxNameLength);
+        builder.HasIndex(i => new { i.OrganizationId, i.TableId });
+        builder.HasOne<LookupTable>().WithMany().HasForeignKey(i => i.TableId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasStandardColumns();
     }
 }

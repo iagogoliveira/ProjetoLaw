@@ -84,6 +84,18 @@
       "mfa_setup_not_started": "Start the authenticator app setup before confirming.",
       "session_not_found": "Session not found.",
       "user_not_found": "User not found."
+    },
+    "custom_fields": {
+      "required": "Fill in this field.",
+      "unknown_field": "This field does not exist for this record.",
+      "invalid_value": "Invalid value for this field.",
+      "too_long": "Text is longer than allowed.",
+      "below_minimum": "Value is below the minimum.",
+      "above_maximum": "Value is above the maximum.",
+      "too_many_decimals": "Too many decimal places.",
+      "invalid_date": "Invalid date.",
+      "unknown_option": "Option does not exist or is inactive.",
+      "unknown_user": "User is not a member of the office."
     }
   }
 }

@@ -2,6 +2,8 @@ using LexFlow.Application.Abstractions.Idempotency;
 using LexFlow.Application.Abstractions.Integrations;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Platform.Application.Abstractions;
+using LexFlow.Platform.Application.CustomFields;
+using LexFlow.Platform.Contracts.CustomFields;
 using LexFlow.Platform.Infrastructure.Idempotency;
 using LexFlow.Platform.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +20,8 @@ public static class PlatformInfrastructure
         services.AddScoped<IPlatformDbContext>(sp => sp.GetRequiredService<PlatformDbContext>());
         services.AddSingleton<IIdempotencyStore, PlatformIdempotencyStore>();
         services.AddScoped<IdempotencyKeysCleanupJob>();
+        services.AddScoped<ICustomFieldValidator, CustomFieldValidator>();
+        services.AddScoped<LookupTableSeeder>();
         return services;
     }
 

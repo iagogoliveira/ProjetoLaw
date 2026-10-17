@@ -84,6 +84,13 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await CreateAsOwnerAsync(owner, "partners", new { name = "Sócia", sharePercentage = 10m }), new { name = "Tomada", sharePercentage = 10m }),
         ["DELETE /api/v1/organization/partners/{id:guid}"] = async owner =>
             new CrossTenantCase(await CreateAsOwnerAsync(owner, "partners", new { name = "Sócia", sharePercentage = 10m })),
+        ["PUT /api/v1/custom-fields/{id:guid}"] = async owner =>
+            new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/custom-fields", new { entity = "cases", key = $"campo_{Guid.CreateVersion7():N}", type = "text", label = "Campo" }), new { label = "Tomado" }),
+        ["PUT /api/v1/lookup-tables/{id:guid}"] = async owner =>
+            new CrossTenantCase(await LookupTableOfAsync(owner), new { name = $"Tomada {Guid.CreateVersion7():N}", isActive = true }),
+        ["POST /api/v1/lookup-tables/{id:guid}/items"] = async owner => new CrossTenantCase(await LookupTableOfAsync(owner), new { name = "Item" }),
+        ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
+            new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
     };
 
     private IReadOnlyList<ApiEndpoint> Endpoints() =>
@@ -135,29 +142,32 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             values["code"] = $"C{Guid.CreateVersion7():N}"[..20];
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/organization/{resource}") { Content = JsonContent.Create(values) };
-        request.Headers.Add(TestAuthenticationHandler.UserHeader, owner.UserId.ToString());
-        request.Headers.Add(TenantResolutionMiddleware.HeaderName, owner.OrganizationId.ToString());
-        using var response = await _client.SendAsync(request, Ct);
-        response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync(Ct));
-        return (await response.Content.ReadFromJsonAsync<CreatedResource>(Ct))!.Id;
+        return await PostAsOwnerAsync(owner, $"/api/v1/organization/{resource}", values);
     }
 
     private sealed record CreatedResource(Guid Id);
 
-    /// <summary>Convite pendente da organização do dono, para o perfil dele.</summary>
-    private async Task<Guid> InvitationOfAsync(SeededMember owner)
+    /// <summary>Recurso da organização do dono criado pela própria API (resposta 201 com <c>id</c>).</summary>
+    private async Task<Guid> PostAsOwnerAsync(SeededMember owner, string path, object body)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/organization/invitations")
-        {
-            Content = JsonContent.Create(new { email = $"{Guid.CreateVersion7():N}@exemplo.com.br", roles = new[] { new { roleId = owner.RoleId, scope = "own" } } }),
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(body) };
         request.Headers.Add(TestAuthenticationHandler.UserHeader, owner.UserId.ToString());
         request.Headers.Add(TenantResolutionMiddleware.HeaderName, owner.OrganizationId.ToString());
         using var response = await _client.SendAsync(request, Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync(Ct));
         return (await response.Content.ReadFromJsonAsync<CreatedResource>(Ct))!.Id;
     }
+
+    private Task<Guid> LookupTableOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/lookup-tables", new { name = $"Tabela {Guid.CreateVersion7():N}" });
+
+    /// <summary>Convite pendente da organização do dono, para o perfil dele.</summary>
+    private Task<Guid> InvitationOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/organization/invitations", new
+        {
+            email = $"{Guid.CreateVersion7():N}@exemplo.com.br",
+            roles = new[] { new { roleId = owner.RoleId, scope = "own" } },
+        });
 
     private async Task<Guid> CreateJobAsync(Guid organization)
     {

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses } from './types.gen';
+import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -19,6 +19,18 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
+ * Renomeia, reordena ou desativa um item (itens não são excluídos)
+ */
+export const updateLookupItem = <ThrowOnError extends boolean = false>(options: Options<UpdateLookupItemData, ThrowOnError>): RequestResult<UpdateLookupItemResponses, UpdateLookupItemErrors, ThrowOnError> => (options.client ?? client).put<UpdateLookupItemResponses, UpdateLookupItemErrors, ThrowOnError>({
+    url: '/api/v1/lookup-items/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Catálogo de permissões atribuíveis, por grupo, para a matriz de perfis
  */
 export const listPermissions = <ThrowOnError extends boolean = false>(options?: Options<ListPermissionsData, ThrowOnError>): RequestResult<ListPermissionsResponses, ListPermissionsErrors, ThrowOnError> => (options?.client ?? client).get<ListPermissionsResponses, ListPermissionsErrors, ThrowOnError>({ url: '/api/v1/permissions', ...options });
@@ -27,6 +39,88 @@ export const listPermissions = <ThrowOnError extends boolean = false>(options?: 
  * Estado de uma operação longa
  */
 export const getJob = <ThrowOnError extends boolean = false>(options: Options<GetJobData, ThrowOnError>): RequestResult<GetJobResponses, GetJobErrors, ThrowOnError> => (options.client ?? client).get<GetJobResponses, GetJobErrors, ThrowOnError>({ url: '/api/v1/jobs/{id}', ...options });
+
+/**
+ * Campos customizados de uma entidade (ou de todas), na ordem do formulário
+ */
+export const listCustomFields = <ThrowOnError extends boolean = false>(options?: Options<ListCustomFieldsData, ThrowOnError>): RequestResult<ListCustomFieldsResponses, ListCustomFieldsErrors, ThrowOnError> => (options?.client ?? client).get<ListCustomFieldsResponses, ListCustomFieldsErrors, ThrowOnError>({ url: '/api/v1/custom-fields', ...options });
+
+/**
+ * Cria um campo customizado; chave, entidade e tipo não mudam depois
+ */
+export const createCustomField = <ThrowOnError extends boolean = false>(options: Options<CreateCustomFieldData, ThrowOnError>): RequestResult<CreateCustomFieldResponses, CreateCustomFieldErrors, ThrowOnError> => (options.client ?? client).post<CreateCustomFieldResponses, CreateCustomFieldErrors, ThrowOnError>({
+    url: '/api/v1/custom-fields',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Edita rótulo, ajuda, obrigatoriedade, ordem, limites e se o campo está ativo
+ */
+export const updateCustomField = <ThrowOnError extends boolean = false>(options: Options<UpdateCustomFieldData, ThrowOnError>): RequestResult<UpdateCustomFieldResponses, UpdateCustomFieldErrors, ThrowOnError> => (options.client ?? client).put<UpdateCustomFieldResponses, UpdateCustomFieldErrors, ThrowOnError>({
+    url: '/api/v1/custom-fields/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Valida valores de campos customizados sem gravar; erros em errors["customFields.{chave}"]
+ */
+export const validateCustomFieldValues = <ThrowOnError extends boolean = false>(options: Options<ValidateCustomFieldValuesData, ThrowOnError>): RequestResult<ValidateCustomFieldValuesResponses, ValidateCustomFieldValuesErrors, ThrowOnError> => (options.client ?? client).post<ValidateCustomFieldValuesResponses, ValidateCustomFieldValuesErrors, ThrowOnError>({
+    url: '/api/v1/custom-fields/validate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Tabelas auxiliares com os itens (os inativos vêm marcados)
+ */
+export const listLookupTables = <ThrowOnError extends boolean = false>(options?: Options<ListLookupTablesData, ThrowOnError>): RequestResult<ListLookupTablesResponses, ListLookupTablesErrors, ThrowOnError> => (options?.client ?? client).get<ListLookupTablesResponses, ListLookupTablesErrors, ThrowOnError>({ url: '/api/v1/lookup-tables', ...options });
+
+/**
+ * Cria uma tabela auxiliar do escritório
+ */
+export const createLookupTable = <ThrowOnError extends boolean = false>(options: Options<CreateLookupTableData, ThrowOnError>): RequestResult<CreateLookupTableResponses, CreateLookupTableErrors, ThrowOnError> => (options.client ?? client).post<CreateLookupTableResponses, CreateLookupTableErrors, ThrowOnError>({
+    url: '/api/v1/lookup-tables',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Renomeia ou desativa uma tabela auxiliar (as do sistema ficam sempre ativas)
+ */
+export const updateLookupTable = <ThrowOnError extends boolean = false>(options: Options<UpdateLookupTableData, ThrowOnError>): RequestResult<UpdateLookupTableResponses, UpdateLookupTableErrors, ThrowOnError> => (options.client ?? client).put<UpdateLookupTableResponses, UpdateLookupTableErrors, ThrowOnError>({
+    url: '/api/v1/lookup-tables/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Acrescenta um item à tabela auxiliar (por padrão, no fim)
+ */
+export const createLookupItem = <ThrowOnError extends boolean = false>(options: Options<CreateLookupItemData, ThrowOnError>): RequestResult<CreateLookupItemResponses, CreateLookupItemErrors, ThrowOnError> => (options.client ?? client).post<CreateLookupItemResponses, CreateLookupItemErrors, ThrowOnError>({
+    url: '/api/v1/lookup-tables/{id}/items',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Perfil do usuário logado

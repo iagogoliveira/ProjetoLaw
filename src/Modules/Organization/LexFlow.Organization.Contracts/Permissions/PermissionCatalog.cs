@@ -44,6 +44,7 @@ public static partial class PermissionCatalog
     public const string SettingsUsersRead = "settings.users.read";
     public const string SettingsUsersManage = "settings.users.manage";
     public const string SettingsRolesManage = "settings.roles.manage";
+    public const string SettingsCustomFieldsRead = "settings.custom_fields.read";
     public const string SettingsCustomFieldsManage = "settings.custom_fields.manage";
     public const string SettingsIntegrationsManage = "settings.integrations.manage";
     public const string SettingsAuditRead = "settings.audit.read";
@@ -61,6 +62,7 @@ public static partial class PermissionCatalog
         new(SettingsUsersRead, Groups.Settings, "Ver usuários e convites"),
         new(SettingsUsersManage, Groups.Settings, "Convidar, desativar e atribuir perfis a usuários"),
         new(SettingsRolesManage, Groups.Settings, "Criar e editar perfis e permissões"),
+        new(SettingsCustomFieldsRead, Groups.Settings, "Ver campos customizados e tabelas auxiliares (necessário para preencher formulários)"),
         new(SettingsCustomFieldsManage, Groups.Settings, "Gerenciar campos customizados e tabelas auxiliares"),
         new(SettingsIntegrationsManage, Groups.Settings, "Gerenciar integrações"),
         new(SettingsAuditRead, Groups.Settings, "Consultar a trilha de auditoria"),

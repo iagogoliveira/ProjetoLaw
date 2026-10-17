@@ -47,6 +47,18 @@ export type CostCenterResponse = {
     name: string;
 };
 
+export type CreateCustomFieldRequest = {
+    entity: string;
+    key: string;
+    type: CustomFieldType;
+    label: string;
+    helpText: null | string;
+    required: boolean;
+    filterable: boolean;
+    position: number | string;
+    settings: null | CustomFieldSettings;
+};
+
 export type CreateInvitationRequest = {
     email: string;
     roles: Array<RoleAssignmentInput>;
@@ -60,6 +72,59 @@ export type CreateRoleRequest = {
     name: string;
     description: null | string;
     permissions: Array<string>;
+};
+
+export type CustomFieldResponse = {
+    id: string;
+    entity: string;
+    key: string;
+    type: CustomFieldType;
+    label: string;
+    helpText: null | string;
+    required: boolean;
+    filterable: boolean;
+    position: number | string;
+    isActive: boolean;
+    settings: CustomFieldSettings;
+};
+
+/**
+ * Limites e opções de um campo, conforme o tipo; o que não se aplica ao tipo fica nulo.
+ */
+export type CustomFieldSettings = {
+    /**
+     * Texto: tamanho máximo (padrão 500).
+     */
+    maxLength?: null | number | string;
+    /**
+     * Número e moeda: valor mínimo.
+     */
+    minimum?: null | number | string;
+    /**
+     * Número e moeda: valor máximo.
+     */
+    maximum?: null | number | string;
+    /**
+     * Número: casas decimais aceitas (0 a 6).
+     */
+    decimals?: null | number | string;
+    /**
+     * Lista: tabela auxiliar de onde vêm as opções.
+     */
+    lookupTableId?: null | string;
+    /**
+     * Lista: aceita mais de uma opção.
+     */
+    allowMultiple?: boolean;
+};
+
+/**
+ * Tipos de campo customizado (RF-03).
+ */
+export type CustomFieldType = 'text' | 'number' | 'date' | 'list' | 'currency' | 'user';
+
+export type CustomFieldValuesResponse = {
+    values: JsonObject;
 };
 
 /**
@@ -120,6 +185,35 @@ export type JobResponse = {
     createdAt: string;
     startedAt: null | string;
     completedAt: null | string;
+};
+
+export type JsonObject = {
+    [key: string]: unknown;
+};
+
+export type LookupItemRequest = {
+    name: string;
+    position: null | number | string;
+};
+
+export type LookupItemResponse = {
+    id: string;
+    tableId: string;
+    name: string;
+    position: number | string;
+    isActive: boolean;
+};
+
+export type LookupTableRequest = {
+    name: string;
+};
+
+export type LookupTableResponse = {
+    id: string;
+    name: string;
+    systemKey: null | string;
+    isActive: boolean;
+    items: Array<LookupItemResponse>;
 };
 
 /**
@@ -285,6 +379,27 @@ export type TotpSetupResponse = {
     authenticatorUri: string;
 };
 
+export type UpdateCustomFieldRequest = {
+    label: string;
+    helpText: null | string;
+    required: boolean;
+    filterable: boolean;
+    position: number | string;
+    isActive: boolean;
+    settings: null | CustomFieldSettings;
+};
+
+export type UpdateLookupItemRequest = {
+    name: string;
+    position: number | string;
+    isActive: boolean;
+};
+
+export type UpdateLookupTableRequest = {
+    name: string;
+    isActive: boolean;
+};
+
 export type UpdateRolePermissionsRequest = {
     permissions: Array<string>;
 };
@@ -293,6 +408,50 @@ export type UpdateRoleRequest = {
     name: string;
     description: null | string;
 };
+
+export type ValidateCustomFieldsRequest = {
+    entity: string;
+    values: null | JsonObject;
+};
+
+export type UpdateLookupItemData = {
+    body: UpdateLookupItemRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/lookup-items/{id}';
+};
+
+export type UpdateLookupItemErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type UpdateLookupItemError = UpdateLookupItemErrors[keyof UpdateLookupItemErrors];
+
+export type UpdateLookupItemResponses = {
+    /**
+     * OK
+     */
+    200: LookupItemResponse;
+};
+
+export type UpdateLookupItemResponse = UpdateLookupItemResponses[keyof UpdateLookupItemResponses];
 
 export type ListPermissionsData = {
     body?: never;
@@ -349,6 +508,278 @@ export type GetJobResponses = {
 };
 
 export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type ListCustomFieldsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        entity?: string;
+    };
+    url: '/api/v1/custom-fields';
+};
+
+export type ListCustomFieldsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListCustomFieldsError = ListCustomFieldsErrors[keyof ListCustomFieldsErrors];
+
+export type ListCustomFieldsResponses = {
+    /**
+     * OK
+     */
+    200: Array<CustomFieldResponse>;
+};
+
+export type ListCustomFieldsResponse = ListCustomFieldsResponses[keyof ListCustomFieldsResponses];
+
+export type CreateCustomFieldData = {
+    body: CreateCustomFieldRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/custom-fields';
+};
+
+export type CreateCustomFieldErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateCustomFieldError = CreateCustomFieldErrors[keyof CreateCustomFieldErrors];
+
+export type CreateCustomFieldResponses = {
+    /**
+     * Created
+     */
+    201: CustomFieldResponse;
+};
+
+export type CreateCustomFieldResponse = CreateCustomFieldResponses[keyof CreateCustomFieldResponses];
+
+export type UpdateCustomFieldData = {
+    body: UpdateCustomFieldRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/custom-fields/{id}';
+};
+
+export type UpdateCustomFieldErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateCustomFieldError = UpdateCustomFieldErrors[keyof UpdateCustomFieldErrors];
+
+export type UpdateCustomFieldResponses = {
+    /**
+     * OK
+     */
+    200: CustomFieldResponse;
+};
+
+export type UpdateCustomFieldResponse = UpdateCustomFieldResponses[keyof UpdateCustomFieldResponses];
+
+export type ValidateCustomFieldValuesData = {
+    body: ValidateCustomFieldsRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/custom-fields/validate';
+};
+
+export type ValidateCustomFieldValuesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ValidateCustomFieldValuesError = ValidateCustomFieldValuesErrors[keyof ValidateCustomFieldValuesErrors];
+
+export type ValidateCustomFieldValuesResponses = {
+    /**
+     * OK
+     */
+    200: CustomFieldValuesResponse;
+};
+
+export type ValidateCustomFieldValuesResponse = ValidateCustomFieldValuesResponses[keyof ValidateCustomFieldValuesResponses];
+
+export type ListLookupTablesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/lookup-tables';
+};
+
+export type ListLookupTablesErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListLookupTablesError = ListLookupTablesErrors[keyof ListLookupTablesErrors];
+
+export type ListLookupTablesResponses = {
+    /**
+     * OK
+     */
+    200: Array<LookupTableResponse>;
+};
+
+export type ListLookupTablesResponse = ListLookupTablesResponses[keyof ListLookupTablesResponses];
+
+export type CreateLookupTableData = {
+    body: LookupTableRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/lookup-tables';
+};
+
+export type CreateLookupTableErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateLookupTableError = CreateLookupTableErrors[keyof CreateLookupTableErrors];
+
+export type CreateLookupTableResponses = {
+    /**
+     * Created
+     */
+    201: LookupTableResponse;
+};
+
+export type CreateLookupTableResponse = CreateLookupTableResponses[keyof CreateLookupTableResponses];
+
+export type UpdateLookupTableData = {
+    body: UpdateLookupTableRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/lookup-tables/{id}';
+};
+
+export type UpdateLookupTableErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateLookupTableError = UpdateLookupTableErrors[keyof UpdateLookupTableErrors];
+
+export type UpdateLookupTableResponses = {
+    /**
+     * OK
+     */
+    200: LookupTableResponse;
+};
+
+export type UpdateLookupTableResponse = UpdateLookupTableResponses[keyof UpdateLookupTableResponses];
+
+export type CreateLookupItemData = {
+    body: LookupItemRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/lookup-tables/{id}/items';
+};
+
+export type CreateLookupItemErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateLookupItemError = CreateLookupItemErrors[keyof CreateLookupItemErrors];
+
+export type CreateLookupItemResponses = {
+    /**
+     * Created
+     */
+    201: LookupItemResponse;
+};
+
+export type CreateLookupItemResponse = CreateLookupItemResponses[keyof CreateLookupItemResponses];
 
 export type GetMeData = {
     body?: never;

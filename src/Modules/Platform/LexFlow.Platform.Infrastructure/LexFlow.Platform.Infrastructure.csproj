@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LexFlow.Platform.Application\LexFlow.Platform.Application.csproj" />
+    <ProjectReference Include="..\..\Organization\LexFlow.Organization.Contracts\LexFlow.Organization.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Infrastructure.Common\LexFlow.Infrastructure.Common.csproj" />
   </ItemGroup>
 
