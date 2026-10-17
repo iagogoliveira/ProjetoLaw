@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 mergeado; 3B pronto no branch; faltam 3C a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11 e 3B #12 mergeados; faltam 3C a 3F) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests` |
 
 ---
 
@@ -28,7 +28,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 - **3E:** campos customizados e tabelas auxiliares (RF-03), com o componente `lf-custom-fields`.
 - **3F:** telas de configurações, diretiva `lfCan` e e2e do onboarding (cadastro → criar escritório → convidar → aceitar).
 
-### PR 3B — tenant real e permissões (pronto no branch `etapa-3b-tenant-permissions`, sem PR)
+### PR 3B — tenant real e permissões (concluído: PR #12 mergeado em 2026-10-17)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -44,6 +44,10 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 **Critério de aceite da Etapa 3 que fecha aqui:** remover `settings.users.manage` de um perfil bloqueia a ação em até 5 s, sem novo login ✅ (`AccessAndPermissionsTests.Removing_a_permission_from_a_role_blocks_the_action_within_5_seconds_without_a_new_login`).
 
 **Última verificação local (PR 3B):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 471 testes .NET em 12 projetos (Testcontainers, com Redis real) e 14 do AppHost, 23 Vitest, 4 Playwright (`ng serve`), `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Organization.Application 92,4% e Organization.Domain 88,3%. O OpenAPI só ganhou adições.
+
+**CI do PR 3B:** o contrato OpenAPI falhou no Linux porque um comentário XML de várias linhas virava descrição com `
+` no Windows e `
+` no CI. O teste agora normaliza a quebra de linha dentro das strings e mostra a primeira linha diferente.
 
 **Pendências do PR 3B:**
 1. O consumidor `RolePermissionsChangedConsumer` (Worker) não tem teste próprio.
