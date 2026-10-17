@@ -7,7 +7,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
-| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13, 3D #14 e 3E #15 mergeados; 3F1 pronto para revisão; falta 3F2) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens` |
+| 3 — Organizações, estrutura e permissões | **Em andamento** (3A #11, 3B #12, 3C #13, 3D #14, 3E #15 e 3F1 #16 mergeados; falta 3F2) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 
 ---
 
@@ -31,7 +31,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 ### PR 3F — frontend da Etapa 3 (plano aprovado em 2026-10-17, em duas partes)
 
-**3F1 — organização no SPA, convites e onboarding (pronto para revisão):**
+**3F1 — organização no SPA, convites e onboarding (concluído: PR #16 mergeado em 2026-10-17):**
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
