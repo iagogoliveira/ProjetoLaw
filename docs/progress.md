@@ -6,7 +6,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
-| 2 — Identidade e autenticação | **Em andamento** (PR A #7 mergeado; B1 pronto no branch; faltam B2 e C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login` |
+| 2 — Identidade e autenticação | **Em andamento** (PRs A #7 e B1 #8 mergeados; faltam B2 e C) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me` |
 
 ---
 
@@ -28,7 +28,7 @@ Plano aprovado em 2026-10-16, em 3 PRs: **A** (contas, senhas, e-mails), **B** (
 - **B1:** OpenIddict (Authorization Code + PKCE, refresh rotativo com revogação em reuso), validação de token no lugar do esquema provisório (ADR 0008), páginas Razor de conta em pt-BR, sessões ligadas aos tokens (`sid`), bloqueio na 6ª senha errada, rate limit por IP e limpeza de tokens expirados.
 - **B2:** MFA (TOTP com códigos de recuperação e código por e-mail), `GET /api/v1/me` e `GET|DELETE /api/v1/me/sessions`.
 
-### PR B1 — servidor OIDC, login e sessões (pronto no branch `etapa-2b-oidc-login`, sem PR)
+### PR B1 — servidor OIDC, login e sessões (concluído: PR #8 mergeado em 2026-10-16)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
