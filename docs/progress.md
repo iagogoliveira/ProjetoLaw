@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19, 4C #20, 4D1 #21 e 4D2 #22 mergeados; falta 4E, aprovação em escritório de uma pessoa só) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19, 4C #20, 4D1 #21 e 4D2 #22 mergeados; 4E pronto para revisão) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 
 ---
 
@@ -44,6 +44,18 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - lista e detalhe de pessoas (abas dados, contatos, processos, documentos, financeiro; as três últimas como espaço reservado até as etapas delas);
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
+
+### PR 4E — aprovação da própria proposta em escritório de uma pessoa só (pronto para revisão)
+
+**Decisão de negócio (2026-10-18):** o escritório com um único usuário pode aprovar a própria proposta. Pela hierarquia, esse usuário é o de maior permissão.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.35 | `Proposal.Approve` aceita a autoaprovação quando o escritório tem um único membro ativo; com mais de um, a recusa continua (`crm.proposal_self_approval`) | `The_only_member_of_the_office_approves_the_own_proposal`, `The_author_cannot_approve_and_only_an_approved_proposal_is_sent` |
+| 4.36 | Contrato `IOrganizationMembers` (contagem dos membros ativos da organização ativa), implementado pelo Organization e usado no caso de uso da aprovação | `The_only_member_approves_the_own_proposal_until_someone_else_joins` |
+| 4.37 | E2E do funil: a administradora sozinha aprova a própria proposta; depois de o sócio entrar, ele aprova a revisada pela fila e o fluxo segue até o aceite | `e2e/funnel-flow.spec.ts` |
+
+**Última verificação local (PR 4E):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 583 testes .NET em 13 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (11 aprovados, duas execuções seguidas) e contra o `ng serve` (4 aprovados; os 7 que exigem o AppHost são pulados). Cobertura: Crm.Application 93,7%, Crm.Domain 98,6% e Organization.Application 95,9%. Sem pacote novo e sem mudança no banco nem no contrato OpenAPI.
 
 ### PR 4D2 — telas do funil, das propostas e dos modelos (concluído: PR #22 mergeado em 2026-10-18)
 
@@ -107,7 +119,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 **Última verificação local (PR 4C):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos (os 14 do AppHost não rodaram de novo), 44 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os 4 fluxos que exigem o AppHost foram pulados; sem mudança de tela), sem pacotes vulneráveis. Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem mudança de modelo pendente nas migrations.
 
 **Pendências do PR 4C:**
-1. **Escritório de uma pessoa só:** decidido em 2026-10-18. Com um único membro ativo, quem elaborou pode aprovar a própria proposta, porque é o usuário de maior permissão. Com mais membros, a autoaprovação continua proibida. A implementação está pendente, num PR próprio (ver a ADR 0024, "Atualização").
+1. **Escritório de uma pessoa só:** decidido em 2026-10-18 e implementado no PR 4E.
 2. **Indicadores do RF-08** (conversão, tempo de fechamento, receita por origem): ficam para os relatórios. O funil já grava etapa, data da mudança, origem e valor.
 3. **DOCX órfão:** se o envio falhar depois de gravar o arquivo, ele fica no armazenamento sem referência. A limpeza entra com o GED (Etapa 9).
 4. **Assinatura eletrônica** da proposta (RF-29) fica para a Etapa 9.

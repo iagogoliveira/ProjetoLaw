@@ -93,7 +93,7 @@ public sealed class FunnelAndProposalTests(DependenciesFixture dependencies) : I
             title = "Contencioso trabalhista",
             personId,
             prospect = personId is null ? new { kind = "company", name, document, email = "contato@horizonte.com.br" } : null,
-            originId = office.Origin,
+            originId = office.Origin == Guid.Empty ? (Guid?)null : office.Origin,
             estimatedValue = 60_000m,
             responsibleUserId = office.Seller,
         });
@@ -211,6 +211,30 @@ public sealed class FunnelAndProposalTests(DependenciesFixture dependencies) : I
         published.ClientPersonId.ShouldBe(client);
         published.Total.ShouldBe(42_000m);
         published.Items.Select(i => i.Kind).ShouldBe(["Monthly", "Success"]);
+    }
+
+    /// <summary>Decisão de 2026-10-18 (ADR 0024): o único membro do escritório aprova a própria proposta; com outro membro, não.</summary>
+    [Fact]
+    public async Task The_only_member_approves_the_own_proposal_until_someone_else_joins()
+    {
+        var solo = await TestOrganizations.CreateWithMemberAsync(dependencies, [.. Seller, .. Approver]);
+        var office = new Office(solo.OrganizationId, solo.UserId, solo.UserId, Guid.Empty, Guid.Empty);
+        var first = await ProposalAsync(office, await OpportunityAsync(office, document: null));
+        (await SendAsync(office, HttpMethod.Post, $"/api/v1/proposals/{first}/submit")).Status.ShouldBe(HttpStatusCode.OK);
+
+        var (soloStatus, approved) = await SendAsync(office, HttpMethod.Post, $"/api/v1/proposals/{first}/approve");
+
+        soloStatus.ShouldBe(HttpStatusCode.OK, approved.ToString());
+        approved.GetProperty("status").GetString().ShouldBe("approved");
+        approved.GetProperty("approvedBy").GetGuid().ShouldBe(solo.UserId);
+
+        await TestOrganizations.AddMemberAsync(dependencies, solo.OrganizationId, Guid.CreateVersion7(), Approver);
+        var second = await ProposalAsync(office, await OpportunityAsync(office, name: "Outro Interessado", document: null));
+        (await SendAsync(office, HttpMethod.Post, $"/api/v1/proposals/{second}/submit")).Status.ShouldBe(HttpStatusCode.OK);
+        var (teamStatus, refused) = await SendAsync(office, HttpMethod.Post, $"/api/v1/proposals/{second}/approve");
+
+        teamStatus.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        OrganizationApi.Code(refused).ShouldBe("crm.proposal_self_approval");
     }
 
     [Fact]

@@ -118,9 +118,9 @@ public sealed class FunnelAndProposalTests
         proposal.Send(Guid.CreateVersion7(), Today, Now).Error.ShouldBe(CrmErrors.ProposalNotApproved);
         proposal.Submit(submitter, Now).IsSuccess.ShouldBeTrue();
         proposal.Update(new ProposalDetails("Mudou", null, null, null, null, [Monthly])).Error.ShouldBe(CrmErrors.ProposalNotDraft);
-        proposal.Approve(submitter, Now).Error.ShouldBe(CrmErrors.ProposalSelfApproval);
-        proposal.Approve(author, Now).Error.ShouldBe(CrmErrors.ProposalSelfApproval);
-        proposal.Approve(partner, Now).IsSuccess.ShouldBeTrue();
+        proposal.Approve(submitter, Now, soleMember: false).Error.ShouldBe(CrmErrors.ProposalSelfApproval);
+        proposal.Approve(author, Now, soleMember: false).Error.ShouldBe(CrmErrors.ProposalSelfApproval);
+        proposal.Approve(partner, Now, soleMember: false).IsSuccess.ShouldBeTrue();
         proposal.ApprovedBy.ShouldBe(partner);
 
         var document = Guid.CreateVersion7();
@@ -132,6 +132,18 @@ public sealed class FunnelAndProposalTests
     }
 
     [Fact]
+    public void The_only_member_of_the_office_approves_the_own_proposal()
+    {
+        var proposal = Draft(Monthly);
+        var author = Guid.CreateVersion7();
+        proposal.Submit(author, Now);
+
+        proposal.Approve(author, Now, soleMember: true).IsSuccess.ShouldBeTrue();
+        proposal.ApprovedBy.ShouldBe(author);
+        proposal.Status.ShouldBe(ProposalStatus.Approved);
+    }
+
+    [Fact]
     public void An_empty_draft_cannot_be_submitted_and_returning_clears_the_approval()
     {
         Draft().Submit(Guid.CreateVersion7(), Now).Error.ShouldBe(CrmErrors.ProposalItemsRequired);
@@ -139,7 +151,7 @@ public sealed class FunnelAndProposalTests
         var proposal = Draft(Monthly);
         proposal.ReturnToDraft(null).Error.ShouldBe(CrmErrors.ProposalCannotReturn);
         proposal.Submit(Guid.CreateVersion7(), Now);
-        proposal.Approve(Guid.CreateVersion7(), Now);
+        proposal.Approve(Guid.CreateVersion7(), Now, soleMember: false);
         proposal.ReturnToDraft(" Rever o valor mensal ").IsSuccess.ShouldBeTrue();
 
         proposal.Status.ShouldBe(ProposalStatus.Draft);
@@ -153,7 +165,7 @@ public sealed class FunnelAndProposalTests
     {
         var proposal = Draft(Monthly);
         proposal.Submit(Guid.CreateVersion7(), Now);
-        proposal.Approve(Guid.CreateVersion7(), Now);
+        proposal.Approve(Guid.CreateVersion7(), Now, soleMember: false);
 
         proposal.Send(Guid.CreateVersion7(), Today.AddDays(31), Now).Error.ShouldBe(CrmErrors.ProposalExpired);
         proposal.Send(Guid.CreateVersion7(), Today, Now).IsSuccess.ShouldBeTrue();
@@ -166,7 +178,7 @@ public sealed class FunnelAndProposalTests
         var open = Draft(Monthly);
         var declined = Draft(Monthly);
         declined.Submit(Guid.CreateVersion7(), Now);
-        declined.Approve(Guid.CreateVersion7(), Now);
+        declined.Approve(Guid.CreateVersion7(), Now, soleMember: false);
         declined.Send(Guid.CreateVersion7(), Today, Now);
         declined.Decline("Achou caro", Now);
 

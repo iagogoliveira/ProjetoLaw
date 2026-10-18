@@ -1,6 +1,7 @@
 using FluentValidation;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Application.Abstractions.Security;
 using LexFlow.Crm.Application.Abstractions;
 using LexFlow.Crm.Domain;
 using LexFlow.Crm.Domain.Opportunities;
@@ -270,7 +271,8 @@ internal sealed class ChangeProposalValidator : AbstractValidator<ChangeProposal
     public ChangeProposalValidator() => RuleFor(c => c.Note).MaximumLength(Proposal.MaxNoteLength).WithErrorCode("crm.note_too_long");
 }
 
-internal sealed class ChangeProposalHandler(ICrmDbContext db, ICurrentUser user, IClock clock) : ICommandHandler<ChangeProposalCommand, ProposalResponse>
+internal sealed class ChangeProposalHandler(ICrmDbContext db, ICurrentUser user, IOrganizationMembers members, IClock clock)
+    : ICommandHandler<ChangeProposalCommand, ProposalResponse>
 {
     public async Task<Result<ProposalResponse>> Handle(ChangeProposalCommand command, CancellationToken cancellationToken)
     {
@@ -284,7 +286,7 @@ internal sealed class ChangeProposalHandler(ICrmDbContext db, ICurrentUser user,
         var changed = command.Step switch
         {
             ProposalStep.Submit => proposal.Submit(userId, clock.UtcNow),
-            ProposalStep.Approve => proposal.Approve(userId, clock.UtcNow),
+            ProposalStep.Approve => proposal.Approve(userId, clock.UtcNow, await members.CountActiveAsync(cancellationToken) == 1),
             ProposalStep.ReturnToDraft => proposal.ReturnToDraft(command.Note),
             _ => proposal.Decline(command.Note, clock.UtcNow),
         };

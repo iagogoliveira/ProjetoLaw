@@ -126,3 +126,13 @@ internal sealed class MembershipLookup(IOrganizationDbContext db, IAccessCache c
         return snapshot;
     }
 }
+
+/// <summary>
+/// Membros ativos da organização ativa: os que não saíram nem foram removidos (exclusão lógica). O filtro de tenant e
+/// a RLS limitam a contagem ao escritório da requisição.
+/// </summary>
+internal sealed class OrganizationMembers(IOrganizationDbContext db) : IOrganizationMembers
+{
+    public Task<int> CountActiveAsync(CancellationToken cancellationToken) =>
+        db.Members.AsNoTracking().CountAsync(cancellationToken);
+}
