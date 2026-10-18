@@ -84,4 +84,16 @@ public static class LitigationErrors
 
     public static readonly Error AreaCodeInvalid =
         Error.Validation("litigation.area_code_invalid", "A sigla da área tem de 1 a 10 letras ou números.");
+
+    public static readonly Error ClaimNotFound = Error.NotFound("litigation.claim_not_found", "Pedido não encontrado.");
+
+    public static readonly Error ClaimTypeNotFound =
+        Error.Validation("litigation.claim_type_invalid", "Objeto do pedido inexistente ou desativado.");
+
+    public static readonly Error ValuationInstanceDuplicated =
+        Error.Validation("litigation.valuation_instance_duplicated", "Cada instância aparece uma vez só nos valores do pedido.");
+
+    public static readonly Error ClaimCorrectionInvalid = Error.Validation(
+        "litigation.claim_correction_invalid",
+        "Juros pedem a data de início e uma taxa de 0 a 100% ao mês, e não se aplicam com a SELIC (ela já os inclui).");
 }

@@ -78,6 +78,12 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+export type CaseClaimsResponse = {
+    updatedTo: null | string;
+    items: Array<ClaimResponse>;
+    totals: Array<ClaimTotalsResponse>;
+};
+
 /**
  * Processo ou caso enviado pela tela (criação e edição).
  */
@@ -191,6 +197,80 @@ export type CheckConflictRequest = {
 };
 
 /**
+ * Índice da correção do pedido (os mesmos da tabela da plataforma).
+ */
+export type ClaimCorrectionIndex = 'ipcaE' | 'inpc' | 'selic' | 'tr';
+
+/**
+ * Dados do pedido: o objeto (tabela auxiliar "Objetos/pedidos"), a descrição, a correção e os valores.
+ */
+export type ClaimInput = {
+    claimTypeId: string;
+    description: null | string;
+    correction: null | CorrectionSettings;
+    valuations: null | Array<ValuationInput>;
+};
+
+/**
+ * Pedido com os valores por instância. string? ClaimResponse.CorrectionError traz o código do erro quando a atualização foi
+ * pedida e não pôde ser feita (ex.: `platform.monetary_index_missing`); sem correção configurada, os valores
+ * atualizados ficam nulos.
+ */
+export type ClaimResponse = {
+    id: string;
+    caseId: string;
+    claimTypeId: string;
+    description: null | string;
+    correction: null | CorrectionSettings;
+    valuations: Array<ClaimValuationResponse>;
+    correctionError: null | string;
+    createdAt: string;
+};
+
+/**
+ * Soma dos pedidos numa instância. Os totais atualizados contam pelo valor original os pedidos sem correção.
+ */
+export type ClaimTotalsResponse = {
+    instance: CaseInstance;
+    requested: number | string;
+    estimated: number | string;
+    awarded: number | string;
+    updatedRequested: null | number | string;
+    updatedEstimated: null | number | string;
+    updatedAwarded: null | number | string;
+};
+
+/**
+ * Valores de uma instância e, com a data de atualização, os mesmos valores corrigidos com juros.
+ */
+export type ClaimValuationResponse = {
+    instance: CaseInstance;
+    requested: null | number | string;
+    estimated: null | number | string;
+    awarded: null | number | string;
+    updatedRequested: null | number | string;
+    updatedEstimated: null | number | string;
+    updatedAwarded: null | number | string;
+};
+
+/**
+ * Uma alteração de valor do pedido, para a auditoria (RF-13).
+ */
+export type ClaimValueChangeResponse = {
+    instance: CaseInstance;
+    kind: ClaimValueKind;
+    oldAmount: null | number | string;
+    newAmount: null | number | string;
+    changedBy: string;
+    changedAt: string;
+};
+
+/**
+ * Qual dos valores do pedido mudou.
+ */
+export type ClaimValueKind = 'requested' | 'estimated' | 'awarded';
+
+/**
  * Encerramento: motivo (tabela auxiliar), resultado, valor final e data.
  */
 export type ClosingInput = {
@@ -297,6 +377,26 @@ export type ContactResponse = {
     email: null | string;
     phone: null | string;
     preferredChannel: ContactChannel;
+};
+
+/**
+ * Um mês da memória de cálculo.
+ */
+export type CorrectionMonthLine = {
+    month: string;
+    percent: number | string;
+    accumulatedFactor: number | string;
+};
+
+/**
+ * Como corrigir os valores do pedido: o índice e a data de início da correção (ex.: o vencimento) e, se houver, os
+ * juros simples em % ao mês a partir de uma data própria (ex.: a citação). Com a SELIC não há juros extras.
+ */
+export type CorrectionSettings = {
+    index: ClaimCorrectionIndex;
+    correctFrom: string;
+    interestFrom: null | string;
+    monthlyInterestPercent: null | number | string;
 };
 
 export type CostCenterRequest = {
@@ -599,6 +699,51 @@ export type MergePeopleRequest = {
 
 export type MfaPolicyRequest = {
     mfaRequired: boolean;
+};
+
+/**
+ * Cálculo de correção monetária: valor, índice, início da correção, data do cálculo e, opcionalmente, juros simples
+ * em % ao mês a partir de DateOnly? MonetaryCorrectionRequest.InterestFrom.
+ */
+export type MonetaryCorrectionRequest = {
+    principal: number | string;
+    index: MonetaryIndexCode;
+    correctFrom: string;
+    until: string;
+    interestFrom: null | string;
+    monthlyInterestPercent: null | number | string;
+};
+
+/**
+ * Resultado com a memória de cálculo: fator acumulado, valor corrigido (nunca abaixo do original), meses e taxa de
+ * juros aplicados, juros e total.
+ */
+export type MonetaryCorrectionResult = {
+    principal: number | string;
+    index: MonetaryIndexCode;
+    factor: number | string;
+    correctedAmount: number | string;
+    deflationFloorApplied: boolean;
+    interestMonths: number | string;
+    interestPercent: number | string;
+    interestAmount: number | string;
+    total: number | string;
+    months: Array<CorrectionMonthLine>;
+};
+
+/**
+ * Índices oficiais da tabela da plataforma.
+ */
+export type MonetaryIndexCode = 'ipcaE' | 'inpc' | 'selic' | 'tr';
+
+/**
+ * Variação de um índice num mês, em %, e de onde veio.
+ */
+export type MonetaryIndexResponse = {
+    index: MonetaryIndexCode;
+    month: string;
+    percent: number | string;
+    source: string;
 };
 
 export type MoveOpportunityRequest = {
@@ -1139,6 +1284,16 @@ export type ValidateCustomFieldsRequest = {
     values: null | JsonObject;
 };
 
+/**
+ * Valores do pedido numa instância: pedido, estimado (expectativa do escritório) e de condenação.
+ */
+export type ValuationInput = {
+    instance: CaseInstance;
+    requested: null | number | string;
+    estimated: null | number | string;
+    awarded: null | number | string;
+};
+
 export type UpdateLookupItemData = {
     body: UpdateLookupItemRequest;
     path: {
@@ -1177,6 +1332,72 @@ export type UpdateLookupItemResponses = {
 };
 
 export type UpdateLookupItemResponse = UpdateLookupItemResponses[keyof UpdateLookupItemResponses];
+
+export type ListMonetaryIndexesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        index?: MonetaryIndexCode;
+        from?: string;
+        to?: string;
+    };
+    url: '/api/v1/monetary-indexes';
+};
+
+export type ListMonetaryIndexesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListMonetaryIndexesError = ListMonetaryIndexesErrors[keyof ListMonetaryIndexesErrors];
+
+export type ListMonetaryIndexesResponses = {
+    /**
+     * OK
+     */
+    200: Array<MonetaryIndexResponse>;
+};
+
+export type ListMonetaryIndexesResponse = ListMonetaryIndexesResponses[keyof ListMonetaryIndexesResponses];
+
+export type CalculateMonetaryCorrectionData = {
+    body: MonetaryCorrectionRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/monetary-corrections';
+};
+
+export type CalculateMonetaryCorrectionErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CalculateMonetaryCorrectionError = CalculateMonetaryCorrectionErrors[keyof CalculateMonetaryCorrectionErrors];
+
+export type CalculateMonetaryCorrectionResponses = {
+    /**
+     * OK
+     */
+    200: MonetaryCorrectionResult;
+};
+
+export type CalculateMonetaryCorrectionResponse = CalculateMonetaryCorrectionResponses[keyof CalculateMonetaryCorrectionResponses];
 
 export type ListPermissionsData = {
     body?: never;
@@ -5114,3 +5335,183 @@ export type SetCaseRestrictionsResponses = {
 };
 
 export type SetCaseRestrictionsResponse = SetCaseRestrictionsResponses[keyof SetCaseRestrictionsResponses];
+
+export type ListCaseClaimsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: {
+        updateTo?: string;
+    };
+    url: '/api/v1/cases/{id}/claims';
+};
+
+export type ListCaseClaimsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type ListCaseClaimsError = ListCaseClaimsErrors[keyof ListCaseClaimsErrors];
+
+export type ListCaseClaimsResponses = {
+    /**
+     * OK
+     */
+    200: CaseClaimsResponse;
+};
+
+export type ListCaseClaimsResponse = ListCaseClaimsResponses[keyof ListCaseClaimsResponses];
+
+export type CreateCaseClaimData = {
+    body: ClaimInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/claims';
+};
+
+export type CreateCaseClaimErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateCaseClaimError = CreateCaseClaimErrors[keyof CreateCaseClaimErrors];
+
+export type CreateCaseClaimResponses = {
+    /**
+     * Created
+     */
+    201: ClaimResponse;
+};
+
+export type CreateCaseClaimResponse = CreateCaseClaimResponses[keyof CreateCaseClaimResponses];
+
+export type DeleteCaseClaimData = {
+    body?: never;
+    path: {
+        id: string;
+        claimId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/claims/{claimId}';
+};
+
+export type DeleteCaseClaimErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteCaseClaimError = DeleteCaseClaimErrors[keyof DeleteCaseClaimErrors];
+
+export type DeleteCaseClaimResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteCaseClaimResponse = DeleteCaseClaimResponses[keyof DeleteCaseClaimResponses];
+
+export type UpdateCaseClaimData = {
+    body: ClaimInput;
+    path: {
+        id: string;
+        claimId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/claims/{claimId}';
+};
+
+export type UpdateCaseClaimErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateCaseClaimError = UpdateCaseClaimErrors[keyof UpdateCaseClaimErrors];
+
+export type UpdateCaseClaimResponses = {
+    /**
+     * OK
+     */
+    200: ClaimResponse;
+};
+
+export type UpdateCaseClaimResponse = UpdateCaseClaimResponses[keyof UpdateCaseClaimResponses];
+
+export type GetCaseClaimHistoryData = {
+    body?: never;
+    path: {
+        id: string;
+        claimId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/claims/{claimId}/history';
+};
+
+export type GetCaseClaimHistoryErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseClaimHistoryError = GetCaseClaimHistoryErrors[keyof GetCaseClaimHistoryErrors];
+
+export type GetCaseClaimHistoryResponses = {
+    /**
+     * OK
+     */
+    200: Array<ClaimValueChangeResponse>;
+};
+
+export type GetCaseClaimHistoryResponse = GetCaseClaimHistoryResponses[keyof GetCaseClaimHistoryResponses];

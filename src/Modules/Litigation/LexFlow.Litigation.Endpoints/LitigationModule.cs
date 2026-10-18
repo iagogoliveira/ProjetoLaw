@@ -84,7 +84,8 @@ public sealed record CaseListQuery(
 
 /// <summary>
 /// Endpoints do módulo Litigation (Etapa 5, PR 5A): processos e casos (judiciais, administrativos e extrajudiciais),
-/// partes, responsáveis, hierarquia, encerramento, consulta do número CNJ e a numeração interna do escritório.
+/// partes, responsáveis, hierarquia, encerramento, consulta do número CNJ, a numeração interna do escritório e os
+/// pedidos com valores por instância (PR 5C1).
 /// </summary>
 public sealed class LitigationModule : IModule
 {
@@ -100,6 +101,7 @@ public sealed class LitigationModule : IModule
         MapCommands(endpoints);
         MapLifecycle(endpoints);
         MapRestrictions(endpoints);
+        ClaimEndpoints.Map(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)

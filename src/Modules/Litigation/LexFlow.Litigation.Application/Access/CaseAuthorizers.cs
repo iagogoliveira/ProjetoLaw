@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions.Security;
 using LexFlow.Litigation.Application.Cases;
+using LexFlow.Litigation.Application.Claims;
 using LexFlow.SharedKernel.Results;
 
 namespace LexFlow.Litigation.Application.Access;
@@ -17,7 +18,12 @@ internal sealed class CaseAuthorizers(CaseAccess access) :
     IResourceAuthorizer<LinkCaseCommand>,
     IResourceAuthorizer<UnlinkCaseCommand>,
     IResourceAuthorizer<GetCaseRestrictionsQuery>,
-    IResourceAuthorizer<SetCaseRestrictionsCommand>
+    IResourceAuthorizer<SetCaseRestrictionsCommand>,
+    IResourceAuthorizer<ListCaseClaimsQuery>,
+    IResourceAuthorizer<CreateClaimCommand>,
+    IResourceAuthorizer<UpdateClaimCommand>,
+    IResourceAuthorizer<DeleteClaimCommand>,
+    IResourceAuthorizer<GetClaimHistoryQuery>
 {
     public Task<Result> AuthorizeAsync(GetCaseQuery request, CancellationToken cancellationToken) =>
         access.AuthorizeAsync(request.Id, CasePermissions.Read, cancellationToken);
@@ -49,4 +55,19 @@ internal sealed class CaseAuthorizers(CaseAccess access) :
 
     public Task<Result> AuthorizeAsync(SetCaseRestrictionsCommand request, CancellationToken cancellationToken) =>
         access.AuthorizeAsync(request.CaseId, CasePermissions.ManageRestrictions, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(ListCaseClaimsQuery request, CancellationToken cancellationToken) =>
+        access.AuthorizeAsync(request.CaseId, CasePermissions.Read, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(CreateClaimCommand request, CancellationToken cancellationToken) =>
+        access.AuthorizeAsync(request.CaseId, CasePermissions.Edit, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(UpdateClaimCommand request, CancellationToken cancellationToken) =>
+        access.AuthorizeAsync(request.CaseId, CasePermissions.Edit, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(DeleteClaimCommand request, CancellationToken cancellationToken) =>
+        access.AuthorizeAsync(request.CaseId, CasePermissions.Edit, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(GetClaimHistoryQuery request, CancellationToken cancellationToken) =>
+        access.AuthorizeAsync(request.CaseId, CasePermissions.Read, cancellationToken);
 }

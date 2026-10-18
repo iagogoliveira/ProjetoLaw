@@ -2,6 +2,7 @@ using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Application.Abstractions;
 using LexFlow.Litigation.Domain.Cases;
+using LexFlow.Litigation.Domain.Claims;
 using LexFlow.Litigation.Domain.Numbering;
 using LexFlow.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexFlow.Litigation.Infrastructure.Persistence;
 
-/// <summary>DbContext do módulo Litigation (schema <c>litigation</c>): processos e casos, partes, responsáveis e hierarquia.</summary>
+/// <summary>
+/// DbContext do módulo Litigation (schema <c>litigation</c>): processos e casos, partes, responsáveis, hierarquia e
+/// pedidos com os valores por instância.
+/// </summary>
 public sealed class LitigationDbContext(DbContextOptions<LitigationDbContext> options, ITenantContext tenant)
     : ModuleDbContextBase(options, tenant), ILitigationDbContext
 {
@@ -22,6 +26,8 @@ public sealed class LitigationDbContext(DbContextOptions<LitigationDbContext> op
     public DbSet<CaseRelation> Relations => Set<CaseRelation>();
 
     public DbSet<CaseNumbering> Numberings => Set<CaseNumbering>();
+
+    public DbSet<Claim> Claims => Set<Claim>();
 
     internal DbSet<CaseCounter> Counters => Set<CaseCounter>();
 
@@ -157,6 +163,57 @@ internal sealed class CaseSupportConfiguration :
     {
         builder.ToTable("case_counters");
         builder.HasKey(c => new { c.OrganizationId, c.PracticeAreaKey, c.Year });
+    }
+}
+
+/// <summary>
+/// Pedidos do processo, com os valores por instância (um por instância) e o histórico das alterações de valor, que
+/// só recebe inserções (o UPDATE e o DELETE são revogados da aplicação na migration).
+/// </summary>
+internal sealed class ClaimConfiguration :
+    IEntityTypeConfiguration<Claim>,
+    IEntityTypeConfiguration<ClaimValuation>,
+    IEntityTypeConfiguration<ClaimValueChange>
+{
+    public void Configure(EntityTypeBuilder<Claim> builder)
+    {
+        builder.ToTable("claims");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Description).HasMaxLength(Claim.MaxDescriptionLength);
+        builder.Property(c => c.CorrectionIndex).HasConversion<string>().HasMaxLength(10);
+        builder.Property(c => c.MonthlyInterestPercent).HasPrecision(7, 4);
+        builder.HasOne<LegalCase>().WithMany().HasForeignKey(c => c.LegalCaseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(c => c.Valuations).WithOne().HasForeignKey(v => v.ClaimId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(c => c.Changes).WithOne().HasForeignKey(v => v.ClaimId).OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(c => c.Valuations).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(c => c.Changes).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(c => new { c.OrganizationId, c.LegalCaseId });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<ClaimValuation> builder)
+    {
+        builder.ToTable("claim_valuations");
+        builder.HasKey(v => v.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(v => v.Id).ValueGeneratedNever();
+        builder.Property(v => v.Instance).HasConversion<string>().HasMaxLength(20);
+        builder.Property(v => v.Requested).HasPrecision(19, 4);
+        builder.Property(v => v.Estimated).HasPrecision(19, 4);
+        builder.Property(v => v.Awarded).HasPrecision(19, 4);
+        builder.HasIndex(v => new { v.ClaimId, v.Instance }).IsUnique();
+    }
+
+    public void Configure(EntityTypeBuilder<ClaimValueChange> builder)
+    {
+        builder.ToTable("claim_value_changes");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
+        builder.Property(c => c.Instance).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.Kind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.OldAmount).HasPrecision(19, 4);
+        builder.Property(c => c.NewAmount).HasPrecision(19, 4);
+        builder.HasIndex(c => c.ClaimId);
     }
 }
 

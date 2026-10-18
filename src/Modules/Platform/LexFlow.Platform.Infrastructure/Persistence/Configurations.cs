@@ -3,6 +3,7 @@ using LexFlow.Platform.Domain.Calendar;
 using LexFlow.Platform.Domain.Courts;
 using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
+using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -63,6 +64,19 @@ internal sealed class CourtConfiguration : IEntityTypeConfiguration<Court>
         builder.Property(c => c.State).HasMaxLength(2).IsFixedLength();
         builder.HasIndex(c => new { c.Segment, c.Code }).IsUnique();
         builder.HasData(ReferenceData.Courts);
+    }
+}
+
+/// <summary>Índices monetários (seção 6.5): um valor por índice e mês, com a origem. O seed entra por migration de dados.</summary>
+internal sealed class MonetaryIndexConfiguration : IEntityTypeConfiguration<MonetaryIndex>
+{
+    public void Configure(EntityTypeBuilder<MonetaryIndex> builder)
+    {
+        builder.ToTable("monetary_indexes");
+        builder.HasKey(i => new { i.Kind, i.Month });
+        builder.Property(i => i.Kind).HasConversion<string>().HasMaxLength(10);
+        builder.Property(i => i.Percent).HasPrecision(9, 4);
+        builder.Property(i => i.Source).HasMaxLength(MonetaryIndex.MaxSourceLength);
     }
 }
 

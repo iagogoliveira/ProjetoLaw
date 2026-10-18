@@ -1578,6 +1578,38 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                     b.ToTable("idempotency_keys", "platform");
                 });
 
+            modelBuilder.Entity("LexFlow.Platform.Domain.Indexes.MonetaryIndex", b =>
+                {
+                    b.Property<string>("Kind")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date")
+                        .HasColumnName("month");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("imported_at");
+
+                    b.Property<decimal>("Percent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("numeric(9,4)")
+                        .HasColumnName("percent");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.HasKey("Kind", "Month")
+                        .HasName("pk_monetary_indexes");
+
+                    b.ToTable("monetary_indexes", "platform");
+                });
+
             modelBuilder.Entity("LexFlow.Platform.Domain.Jobs.Job", b =>
                 {
                     b.Property<Guid>("Id")

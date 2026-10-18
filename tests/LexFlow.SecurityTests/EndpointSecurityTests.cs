@@ -143,10 +143,11 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         return cases;
     }
 
-    /// <summary>Processos e casos (Etapa 5, PR 5A). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
+    /// <summary>Processos e casos (Etapa 5, PRs 5A a 5C1). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCaseRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
     {
         var parties = new[] { new { personId = Guid.CreateVersion7(), pole = "active", isClient = true } };
+        var claim = new { claimTypeId = Guid.CreateVersion7(), valuations = Array.Empty<object>() };
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
@@ -162,6 +163,11 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["GET /api/v1/cases/{id:guid}/restrictions"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["PUT /api/v1/cases/{id:guid}/restrictions"] = async owner =>
                 new CrossTenantCase(await CaseOfAsync(owner), new { allowed = Array.Empty<object>(), blocked = Array.Empty<object>() }),
+            ["GET /api/v1/cases/{id:guid}/claims"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/claims"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), claim),
+            ["PUT /api/v1/cases/{id:guid}/claims/{claimId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), claim),
+            ["DELETE /api/v1/cases/{id:guid}/claims/{claimId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/claims/{claimId:guid}/history"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
         };
         foreach (var (route, create) in routes)
         {
