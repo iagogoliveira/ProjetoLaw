@@ -1,0 +1,150 @@
+// Estilos comuns das telas de pessoas e conflito (formulários, tabelas, cartões e mensagens).
+:host {
+  display: block;
+}
+
+.page {
+  display: grid;
+  gap: var(--lf-space-md);
+}
+
+h1 {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+}
+
+h2,
+h3 {
+  margin: 0;
+}
+
+.header {
+  justify-content: space-between;
+}
+
+form,
+.form {
+  display: grid;
+  gap: var(--lf-space-sm);
+  max-width: 760px;
+}
+
+fieldset {
+  display: grid;
+  gap: var(--lf-space-sm);
+  margin: 0;
+  padding: var(--lf-space-sm) var(--lf-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+}
+
+legend {
+  padding: 0 var(--lf-space-xs, 4px);
+  font: var(--mat-sys-title-small);
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lf-space-sm);
+  align-items: baseline;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.inline mat-form-field {
+  width: auto;
+  min-width: 200px;
+  flex: 1 1 200px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: var(--lf-space-xs, 4px) var(--lf-space-sm);
+  text-align: start;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  vertical-align: middle;
+}
+
+th {
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.chip {
+  display: inline-block;
+  margin-inline-end: var(--lf-space-xs, 4px);
+  padding: 0 var(--lf-space-sm);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-high);
+  font: var(--mat-sys-label-medium);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lf-space-xs, 4px);
+}
+
+.panel {
+  display: grid;
+  gap: var(--lf-space-sm);
+  padding: var(--lf-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--lf-space-xs, 4px) var(--lf-space-md);
+  margin: 0;
+}
+
+dt {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+dd {
+  margin: 0;
+}
+
+.hint,
+.empty {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.status {
+  color: var(--mat-sys-primary);
+}
+
+.risk-direct {
+  color: var(--mat-sys-error);
+  font-weight: 600;
+}
+
+.risk-indirect {
+  color: var(--mat-sys-tertiary);
+  font-weight: 600;
+}
+
+.risk-none {
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+}
+
+.tab {
+  padding-top: var(--lf-space-md);
+}

@@ -50,7 +50,8 @@ public sealed record PersonResponse(
     IReadOnlyList<AddressResponse> Addresses,
     IReadOnlyList<ContactResponse> Contacts,
     JsonObject CustomFields,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? AnonymizedAt);
 
 /// <summary>Linha da lista de pessoas; <see cref="Score"/> é a semelhança com o termo buscado (0 a 1), quando houver.</summary>
 public sealed record PersonSummary(Guid Id, PersonKind Kind, string Name, string? AlternateName, string? Document, IReadOnlyList<PersonRoleKind> Roles, double? Score);
@@ -72,7 +73,8 @@ internal static class PersonMapping
         [.. p.Addresses.Select(a => new AddressResponse(a.Street, a.Number, a.Complement, a.District, a.City, a.State, a.PostalCode, a.IsBilling))],
         [.. p.Contacts.Select(c => new ContactResponse(c.Name, c.Department, c.Email, c.Phone, c.PreferredChannel))],
         JsonNode.Parse(p.CustomFields)?.AsObject() ?? [],
-        p.CreatedAt);
+        p.CreatedAt,
+        p.AnonymizedAt);
 }
 
 internal sealed class PersonInputValidator : AbstractValidator<PersonInput>

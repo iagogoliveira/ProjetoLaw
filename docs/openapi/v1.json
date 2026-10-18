@@ -8319,7 +8319,8 @@
           "addresses",
           "contacts",
           "customFields",
-          "createdAt"
+          "createdAt",
+          "anonymizedAt"
         ],
         "type": "object",
         "properties": {
@@ -8396,6 +8397,13 @@
           },
           "createdAt": {
             "type": "string",
+            "format": "date-time"
+          },
+          "anonymizedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "date-time"
           }
         }

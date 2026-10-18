@@ -594,6 +594,7 @@ export type PersonResponse = {
     contacts: Array<ContactResponse>;
     customFields: JsonObject;
     createdAt: string;
+    anonymizedAt: null | string;
 };
 
 /**

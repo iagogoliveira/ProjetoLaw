@@ -1,0 +1,257 @@
+<section class="page" *transloco="let t">
+  <a mat-button routerLink="/pessoas">{{ t('people.back') }}</a>
+
+  @if (store.person(); as person) {
+    <div class="inline header">
+      <div>
+        <h1>{{ person.name }}</h1>
+        <p class="hint">
+          {{ t('people.kinds.' + person.kind) }}
+          @if (person.document) {
+            · {{ format(person.document) }}
+          }
+        </p>
+        <p>
+          @for (role of person.roles; track role) {
+            <span class="chip">{{ t('people.roles.' + role) }}</span>
+          }
+        </p>
+      </div>
+      @if (!anonymized()) {
+        <div class="actions">
+          <a *lfCan="'crm.people.edit'" mat-stroked-button routerLink="editar">{{
+            t('people.detail.edit')
+          }}</a>
+          <button *lfCan="'crm.people.merge'" mat-button type="button" (click)="open('merge')">
+            {{ t('people.detail.merge') }}
+          </button>
+          <button
+            *lfCan="'crm.people.anonymize'"
+            mat-button
+            type="button"
+            (click)="open('anonymize')"
+          >
+            {{ t('people.detail.anonymize') }}
+          </button>
+          <button *lfCan="'crm.people.delete'" mat-button type="button" (click)="open('delete')">
+            {{ t('people.detail.delete') }}
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (anonymized()) {
+      <p class="panel hint" role="note">
+        {{ t('people.detail.anonymizedNote', { date: (person.anonymizedAt | date: 'shortDate') }) }}
+      </p>
+    }
+    @if (store.done(); as done) {
+      <p class="status" role="status">{{ t('people.detail.done.' + done) }}</p>
+    }
+    @if (store.errorCode(); as code) {
+      <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+    }
+
+    @switch (pending()) {
+      @case ('merge') {
+        <section class="panel" aria-labelledby="merge-title">
+          <h2 id="merge-title">{{ t('people.detail.mergeTitle') }}</h2>
+          <p class="hint">{{ t('people.detail.mergeHint') }}</p>
+          @if (store.duplicates().length === 0) {
+            <p class="empty">{{ t('people.detail.noDuplicates') }}</p>
+          } @else {
+            <mat-radio-group
+              class="form"
+              [ngModel]="duplicateId()"
+              (ngModelChange)="duplicateId.set($event)"
+              [attr.aria-label]="t('people.detail.mergeTitle')"
+            >
+              @for (match of store.duplicates(); track match.id) {
+                <mat-radio-button [value]="match.id">
+                  {{ match.name }}
+                  @if (match.document) {
+                    ({{ format(match.document) }})
+                  }
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          }
+          <div class="actions">
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy() || !duplicateId()"
+              (click)="confirmMerge()"
+            >
+              {{ t('people.detail.confirmMerge') }}
+            </button>
+            <button mat-button type="button" (click)="open(null)">
+              {{ t('people.form.cancel') }}
+            </button>
+          </div>
+        </section>
+      }
+      @case ('anonymize') {
+        <section class="panel" aria-labelledby="anonymize-title">
+          <h2 id="anonymize-title">{{ t('people.detail.anonymizeTitle') }}</h2>
+          <p class="error">{{ t('people.detail.anonymizeWarning') }}</p>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.detail.reason') }}</mat-label>
+            <textarea
+              matInput
+              rows="2"
+              maxlength="500"
+              required
+              [ngModel]="reason()"
+              (ngModelChange)="reason.set($event)"
+            ></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy() || !reason().trim()"
+              (click)="confirmAnonymize()"
+            >
+              {{ t('people.detail.confirmAnonymize') }}
+            </button>
+            <button mat-button type="button" (click)="open(null)">
+              {{ t('people.form.cancel') }}
+            </button>
+          </div>
+        </section>
+      }
+      @case ('delete') {
+        <section class="panel" aria-labelledby="delete-title">
+          <h2 id="delete-title">{{ t('people.detail.deleteTitle') }}</h2>
+          <p>{{ t('people.detail.deleteHint') }}</p>
+          <div class="actions">
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="confirmDelete()"
+            >
+              {{ t('people.detail.confirmDelete') }}
+            </button>
+            <button mat-button type="button" (click)="open(null)">
+              {{ t('people.form.cancel') }}
+            </button>
+          </div>
+        </section>
+      }
+    }
+
+    <mat-tab-group>
+      <mat-tab [label]="t('people.tabs.data')">
+        <div class="tab">
+          <dl>
+            @if (person.alternateName) {
+              <dt>
+                {{
+                  t(person.kind === 'company' ? 'people.form.tradeName' : 'people.form.socialName')
+                }}
+              </dt>
+              <dd>{{ person.alternateName }}</dd>
+            }
+            <dt>{{ t('people.form.email') }}</dt>
+            <dd>{{ person.email ?? '—' }}</dd>
+            <dt>{{ t('people.form.phone') }}</dt>
+            <dd>{{ person.phone ?? '—' }}</dd>
+            <dt>{{ t('people.form.economicGroup') }}</dt>
+            <dd>{{ groupName() ?? '—' }}</dd>
+            <dt>{{ t('people.form.stateRegistration') }}</dt>
+            <dd>{{ person.fiscal.stateRegistration ?? '—' }}</dd>
+            <dt>{{ t('people.form.municipalRegistration') }}</dt>
+            <dd>{{ person.fiscal.municipalRegistration ?? '—' }}</dd>
+            <dt>{{ t('people.detail.withholdings') }}</dt>
+            <dd>
+              @if (person.fiscal.withholdsIss) {
+                <span class="chip">ISS</span>
+              }
+              @if (person.fiscal.withholdsIncomeTax) {
+                <span class="chip">IR</span>
+              }
+              @if (person.fiscal.withholdsPisCofinsCsll) {
+                <span class="chip">PIS/COFINS/CSLL</span>
+              }
+              @if (
+                !person.fiscal.withholdsIss &&
+                !person.fiscal.withholdsIncomeTax &&
+                !person.fiscal.withholdsPisCofinsCsll
+              ) {
+                —
+              }
+            </dd>
+            @for (entry of customFieldEntries(); track entry.key) {
+              <dt>{{ entry.label }}</dt>
+              <dd>{{ entry.value }}</dd>
+            }
+            <dt>{{ t('people.form.notes') }}</dt>
+            <dd>{{ person.notes ?? '—' }}</dd>
+          </dl>
+        </div>
+      </mat-tab>
+      <mat-tab [label]="t('people.tabs.contacts')">
+        <div class="tab page">
+          <h2>{{ t('people.form.contacts') }}</h2>
+          @if (person.contacts.length === 0) {
+            <p class="empty">{{ t('people.detail.noContacts') }}</p>
+          } @else {
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{{ t('people.form.contactName') }}</th>
+                  <th scope="col">{{ t('people.form.department') }}</th>
+                  <th scope="col">{{ t('people.form.email') }}</th>
+                  <th scope="col">{{ t('people.form.phone') }}</th>
+                  <th scope="col">{{ t('people.form.channel') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (contact of person.contacts; track $index) {
+                  <tr>
+                    <td>{{ contact.name }}</td>
+                    <td>{{ contact.department ?? '—' }}</td>
+                    <td>{{ contact.email ?? '—' }}</td>
+                    <td>{{ contact.phone ?? '—' }}</td>
+                    <td>{{ t('people.channels.' + contact.preferredChannel) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          <h2>{{ t('people.form.addresses') }}</h2>
+          @if (person.addresses.length === 0) {
+            <p class="empty">{{ t('people.detail.noAddresses') }}</p>
+          } @else {
+            <ul>
+              @for (address of person.addresses; track $index) {
+                <li>
+                  {{ address.street }}{{ address.number ? ', ' + address.number : '' }}
+                  {{ address.complement ?? '' }} — {{ address.district ?? '' }}
+                  {{ address.city }}/{{ address.state }} ·
+                  {{ formatPostalCode(address.postalCode) }}
+                  @if (address.isBilling) {
+                    <span class="chip">{{ t('people.form.billing') }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </mat-tab>
+      <mat-tab [label]="t('people.tabs.cases')">
+        <p class="tab empty">{{ t('people.detail.soon.cases') }}</p>
+      </mat-tab>
+      <mat-tab [label]="t('people.tabs.documents')">
+        <p class="tab empty">{{ t('people.detail.soon.documents') }}</p>
+      </mat-tab>
+      <mat-tab [label]="t('people.tabs.finance')">
+        <p class="tab empty">{{ t('people.detail.soon.finance') }}</p>
+      </mat-tab>
+    </mat-tab-group>
+  } @else if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+</section>
