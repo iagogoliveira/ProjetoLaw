@@ -9,7 +9,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A pronto para revisão; faltam 5B a 5E) | `etapa-5a-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 mergeado; faltam 5B a 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos` |
 
 ---
 
@@ -38,7 +38,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
 | Correção monetária confere com 10 casos calculados manualmente | Pendente (5C) | |
 
-### PR 5A — módulo Litigation e cadastro de processos (pronto para revisão)
+### PR 5A — módulo Litigation e cadastro de processos (concluído: PR #24 mergeado em 2026-10-18)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 5.7 | `ILitigationLookup` real no conflito de interesses e fusão de cadastros do Crm refletida nas partes | `The_conflict_check_finds_an_opponent_in_a_case_of_another_client`, `Merging_people_in_the_crm_points_the_parties_to_the_kept_record` |
 | 5.8 | Endpoints com `cases.*`, casos entre organizações nas 8 rotas novas com id, OpenAPI (9 caminhos novos, só adições) e cliente TypeScript | `EndpointSecurityTests`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `OpenApiContractTests` |
 
-**ADR:** [0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm](adr/0025-modulo-litigation-processos-e-numeracao.md) (proposta, para revisão no PR).
+**ADR:** [0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm](adr/0025-modulo-litigation-processos-e-numeracao.md) (Aceita em 2026-10-18, com o merge do PR #24).
 
 **Critério de aceite da Etapa 4 com processos reais:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ (`CaseTests.The_conflict_check_finds_an_opponent_in_a_case_of_another_client`).
 

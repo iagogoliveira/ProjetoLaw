@@ -1,6 +1,6 @@
 # ADR 0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm
 
-- **Status:** Proposta (para revisão no PR 5A)
+- **Status:** Aceita (PR #24 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5A)
 
