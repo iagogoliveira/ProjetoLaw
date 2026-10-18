@@ -95,7 +95,7 @@ Decisões de negócio confirmadas em 2026-10-18:
 
 ## Consequências
 
-- **Escritório de uma pessoa só:** decidido em 2026-10-18 (ver "Atualização" abaixo). Implementação pendente.
+- **Escritório de uma pessoa só:** decidido e implementado em 2026-10-18, no PR 4E (ver "Atualização" abaixo).
 - **Mesclagem simples:** não há laços além da linha de itens, nem condicionais e imagens. Fica para o motor da Etapa 9, que pode substituir a implementação de `IProposalDocuments`.
 - **Modelo partido pelo Word:** a formatação mista dentro de um parágrafo com marcador partido se perde, e vale a do primeiro trecho.
 - **Arquivo órfão:** se o envio falhar depois de gravar o DOCX no armazenamento, o arquivo fica sem referência. A limpeza de órfãos entra com o GED (Etapa 9).
@@ -109,6 +109,10 @@ Decisão de negócio: o escritório com um único usuário pode aprovar a própr
 Como fica a regra:
 - a proibição de autoaprovação vale quando o escritório tem mais de um membro ativo;
 - com um único membro ativo, quem elaborou ou enviou para aprovação também pode aprovar. Continua valendo a permissão `crm.proposals.approve`, que o Administrador do escritório tem;
-- o caso de uso conta os membros ativos (Organization, por um contrato) no momento da aprovação. A aprovação registra quem aprovou, como hoje.
+- o caso de uso conta os membros ativos no momento da aprovação, pelo contrato `IOrganizationMembers` (Application.Abstractions, implementado pelo Organization, como o `IMembershipLookup`). A aprovação registra quem aprovou, como hoje;
+- convite pendente não conta como membro. A regra passa a valer quando a pessoa convidada aceita.
 
-Implementação pendente, num PR próprio: regra no domínio, contrato de contagem de membros, testes unitários e de integração.
+Implementado no PR 4E:
+- `Proposal.Approve(userId, now, soleMember)`;
+- testes `The_only_member_of_the_office_approves_the_own_proposal` e `The_only_member_approves_the_own_proposal_until_someone_else_joins`;
+- o e2e do funil passa pela aprovação da própria proposta antes de o sócio entrar.

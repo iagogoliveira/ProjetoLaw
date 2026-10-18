@@ -40,6 +40,7 @@ public static class OrganizationInfrastructure
         services.AddScoped<IPermissionChecker, PermissionChecker>();
         services.AddScoped<ICurrentAccess, CurrentAccess>();
         services.AddScoped<IMembershipLookup, MembershipLookup>();
+        services.AddScoped<IOrganizationMembers, OrganizationMembers>();
         return services;
     }
 }

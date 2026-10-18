@@ -53,7 +53,7 @@ public sealed record ProposalDetails(
 /// <summary>
 /// Proposta de honorários (RF-08) de uma oportunidade: escopo, condições, validade e itens com a modalidade. O total
 /// soma os itens com valor (êxito fica de fora, por depender do resultado). Quem elaborou ou enviou para aprovação não
-/// aprova; ao ser enviada, o DOCX gerado fica congelado no armazenamento.
+/// aprova, salvo no escritório de um membro só; ao ser enviada, o DOCX gerado fica congelado no armazenamento.
 /// </summary>
 public sealed class Proposal : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISoftDeletable
 {
@@ -200,15 +200,19 @@ public sealed class Proposal : AggregateRoot<Guid>, ITenantOwned, IAuditable, IS
         return Result.Success;
     }
 
-    /// <summary>Aprovação interna: quem elaborou ou enviou para aprovação não aprova a própria proposta.</summary>
-    public Result Approve(Guid userId, DateTimeOffset now)
+    /// <summary>
+    /// Aprovação interna: quem elaborou ou enviou para aprovação não aprova a própria proposta, a não ser que seja o
+    /// único membro ativo do escritório (decisão de 2026-10-18, ADR 0024): ele é o usuário de maior permissão, e não há
+    /// outra pessoa para aprovar.
+    /// </summary>
+    public Result Approve(Guid userId, DateTimeOffset now, bool soleMember)
     {
         if (Status != ProposalStatus.PendingApproval)
         {
             return CrmErrors.ProposalNotPendingApproval;
         }
 
-        if (userId == CreatedBy || userId == SubmittedBy)
+        if (!soleMember && (userId == CreatedBy || userId == SubmittedBy))
         {
             return CrmErrors.ProposalSelfApproval;
         }

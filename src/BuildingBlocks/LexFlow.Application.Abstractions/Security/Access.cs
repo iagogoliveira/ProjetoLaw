@@ -33,6 +33,15 @@ public interface IMembershipLookup
     Task<MembershipSnapshot> GetAsync(Guid userId, CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// Quantos membros ativos tem a organização ativa (implementado pelo módulo Organization). Usado em regras que dependem
+/// do tamanho do escritório, como a aprovação da própria proposta quando só há um membro (ADR 0024).
+/// </summary>
+public interface IOrganizationMembers
+{
+    Task<int> CountActiveAsync(CancellationToken cancellationToken);
+}
+
 public enum PermissionDecision
 {
     Allowed,

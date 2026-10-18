@@ -24,8 +24,10 @@ async function invitePartner(page: Page, email: string): Promise<void> {
 
 /**
  * Funil até o aceite pela tela (Etapa 4, PR 4D2): oportunidade com lead solto, cartão movido no kanban, proposta com
- * itens e total, aprovação interna recusada para quem elaborou e feita por um sócio, envio com o DOCX, aceite
- * bloqueado sem a verificação de conflito e, depois dela, o interessado vira cliente. Precisa do AppHost.
+ * itens e total; sozinha no escritório, a administradora aprova a própria proposta (ADR 0024); com um sócio no
+ * escritório, ele aprova a proposta revisada pela fila, registra o envio com o DOCX, o aceite é bloqueado sem a
+ * verificação de conflito e, depois dela, o interessado vira cliente. A recusa da autoaprovação com mais de um membro
+ * é provada nos testes de integração. Precisa do AppHost.
  */
 test.describe('Funnel flow', () => {
   test.skip(
@@ -87,11 +89,23 @@ test.describe('Funnel flow', () => {
     await page.getByRole('button', { name: 'Enviar para aprovação' }).click();
     await expect(page.getByText('Aguardando aprovação')).toBeVisible();
 
-    // Quem elaborou não aprova.
+    // Sozinha no escritório, quem elaborou aprova a própria proposta.
     await page.getByRole('button', { name: 'Aprovar' }).click();
-    await expect(page.getByRole('alert')).toContainText(
-      'Quem elaborou a proposta não pode aprová-la.',
-    );
+    await expect(page.getByText('Aprovada', { exact: true })).toBeVisible();
+
+    // Uma proposta revisada fica aguardando aprovação.
+    await page.getByRole('link', { name: 'Voltar para Contencioso trabalhista' }).click();
+    await page.getByRole('link', { name: 'Nova proposta' }).click();
+    await page.getByLabel('Título').fill('Proposta revisada');
+    await page.getByLabel('Descrição').fill('Acompanhamento mensal');
+    await page.getByRole('combobox', { name: 'Modalidade' }).click();
+    await page.getByRole('option', { name: 'Mensal' }).click();
+    await page.getByLabel('Quantidade').fill('12');
+    await page.getByLabel('Valor', { exact: true }).fill('3000');
+    await page.getByRole('button', { name: 'Salvar rascunho' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Proposta revisada' })).toBeVisible();
+    await page.getByRole('button', { name: 'Enviar para aprovação' }).click();
+    await expect(page.getByText('Aguardando aprovação')).toBeVisible();
 
     // Modelos de proposta nas configurações: o modelo padrão para baixar e adaptar.
     await page.getByRole('link', { name: 'Configurações' }).click();
@@ -118,7 +132,7 @@ test.describe('Funnel flow', () => {
     await page.getByRole('link', { name: 'Funil comercial' }).click();
     await page
       .getByRole('region', { name: 'Propostas aguardando sua aprovação' })
-      .getByRole('link', { name: 'Proposta 2026' })
+      .getByRole('link', { name: 'Proposta revisada' })
       .click();
     await page.getByRole('button', { name: 'Aprovar' }).click();
     await expect(page.getByText('Aprovada', { exact: true })).toBeVisible();
@@ -128,7 +142,7 @@ test.describe('Funnel flow', () => {
     await expect(page.getByText('Enviada', { exact: true })).toBeVisible();
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Baixar DOCX' }).click();
-    expect((await download).suggestedFilename()).toBe('Proposta 2026.docx');
+    expect((await download).suggestedFilename()).toBe('Proposta revisada.docx');
 
     // Sem a verificação de conflito, o aceite é recusado; com ela prosseguida, o interessado vira cliente.
     await page.getByRole('button', { name: 'Registrar aceite' }).click();
@@ -141,7 +155,7 @@ test.describe('Funnel flow', () => {
     await page.getByRole('button', { name: 'Prosseguir' }).click();
     await expect(page.getByRole('status')).toContainText('Verificação prosseguida');
     await expectAccessible(page);
-    await page.getByRole('link', { name: 'Proposta 2026' }).click();
+    await page.getByRole('link', { name: 'Proposta revisada' }).click();
     await page.getByRole('button', { name: 'Registrar aceite' }).click();
     await expect(page.getByRole('status')).toContainText('o interessado agora é cliente');
     await page.getByRole('link', { name: 'Abrir o cadastro do cliente' }).click();
