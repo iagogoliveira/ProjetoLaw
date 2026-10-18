@@ -55,7 +55,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 **Critério de aceite da Etapa 4 com processos reais:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ (`CaseTests.The_conflict_check_finds_an_opponent_in_a_case_of_another_client`).
 
-**Última verificação local (PR 5A):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 607 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Litigation.Application 90,5% e Litigation.Domain 98,7%. Sem mudança de modelo pendente nas migrations dos quatro módulos com banco próprio além do Identity. Sem mudança de tela (só o cliente TypeScript regenerado; Playwright não rodado de novo).
+**Última verificação local (PR 5A):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 607 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Litigation.Application 90,5% e Litigation.Domain 98,7%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Sem mudança de tela (só o cliente TypeScript regenerado; Playwright não rodado de novo).
 
 ---
 
