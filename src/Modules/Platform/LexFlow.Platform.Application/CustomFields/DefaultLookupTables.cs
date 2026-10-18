@@ -46,6 +46,16 @@ public static class DefaultLookupTables
             "Elaborar petição", "Protocolar", "Preparar audiência", "Reunião com cliente", "Analisar documentos", "Elaborar cálculo",
             "Diligência", "Contato telefônico",
         ]),
+        new(SystemLookupTables.OpportunityOrigins, "Origens de oportunidade",
+        [
+            "Indicação de cliente", "Indicação de parceiro", "Site", "Redes sociais", "Evento ou palestra", "Prospecção ativa",
+            "Cliente atual (novo caso)",
+        ]),
+        new(SystemLookupTables.LossReasons, "Motivos de perda",
+        [
+            "Preço", "Escolheu outro escritório", "Desistiu da demanda", "Sem retorno do interessado", "Conflito de interesses",
+            "Fora da área de atuação",
+        ]),
     ];
 }
 
@@ -65,4 +75,12 @@ public sealed class LookupTableSeeder(IPlatformDbContext db, IIdGenerator ids)
             db.LookupItems.AddRange(definition.Items.Select((name, index) => LookupItem.Create(ids.NewId(), table.Id, name, index + 1)));
         }
     }
+}
+
+internal sealed class LookupItemValidator(IPlatformDbContext db) : ILookupItemValidator
+{
+    public Task<bool> IsActiveItemAsync(string systemTable, Guid itemId, CancellationToken cancellationToken) =>
+        db.LookupItems.AsNoTracking().AnyAsync(
+            i => i.Id == itemId && i.IsActive && db.LookupTables.Any(t => t.Id == i.TableId && t.SystemKey == systemTable && t.IsActive),
+            cancellationToken);
 }

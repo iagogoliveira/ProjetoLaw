@@ -5,6 +5,14 @@ export type ClientOptions = {
 };
 
 /**
+ * A proposta aceita e o cliente que ela gerou (ou reaproveitou).
+ */
+export type AcceptedProposalResponse = {
+    proposal: ProposalResponse;
+    clientPersonId: string;
+};
+
+/**
  * Endereço como informado no cadastro; o CEP e a UF são validados.
  */
 export type AddressInput = {
@@ -275,6 +283,11 @@ export type EconomicGroupResponse = {
 };
 
 /**
+ * Modalidade de honorários de um item (RF-30, só o necessário para a proposta; o contrato é da Etapa 10).
+ */
+export type FeeKind = 'fixed' | 'monthly' | 'hourly' | 'success' | 'perAct';
+
+/**
  * Dados fiscais para faturamento (RF-06): inscrições e retenções aplicáveis.
  */
 export type FiscalData = {
@@ -369,6 +382,11 @@ export type LookupTableResponse = {
     items: Array<LookupItemResponse>;
 };
 
+export type LoseOpportunityRequest = {
+    reasonId: string;
+    note: null | string;
+};
+
 /**
  * Membro com nome e e-mail da conta (módulo Identity) e os perfis atribuídos.
  */
@@ -402,6 +420,10 @@ export type MfaPolicyRequest = {
     mfaRequired: boolean;
 };
 
+export type MoveOpportunityRequest = {
+    stage: OpportunityStage;
+};
+
 /**
  * Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA
  * esconder o que não cabe (a UI só esconde; quem bloqueia é o servidor).
@@ -411,6 +433,76 @@ export type MyAccessResponse = {
     organizations: Array<OrganizationSummary>;
     permissions: Array<string>;
     mfaRequired: boolean;
+};
+
+export type OpportunitiesPageResponse = {
+    items: Array<OpportunitySummary>;
+    nextCursor: null | string;
+};
+
+/**
+ * Oportunidade enviada pela tela (criação e edição).
+ */
+export type OpportunityInput = {
+    title: string;
+    personId: null | string;
+    prospect: null | ProspectInput;
+    originId: null | string;
+    estimatedValue: null | number | string;
+    expectedCloseDate: null | string;
+    responsibleUserId: null | string;
+    notes: null | string;
+    customFields: null | JsonObject;
+};
+
+export type OpportunityResponse = {
+    id: string;
+    title: string;
+    personId: null | string;
+    prospect: ProspectResponse;
+    originId: null | string;
+    estimatedValue: null | number | string;
+    expectedCloseDate: null | string;
+    responsibleUserId: null | string;
+    notes: null | string;
+    stage: OpportunityStage;
+    stageChangedAt: string;
+    lossReasonId: null | string;
+    lossNote: null | string;
+    conflictCheckId: null | string;
+    wonAt: null | string;
+    customFields: JsonObject;
+    createdAt: string;
+};
+
+/**
+ * Etapas do funil (RF-08): lead → reunião → proposta → aceita ou perdida.
+ */
+export type OpportunityStage = 'lead' | 'meeting' | 'proposal' | 'won' | 'lost';
+
+/**
+ * Cabeçalho de uma coluna do kanban: quantas oportunidades e o valor estimado somado.
+ */
+export type OpportunityStageSummary = {
+    stage: OpportunityStage;
+    count: number | string;
+    estimatedValue: number | string;
+};
+
+/**
+ * Cartão do kanban.
+ */
+export type OpportunitySummary = {
+    id: string;
+    title: string;
+    prospectName: string;
+    personId: null | string;
+    stage: OpportunityStage;
+    estimatedValue: null | number | string;
+    expectedCloseDate: null | string;
+    responsibleUserId: null | string;
+    originId: null | string;
+    stageChangedAt: string;
 };
 
 export type OrganizationCreatedResponse = {
@@ -543,6 +635,129 @@ export type ProceedConflictRequest = {
     justification: null | string;
 };
 
+/**
+ * Proposta enviada pela tela (criação e edição do rascunho).
+ */
+export type ProposalInput = {
+    title: string;
+    scope: null | string;
+    conditions: null | string;
+    validUntil: null | string;
+    templateId: null | string;
+    items: null | Array<ProposalItemInput>;
+};
+
+/**
+ * Item como enviado pela tela.
+ */
+export type ProposalItemInput = {
+    description: string;
+    kind: FeeKind;
+    quantity: number | string;
+    unitAmount: null | number | string;
+    percentage: null | number | string;
+};
+
+export type ProposalItemResponse = {
+    description: string;
+    kind: FeeKind;
+    quantity: number | string;
+    unitAmount: null | number | string;
+    percentage: null | number | string;
+    amount: null | number | string;
+};
+
+export type ProposalNoteRequest = {
+    note: null | string;
+};
+
+export type ProposalResponse = {
+    id: string;
+    opportunityId: string;
+    title: string;
+    scope: null | string;
+    conditions: null | string;
+    validUntil: null | string;
+    templateId: null | string;
+    currency: string;
+    total: number | string;
+    status: ProposalStatus;
+    items: Array<ProposalItemResponse>;
+    createdBy: string;
+    submittedBy: null | string;
+    submittedAt: null | string;
+    approvedBy: null | string;
+    approvedAt: null | string;
+    returnNote: null | string;
+    sentAt: null | string;
+    acceptedAt: null | string;
+    declinedAt: null | string;
+    declineNote: null | string;
+    createdAt: string;
+};
+
+export type ProposalsPageResponse = {
+    items: Array<ProposalSummary>;
+    nextCursor: null | string;
+};
+
+/**
+ * Situação da proposta (decisão de 2026-10-17: aprovação interna sempre). Rascunho → aguardando aprovação →
+ * aprovada → enviada → aceita ou recusada. Aceita uma proposta, as outras abertas da mesma oportunidade ficam
+ * substituídas.
+ */
+export type ProposalStatus = 'draft' | 'pendingApproval' | 'approved' | 'sent' | 'accepted' | 'declined' | 'superseded';
+
+/**
+ * Linha da lista de propostas (com o interessado, para a fila de aprovação).
+ */
+export type ProposalSummary = {
+    id: string;
+    opportunityId: string;
+    prospectName: string;
+    title: string;
+    status: ProposalStatus;
+    total: number | string;
+    createdAt: string;
+    sentAt: null | string;
+};
+
+export type ProposalTemplateResponse = {
+    id: string;
+    name: string;
+    fileName: string;
+    size: number | string;
+    createdAt: string;
+};
+
+/**
+ * Modelos do escritório e os marcadores aceitos (para a tela mostrar como montar um modelo).
+ */
+export type ProposalTemplatesResponse = {
+    templates: Array<ProposalTemplateResponse>;
+    markers: Array<string>;
+};
+
+/**
+ * Interessado da oportunidade (decisão de 2026-10-17): dados soltos ou uma pessoa já cadastrada. Os dados ficam sempre
+ * gravados na oportunidade (cópia dos da pessoa, quando houver), para o funil e para a verificação de conflito.
+ */
+export type ProspectInput = {
+    kind: PersonKind;
+    name: string;
+    document: null | string;
+    email: null | string;
+    phone: null | string;
+};
+
+export type ProspectResponse = {
+    kind: PersonKind;
+    name: string;
+    document: null | string;
+    email: null | string;
+    phone: null | string;
+};
+
 export type RecoveryCodesResponse = {
     recoveryCodes: Array<string>;
 };
@@ -605,6 +820,8 @@ export type SimilarPerson = {
     sameDocument: boolean;
     score: number | string;
 };
+
+export type Stream = Blob | File;
 
 export type TeamMembersRequest = {
     memberIds: Array<string>;
@@ -730,6 +947,45 @@ export type ListPermissionsResponses = {
 };
 
 export type ListPermissionsResponse = ListPermissionsResponses[keyof ListPermissionsResponses];
+
+export type CreateProposalData = {
+    body: ProposalInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}/proposals';
+};
+
+export type CreateProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateProposalError = CreateProposalErrors[keyof CreateProposalErrors];
+
+export type CreateProposalResponses = {
+    /**
+     * Created
+     */
+    201: ProposalResponse;
+};
+
+export type CreateProposalResponse = CreateProposalResponses[keyof CreateProposalResponses];
 
 export type GetJobData = {
     body?: never;
@@ -3260,3 +3516,828 @@ export type AnonymizePersonResponses = {
 };
 
 export type AnonymizePersonResponse = AnonymizePersonResponses[keyof AnonymizePersonResponses];
+
+export type ListOpportunitiesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        stage?: OpportunityStage;
+        responsibleId?: string;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/opportunities';
+};
+
+export type ListOpportunitiesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListOpportunitiesError = ListOpportunitiesErrors[keyof ListOpportunitiesErrors];
+
+export type ListOpportunitiesResponses = {
+    /**
+     * OK
+     */
+    200: OpportunitiesPageResponse;
+};
+
+export type ListOpportunitiesResponse = ListOpportunitiesResponses[keyof ListOpportunitiesResponses];
+
+export type CreateOpportunityData = {
+    body: OpportunityInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/opportunities';
+};
+
+export type CreateOpportunityErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CreateOpportunityError = CreateOpportunityErrors[keyof CreateOpportunityErrors];
+
+export type CreateOpportunityResponses = {
+    /**
+     * Created
+     */
+    201: OpportunityResponse;
+};
+
+export type CreateOpportunityResponse = CreateOpportunityResponses[keyof CreateOpportunityResponses];
+
+export type SummarizeOpportunitiesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        responsibleId?: string;
+    };
+    url: '/api/v1/opportunities/summary';
+};
+
+export type SummarizeOpportunitiesErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type SummarizeOpportunitiesError = SummarizeOpportunitiesErrors[keyof SummarizeOpportunitiesErrors];
+
+export type SummarizeOpportunitiesResponses = {
+    /**
+     * OK
+     */
+    200: Array<OpportunityStageSummary>;
+};
+
+export type SummarizeOpportunitiesResponse = SummarizeOpportunitiesResponses[keyof SummarizeOpportunitiesResponses];
+
+export type DeleteOpportunityData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}';
+};
+
+export type DeleteOpportunityErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteOpportunityError = DeleteOpportunityErrors[keyof DeleteOpportunityErrors];
+
+export type DeleteOpportunityResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteOpportunityResponse = DeleteOpportunityResponses[keyof DeleteOpportunityResponses];
+
+export type GetOpportunityData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}';
+};
+
+export type GetOpportunityErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetOpportunityError = GetOpportunityErrors[keyof GetOpportunityErrors];
+
+export type GetOpportunityResponses = {
+    /**
+     * OK
+     */
+    200: OpportunityResponse;
+};
+
+export type GetOpportunityResponse = GetOpportunityResponses[keyof GetOpportunityResponses];
+
+export type UpdateOpportunityData = {
+    body: OpportunityInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}';
+};
+
+export type UpdateOpportunityErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateOpportunityError = UpdateOpportunityErrors[keyof UpdateOpportunityErrors];
+
+export type UpdateOpportunityResponses = {
+    /**
+     * OK
+     */
+    200: OpportunityResponse;
+};
+
+export type UpdateOpportunityResponse = UpdateOpportunityResponses[keyof UpdateOpportunityResponses];
+
+export type MoveOpportunityData = {
+    body: MoveOpportunityRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}/stage';
+};
+
+export type MoveOpportunityErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type MoveOpportunityError = MoveOpportunityErrors[keyof MoveOpportunityErrors];
+
+export type MoveOpportunityResponses = {
+    /**
+     * OK
+     */
+    200: OpportunityResponse;
+};
+
+export type MoveOpportunityResponse = MoveOpportunityResponses[keyof MoveOpportunityResponses];
+
+export type LoseOpportunityData = {
+    body: LoseOpportunityRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}/lose';
+};
+
+export type LoseOpportunityErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type LoseOpportunityError = LoseOpportunityErrors[keyof LoseOpportunityErrors];
+
+export type LoseOpportunityResponses = {
+    /**
+     * OK
+     */
+    200: OpportunityResponse;
+};
+
+export type LoseOpportunityResponse = LoseOpportunityResponses[keyof LoseOpportunityResponses];
+
+export type CheckOpportunityConflictData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/opportunities/{id}/conflict-check';
+};
+
+export type CheckOpportunityConflictErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CheckOpportunityConflictError = CheckOpportunityConflictErrors[keyof CheckOpportunityConflictErrors];
+
+export type CheckOpportunityConflictResponses = {
+    /**
+     * Created
+     */
+    201: ConflictCheckResponse;
+};
+
+export type CheckOpportunityConflictResponse = CheckOpportunityConflictResponses[keyof CheckOpportunityConflictResponses];
+
+export type ListProposalsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        opportunityId?: string;
+        status?: ProposalStatus;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/proposals';
+};
+
+export type ListProposalsErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListProposalsError = ListProposalsErrors[keyof ListProposalsErrors];
+
+export type ListProposalsResponses = {
+    /**
+     * OK
+     */
+    200: ProposalsPageResponse;
+};
+
+export type ListProposalsResponse = ListProposalsResponses[keyof ListProposalsResponses];
+
+export type DeleteProposalData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}';
+};
+
+export type DeleteProposalErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeleteProposalError = DeleteProposalErrors[keyof DeleteProposalErrors];
+
+export type DeleteProposalResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteProposalResponse = DeleteProposalResponses[keyof DeleteProposalResponses];
+
+export type GetProposalData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}';
+};
+
+export type GetProposalErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetProposalError = GetProposalErrors[keyof GetProposalErrors];
+
+export type GetProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type GetProposalResponse = GetProposalResponses[keyof GetProposalResponses];
+
+export type UpdateProposalData = {
+    body: ProposalInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}';
+};
+
+export type UpdateProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateProposalError = UpdateProposalErrors[keyof UpdateProposalErrors];
+
+export type UpdateProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type UpdateProposalResponse = UpdateProposalResponses[keyof UpdateProposalResponses];
+
+export type GetProposalDocumentData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/document';
+};
+
+export type GetProposalDocumentErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetProposalDocumentError = GetProposalDocumentErrors[keyof GetProposalDocumentErrors];
+
+export type GetProposalDocumentResponses = {
+    /**
+     * OK
+     */
+    200: Stream;
+};
+
+export type GetProposalDocumentResponse = GetProposalDocumentResponses[keyof GetProposalDocumentResponses];
+
+export type SubmitProposalData = {
+    body?: null | ProposalNoteRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/submit';
+};
+
+export type SubmitProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type SubmitProposalError = SubmitProposalErrors[keyof SubmitProposalErrors];
+
+export type SubmitProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type SubmitProposalResponse = SubmitProposalResponses[keyof SubmitProposalResponses];
+
+export type ApproveProposalData = {
+    body?: null | ProposalNoteRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/approve';
+};
+
+export type ApproveProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ApproveProposalError = ApproveProposalErrors[keyof ApproveProposalErrors];
+
+export type ApproveProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type ApproveProposalResponse = ApproveProposalResponses[keyof ApproveProposalResponses];
+
+export type ReturnProposalData = {
+    body?: null | ProposalNoteRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/return';
+};
+
+export type ReturnProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ReturnProposalError = ReturnProposalErrors[keyof ReturnProposalErrors];
+
+export type ReturnProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type ReturnProposalResponse = ReturnProposalResponses[keyof ReturnProposalResponses];
+
+export type DeclineProposalData = {
+    body?: null | ProposalNoteRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/decline';
+};
+
+export type DeclineProposalErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type DeclineProposalError = DeclineProposalErrors[keyof DeclineProposalErrors];
+
+export type DeclineProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type DeclineProposalResponse = DeclineProposalResponses[keyof DeclineProposalResponses];
+
+export type SendProposalData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/send';
+};
+
+export type SendProposalErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type SendProposalError = SendProposalErrors[keyof SendProposalErrors];
+
+export type SendProposalResponses = {
+    /**
+     * OK
+     */
+    200: ProposalResponse;
+};
+
+export type SendProposalResponse = SendProposalResponses[keyof SendProposalResponses];
+
+export type AcceptProposalData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}/accept';
+};
+
+export type AcceptProposalErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AcceptProposalError = AcceptProposalErrors[keyof AcceptProposalErrors];
+
+export type AcceptProposalResponses = {
+    /**
+     * OK
+     */
+    200: AcceptedProposalResponse;
+};
+
+export type AcceptProposalResponse = AcceptProposalResponses[keyof AcceptProposalResponses];
+
+export type ListProposalTemplatesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/proposal-templates';
+};
+
+export type ListProposalTemplatesErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListProposalTemplatesError = ListProposalTemplatesErrors[keyof ListProposalTemplatesErrors];
+
+export type ListProposalTemplatesResponses = {
+    /**
+     * OK
+     */
+    200: ProposalTemplatesResponse;
+};
+
+export type ListProposalTemplatesResponse = ListProposalTemplatesResponses[keyof ListProposalTemplatesResponses];
+
+export type UploadProposalTemplateData = {
+    body: {
+        name: string;
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/proposal-templates';
+};
+
+export type UploadProposalTemplateErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type UploadProposalTemplateError = UploadProposalTemplateErrors[keyof UploadProposalTemplateErrors];
+
+export type UploadProposalTemplateResponses = {
+    /**
+     * Created
+     */
+    201: ProposalTemplateResponse;
+};
+
+export type UploadProposalTemplateResponse = UploadProposalTemplateResponses[keyof UploadProposalTemplateResponses];
+
+export type GetDefaultProposalTemplateData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/proposal-templates/default';
+};
+
+export type GetDefaultProposalTemplateErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetDefaultProposalTemplateError = GetDefaultProposalTemplateErrors[keyof GetDefaultProposalTemplateErrors];
+
+export type GetDefaultProposalTemplateResponses = {
+    /**
+     * OK
+     */
+    200: Stream;
+};
+
+export type GetDefaultProposalTemplateResponse = GetDefaultProposalTemplateResponses[keyof GetDefaultProposalTemplateResponses];
+
+export type DeleteProposalTemplateData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposal-templates/{id}';
+};
+
+export type DeleteProposalTemplateErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type DeleteProposalTemplateError = DeleteProposalTemplateErrors[keyof DeleteProposalTemplateErrors];
+
+export type DeleteProposalTemplateResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteProposalTemplateResponse = DeleteProposalTemplateResponses[keyof DeleteProposalTemplateResponses];

@@ -21,6 +21,7 @@ public static class PlatformInfrastructure
         services.AddSingleton<IIdempotencyStore, PlatformIdempotencyStore>();
         services.AddScoped<IdempotencyKeysCleanupJob>();
         services.AddScoped<ICustomFieldValidator, CustomFieldValidator>();
+        services.AddScoped<ILookupItemValidator, LookupItemValidator>();
         services.AddScoped<LookupTableSeeder>();
         return services;
     }

@@ -1,9 +1,12 @@
 using LexFlow.Crm.Application.Abstractions;
 using LexFlow.Crm.Application.Conflicts;
+using LexFlow.Crm.Application.Opportunities;
 using LexFlow.Crm.Application.People;
+using LexFlow.Crm.Application.Proposals;
 using LexFlow.Crm.Infrastructure.CnpjLookup;
 using LexFlow.Crm.Infrastructure.Conflicts;
 using LexFlow.Crm.Infrastructure.Persistence;
+using LexFlow.Crm.Infrastructure.Proposals;
 using LexFlow.Infrastructure.Common.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,13 +24,19 @@ public static class CrmInfrastructure
         return services;
     }
 
-    /// <summary>DbContext, regras do cadastro e a consulta de CNPJ (BrasilAPI, ou a falsa quando configurada).</summary>
+    /// <summary>
+    /// DbContext, regras do cadastro e da oportunidade, os modelos DOCX de proposta e a consulta de CNPJ (BrasilAPI, ou
+    /// a falsa quando configurada).
+    /// </summary>
     public static IServiceCollection AddCrmInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         services.AddCrmPersistence(configuration);
         services.AddScoped<PersonRules>();
         services.AddScoped<ConflictDetector>();
+        services.AddScoped<OpportunityRules>();
+        services.AddScoped<ProposalDocumentComposer>();
+        services.AddSingleton<IProposalDocuments, DocxProposalDocuments>();
 
         // Partes de processos para o conflito: o módulo de processos (Etapa 5) troca este registro.
         services.TryAddScoped<ILitigationLookup, NoCasesLitigationLookup>();

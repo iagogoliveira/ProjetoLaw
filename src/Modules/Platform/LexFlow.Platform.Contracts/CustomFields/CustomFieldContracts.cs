@@ -35,6 +35,12 @@ public static class SystemLookupTables
     public const string ClosingReasons = "closing_reasons";
     public const string ExpenseTypes = "expense_types";
     public const string TaskTypes = "task_types";
+
+    /// <summary>Origens das oportunidades do funil (Etapa 4, PR 4C).</summary>
+    public const string OpportunityOrigins = "opportunity_origins";
+
+    /// <summary>Motivos de perda das oportunidades (Etapa 4, PR 4C).</summary>
+    public const string LossReasons = "loss_reasons";
 }
 
 /// <summary>Valor inválido de um campo customizado; <see cref="Code"/> é estável (<c>custom_fields.*</c>).</summary>
@@ -61,4 +67,13 @@ public sealed record CustomFieldValidation(JsonObject Values, IReadOnlyList<Cust
 public interface ICustomFieldValidator
 {
     Task<CustomFieldValidation> ValidateAsync(string entity, JsonObject? values, CancellationToken cancellationToken);
+}
+
+/// <summary>
+/// Confere se um item pertence a uma tabela auxiliar do sistema da organização ativa e está ativo, para os módulos
+/// que gravam o id do item numa coluna própria (ex.: a origem da oportunidade).
+/// </summary>
+public interface ILookupItemValidator
+{
+    Task<bool> IsActiveItemAsync(string systemTable, Guid itemId, CancellationToken cancellationToken);
 }

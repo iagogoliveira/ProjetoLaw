@@ -73,7 +73,7 @@ public sealed class CustomFieldTests(DependenciesFixture dependencies) : IAsyncL
 
         var tables = await TablesAsync(organization, admin);
 
-        tables.GetArrayLength().ShouldBe(6);
+        tables.GetArrayLength().ShouldBe(8);
         var phases = System(tables, SystemLookupTables.CasePhases);
         phases.GetProperty("name").GetString().ShouldBe("Fases");
         phases.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("name").GetString()).ShouldContain("Conhecimento");

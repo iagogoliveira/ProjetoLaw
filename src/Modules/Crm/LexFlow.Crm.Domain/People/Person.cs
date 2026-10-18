@@ -229,6 +229,22 @@ public sealed class Person : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISof
 
     public bool Has(PersonRoleKind role) => _roles.Exists(r => r.Role == role);
 
+    /// <summary>Acrescenta um papel (ex.: cliente, na aceitação de uma proposta); quem já o tem fica como está.</summary>
+    public Result AddRole(PersonRoleKind role)
+    {
+        if (IsAnonymized)
+        {
+            return CrmErrors.PersonAnonymized;
+        }
+
+        if (!Has(role))
+        {
+            _roles.Add(new PersonRole(Id, role));
+        }
+
+        return Result.Success;
+    }
+
     /// <summary>
     /// Fusão de duplicados (decisão de 2026-10-17): este cadastro fica com os próprios dados, e os campos vazios recebem
     /// os do <paramref name="duplicate"/>. Papéis, endereços, contatos e campos customizados são somados, sem

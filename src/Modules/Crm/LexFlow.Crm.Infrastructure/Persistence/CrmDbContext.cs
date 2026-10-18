@@ -1,7 +1,9 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Crm.Application.Abstractions;
 using LexFlow.Crm.Domain.Conflicts;
+using LexFlow.Crm.Domain.Opportunities;
 using LexFlow.Crm.Domain.People;
+using LexFlow.Crm.Domain.Proposals;
 using LexFlow.Infrastructure.Common.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -9,7 +11,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexFlow.Crm.Infrastructure.Persistence;
 
-/// <summary>DbContext do módulo Crm (schema <c>crm</c>): pessoas, papéis, endereços, contatos e grupos econômicos.</summary>
+/// <summary>
+/// DbContext do módulo Crm (schema <c>crm</c>): pessoas, papéis, endereços, contatos, grupos econômicos, conflito,
+/// oportunidades, propostas e modelos de proposta.
+/// </summary>
 public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options, ITenantContext tenant)
     : ModuleDbContextBase(options, tenant), ICrmDbContext
 {
@@ -21,6 +26,12 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options, ITenant
     public DbSet<EconomicGroup> EconomicGroups => Set<EconomicGroup>();
 
     public DbSet<ConflictCheck> ConflictChecks => Set<ConflictCheck>();
+
+    public DbSet<Opportunity> Opportunities => Set<Opportunity>();
+
+    public DbSet<Proposal> Proposals => Set<Proposal>();
+
+    public DbSet<ProposalTemplate> ProposalTemplates => Set<ProposalTemplate>();
 
     protected override string Schema => SchemaName;
 
@@ -153,6 +164,84 @@ internal sealed class ConflictConfiguration : IEntityTypeConfiguration<ConflictC
         builder.Property(h => h.CaseNumber).HasMaxLength(30);
         builder.HasIndex(h => new { h.OrganizationId, h.PersonId });
         builder.HasIndex(h => h.CheckId);
+    }
+}
+
+/// <summary>Funil (kanban por etapa e por responsável), propostas por oportunidade e por situação, e os modelos.</summary>
+internal sealed class CommercialConfiguration :
+    IEntityTypeConfiguration<Opportunity>,
+    IEntityTypeConfiguration<Proposal>,
+    IEntityTypeConfiguration<ProposalItem>,
+    IEntityTypeConfiguration<ProposalTemplate>
+{
+    public void Configure(EntityTypeBuilder<Opportunity> builder)
+    {
+        builder.ToTable("opportunities");
+        builder.HasKey(o => o.Id);
+        builder.Property(o => o.Title).HasMaxLength(Opportunity.MaxTitleLength);
+        builder.Property(o => o.ProspectKind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(o => o.ProspectName).HasMaxLength(Person.MaxNameLength);
+        builder.Property(o => o.ProspectDocument).HasMaxLength(14);
+        builder.Property(o => o.ProspectEmail).HasMaxLength(254);
+        builder.Property(o => o.ProspectPhone).HasMaxLength(30);
+        builder.Property(o => o.EstimatedValue).HasPrecision(19, 4);
+        builder.Property(o => o.Notes).HasMaxLength(Opportunity.MaxNotesLength);
+        builder.Property(o => o.Stage).HasConversion<string>().HasMaxLength(20);
+        builder.Property(o => o.LossNote).HasMaxLength(Opportunity.MaxLossNoteLength);
+        builder.Property(o => o.CustomFields).HasColumnType("jsonb");
+        builder.Ignore(o => o.IsClosed);
+        builder.HasOne<Person>().WithMany().HasForeignKey(o => o.PersonId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ConflictCheck>().WithMany().HasForeignKey(o => o.ConflictCheckId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(o => new { o.OrganizationId, o.Stage, o.CreatedAt });
+        builder.HasIndex(o => new { o.OrganizationId, o.ResponsibleUserId });
+        builder.HasIndex(o => new { o.OrganizationId, o.PersonId });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<Proposal> builder)
+    {
+        builder.ToTable("proposals");
+        builder.HasKey(p => p.Id);
+        builder.Property(p => p.Title).HasMaxLength(Proposal.MaxTitleLength);
+        builder.Property(p => p.Scope).HasMaxLength(Proposal.MaxTextLength);
+        builder.Property(p => p.Conditions).HasMaxLength(Proposal.MaxTextLength);
+        builder.Property(p => p.Currency).HasMaxLength(3).IsFixedLength();
+        builder.Property(p => p.Total).HasPrecision(19, 4);
+        builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.ReturnNote).HasMaxLength(Proposal.MaxNoteLength);
+        builder.Property(p => p.DeclineNote).HasMaxLength(Proposal.MaxNoteLength);
+        builder.Ignore(p => p.IsOpen);
+        builder.HasOne<Opportunity>().WithMany().HasForeignKey(p => p.OpportunityId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ProposalTemplate>().WithMany().HasForeignKey(p => p.TemplateId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(p => p.Items).WithOne().HasForeignKey(i => i.ProposalId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(p => p.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(p => new { p.OrganizationId, p.OpportunityId });
+        builder.HasIndex(p => new { p.OrganizationId, p.Status, p.CreatedAt });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<ProposalItem> builder)
+    {
+        builder.ToTable("proposal_items");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Description).HasMaxLength(Proposal.MaxDescriptionLength);
+        builder.Property(i => i.Kind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(i => i.Quantity).HasPrecision(12, 2);
+        builder.Property(i => i.UnitAmount).HasPrecision(19, 4);
+        builder.Property(i => i.Percentage).HasPrecision(5, 2);
+        builder.Ignore(i => i.Amount);
+        builder.HasIndex(i => i.ProposalId);
+    }
+
+    public void Configure(EntityTypeBuilder<ProposalTemplate> builder)
+    {
+        builder.ToTable("proposal_templates");
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.Name).HasMaxLength(ProposalTemplate.MaxNameLength);
+        builder.Property(t => t.FileName).HasMaxLength(255);
+        builder.Property(t => t.Sha256).HasMaxLength(64).IsFixedLength();
+        builder.HasIndex(t => new { t.OrganizationId, t.Name });
+        builder.HasStandardColumns();
     }
 }
 

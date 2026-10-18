@@ -1,6 +1,6 @@
 # ADR 0023 — Conflito de interesses, fusão de cadastros e anonimização LGPD
 
-- **Status:** Proposta (para revisão no PR 4B)
+- **Status:** Aceita (PR #19 mergeado em 2026-10-18)
 - **Data:** 2026-10-17
 - **Etapa:** 4 (PR 4B)
 

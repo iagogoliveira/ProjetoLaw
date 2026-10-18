@@ -26,6 +26,11 @@ public static class CrmPermissions
     public const string PeopleMerge = "crm.people.merge";
     public const string PeopleAnonymize = "crm.people.anonymize";
     public const string ConflictsCheck = "crm.conflicts.check";
+    public const string OpportunitiesRead = "crm.opportunities.read";
+    public const string OpportunitiesManage = "crm.opportunities.manage";
+    public const string ProposalsRead = "crm.proposals.read";
+    public const string ProposalsManage = "crm.proposals.manage";
+    public const string ProposalsApprove = "crm.proposals.approve";
 }
 
 /// <summary>Pessoa enviada na criação: o tipo (física ou jurídica) e o cadastro.</summary>
@@ -55,7 +60,8 @@ public sealed record PeoplePageResponse(IReadOnlyList<PersonSummary> Items, stri
 /// <summary>
 /// Endpoints do módulo Crm (Etapa 4): cadastro único de pessoas com papéis, endereços, contatos, dados fiscais e campos
 /// customizados; busca aproximada; possíveis duplicatas; consulta de CNPJ; grupos econômicos; conflito de interesses,
-/// fusão e anonimização (<see cref="ConflictEndpoints"/>).
+/// fusão e anonimização (<see cref="ConflictEndpoints"/>); funil (<see cref="OpportunityEndpoints"/>) e propostas
+/// (<see cref="ProposalEndpoints"/>).
 /// </summary>
 public sealed class CrmModule : IModule
 {
@@ -69,6 +75,8 @@ public sealed class CrmModule : IModule
         MapCommands(endpoints);
         MapEconomicGroups(endpoints);
         ConflictEndpoints.Map(endpoints);
+        OpportunityEndpoints.Map(endpoints);
+        ProposalEndpoints.Map(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)

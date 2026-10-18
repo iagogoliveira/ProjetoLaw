@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace LexFlow.Platform.IntegrationTests;
 
@@ -118,6 +119,61 @@ public sealed class MigrationTests(PlatformDatabaseFixture fixture)
             db.Courts.AsNoTracking().SingleAsync(c => c.Segment == number.Segment && c.Code == number.Court, Ct));
 
         court.Acronym.ShouldBe(acronym);
+    }
+
+    /// <summary>
+    /// Migration de dados do PR 4C: escritórios já criados ganham "Origens de oportunidade" e "Motivos de perda" com os
+    /// itens sugeridos, uma vez só; quem já tinha uma tabela com o mesmo nome fica como estava.
+    /// </summary>
+    [Fact]
+    public async Task Existing_offices_receive_the_opportunity_lookup_tables()
+    {
+        var connectionString = await fixture.CreateEmptyDatabaseAsync();
+        await WithContextAsync(connectionString, async db =>
+        {
+            await db.GetService<IMigrator>().MigrateAsync("20261017153021_CustomFieldsAndLookupTables", cancellationToken: Ct);
+            return true;
+        });
+
+        var (office, taken) = (Guid.CreateVersion7(), Guid.CreateVersion7());
+        await using (var connection = new NpgsqlConnection(connectionString))
+        {
+            await connection.OpenAsync(Ct);
+            await using var seed = new NpgsqlCommand(
+                """
+                INSERT INTO platform.lookup_tables (id, organization_id, name, system_key, is_active, created_at, created_by) VALUES
+                    (gen_random_uuid(), $1, 'Fases', 'case_phases', TRUE, now(), $3),
+                    (gen_random_uuid(), $2, 'Fases', 'case_phases', TRUE, now(), $3),
+                    (gen_random_uuid(), $2, 'Motivos de perda', NULL, TRUE, now(), $3);
+                """,
+                connection);
+            seed.Parameters.Add(new NpgsqlParameter { Value = office });
+            seed.Parameters.Add(new NpgsqlParameter { Value = taken });
+            seed.Parameters.Add(new NpgsqlParameter { Value = Guid.Empty });
+            await seed.ExecuteNonQueryAsync(Ct);
+        }
+
+        await WithContextAsync(connectionString, async db =>
+        {
+            await db.Database.MigrateAsync(Ct);
+            return true;
+        });
+
+        await using var check = new NpgsqlConnection(connectionString);
+        await check.OpenAsync(Ct);
+        async Task<long> CountAsync(string sql, Guid organization)
+        {
+            await using var command = new NpgsqlCommand(sql, check);
+            command.Parameters.Add(new NpgsqlParameter { Value = organization });
+            return (long)(await command.ExecuteScalarAsync(Ct))!;
+        }
+
+        const string Tables = "SELECT count(*) FROM platform.lookup_tables WHERE organization_id = $1 AND system_key IN ('opportunity_origins', 'loss_reasons')";
+        const string Items = "SELECT count(*) FROM platform.lookup_items i JOIN platform.lookup_tables t ON t.id = i.table_id WHERE i.organization_id = $1 AND t.system_key IN ('opportunity_origins', 'loss_reasons')";
+        (await CountAsync(Tables, office)).ShouldBe(2);
+        (await CountAsync(Items, office)).ShouldBe(13);
+        (await CountAsync(Tables, taken)).ShouldBe(1, "a tabela do escritório com o mesmo nome fica, e só a de origens é criada");
+        (await CountAsync(Items, taken)).ShouldBe(7);
     }
 
     [Fact]
