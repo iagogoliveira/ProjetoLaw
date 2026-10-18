@@ -12,7 +12,7 @@ Como funciona:
 
 ## 2026-10-18 — Claude Code (PR 5D implementado)
 
-**Branch:** `etapa-5d-timeline-importacao` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.
+**Branch:** `etapa-5d-timeline-importacao` · **Estado:** PR aberto (`gh pr list --head etapa-5d-timeline-importacao`), aguardando o CI e o merge do usuário.
 
 **Feito:**
 - **Linha do tempo:** `GET /cases/{id}/timeline`, com o contrato `ITimelineContributor` e a contribuição do Litigation.
@@ -24,7 +24,7 @@ Como funciona:
 - **Testes de API:** `RecordingJobScheduler` e `RunJobsAsync` na fábrica, para executar os jobs.
 
 **Próximo agente:**
-1. Quando o usuário pedir, faça o push e abra o PR do 5D. Mande os documentos no mesmo push do código (o CI cancela o run anterior a cada push).
+1. Confirme com o usuário se o PR do 5D foi mergeado (`gh pr list --head etapa-5d-timeline-importacao --state all`). Não faça o merge você mesmo.
 2. Depois do merge, faça a arrumação:
    - `progress.md` e ADR 0029 como aceita;
    - crie o branch `etapa-5e-telas-processos`;
