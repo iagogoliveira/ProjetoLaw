@@ -12,7 +12,7 @@ Como funciona:
 
 ## 2026-10-18 — Claude Code (PR 5C2 implementado)
 
-**Branch:** `etapa-5c2-risco-acordos` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.
+**Branch:** `etapa-5c2-risco-acordos` · **PR:** [#27](https://github.com/iagogoliveira/ProjetoLaw/pull/27), aberto e aguardando o CI e o merge do usuário.
 
 **Feito:**
 - **Risco:** `RiskAssessment`, só com inserções, e as rotas `GET /cases/{id}/risk`, `GET /cases/{id}/risk/history` e `POST /cases/{id}/risk-assessments`. Permissão nova `cases.risk.assess`, com migration de dados no Organization para os perfis Administrador e Sócio.
@@ -22,7 +22,7 @@ Como funciona:
 - **Refatoração:** `CaseWrites` (`Litigation.Application/Cases`) concentra as conferências de "processo aberto" usadas por pedidos, risco, acordos e audiências.
 
 **Próximo agente:**
-1. Quando o usuário pedir, faça push e abra o PR do 5C2 (corpo no estilo do #26).
+1. Confirme com o usuário se o PR #27 foi mergeado (`gh pr view 27 --json state`). Não faça o merge você mesmo.
 2. Depois do merge, faça a arrumação:
    - `progress.md` e ADR 0028 como aceita;
    - crie o branch `etapa-5d-timeline-importacao`;

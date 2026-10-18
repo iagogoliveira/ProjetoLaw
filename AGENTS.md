@@ -56,7 +56,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 - **Etapa 5 (processos e casos):**
   - 5A (#24) e 5B (#25) mergeados;
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
-  - **5C2: commitado no branch `etapa-5c2-risco-acordos`**, aguardando o pedido de push e PR do usuário. Traz risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
+  - **5C2 (#27): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c2-risco-acordos`. Traz risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
   - **o próximo é o PR 5D:** linha do tempo (`ITimelineContributor`), importação XLSX/CSV com ClosedXML (critério 2: 10 mil linhas com 3% inválidas e relatório exato; checar a licença e registrar ADR) e operações em lote (redistribuir responsável, alterar fase e situação). Planeje e mostre o plano antes.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
