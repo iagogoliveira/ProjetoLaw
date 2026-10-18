@@ -95,9 +95,20 @@ Decisões de negócio confirmadas em 2026-10-18:
 
 ## Consequências
 
-- **Escritório de uma pessoa só:** com a aprovação interna sempre exigida e quem elabora proibido de aprovar, quem trabalha sozinho não consegue enviar proposta. É uma decisão de negócio pendente. Uma opção é dispensar a regra quando o escritório tem um único membro ativo.
+- **Escritório de uma pessoa só:** decidido em 2026-10-18 (ver "Atualização" abaixo). Implementação pendente.
 - **Mesclagem simples:** não há laços além da linha de itens, nem condicionais e imagens. Fica para o motor da Etapa 9, que pode substituir a implementação de `IProposalDocuments`.
 - **Modelo partido pelo Word:** a formatação mista dentro de um parágrafo com marcador partido se perde, e vale a do primeiro trecho.
 - **Arquivo órfão:** se o envio falhar depois de gravar o DOCX no armazenamento, o arquivo fica sem referência. A limpeza de órfãos entra com o GED (Etapa 9).
 - **Indicadores do RF-08:** taxa de conversão, tempo de fechamento e receita por origem chegam com os relatórios. O funil já grava etapa, data da mudança, origem e valor.
 - **Assinatura eletrônica** da proposta (RF-29) fica para a Etapa 9; o aceite hoje é registrado pelo escritório.
+
+## Atualização (2026-10-18) — escritório de uma pessoa só
+
+Decisão de negócio: o escritório com um único usuário pode aprovar a própria proposta. Pela hierarquia, esse usuário é o de maior permissão do escritório. Não faz sentido exigir outra pessoa para aprovar.
+
+Como fica a regra:
+- a proibição de autoaprovação vale quando o escritório tem mais de um membro ativo;
+- com um único membro ativo, quem elaborou ou enviou para aprovação também pode aprovar. Continua valendo a permissão `crm.proposals.approve`, que o Administrador do escritório tem;
+- o caso de uso conta os membros ativos (Organization, por um contrato) no momento da aprovação. A aprovação registra quem aprovou, como hoje.
+
+Implementação pendente, num PR próprio: regra no domínio, contrato de contagem de membros, testes unitários e de integração.

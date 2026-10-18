@@ -107,7 +107,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 **Última verificação local (PR 4C):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos (os 14 do AppHost não rodaram de novo), 44 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os 4 fluxos que exigem o AppHost foram pulados; sem mudança de tela), sem pacotes vulneráveis. Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem mudança de modelo pendente nas migrations.
 
 **Pendências do PR 4C:**
-1. **Escritório de uma pessoa só:** a aprovação interna sem autoaprovação impede quem trabalha sozinho de enviar proposta. Isso é decisão de negócio (ver a ADR 0024).
+1. **Escritório de uma pessoa só:** decidido em 2026-10-18. Com um único membro ativo, quem elaborou pode aprovar a própria proposta, porque é o usuário de maior permissão. Com mais membros, a autoaprovação continua proibida. A implementação está pendente, num PR próprio (ver a ADR 0024, "Atualização").
 2. **Indicadores do RF-08** (conversão, tempo de fechamento, receita por origem): ficam para os relatórios. O funil já grava etapa, data da mudança, origem e valor.
 3. **DOCX órfão:** se o envio falhar depois de gravar o arquivo, ele fica no armazenamento sem referência. A limpeza entra com o GED (Etapa 9).
 4. **Assinatura eletrônica** da proposta (RF-29) fica para a Etapa 9.
