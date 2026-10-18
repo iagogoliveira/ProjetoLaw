@@ -192,4 +192,47 @@ public sealed class OrganizationDatabaseTests(OrganizationDatabaseFixture fixtur
 
         granted.ShouldBe([lawyer.Id]);
     }
+
+    /// <summary>Migration de dados do PR 4B: só Administrador do escritório e Sócio ganham <c>crm.people.anonymize</c>.</summary>
+    [Fact]
+    public async Task Existing_admin_and_partner_roles_receive_the_anonymize_permission()
+    {
+        var connectionString = await fixture.CreateEmptyDatabaseAsync();
+        await using var provider = OrganizationDatabaseFixture.BuildProvider(connectionString);
+        await using (var setup = provider.CreateAsyncScope())
+        {
+            await setup.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync(Ct);
+            await setup.ServiceProvider.GetRequiredService<OrganizationDbContext>().GetService<IMigrator>().MigrateAsync("20261017152626_CustomFieldsReadPermission", cancellationToken: Ct);
+        }
+
+        var organizationId = Guid.CreateVersion7();
+        var admin = Role.Create(Guid.CreateVersion7(), "Administrador", systemKey: "office_admin");
+        var partner = Role.Create(Guid.CreateVersion7(), "Sócio", systemKey: "partner");
+        var lawyer = Role.Create(Guid.CreateVersion7(), "Advogado", systemKey: "lawyer");
+        using (AmbientContext.Begin(organizationId, "organization-tests"))
+        await using (var seed = provider.CreateAsyncScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+            db.Organizations.Add(OrganizationEntity.Create(organizationId, "Escritório antigo"));
+            db.Roles.AddRange(admin, partner, lawyer);
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var upgrade = provider.CreateAsyncScope())
+        {
+            await upgrade.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync(Ct);
+        }
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(Ct);
+        await using var command = new NpgsqlCommand("SELECT role_id FROM org.role_permissions WHERE permission = 'crm.people.anonymize'", connection);
+        await using var reader = await command.ExecuteReaderAsync(Ct);
+        var granted = new List<Guid>();
+        while (await reader.ReadAsync(Ct))
+        {
+            granted.Add(reader.GetGuid(0));
+        }
+
+        granted.ShouldBe([admin.Id, partner.Id], ignoreOrder: true);
+    }
 }

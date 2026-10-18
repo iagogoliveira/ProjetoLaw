@@ -24,6 +24,148 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("LexFlow.Crm.Domain.Conflicts.ConflictCheck", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Justification")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("justification");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<bool>("Proceeded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("proceeded");
+
+                    b.Property<DateTimeOffset?>("ProceededAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("proceeded_at");
+
+                    b.Property<string>("QueryDocument")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
+                        .HasColumnName("query_document");
+
+                    b.Property<string>("QueryName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("query_name");
+
+                    b.Property<string>("Risk")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("risk");
+
+                    b.Property<string>("Side")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("side");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_conflict_checks");
+
+                    b.HasIndex("OrganizationId", "CreatedAt")
+                        .HasDatabaseName("ix_conflict_checks_organization_id_created_at");
+
+                    b.ToTable("conflict_checks", "crm");
+                });
+
+            modelBuilder.Entity("LexFlow.Crm.Domain.Conflicts.ConflictCheckHit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CaseNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("case_number");
+
+                    b.Property<Guid>("CheckId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("check_id");
+
+                    b.Property<string>("MatchedName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("matched_name");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Risk")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("risk");
+
+                    b.Property<double?>("Score")
+                        .HasColumnType("double precision")
+                        .HasColumnName("score");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_conflict_check_hits");
+
+                    b.HasIndex("CheckId")
+                        .HasDatabaseName("ix_conflict_check_hits_check_id");
+
+                    b.HasIndex("OrganizationId", "PersonId")
+                        .HasDatabaseName("ix_conflict_check_hits_organization_id_person_id");
+
+                    b.ToTable("conflict_check_hits", "crm");
+                });
+
             modelBuilder.Entity("LexFlow.Crm.Domain.People.Address", b =>
                 {
                     b.Property<Guid>("Id")
@@ -234,6 +376,15 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(300)")
                         .HasColumnName("alternate_name");
 
+                    b.Property<string>("AnonymizationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("anonymization_reason");
+
+                    b.Property<DateTimeOffset?>("AnonymizedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("anonymized_at");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -276,6 +427,10 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("kind");
+
+                    b.Property<Guid?>("MergedIntoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("merged_into_id");
 
                     b.Property<string>("MunicipalRegistration")
                         .HasMaxLength(30)
@@ -573,6 +728,16 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LexFlow.Crm.Domain.Conflicts.ConflictCheckHit", b =>
+                {
+                    b.HasOne("LexFlow.Crm.Domain.Conflicts.ConflictCheck", null)
+                        .WithMany("Hits")
+                        .HasForeignKey("CheckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_conflict_check_hits_conflict_checks_check_id");
+                });
+
             modelBuilder.Entity("LexFlow.Crm.Domain.People.Address", b =>
                 {
                     b.HasOne("LexFlow.Crm.Domain.People.Person", null)
@@ -610,6 +775,11 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_person_roles_people_person_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Crm.Domain.Conflicts.ConflictCheck", b =>
+                {
+                    b.Navigation("Hits");
                 });
 
             modelBuilder.Entity("LexFlow.Crm.Domain.People.Person", b =>

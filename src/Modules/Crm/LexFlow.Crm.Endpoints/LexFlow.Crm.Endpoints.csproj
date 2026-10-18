@@ -5,4 +5,9 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Web.Common\LexFlow.Web.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Transformador de operação: filtros de enum na query documentados com o schema do enum. -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
 </Project>

@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using LexFlow.SharedKernel.Domain;
 using LexFlow.SharedKernel.Results;
 using LexFlow.SharedKernel.ValueObjects;
@@ -120,6 +121,16 @@ public sealed class Person : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISof
 
     public IReadOnlyCollection<Contact> Contacts => _contacts.AsReadOnly();
 
+    /// <summary>Cadastro que absorveu este numa fusão de duplicados (este fica excluído logicamente).</summary>
+    public Guid? MergedIntoId { get; private set; }
+
+    /// <summary>Anonimização LGPD: quando e por quê (o cadastro não pode mais ser editado nem fundido).</summary>
+    public DateTimeOffset? AnonymizedAt { get; private set; }
+
+    public string? AnonymizationReason { get; private set; }
+
+    public bool IsAnonymized => AnonymizedAt is not null;
+
     public DateTimeOffset CreatedAt { get; private set; }
 
     public Guid CreatedBy { get; private set; }
@@ -157,6 +168,11 @@ public sealed class Person : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISof
     {
         ArgumentNullException.ThrowIfNull(details);
         ArgumentException.ThrowIfNullOrWhiteSpace(details.Name, nameof(details));
+        if (IsAnonymized)
+        {
+            return CrmErrors.PersonAnonymized;
+        }
+
         var document = NormalizeDocument(Kind, details.Document);
         if (document.IsFailure)
         {
@@ -212,6 +228,112 @@ public sealed class Person : AggregateRoot<Guid>, ITenantOwned, IAuditable, ISof
     }
 
     public bool Has(PersonRoleKind role) => _roles.Exists(r => r.Role == role);
+
+    /// <summary>
+    /// Fusão de duplicados (decisão de 2026-10-17): este cadastro fica com os próprios dados, e os campos vazios recebem
+    /// os do <paramref name="duplicate"/>. Papéis, endereços, contatos e campos customizados são somados, sem
+    /// repetir. O duplicado aponta para este e solta o documento (quem o exclui é o caso de uso). Devolve o documento
+    /// que este cadastro deve adotar com <see cref="AdoptDocument"/> depois de o duplicado ser gravado (o índice único
+    /// não aceita os dois com o mesmo documento ao mesmo tempo).
+    /// </summary>
+    public Result<string?> Absorb(Person duplicate)
+    {
+        ArgumentNullException.ThrowIfNull(duplicate);
+        if (duplicate.Id == Id)
+        {
+            return CrmErrors.MergeSamePerson;
+        }
+
+        if (duplicate.Kind != Kind)
+        {
+            return CrmErrors.MergeKindMismatch;
+        }
+
+        if (IsAnonymized || duplicate.IsAnonymized)
+        {
+            return CrmErrors.PersonAnonymized;
+        }
+
+        if (Document is not null && duplicate.Document is not null && !string.Equals(Document, duplicate.Document, StringComparison.Ordinal))
+        {
+            return CrmErrors.MergeDocumentConflict;
+        }
+
+        var adopted = Document is null ? duplicate.Document : null;
+        AlternateName ??= duplicate.AlternateName;
+        Email ??= duplicate.Email;
+        Phone ??= duplicate.Phone;
+        Notes ??= duplicate.Notes;
+        StateRegistration ??= duplicate.StateRegistration;
+        MunicipalRegistration ??= duplicate.MunicipalRegistration;
+        EconomicGroupId ??= duplicate.EconomicGroupId;
+        SearchName = SearchText.Normalize($"{Name} {AlternateName}");
+
+        _roles.AddRange([.. duplicate._roles.Where(r => !Has(r.Role)).Select(r => new PersonRole(Id, r.Role))]);
+        foreach (var address in duplicate._addresses.Where(a => !_addresses.Exists(mine => mine.SamePlace(a))))
+        {
+            _addresses.Add(address.CopyTo(Id));
+        }
+
+        foreach (var contact in duplicate._contacts.Where(c => !_contacts.Exists(mine => mine.SamePerson(c))))
+        {
+            _contacts.Add(contact.CopyTo(Id));
+        }
+
+        var mine = JsonNode.Parse(CustomFields)?.AsObject() ?? [];
+        foreach (var (key, value) in JsonNode.Parse(duplicate.CustomFields)?.AsObject() ?? [])
+        {
+            if (!mine.ContainsKey(key))
+            {
+                mine[key] = value?.DeepClone();
+            }
+        }
+
+        CustomFields = mine.ToJsonString();
+        duplicate.MergedIntoId = Id;
+        duplicate.Document = null;
+        return adopted;
+    }
+
+    /// <summary>Segunda parte da fusão: o documento do duplicado, já liberado por ele.</summary>
+    public void AdoptDocument(string document)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(document);
+        Document = document;
+    }
+
+    /// <summary>
+    /// Anonimização LGPD (RF-06): troca os dados pessoais por um rótulo e apaga endereços, contatos e campos
+    /// customizados. O id, os papéis e os vínculos ficam (integridade referencial: processos e verificações de conflito
+    /// continuam apontando para o mesmo cadastro). Não tem volta.
+    /// </summary>
+    public Result Anonymize(string reason, DateTimeOffset now)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        if (IsAnonymized)
+        {
+            return CrmErrors.PersonAnonymized;
+        }
+
+        Name = AnonymizedName(Id);
+        AlternateName = null;
+        SearchName = SearchText.Normalize(Name);
+        Document = null;
+        Email = null;
+        Phone = null;
+        Notes = null;
+        StateRegistration = null;
+        MunicipalRegistration = null;
+        CustomFields = "{}";
+        _addresses.Clear();
+        _contacts.Clear();
+        AnonymizedAt = now;
+        AnonymizationReason = reason.Trim();
+        return Result.Success;
+    }
+
+    /// <summary>Rótulo que substitui o nome de uma pessoa anonimizada (também nos achados de conflito).</summary>
+    public static string AnonymizedName(Guid id) => $"Pessoa anonimizada {id.ToString("N")[..8]}";
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
@@ -295,6 +417,14 @@ public sealed class Address : ITenantOwned
     /// <summary>Endereço de cobrança (faturamento).</summary>
     public bool IsBilling { get; private set; }
 
+    internal bool SamePlace(Address other) =>
+        string.Equals(PostalCode, other.PostalCode, StringComparison.Ordinal)
+        && string.Equals(SearchText.Normalize(Street), SearchText.Normalize(other.Street), StringComparison.Ordinal)
+        && string.Equals(Number?.Trim(), other.Number?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    internal Address CopyTo(Guid personId) =>
+        new(personId, new AddressInput(Street, Number, Complement, District, City, State, PostalCode, IsBilling), State, PostalCode);
+
     internal static Result<Address> Create(Guid personId, AddressInput input)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(input.Street, nameof(input));
@@ -343,6 +473,13 @@ public sealed class Contact : ITenantOwned
     public string? Phone { get; private set; }
 
     public ContactChannel PreferredChannel { get; private set; }
+
+    internal bool SamePerson(Contact other) =>
+        Email is not null && other.Email is not null
+            ? string.Equals(Email, other.Email, StringComparison.Ordinal)
+            : string.Equals(SearchText.Normalize(Name), SearchText.Normalize(other.Name), StringComparison.Ordinal);
+
+    internal Contact CopyTo(Guid personId) => new(personId, new ContactInput(Name, Department, Email, Phone, PreferredChannel));
 
     internal static Contact Create(Guid personId, ContactInput input)
     {

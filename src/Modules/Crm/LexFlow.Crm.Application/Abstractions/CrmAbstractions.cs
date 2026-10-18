@@ -1,3 +1,4 @@
+using LexFlow.Crm.Domain.Conflicts;
 using LexFlow.Crm.Domain.People;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,8 @@ public interface ICrmDbContext
     DbSet<Person> People { get; }
 
     DbSet<EconomicGroup> EconomicGroups { get; }
+
+    DbSet<ConflictCheck> ConflictChecks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
@@ -53,4 +56,24 @@ public sealed record CnpjLookupResult(CompanyRegistration? Company, bool Unavail
 public interface ICnpjLookup
 {
     Task<CnpjLookupResult> LookupAsync(string cnpj, CancellationToken cancellationToken);
+}
+
+/// <summary>Parte de um processo, como o módulo de processos a vê (lado em relação ao cliente do escritório).</summary>
+public sealed record CaseParty(Guid CaseId, string CaseNumber, string PartyName, string? PartyDocument, CasePartySide Side, string ClientName);
+
+public enum CasePartySide
+{
+    Client,
+    Opponent,
+}
+
+/// <summary>
+/// Partes dos processos do escritório, para o conflito de interesses (Etapa 4, tarefa 3). Os processos chegam na
+/// Etapa 5; até lá a implementação registrada não acha nada (decisão de 2026-10-17: stub agora, prova com processos
+/// reais na Etapa 5).
+/// </summary>
+public interface ILitigationLookup
+{
+    /// <summary>Partes com o nome normalizado (<c>SearchText</c>) ou o documento (só dígitos) informados.</summary>
+    Task<IReadOnlyList<CaseParty>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken);
 }

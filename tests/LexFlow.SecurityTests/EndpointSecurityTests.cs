@@ -93,6 +93,12 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         ["GET /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner)),
         ["PUT /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner), new { name = "Tomada", roles = ClientRole }),
         ["DELETE /api/v1/people/{id:guid}"] = async owner => new CrossTenantCase(await PersonOfAsync(owner)),
+        ["POST /api/v1/people/{id:guid}/merge"] = async owner =>
+            new CrossTenantCase(await PersonOfAsync(owner), new { duplicateId = await PersonOfAsync(owner) }),
+        ["POST /api/v1/people/{id:guid}/anonymize"] = async owner => new CrossTenantCase(await PersonOfAsync(owner), new { reason = "Pedido do titular" }),
+        ["GET /api/v1/conflict-checks/{id:guid}"] = async owner => new CrossTenantCase(await ConflictCheckOfAsync(owner)),
+        ["POST /api/v1/conflict-checks/{id:guid}/proceed"] = async owner =>
+            new CrossTenantCase(await ConflictCheckOfAsync(owner), new { justification = "Sem relação" }),
         ["PUT /api/v1/economic-groups/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" }), new { name = "Tomado" }),
         ["DELETE /api/v1/economic-groups/{id:guid}"] = async owner =>
@@ -168,6 +174,9 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
 
     private Task<Guid> PersonOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/people", new { kind = "company", name = $"Pessoa {Guid.CreateVersion7():N}", roles = ClientRole });
+
+    private Task<Guid> ConflictCheckOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/conflict-checks", new { name = $"Consulta {Guid.CreateVersion7():N}", side = "client" });
 
     private Task<Guid> LookupTableOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/lookup-tables", new { name = $"Tabela {Guid.CreateVersion7():N}" });

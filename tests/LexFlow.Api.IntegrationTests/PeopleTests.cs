@@ -112,6 +112,21 @@ public sealed class PeopleTests(DependenciesFixture dependencies) : IAsyncLifeti
     }
 
     [Fact]
+    public async Task The_list_filters_by_role_written_in_camel_case()
+    {
+        var (organization, user) = await OfficeAsync();
+        await CreateAsync(organization, user, Company("Cliente Um"));
+        await CreateAsync(organization, user, Company("Adversária Um", roles: OpponentRole));
+
+        var (_, opponents) = await _api.SendAsync(HttpMethod.Get, "/api/v1/people?role=opponent", user, organization);
+        var (invalidStatus, invalid) = await _api.SendAsync(HttpMethod.Get, "/api/v1/people?role=juiz", user, organization);
+
+        opponents.GetProperty("items").EnumerateArray().Select(p => p.GetProperty("name").GetString()).ShouldBe(["Adversária Um"]);
+        invalidStatus.ShouldBe(HttpStatusCode.BadRequest);
+        OrganizationApi.Code(invalid).ShouldBe("crm.filter_invalid");
+    }
+
+    [Fact]
     public async Task Similar_names_and_documents_are_reported_as_possible_duplicates()
     {
         var (organization, user) = await OfficeAsync();

@@ -29,6 +29,10 @@ export type AddressResponse = {
     isBilling: boolean;
 };
 
+export type AnonymizePersonRequest = {
+    reason: string;
+};
+
 export type AssignMemberRolesRequest = {
     roles: Array<RoleAssignmentInput>;
 };
@@ -52,6 +56,13 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+export type CheckConflictRequest = {
+    name: string;
+    document: null | string;
+    side: ConflictSide;
+    contactEmails: null | Array<string>;
+};
+
 /**
  * Dados de uma empresa na Receita Federal, para preencher o cadastro.
  */
@@ -73,6 +84,49 @@ export type ConfirmEmailRequest = {
 export type ConfirmTotpRequest = {
     code: string;
 };
+
+export type ConflictCheckResponse = {
+    id: string;
+    queryName: string;
+    queryDocument: null | string;
+    side: ConflictSide;
+    risk: ConflictRisk;
+    proceeded: boolean;
+    proceededAt: null | string;
+    justification: null | string;
+    checkedBy: string;
+    createdAt: string;
+    hits: Array<ConflictHitResponse>;
+};
+
+export type ConflictChecksPageResponse = {
+    items: Array<ConflictCheckResponse>;
+    nextCursor: null | string;
+};
+
+export type ConflictHitResponse = {
+    risk: ConflictRisk;
+    reason: ConflictReason;
+    personId: null | string;
+    matchedName: string;
+    caseNumber: null | string;
+    score: null | number | string;
+};
+
+/**
+ * Por que um cadastro ou uma parte de processo foi apontado.
+ */
+export type ConflictReason = 'sameDocument' | 'sameName' | 'caseParty' | 'sameEconomicGroup' | 'similarName' | 'sharedContact';
+
+/**
+ * Risco do conflito (RF-07). A ordem importa: o resultado da verificação é o maior risco encontrado.
+ */
+export type ConflictRisk = 'none' | 'indirect' | 'direct';
+
+/**
+ * Lado da pessoa consultada no novo trabalho (decisão de 2026-10-17: a consulta informa o lado).
+ */
+export type ConflictSide = 'client' | 'opponent';
 
 export type ContactChannel = 'email' | 'phone' | 'whatsApp';
 
@@ -340,6 +394,10 @@ export type MeResponse = {
     lastLoginAt: null | string;
 };
 
+export type MergePeopleRequest = {
+    duplicateId: string;
+};
+
 export type MfaPolicyRequest = {
     mfaRequired: boolean;
 };
@@ -479,6 +537,10 @@ export type ProblemDetails = {
     status?: null | number | string;
     detail?: null | string;
     instance?: null | string;
+};
+
+export type ProceedConflictRequest = {
+    justification: null | string;
 };
 
 export type RecoveryCodesResponse = {
@@ -2988,3 +3050,213 @@ export type RenameEconomicGroupResponses = {
 };
 
 export type RenameEconomicGroupResponse = RenameEconomicGroupResponses[keyof RenameEconomicGroupResponses];
+
+export type ListConflictChecksData = {
+    body?: never;
+    path?: never;
+    query?: {
+        risk?: ConflictRisk;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/conflict-checks';
+};
+
+export type ListConflictChecksErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListConflictChecksError = ListConflictChecksErrors[keyof ListConflictChecksErrors];
+
+export type ListConflictChecksResponses = {
+    /**
+     * OK
+     */
+    200: ConflictChecksPageResponse;
+};
+
+export type ListConflictChecksResponse = ListConflictChecksResponses[keyof ListConflictChecksResponses];
+
+export type CheckConflictData = {
+    body: CheckConflictRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/conflict-checks';
+};
+
+export type CheckConflictErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type CheckConflictError = CheckConflictErrors[keyof CheckConflictErrors];
+
+export type CheckConflictResponses = {
+    /**
+     * Created
+     */
+    201: ConflictCheckResponse;
+};
+
+export type CheckConflictResponse = CheckConflictResponses[keyof CheckConflictResponses];
+
+export type GetConflictCheckData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/conflict-checks/{id}';
+};
+
+export type GetConflictCheckErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetConflictCheckError = GetConflictCheckErrors[keyof GetConflictCheckErrors];
+
+export type GetConflictCheckResponses = {
+    /**
+     * OK
+     */
+    200: ConflictCheckResponse;
+};
+
+export type GetConflictCheckResponse = GetConflictCheckResponses[keyof GetConflictCheckResponses];
+
+export type ProceedConflictData = {
+    body: ProceedConflictRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/conflict-checks/{id}/proceed';
+};
+
+export type ProceedConflictErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ProceedConflictError = ProceedConflictErrors[keyof ProceedConflictErrors];
+
+export type ProceedConflictResponses = {
+    /**
+     * OK
+     */
+    200: ConflictCheckResponse;
+};
+
+export type ProceedConflictResponse = ProceedConflictResponses[keyof ProceedConflictResponses];
+
+export type MergePeopleData = {
+    body: MergePeopleRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/people/{id}/merge';
+};
+
+export type MergePeopleErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type MergePeopleError = MergePeopleErrors[keyof MergePeopleErrors];
+
+export type MergePeopleResponses = {
+    /**
+     * OK
+     */
+    200: PersonResponse;
+};
+
+export type MergePeopleResponse = MergePeopleResponses[keyof MergePeopleResponses];
+
+export type AnonymizePersonData = {
+    body: AnonymizePersonRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/people/{id}/anonymize';
+};
+
+export type AnonymizePersonErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AnonymizePersonError = AnonymizePersonErrors[keyof AnonymizePersonErrors];
+
+export type AnonymizePersonResponses = {
+    /**
+     * OK
+     */
+    200: PersonResponse;
+};
+
+export type AnonymizePersonResponse = AnonymizePersonResponses[keyof AnonymizePersonResponses];

@@ -1,6 +1,6 @@
 # ADR 0022 — Módulo Crm: cadastro de pessoas, busca aproximada e consulta de CNPJ
 
-- **Status:** Proposta (para revisão no PR 4A)
+- **Status:** Aceita (PR #18 mergeado em 2026-10-17)
 - **Data:** 2026-10-17
 - **Etapa:** 4 (PR 4A)
 

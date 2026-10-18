@@ -4124,6 +4124,422 @@
           }
         }
       }
+    },
+    "/api/v1/conflict-checks": {
+      "post": {
+        "tags": [
+          "ConflictChecks"
+        ],
+        "summary": "Verifica conflito de interesses (direto, indireto ou nenhum) e grava a verificação",
+        "operationId": "CheckConflict",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckConflictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictCheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ConflictChecks"
+        ],
+        "summary": "Relatório das verificações de conflito, das mais recentes às mais antigas",
+        "operationId": "ListConflictChecks",
+        "parameters": [
+          {
+            "name": "risk",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ConflictRisk"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictChecksPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conflict-checks/{id}": {
+      "get": {
+        "tags": [
+          "ConflictChecks"
+        ],
+        "summary": "Uma verificação de conflito com os achados",
+        "operationId": "GetConflictCheck",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictCheckResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conflict-checks/{id}/proceed": {
+      "post": {
+        "tags": [
+          "ConflictChecks"
+        ],
+        "summary": "Segue com o cliente ou caso; com conflito apontado, exige justificativa",
+        "operationId": "ProceedConflict",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProceedConflictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictCheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}/merge": {
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Unifica um cadastro duplicado neste: vazios completados, papéis, endereços e contatos somados",
+        "operationId": "MergePeople",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergePeopleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}/anonymize": {
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Anonimiza os dados pessoais (LGPD, irreversível), mantendo o cadastro e os vínculos",
+        "operationId": "AnonymizePerson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymizePersonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4225,6 +4641,17 @@
           }
         }
       },
+      "AnonymizePersonRequest": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
       "AssignMemberRolesRequest": {
         "required": [
           "roles"
@@ -4318,6 +4745,38 @@
           }
         }
       },
+      "CheckConflictRequest": {
+        "required": [
+          "name",
+          "document",
+          "side",
+          "contactEmails"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "side": {
+            "$ref": "#/components/schemas/ConflictSide"
+          },
+          "contactEmails": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "CompanyRegistration": {
         "required": [
           "cnpj",
@@ -4399,6 +4858,164 @@
             "type": "string"
           }
         }
+      },
+      "ConflictCheckResponse": {
+        "required": [
+          "id",
+          "queryName",
+          "queryDocument",
+          "side",
+          "risk",
+          "proceeded",
+          "proceededAt",
+          "justification",
+          "checkedBy",
+          "createdAt",
+          "hits"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "queryName": {
+            "type": "string"
+          },
+          "queryDocument": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "side": {
+            "$ref": "#/components/schemas/ConflictSide"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/ConflictRisk"
+          },
+          "proceeded": {
+            "type": "boolean"
+          },
+          "proceededAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "justification": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "checkedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConflictHitResponse"
+            }
+          }
+        }
+      },
+      "ConflictChecksPageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConflictCheckResponse"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ConflictHitResponse": {
+        "required": [
+          "risk",
+          "reason",
+          "personId",
+          "matchedName",
+          "caseNumber",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "risk": {
+            "$ref": "#/components/schemas/ConflictRisk"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/ConflictReason"
+          },
+          "personId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "matchedName": {
+            "type": "string"
+          },
+          "caseNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "score": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "ConflictReason": {
+        "enum": [
+          "sameDocument",
+          "sameName",
+          "caseParty",
+          "sameEconomicGroup",
+          "similarName",
+          "sharedContact"
+        ],
+        "description": "Por que um cadastro ou uma parte de processo foi apontado."
+      },
+      "ConflictRisk": {
+        "enum": [
+          "none",
+          "indirect",
+          "direct"
+        ],
+        "description": "Risco do conflito (RF-07). A ordem importa: o resultado da verificação é o maior risco encontrado."
+      },
+      "ConflictSide": {
+        "enum": [
+          "client",
+          "opponent"
+        ],
+        "description": "Lado da pessoa consultada no novo trabalho (decisão de 2026-10-17: a consulta informa o lado)."
       },
       "ContactChannel": {
         "enum": [
@@ -5316,6 +5933,18 @@
         },
         "description": "Perfil do usuário logado. `mfaMethod`: `none`, `totp` ou `email`."
       },
+      "MergePeopleRequest": {
+        "required": [
+          "duplicateId"
+        ],
+        "type": "object",
+        "properties": {
+          "duplicateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "MfaPolicyRequest": {
         "required": [
           "mfaRequired"
@@ -5866,6 +6495,20 @@
           }
         }
       },
+      "ProceedConflictRequest": {
+        "required": [
+          "justification"
+        ],
+        "type": "object",
+        "properties": {
+          "justification": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "RecoveryCodesResponse": {
         "required": [
           "recoveryCodes"
@@ -6366,6 +7009,9 @@
     },
     {
       "name": "People"
+    },
+    {
+      "name": "ConflictChecks"
     }
   ]
 }

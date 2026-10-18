@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Crm.Application.Abstractions;
+using LexFlow.Crm.Domain.Conflicts;
 using LexFlow.Crm.Domain.People;
 using LexFlow.Infrastructure.Common.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,8 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options, ITenant
     public DbSet<Person> People => Set<Person>();
 
     public DbSet<EconomicGroup> EconomicGroups => Set<EconomicGroup>();
+
+    public DbSet<ConflictCheck> ConflictChecks => Set<ConflictCheck>();
 
     protected override string Schema => SchemaName;
 
@@ -53,6 +56,8 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.Property(p => p.Phone).HasMaxLength(30);
         builder.Property(p => p.Notes).HasMaxLength(4000);
         builder.Property(p => p.CustomFields).HasColumnType("jsonb");
+        builder.Property(p => p.AnonymizationReason).HasMaxLength(500);
+        builder.Ignore(p => p.IsAnonymized);
         builder.Property(p => p.StateRegistration).HasMaxLength(30);
         builder.Property(p => p.MunicipalRegistration).HasMaxLength(30);
         builder.Ignore(p => p.Fiscal);
@@ -117,6 +122,37 @@ internal sealed class PersonPartsConfiguration :
         builder.Property(g => g.Name).HasMaxLength(EconomicGroup.MaxNameLength);
         builder.HasIndex(g => new { g.OrganizationId, g.Name }).IsUnique().HasFilter("NOT is_deleted");
         builder.HasStandardColumns();
+    }
+}
+
+/// <summary>Verificações de conflito (relatório por data) e os achados de cada uma (busca por pessoa, na fusão e na LGPD).</summary>
+internal sealed class ConflictConfiguration : IEntityTypeConfiguration<ConflictCheck>, IEntityTypeConfiguration<ConflictCheckHit>
+{
+    public void Configure(EntityTypeBuilder<ConflictCheck> builder)
+    {
+        builder.ToTable("conflict_checks");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.QueryName).HasMaxLength(Person.MaxNameLength);
+        builder.Property(c => c.QueryDocument).HasMaxLength(14);
+        builder.Property(c => c.Side).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.Risk).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.Justification).HasMaxLength(ConflictCheck.MaxJustificationLength);
+        builder.HasIndex(c => new { c.OrganizationId, c.CreatedAt });
+        builder.HasMany(c => c.Hits).WithOne().HasForeignKey(h => h.CheckId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(c => c.Hits).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<ConflictCheckHit> builder)
+    {
+        builder.ToTable("conflict_check_hits");
+        builder.HasKey(h => h.Id);
+        builder.Property(h => h.Risk).HasConversion<string>().HasMaxLength(20);
+        builder.Property(h => h.Reason).HasConversion<string>().HasMaxLength(30);
+        builder.Property(h => h.MatchedName).HasMaxLength(Person.MaxNameLength + 200);
+        builder.Property(h => h.CaseNumber).HasMaxLength(30);
+        builder.HasIndex(h => new { h.OrganizationId, h.PersonId });
+        builder.HasIndex(h => h.CheckId);
     }
 }
 
