@@ -30,10 +30,12 @@ public sealed class AdaptersFixture : IAsyncLifetime
         .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(8025).ForPath("/livez")))
         .Build();
 
-    // A imagem já traz as assinaturas; o clamd abre a porta 3310 depois de carregá-las.
+    // A imagem já traz as assinaturas. Sem o freshclam, nenhuma atualização faz o clamd recarregar (e derrubar a
+    // conexão) no meio de um teste; a espera é pelo healthcheck da própria imagem (PING/PONG), não só pela porta.
     private readonly IContainer _clamav = new ContainerBuilder("clamav/clamav:1.5.4-debian")
+        .WithEnvironment("CLAMAV_NO_FRESHCLAMD", "true")
         .WithPortBinding(3310, assignRandomHostPort: true)
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(3310))
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(3310).UntilCommandIsCompleted("clamdcheck.sh"))
         .Build();
 
     public IHost Host { get; private set; } = null!;
