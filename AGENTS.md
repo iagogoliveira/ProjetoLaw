@@ -24,6 +24,30 @@ Este arquivo tem as mesmas regras do `CLAUDE.md`, mais o que é preciso para con
 - Dúvida de negócio ou ação irreversível: pare e pergunte.
 - Documentação, commits, PRs e mensagens ao usuário em português do Brasil. Código, nomes e testes em inglês, como já está.
 
+## Documentação a seguir
+
+Leia nesta ordem antes de planejar qualquer PR:
+
+1. **`docs/progress.md`**: o estado atual de cada etapa e PR, as decisões de negócio já tomadas (com data), as pendências e a última verificação local. É a fonte da verdade sobre onde paramos.
+2. **`docs/spec/implementacao.md`**: o guia técnico e a ordem das etapas.
+   - §1: como o agente deve usar o documento.
+   - §2 a §8: stack, arquitetura, convenções do backend (§4) e do frontend (§5), banco, multi-tenant e migrations (§6), segurança e permissões (§7), ambiente e CI (§8).
+   - §9 a §12: as etapas, cada uma com escopo e critérios de aceite. **A Etapa 5 está na §10.**
+   - §13: estratégia de testes e qualidade. §14: modelos de prompt e checklist do agente.
+3. **`docs/spec/requisitos-v3.md`**: os requisitos de negócio. A seção de cada módulo diz o que construir. Para a Etapa 5: **§7 (Contencioso)**, e também §3 (perfis e permissões) e §14 (requisitos não funcionais).
+4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0026. Antes de mexer numa área, leia as ADRs dela. As de base:
+   - 0001 a 0003: monolito modular, stack e módulos por etapa;
+   - 0007: pipeline de casos de uso (validação, autorização, transação);
+   - 0010: trilha de auditoria;
+   - 0011: dados de referência e migrations;
+   - 0012: contrato da API e cobertura;
+   - 0018 e 0019: tenant, autorização, RLS e SecurityTests;
+   - 0025 e 0026: módulo Litigation, numeração, escopo de dados e casos sigilosos.
+5. **`docs/openapi/v1.json`**: o contrato da API, gerado pelos testes (não edite à mão).
+6. **`tests/LexFlow.LoadTests/README.md`**: como rodar o teste de carga.
+
+Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, vale a decisão registrada, que é mais recente. Em caso de dúvida, pergunte.
+
 ## Onde paramos
 
 - O estado de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio de cada etapa ficam na seção dela, com data.
