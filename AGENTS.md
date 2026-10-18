@@ -50,21 +50,23 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 
 ## Onde paramos
 
-- O estado de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio de cada etapa ficam na seção dela, com data.
+- **Leia primeiro a última entrada de `docs/handoff.md`**: é ali que cada agente (Claude Code ou Codex) deixa o que fez, o que ficou combinado com o usuário e o que o próximo deve fazer.
+- O estado oficial de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio ficam na seção de cada etapa, com data.
 - **Etapas 0 a 4: concluídas.**
 - **Etapa 5 (processos e casos):**
   - 5A (#24) e 5B (#25) mergeados;
-  - **o próximo é o PR 5C**, no branch `etapa-5c-valores-risco`, que já existe com o commit de progresso.
-- **Escopo do 5C** (plano aprovado; ver "Plano (5 PRs)" na seção da Etapa 5 do progresso):
-  - **pedidos:** `Claim`, ligado à tabela auxiliar "Objetos/pedidos", e `ClaimValuation` por instância (valor pedido, estimado e de condenação), com histórico das alterações;
-  - **risco:** `RiskAssessment` por processo e por pedido (provável, possível ou remoto, CPC 25);
-  - **acordos:** `Settlement` (proposta, contraproposta, homologação) com `SettlementInstallment`. A aprovação usa `cases.settlements.approve`;
-  - **audiências:** `Hearing`;
-  - **índices monetários:**
-    - tabela `platform.monetary_indexes` (índice, mês, valor) com seed de IPCA-E, INPC, SELIC e TR;
-    - job mensal (Hangfire) que importa das APIs públicas do BCB (SGS) e do IBGE (SIDRA), com fonte falsa em dev e nos testes;
-  - **correção:** `IMonetaryCorrection`, que corrige pelo índice e aplica juros simples em % ao mês a partir de uma data (decisão de 2026-10-18; a regra da Lei 14.905/2024 fica para depois). Testado contra **10 cálculos conferidos à mão**, que é o critério 3 da Etapa 5.
-- **Depois do 5C:**
+  - **5C1 (#26): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c-valores-risco`. Traz índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
+  - **o próximo é o PR 5C2**, no branch `etapa-5c2-risco-acordos`, que deve ser criado depois do merge do #26.
+- **Escopo do 5C2** (plano aprovado em 2026-10-18; mostre o plano detalhado antes de implementar):
+  - **risco:** `RiskAssessment` por processo e por pedido (provável, possível ou remoto, CPC 25), com histórico. A provisão contábil e a trava mensal ficam para depois;
+  - **acordos:** `Settlement` (proposta, contraproposta, aprovação, homologação) com `SettlementInstallment` e o indicador de economia (pedido × acordado). A homologação publica `SettlementHomologated`, para o financeiro da Etapa 10;
+  - **aprovação dos acordos** (decisão de 2026-10-18): basta `cases.settlements.approve`, inclusive para o acordo que a própria pessoa cadastrou;
+  - **audiências:** `Hearing` (presencial, virtual ou híbrida; local ou link; preposto, advogado e testemunhas; situação e resultado ou ata). O checklist, os correspondentes e a agenda ficam para a Etapa 7.
+- **Decisões de cálculo já valendo** (ADR 0027):
+  - a SELIC não leva juros extras e se acumula por soma;
+  - os juros simples são pro rata dia, sobre o valor corrigido;
+  - a deflação entra, com piso no valor original.
+- **Depois do 5C2:**
   - 5D: linha do tempo (`ITimelineContributor`), importação XLSX/CSV com ClosedXML (critério 2) e operações em lote;
   - 5E: frontend e e2e dos processos.
 
@@ -84,7 +86,9 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
    2. crie o branch do próximo PR;
    3. no `progress.md`, marque o PR como concluído, com o número e a data;
    4. marque a ADR como "Aceita (PR #N mergeado em …)";
-   5. faça commit e push dessas mudanças nesse branch.
+   5. atualize o "Onde paramos" deste arquivo;
+   6. faça commit e push dessas mudanças nesse branch.
+6. **Sempre que terminar ou interromper um trabalho**, acrescente uma entrada no topo de `docs/handoff.md`: o que fez, o estado (commit, push, PR), o que falta e as decisões novas do usuário. Se o "Onde paramos" mudou, atualize-o aqui também. O `CLAUDE.md` e o `AGENTS.md` têm as mesmas regras: mudou uma, mude a outra.
 
 ## Verificação completa
 
@@ -129,3 +133,6 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
   - `using` fora de ordem: rode `dotnet format`.
 - **Token de acesso:** é criptografado (JWE) e não dá para ler. O OpenIddict confere o emissor pelo host da requisição.
 - **Testes de integração:** dependem do Docker Desktop rodando. Se tudo falhar em 0 ms, o Docker parou.
+- **API do BCB:** `api.bcb.gov.br` recusa as requisições da máquina de desenvolvimento. Para dados de SELIC e TR, use o Ipeadata. A Calculadora do Cidadão (`www3.bcb.gov.br/CALCIDADAO`) funciona e serve para conferir cálculos.
+- **Rotas aninhadas:** num `MapGroup`, `MapGet("/")` ou `MapGet("")` gera rota com barra no fim (`/claims/`). Use o caminho completo no grupo (`/{id:guid}/claims`).
+- **Erros de validação:** o FluentValidation responde `validation.failed`, com o código de cada campo em `errors`. Só os erros dos handlers vêm no `code` principal.

@@ -2,7 +2,7 @@
 
 Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
-Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` (Codex e outros), com o próximo passo e as armadilhas conhecidas.
+Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` (Codex e outros), com o próximo passo e as armadilhas conhecidas. A passagem de bastão entre eles fica em `docs/handoff.md`.
 
 | Etapa | Status | Branch |
 | --- | --- | --- |
