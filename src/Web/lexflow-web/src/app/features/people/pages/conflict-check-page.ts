@@ -163,7 +163,7 @@ import { digitsOf, formatDocument } from '../data/people-format';
       }
     </section>
   `,
-  styleUrl: './people-page.scss',
+  styleUrl: '../../../shared/ui/page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConflictCheckPage {

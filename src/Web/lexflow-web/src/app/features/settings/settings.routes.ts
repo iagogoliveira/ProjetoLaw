@@ -35,6 +35,13 @@ export const SETTINGS_ROUTES: Routes = [
         loadComponent: () => import('./pages/structure-page').then((m) => m.StructurePage),
       },
       {
+        // A tela é do funil (features/funnel); aqui só a aba nas configurações.
+        path: 'modelos-proposta',
+        canMatch: [permissionGuard('crm.proposals.read')],
+        loadComponent: () =>
+          import('../funnel/pages/proposal-templates-page').then((m) => m.ProposalTemplatesPage),
+      },
+      {
         path: 'campos',
         canMatch: [permissionGuard('settings.custom_fields.read')],
         loadComponent: () => import('./pages/custom-fields-page').then((m) => m.CustomFieldsPage),

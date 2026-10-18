@@ -92,7 +92,7 @@ const RISKS: readonly ConflictRisk[] = ['direct', 'indirect', 'none'];
       }
     </section>
   `,
-  styleUrl: './people-page.scss',
+  styleUrl: '../../../shared/ui/page.scss',
   styles: `
     .filter {
       max-width: 280px;

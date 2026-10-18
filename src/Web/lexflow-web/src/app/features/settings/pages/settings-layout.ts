@@ -56,5 +56,6 @@ export class SettingsLayout {
     { path: 'perfis', label: 'roles', permission: 'settings.users.read' },
     { path: 'estrutura', label: 'structure', permission: 'settings.structure.manage' },
     { path: 'campos', label: 'customFields', permission: 'settings.custom_fields.read' },
+    { path: 'modelos-proposta', label: 'proposalTemplates', permission: 'crm.proposals.read' },
   ] as const;
 }

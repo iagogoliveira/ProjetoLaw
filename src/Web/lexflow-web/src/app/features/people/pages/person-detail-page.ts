@@ -44,7 +44,7 @@ type PendingAction = 'merge' | 'anonymize' | 'delete' | null;
   ],
   providers: [PersonDetailStore],
   templateUrl: './person-detail-page.html',
-  styleUrl: './people-page.scss',
+  styleUrl: '../../../shared/ui/page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonDetailPage implements OnInit {

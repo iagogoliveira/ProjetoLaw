@@ -43,6 +43,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/people/people.routes').then((m) => m.PEOPLE_ROUTES),
       },
       {
+        path: 'funil',
+        canMatch: [organizationGuard, permissionGuard('crm.opportunities.read')],
+        loadChildren: () => import('./features/funnel/funnel.routes').then((m) => m.FUNNEL_ROUTES),
+      },
+      {
         path: 'conflitos',
         canMatch: [organizationGuard, permissionGuard('crm.conflicts.check')],
         loadChildren: () =>

@@ -110,7 +110,7 @@ const SEARCH_DELAY_MS = 300;
       }
     </section>
   `,
-  styleUrl: './people-page.scss',
+  styleUrl: '../../../shared/ui/page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeopleListPage implements OnInit, OnDestroy {
