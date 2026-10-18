@@ -86,6 +86,9 @@ public sealed class DependenciesFixture : IAsyncLifetime
 
         // Consulta de CNPJ falsa e determinística: os testes não dependem da BrasilAPI.
         ["Crm:CnpjLookup:Provider"] = "Fake",
+
+        // Índices monetários: fonte falsa, sem internet (o seed real vem da migration).
+        ["Platform:MonetaryIndexes:Source"] = "Fake",
     };
 
     public async ValueTask InitializeAsync()

@@ -3,6 +3,7 @@ using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Application.Abstractions;
 using LexFlow.Litigation.Application.Access;
 using LexFlow.Litigation.Application.Cases;
+using LexFlow.Litigation.Application.Claims;
 using LexFlow.Litigation.Contracts;
 using LexFlow.Litigation.Infrastructure.Access;
 using LexFlow.Litigation.Infrastructure.Persistence;
@@ -31,6 +32,8 @@ public static class LitigationInfrastructure
         services.AddLitigationPersistence(configuration);
         services.AddScoped<CaseRules>();
         services.AddScoped<CaseResponseBuilder>();
+        services.AddScoped<ClaimResponseBuilder>();
+        services.AddScoped<ClaimWrites>();
         services.AddScoped<ICaseCounter, CaseCounterStore>();
         services.AddScoped<ILitigationLookup, CasePartyLookup>();
         services.AddScoped<CaseAccess>();

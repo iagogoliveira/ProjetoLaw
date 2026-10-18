@@ -7,6 +7,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- HttpClientFactory das fontes dos índices monetários, pelo framework compartilhado (como no Crm), sem pacote novo. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
   </ItemGroup>
 

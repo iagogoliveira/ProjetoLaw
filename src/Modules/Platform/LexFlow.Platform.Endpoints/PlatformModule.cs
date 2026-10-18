@@ -17,9 +17,11 @@ public static class PlatformPermissions
     public const string JobsRead = "platform.jobs.read";
     public const string CustomFieldsRead = "settings.custom_fields.read";
     public const string CustomFieldsManage = "settings.custom_fields.manage";
+    public const string CasesRead = "cases.read";
 }
 
-/// <summary>Endpoints do módulo Platform (seção 4.2): operações longas, campos customizados e tabelas auxiliares.</summary>
+/// <summary>Endpoints do módulo Platform (seção 4.2): operações longas, campos customizados, tabelas auxiliares
+/// e índices monetários.</summary>
 public sealed class PlatformModule : IModule
 {
     public void AddServices(IServiceCollection services, IConfiguration configuration)
@@ -40,5 +42,6 @@ public sealed class PlatformModule : IModule
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         CustomFieldEndpoints.Map(endpoints);
+        MonetaryIndexEndpoints.Map(endpoints);
     }
 }

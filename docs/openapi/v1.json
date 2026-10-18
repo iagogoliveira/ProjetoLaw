@@ -87,6 +87,136 @@
         }
       }
     },
+    "/api/v1/monetary-indexes": {
+      "get": {
+        "tags": [
+          "MonetaryIndexes"
+        ],
+        "summary": "Variação mensal de um índice (IPCA-E, INPC, SELIC ou TR) entre dois meses",
+        "operationId": "ListMonetaryIndexes",
+        "parameters": [
+          {
+            "name": "index",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MonetaryIndexCode"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MonetaryIndexResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetary-corrections": {
+      "post": {
+        "tags": [
+          "MonetaryIndexes"
+        ],
+        "summary": "Corrige um valor pelo índice e aplica juros simples pro rata dia, com a memória de cálculo",
+        "operationId": "CalculateMonetaryCorrection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonetaryCorrectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonetaryCorrectionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/permissions": {
       "get": {
         "tags": [
@@ -7182,6 +7312,363 @@
           }
         }
       }
+    },
+    "/api/v1/cases/{id}/claims": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Pedidos do processo com os totais por instância; com updateTo, os valores corrigidos e com juros até a data",
+        "operationId": "ListCaseClaims",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "updateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseClaimsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Cadastra um pedido com os valores por instância e a forma de correção",
+        "operationId": "CreateCaseClaim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/claims/{claimId}": {
+      "put": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Substitui os dados do pedido; cada valor alterado entra no histórico",
+        "operationId": "UpdateCaseClaim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "claimId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Exclui (logicamente) um pedido; o histórico de valores fica",
+        "operationId": "DeleteCaseClaim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "claimId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/claims/{claimId}/history": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Histórico das alterações de valor do pedido: anterior, novo, quem e quando",
+        "operationId": "GetCaseClaimHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "claimId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClaimValueChangeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7437,6 +7924,35 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "CaseClaimsResponse": {
+        "required": [
+          "updatedTo",
+          "items",
+          "totals"
+        ],
+        "type": "object",
+        "properties": {
+          "updatedTo": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimResponse"
+            }
+          },
+          "totals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimTotalsResponse"
+            }
           }
         }
       },
@@ -8045,6 +8561,311 @@
           }
         }
       },
+      "ClaimCorrectionIndex": {
+        "enum": [
+          "ipcaE",
+          "inpc",
+          "selic",
+          "tr"
+        ],
+        "description": "Índice da correção do pedido (os mesmos da tabela da plataforma)."
+      },
+      "ClaimInput": {
+        "required": [
+          "claimTypeId",
+          "description",
+          "correction",
+          "valuations"
+        ],
+        "type": "object",
+        "properties": {
+          "claimTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "correction": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CorrectionSettings"
+              }
+            ]
+          },
+          "valuations": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ValuationInput"
+            }
+          }
+        },
+        "description": "Dados do pedido: o objeto (tabela auxiliar \"Objetos/pedidos\"), a descrição, a correção e os valores."
+      },
+      "ClaimResponse": {
+        "required": [
+          "id",
+          "caseId",
+          "claimTypeId",
+          "description",
+          "correction",
+          "valuations",
+          "correctionError",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claimTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "correction": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CorrectionSettings"
+              }
+            ]
+          },
+          "valuations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimValuationResponse"
+            }
+          },
+          "correctionError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Pedido com os valores por instância. string? ClaimResponse.CorrectionError traz o código do erro quando a atualização foi\npedida e não pôde ser feita (ex.: `platform.monetary_index_missing`); sem correção configurada, os valores\natualizados ficam nulos."
+      },
+      "ClaimTotalsResponse": {
+        "required": [
+          "instance",
+          "requested",
+          "estimated",
+          "awarded",
+          "updatedRequested",
+          "updatedEstimated",
+          "updatedAwarded"
+        ],
+        "type": "object",
+        "properties": {
+          "instance": {
+            "$ref": "#/components/schemas/CaseInstance"
+          },
+          "requested": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "estimated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "awarded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedRequested": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedEstimated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedAwarded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Soma dos pedidos numa instância. Os totais atualizados contam pelo valor original os pedidos sem correção."
+      },
+      "ClaimValuationResponse": {
+        "required": [
+          "instance",
+          "requested",
+          "estimated",
+          "awarded",
+          "updatedRequested",
+          "updatedEstimated",
+          "updatedAwarded"
+        ],
+        "type": "object",
+        "properties": {
+          "instance": {
+            "$ref": "#/components/schemas/CaseInstance"
+          },
+          "requested": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "estimated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "awarded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedRequested": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedEstimated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "updatedAwarded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Valores de uma instância e, com a data de atualização, os mesmos valores corrigidos com juros."
+      },
+      "ClaimValueChangeResponse": {
+        "required": [
+          "instance",
+          "kind",
+          "oldAmount",
+          "newAmount",
+          "changedBy",
+          "changedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "instance": {
+            "$ref": "#/components/schemas/CaseInstance"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ClaimValueKind"
+          },
+          "oldAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "newAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "changedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "changedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Uma alteração de valor do pedido, para a auditoria (RF-13)."
+      },
+      "ClaimValueKind": {
+        "enum": [
+          "requested",
+          "estimated",
+          "awarded"
+        ],
+        "description": "Qual dos valores do pedido mudou."
+      },
       "ClosingInput": {
         "required": [
           "reasonId",
@@ -8452,6 +9273,72 @@
             "$ref": "#/components/schemas/ContactChannel"
           }
         }
+      },
+      "CorrectionMonthLine": {
+        "required": [
+          "month",
+          "percent",
+          "accumulatedFactor"
+        ],
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date"
+          },
+          "percent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "accumulatedFactor": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Um mês da memória de cálculo."
+      },
+      "CorrectionSettings": {
+        "required": [
+          "index",
+          "correctFrom",
+          "interestFrom",
+          "monthlyInterestPercent"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "$ref": "#/components/schemas/ClaimCorrectionIndex"
+          },
+          "correctFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "interestFrom": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "monthlyInterestPercent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Como corrigir os valores do pedido: o índice e a data de início da correção (ex.: o vencimento) e, se houver, os\njuros simples em % ao mês a partir de uma data própria (ex.: a citação). Com a SELIC não há juros extras."
       },
       "CostCenterRequest": {
         "required": [
@@ -9560,6 +10447,180 @@
             "type": "boolean"
           }
         }
+      },
+      "MonetaryCorrectionRequest": {
+        "required": [
+          "principal",
+          "index",
+          "correctFrom",
+          "until",
+          "interestFrom",
+          "monthlyInterestPercent"
+        ],
+        "type": "object",
+        "properties": {
+          "principal": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "index": {
+            "$ref": "#/components/schemas/MonetaryIndexCode"
+          },
+          "correctFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          },
+          "interestFrom": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "monthlyInterestPercent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Cálculo de correção monetária: valor, índice, início da correção, data do cálculo e, opcionalmente, juros simples\nem % ao mês a partir de DateOnly? MonetaryCorrectionRequest.InterestFrom."
+      },
+      "MonetaryCorrectionResult": {
+        "required": [
+          "principal",
+          "index",
+          "factor",
+          "correctedAmount",
+          "deflationFloorApplied",
+          "interestMonths",
+          "interestPercent",
+          "interestAmount",
+          "total",
+          "months"
+        ],
+        "type": "object",
+        "properties": {
+          "principal": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "index": {
+            "$ref": "#/components/schemas/MonetaryIndexCode"
+          },
+          "factor": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "correctedAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "deflationFloorApplied": {
+            "type": "boolean"
+          },
+          "interestMonths": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "interestPercent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "interestAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorrectionMonthLine"
+            }
+          }
+        },
+        "description": "Resultado com a memória de cálculo: fator acumulado, valor corrigido (nunca abaixo do original), meses e taxa de\njuros aplicados, juros e total."
+      },
+      "MonetaryIndexCode": {
+        "enum": [
+          "ipcaE",
+          "inpc",
+          "selic",
+          "tr"
+        ],
+        "description": "Índices oficiais da tabela da plataforma."
+      },
+      "MonetaryIndexResponse": {
+        "required": [
+          "index",
+          "month",
+          "percent",
+          "source"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "$ref": "#/components/schemas/MonetaryIndexCode"
+          },
+          "month": {
+            "type": "string",
+            "format": "date"
+          },
+          "percent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "description": "Variação de um índice num mês, em %, e de onde veio."
       },
       "MoveOpportunityRequest": {
         "required": [
@@ -11694,12 +12755,57 @@
             ]
           }
         }
+      },
+      "ValuationInput": {
+        "required": [
+          "instance",
+          "requested",
+          "estimated",
+          "awarded"
+        ],
+        "type": "object",
+        "properties": {
+          "instance": {
+            "$ref": "#/components/schemas/CaseInstance"
+          },
+          "requested": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "estimated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "awarded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Valores do pedido numa instância: pedido, estimado (expectativa do escritório) e de condenação."
       }
     }
   },
   "tags": [
     {
       "name": "LookupTables"
+    },
+    {
+      "name": "MonetaryIndexes"
     },
     {
       "name": "Roles"

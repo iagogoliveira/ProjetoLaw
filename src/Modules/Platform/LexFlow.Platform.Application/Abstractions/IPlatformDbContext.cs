@@ -2,6 +2,7 @@ using LexFlow.Platform.Domain.Calendar;
 using LexFlow.Platform.Domain.Courts;
 using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
+using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,8 @@ public interface IPlatformDbContext
     DbSet<LookupTable> LookupTables { get; }
 
     DbSet<LookupItem> LookupItems { get; }
+
+    DbSet<MonetaryIndex> MonetaryIndexes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

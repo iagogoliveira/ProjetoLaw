@@ -1,4 +1,5 @@
 using LexFlow.Litigation.Domain.Cases;
+using LexFlow.Litigation.Domain.Claims;
 using LexFlow.Litigation.Domain.Numbering;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ public interface ILitigationDbContext
     DbSet<CaseRelation> Relations { get; }
 
     DbSet<CaseNumbering> Numberings { get; }
+
+    DbSet<Claim> Claims { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

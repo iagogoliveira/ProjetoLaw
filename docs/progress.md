@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 e 5B #25 mergeados; faltam 5C a 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 e 5B #25 mergeados; 5C1 em revisão; faltam 5C2, 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco` |
 
 ---
 
@@ -28,7 +28,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Plano (5 PRs):**
 - **5A — módulo Litigation e cadastro:** processo e caso, CNJ e tribunal, numeração, partes, responsáveis, hierarquia, encerramento, `ILitigationLookup` real e fusão de cadastros.
 - **5B — acesso e lista:** escopo de dados (próprio, equipe, área, filial, escritório), casos sigilosos (muralha ética), filtros e o teste de carga k6 com 100 mil processos.
-- **5C — pedidos, valores, risco, acordos e audiências:** índices monetários com importação mensal e `IMonetaryCorrection` conferido com 10 cálculos.
+- **5C — pedidos, valores, risco, acordos e audiências:** índices monetários com importação mensal e `IMonetaryCorrection` conferido com 10 cálculos. Dividido em 2026-10-18:
+  - **5C1:** índices monetários, correção e pedidos com valores por instância (critério 3);
+  - **5C2:** risco (CPC 25), acordos com parcelas e audiências.
 - **5D — linha do tempo, importação XLSX/CSV e operações em lote.**
 - **5E — frontend e e2e.**
 
@@ -38,7 +40,34 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | --- | --- | --- |
 | Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | ✅ (5B, local) | `tests/LexFlow.LoadTests/run-cases-list.sh` (k6): p95 de 91 ms com área e responsável e de 89 ms com área, com 10 usuários simultâneos e nenhuma falha |
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
-| Correção monetária confere com 10 casos calculados manualmente | Pendente (5C) | |
+| Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
+
+### PR 5C1 — índices monetários, correção e pedidos (em revisão)
+
+**Decisões de negócio (2026-10-18):**
+- Com a SELIC não há juros extras: ela já os embute (STF, ADC 58).
+- A SELIC se acumula por soma simples das taxas mensais (Receita Federal e Manual de Cálculos da Justiça Federal).
+- Os juros simples são pro rata dia (meses completos mais os dias restantes / 30) e incidem sobre o valor corrigido.
+- A deflação entra, mas o valor corrigido nunca fica abaixo do original (STJ).
+- A aprovação de acordos (5C2) fica com quem tem `cases.settlements.approve`, inclusive para o acordo que a própria pessoa cadastrou.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.16 | Tabela `platform.monetary_indexes` (sem tenant) com o seed de 01/2000 a 09/2026: IPCA-E (IPCA-15) e INPC do IBGE; SELIC e TR do Ipeadata, que republica o BCB | `MonetaryIndexTests.The_seed_has_every_month_until_september_2026` |
+| 5.17 | `MonetaryCorrectionCalculator` e `IMonetaryCorrection`: meses do início ao anterior ao cálculo, composta nos índices de preço e na TR, soma na SELIC, piso da deflação, juros pro rata dia sobre o corrigido, erro para mês não publicado, cálculo em lote | `MonetaryCorrectionCalculatorTests` (18 casos), `Correction_matches_the_hand_calculated_cases` (10 casos), `The_memory_of_calculation_lists_each_month_and_a_missing_month_is_an_error` |
+| 5.18 | Importação diária (Hangfire, 06:00): só os meses fechados que faltam; IBGE SIDRA, BCB SGS com o Ipeadata de reserva; fonte falsa em dev e testes | `The_import_fills_only_the_missing_closed_months_and_falls_back_when_a_source_fails`, `Without_any_working_source_the_import_keeps_the_table_as_it_is`, `MonetaryIndexSourceTests` (6 casos) |
+| 5.19 | `GET /api/v1/monetary-indexes` e a calculadora `POST /api/v1/monetary-corrections` (`cases.read`) | `CaseClaimTests.The_calculator_and_the_index_list_use_the_platform_table` |
+| 5.20 | Pedidos (`claims`, com RLS): objeto da tabela auxiliar, forma de correção e valores pedido, estimado e de condenação por instância; atualização até uma data, com totais por instância e o erro por pedido quando falta índice | `ClaimTests` (5 casos), `Claims_are_updated_with_the_platform_indexes_and_totaled_per_instance`, `A_month_not_yet_published_is_reported_per_claim`, `Invalid_claims_are_refused_and_a_closed_case_takes_no_changes` |
+| 5.21 | Histórico das alterações de valor (quem, quando, anterior e novo), só com inserções: a aplicação não tem `UPDATE` nem `DELETE` | `Every_value_change_goes_to_the_history_and_deleting_hides_the_claim`, `LitigationDatabaseTests.The_application_cannot_rewrite_the_claim_value_history` |
+| 5.22 | Alcance do processo nos pedidos (`CaseAccess`), casos entre organizações nas 5 rotas novas, OpenAPI (5 caminhos novos, só adições) e cliente TypeScript | `Claims_follow_the_reach_of_the_case`, `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0027 — Índices monetários, correção e pedidos do processo](adr/0027-indices-monetarios-correcao-e-pedidos.md) (Proposta, para revisão no PR 5C1).
+
+**Última verificação local (PR 5C1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 671 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Platform.Application 97,1%, Platform.Domain 99,3%, Litigation.Application 92,4% e Litigation.Domain 98,0%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
+
+**Pendências do PR 5C1:**
+1. A API do BCB recusou as requisições desta máquina. O adaptador do SGS está coberto com respostas no formato documentado, e o Ipeadata assume se o BCB falhar. Conferir o log da primeira importação em produção.
+2. Os cálculos completos (Lei 14.905/2024, juros compostos, multas e honorários) ficam para a etapa dos cálculos.
 
 ### PR 5B — escopo de dados, casos sigilosos e lista (concluído: PR #25 mergeado em 2026-10-18)
 

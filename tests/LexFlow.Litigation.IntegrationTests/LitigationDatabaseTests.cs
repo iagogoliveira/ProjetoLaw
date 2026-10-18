@@ -137,4 +137,22 @@ public sealed class LitigationDatabaseTests(LitigationDatabaseFixture fixture)
 
         numbers.Order().ShouldBe(Enumerable.Range(1, 20).Select(n => (long)n));
     }
+
+    /// <summary>O histórico de valores dos pedidos (RF-13) só recebe inserções: a aplicação não altera nem apaga.</summary>
+    [Theory]
+    [InlineData("UPDATE litigation.claim_value_changes SET new_amount = 0")]
+    [InlineData("DELETE FROM litigation.claim_value_changes")]
+    public async Task The_application_cannot_rewrite_the_claim_value_history(string sql)
+    {
+        await using var connection = new NpgsqlConnection(fixture.ConnectionString);
+        await connection.OpenAsync(Ct);
+        await using (var role = new NpgsqlCommand("SET ROLE lexflow_app", connection))
+        {
+            await role.ExecuteNonQueryAsync(Ct);
+        }
+
+        await using var command = new NpgsqlCommand(sql, connection);
+        var error = await Should.ThrowAsync<PostgresException>(() => command.ExecuteNonQueryAsync(Ct));
+        error.SqlState.ShouldBe(PostgresErrorCodes.InsufficientPrivilege);
+    }
 }
