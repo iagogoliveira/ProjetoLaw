@@ -1,6 +1,7 @@
 using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Application.Abstractions;
+using LexFlow.Litigation.Domain.CaseImports;
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Litigation.Domain.Claims;
 using LexFlow.Litigation.Domain.Hearings;
@@ -32,6 +33,12 @@ public sealed class LitigationDbContext(DbContextOptions<LitigationDbContext> op
 
     public DbSet<Claim> Claims => Set<Claim>();
 
+    public DbSet<CaseStatusChange> StatusChanges => Set<CaseStatusChange>();
+
+    public DbSet<CaseImport> CaseImports => Set<CaseImport>();
+
+    public DbSet<CaseImportError> ImportErrors => Set<CaseImportError>();
+
     public DbSet<RiskAssessment> RiskAssessments => Set<RiskAssessment>();
 
     public DbSet<Settlement> Settlements => Set<Settlement>();
@@ -41,6 +48,8 @@ public sealed class LitigationDbContext(DbContextOptions<LitigationDbContext> op
     internal DbSet<CaseCounter> Counters => Set<CaseCounter>();
 
     protected override string Schema => SchemaName;
+
+    public void ClearTracking() => ChangeTracker.Clear();
 }
 
 /// <summary>Contador da numeração por organização, área (<see cref="Guid.Empty"/> sem área) e ano.</summary>
@@ -140,6 +149,7 @@ internal sealed class CaseConfiguration :
 
 internal sealed class CaseSupportConfiguration :
     IEntityTypeConfiguration<CaseRelation>,
+    IEntityTypeConfiguration<CaseStatusChange>,
     IEntityTypeConfiguration<CaseNumbering>,
     IEntityTypeConfiguration<CaseCounter>
 {
@@ -155,6 +165,18 @@ internal sealed class CaseSupportConfiguration :
         builder.HasIndex(r => new { r.OrganizationId, r.ChildCaseId }).IsUnique();
         builder.HasIndex(r => new { r.OrganizationId, r.ParentCaseId });
         builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<CaseStatusChange> builder)
+    {
+        builder.ToTable("case_status_changes");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
+        builder.Property(c => c.From).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.To).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.Note).HasMaxLength(CaseStatusChange.MaxNoteLength);
+        builder.HasOne<LegalCase>().WithMany().HasForeignKey(c => c.LegalCaseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(c => c.LegalCaseId);
     }
 
     public void Configure(EntityTypeBuilder<CaseNumbering> builder)
@@ -320,6 +342,36 @@ internal sealed class CaseFollowUpConfiguration :
         builder.Property(r => r.Id).ValueGeneratedNever();
         builder.Property(r => r.Reason).HasMaxLength(Hearing.MaxTextLength);
         builder.HasIndex(r => r.HearingId);
+    }
+}
+
+/// <summary>Importações de processos e os erros das linhas (consultados pela importação, na ordem das linhas).</summary>
+internal sealed class CaseImportConfiguration : IEntityTypeConfiguration<CaseImport>, IEntityTypeConfiguration<CaseImportError>
+{
+    public void Configure(EntityTypeBuilder<CaseImport> builder)
+    {
+        builder.ToTable("case_imports");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.FileName).HasMaxLength(CaseImport.MaxFileNameLength);
+        builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(i => i.ErrorCode).HasMaxLength(100);
+        builder.Property(i => i.Preview).HasColumnType("jsonb");
+        builder.Ignore(i => i.ValidRows);
+        builder.HasIndex(i => new { i.OrganizationId, i.CreatedAt });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<CaseImportError> builder)
+    {
+        builder.ToTable("case_import_errors");
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Column).HasMaxLength(40);
+        builder.Property(e => e.Value).HasMaxLength(CaseImportError.MaxValueLength);
+        builder.Property(e => e.Code).HasMaxLength(100);
+        builder.Property(e => e.Message).HasMaxLength(300);
+        builder.HasOne<CaseImport>().WithMany().HasForeignKey(e => e.ImportId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(e => new { e.ImportId, e.Row });
     }
 }
 

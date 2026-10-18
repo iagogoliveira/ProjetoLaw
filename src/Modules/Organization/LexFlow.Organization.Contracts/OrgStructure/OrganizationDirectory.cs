@@ -20,6 +20,12 @@ public interface IOrganizationDirectory
     /// <summary>Os cadastros do tipo pedido com os ids informados que existem no escritório.</summary>
     Task<IReadOnlyList<OrgUnit>> GetAsync(OrgUnitKind kind, IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken);
 
+    /// <summary>Todos os cadastros do tipo pedido no escritório (ex.: para achar a área pelo nome numa importação).</summary>
+    Task<IReadOnlyList<OrgUnit>> ListAsync(OrgUnitKind kind, CancellationToken cancellationToken);
+
+    /// <summary>Os usuários membros do escritório.</summary>
+    Task<IReadOnlyList<Guid>> MemberUserIdsAsync(CancellationToken cancellationToken);
+
     /// <summary>As equipes de que o usuário é membro no escritório.</summary>
     Task<IReadOnlyList<Guid>> TeamsOfUserAsync(Guid userId, CancellationToken cancellationToken);
 

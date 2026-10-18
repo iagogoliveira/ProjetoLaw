@@ -84,3 +84,13 @@ internal sealed class LookupItemValidator(IPlatformDbContext db) : ILookupItemVa
             i => i.Id == itemId && i.IsActive && db.LookupTables.Any(t => t.Id == i.TableId && t.SystemKey == systemTable && t.IsActive),
             cancellationToken);
 }
+
+internal sealed class LookupItems(IPlatformDbContext db) : ILookupItems
+{
+    public async Task<IReadOnlyList<LookupItemInfo>> ActiveItemsAsync(string systemTable, CancellationToken cancellationToken) =>
+        await db.LookupItems.AsNoTracking()
+            .Where(i => i.IsActive && db.LookupTables.Any(t => t.Id == i.TableId && t.SystemKey == systemTable && t.IsActive))
+            .OrderBy(i => i.Position)
+            .Select(i => new LookupItemInfo(i.Id, i.Name))
+            .ToListAsync(cancellationToken);
+}

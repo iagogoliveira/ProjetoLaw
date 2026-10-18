@@ -6,6 +6,8 @@
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Testcontainers.Redis" />
     <PackageReference Include="Testcontainers.RabbitMq" />
+    <!-- Lê o relatório e monta planilhas da importação de processos (ADR 0029). -->
+    <PackageReference Include="ClosedXML" />
   </ItemGroup>
 
   <ItemGroup>

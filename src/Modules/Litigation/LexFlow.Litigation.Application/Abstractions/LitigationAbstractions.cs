@@ -1,3 +1,4 @@
+using LexFlow.Litigation.Domain.CaseImports;
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Litigation.Domain.Claims;
 using LexFlow.Litigation.Domain.Hearings;
@@ -18,6 +19,15 @@ public interface ILitigationDbContext
     DbSet<CaseNumbering> Numberings { get; }
 
     DbSet<Claim> Claims { get; }
+
+    DbSet<CaseStatusChange> StatusChanges { get; }
+
+    DbSet<CaseImport> CaseImports { get; }
+
+    DbSet<CaseImportError> ImportErrors { get; }
+
+    /// <summary>Solta as entidades acompanhadas (a importação grava em lotes e não guarda os anteriores na memória).</summary>
+    void ClearTracking();
 
     DbSet<RiskAssessment> RiskAssessments { get; }
 

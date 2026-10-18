@@ -1,10 +1,14 @@
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Litigation.Application.Cases;
 using LexFlow.Litigation.Application.Hearings;
 using LexFlow.Litigation.Application.Risk;
 using LexFlow.Litigation.Application.Settlements;
+using LexFlow.Litigation.Application.Timeline;
+using LexFlow.Litigation.Contracts;
 using LexFlow.Litigation.Domain.Hearings;
 using LexFlow.Litigation.Domain.Risk;
 using LexFlow.Litigation.Domain.Settlements;
+using LexFlow.Web.Common.Pagination;
 using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +31,8 @@ public sealed record RescheduleHearingRequest(DateTimeOffset NewDate, string? Re
 
 public sealed record HearingOutcomeRequest(string? Text);
 
+public sealed record TimelinePageResponse(IReadOnlyList<TimelineEntry> Items, string? NextCursor);
+
 /// <summary>Risco (RF-14), acordos (RF-16) e audiências (RF-12) do processo (Etapa 5, PR 5C2).</summary>
 internal static class FollowUpEndpoints
 {
@@ -37,6 +43,16 @@ internal static class FollowUpEndpoints
         MapSettlements(cases);
         MapSettlementActions(cases);
         MapHearings(cases);
+        MapTimeline(cases);
+
+        cases.MapPost("/batch", async (CaseBatchCommand request, ICommandHandler<CaseBatchCommand, CaseBatchResult> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(request, cancellationToken)).ToHttpResult())
+            .RequirePermission(LitigationPermissions.CasesEdit)
+            .WithName("RunCaseBatch")
+            .WithSummary("Redistribui o responsável, muda a fase, suspende ou reativa até 1.000 processos; os fora de alcance ou encerrados ficam de fora, com o motivo")
+            .Produces<CaseBatchResult>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 
     private static void MapRisk(RouteGroupBuilder cases)
@@ -181,6 +197,44 @@ internal static class FollowUpEndpoints
                 async (Guid id, Guid hearingId, HearingOutcomeRequest request, ICommandHandler<CloseHearingCommand, HearingResponse> handler, CancellationToken cancellationToken) =>
                     (await handler.Handle(new CloseHearingCommand(id, hearingId, Held: false, request.Text), cancellationToken)).ToHttpResult()),
             "CancelCaseHearing", "Cancela a audiência, com o motivo");
+    }
+
+    private static void MapTimeline(RouteGroupBuilder cases)
+    {
+        cases.MapGet("/{id:guid}/timeline", TimelineAsync)
+            .RequirePermission(LitigationPermissions.CasesRead)
+            .WithName("GetCaseTimeline")
+            .WithSummary("Linha do tempo do processo: os acontecimentos de todos os módulos, do mais recente ao mais antigo")
+            .Produces<TimelinePageResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+
+    /// <summary><c>?cursor=&amp;limit=&amp;kind=litigation.hearing&amp;kind=...</c> (o tipo filtra pelo começo do código).</summary>
+    private static async Task<IResult> TimelineAsync(
+        Guid id, string? cursor, int? limit, string[]? kind, IQueryHandler<GetCaseTimelineQuery, TimelinePage> handler, CancellationToken cancellationToken)
+    {
+        var page = CursorPageRequest.Create(cursor, limit);
+        if (page.IsFailure)
+        {
+            return page.Error!.ToProblem();
+        }
+
+        TimelinePosition? after = null;
+        if (page.Value.Cursor is { } value)
+        {
+            var decoded = CursorCodec.Decode<TimelinePosition>(value);
+            if (decoded.IsFailure)
+            {
+                return decoded.Error!.ToProblem();
+            }
+
+            after = decoded.Value;
+        }
+
+        var result = await handler.Handle(new GetCaseTimelineQuery(id, after, page.Value.Limit, kind), cancellationToken);
+        return result.ToHttpResult(p => TypedResults.Ok(new TimelinePageResponse(p.Items, p.Next is null ? null : CursorCodec.Encode(p.Next))));
     }
 
     private static void Action(RouteGroupBuilder cases, string action, string name, string summary, string permission, Delegate handler) =>

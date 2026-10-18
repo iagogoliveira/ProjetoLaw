@@ -2,6 +2,7 @@ using LexFlow.Application.Abstractions.Security;
 using LexFlow.Litigation.Application.Hearings;
 using LexFlow.Litigation.Application.Risk;
 using LexFlow.Litigation.Application.Settlements;
+using LexFlow.Litigation.Application.Timeline;
 using LexFlow.SharedKernel.Results;
 
 namespace LexFlow.Litigation.Application.Access;
@@ -27,7 +28,8 @@ internal sealed class FollowUpAuthorizers(CaseAccess access) :
     IResourceAuthorizer<ScheduleHearingCommand>,
     IResourceAuthorizer<UpdateHearingCommand>,
     IResourceAuthorizer<RescheduleHearingCommand>,
-    IResourceAuthorizer<CloseHearingCommand>
+    IResourceAuthorizer<CloseHearingCommand>,
+    IResourceAuthorizer<GetCaseTimelineQuery>
 {
     public Task<Result> AuthorizeAsync(GetCaseRiskQuery request, CancellationToken cancellationToken) => Read(request.CaseId, cancellationToken);
 
@@ -64,6 +66,8 @@ internal sealed class FollowUpAuthorizers(CaseAccess access) :
     public Task<Result> AuthorizeAsync(RescheduleHearingCommand request, CancellationToken cancellationToken) => Edit(request.CaseId, cancellationToken);
 
     public Task<Result> AuthorizeAsync(CloseHearingCommand request, CancellationToken cancellationToken) => Edit(request.CaseId, cancellationToken);
+
+    public Task<Result> AuthorizeAsync(GetCaseTimelineQuery request, CancellationToken cancellationToken) => Read(request.CaseId, cancellationToken);
 
     private Task<Result> Read(Guid caseId, CancellationToken cancellationToken) => access.AuthorizeAsync(caseId, CasePermissions.Read, cancellationToken);
 

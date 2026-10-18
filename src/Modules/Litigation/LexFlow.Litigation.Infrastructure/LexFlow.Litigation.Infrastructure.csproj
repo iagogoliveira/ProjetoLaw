@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <!-- Planilhas da importação de processos (ADR 0029). -->
+    <PackageReference Include="ClosedXML" />
   </ItemGroup>
 
   <ItemGroup>

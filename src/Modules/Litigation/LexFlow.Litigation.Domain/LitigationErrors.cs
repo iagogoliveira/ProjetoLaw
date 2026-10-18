@@ -137,4 +137,58 @@ public static class LitigationErrors
 
     public static readonly Error HearingLinkInvalid =
         Error.Validation("litigation.hearing_link_invalid", "O link da audiência precisa ser um endereço http ou https.");
+
+    public static readonly Error ResponsibleNotAssigned =
+        Error.BusinessRule("litigation.responsible_not_assigned", "O responsável a substituir não está no processo.");
+
+    public static readonly Error BatchInvalid = Error.Validation(
+        "litigation.batch_invalid",
+        "Informe de 1 a 1.000 processos e os dados da ação (o responsável novo, a fase ou a situação).");
+
+    public static readonly Error ImportNotFound = Error.NotFound("litigation.import_not_found", "Importação não encontrada.");
+
+    public static readonly Error ImportNotReady =
+        Error.BusinessRule("litigation.import_not_ready", "A importação não está aguardando confirmação.");
+
+    public static readonly Error ImportNothingValid =
+        Error.BusinessRule("litigation.import_nothing_valid", "Nenhuma linha válida para importar; corrija a planilha e envie de novo.");
+
+    public static readonly Error ImportFileInvalid =
+        Error.Validation("litigation.import_file_invalid", "Envie uma planilha XLSX ou um arquivo CSV no formato do modelo.");
+
+    public static readonly Error ImportFileTooLarge =
+        Error.Validation("litigation.import_file_too_large", "O arquivo passa de 10 MB.");
+
+    public static readonly Error ImportFileInfected =
+        Error.Validation("litigation.import_file_infected", "O antivírus recusou o arquivo.");
+
+    public static readonly Error ImportTooManyRows =
+        Error.Validation("litigation.import_too_many_rows", "A planilha passa de 20 mil linhas; divida em arquivos menores.");
+
+    public static readonly Error ImportHeaderMissing =
+        Error.Validation("litigation.import_header_missing", "Falta a coluna obrigatória no cabeçalho (use o modelo).");
+
+    public static readonly Error ImportKindInvalid =
+        Error.Validation("litigation.import_kind_invalid", "Tipo inválido: use judicial, administrativo ou extrajudicial.");
+
+    public static readonly Error ImportInstanceInvalid =
+        Error.Validation("litigation.import_instance_invalid", "Instância inválida: use 1, 2, superior ou supremo.");
+
+    public static readonly Error ImportDateInvalid =
+        Error.Validation("litigation.import_date_invalid", "Data inválida: use dd/mm/aaaa.");
+
+    public static readonly Error ImportNumberInvalid =
+        Error.Validation("litigation.import_number_invalid", "Valor inválido: use números, como 1.234,56.");
+
+    public static readonly Error ImportClientRequired =
+        Error.Validation("litigation.import_client_required", "Informe o nome do cliente.");
+
+    public static readonly Error ImportDocumentInvalid =
+        Error.Validation("litigation.import_document_invalid", "CPF ou CNPJ inválido.");
+
+    public static readonly Error ImportDuplicateInFile =
+        Error.Validation("litigation.import_duplicate_in_file", "O mesmo número CNJ ou pasta aparece numa linha anterior da planilha.");
+
+    public static readonly Error FolderTaken =
+        Error.Conflict("litigation.folder_taken", "Já existe um processo com esta pasta interna no escritório.");
 }

@@ -149,6 +149,8 @@ public sealed class LitigationDatabaseTests(LitigationDatabaseFixture fixture)
     [InlineData("DELETE FROM litigation.risk_assessments")]
     [InlineData("UPDATE litigation.hearing_reschedules SET reason = NULL")]
     [InlineData("DELETE FROM litigation.hearing_reschedules")]
+    [InlineData("UPDATE litigation.case_status_changes SET note = NULL")]
+    [InlineData("DELETE FROM litigation.case_status_changes")]
     public async Task The_application_cannot_rewrite_the_append_only_histories(string sql)
     {
         await using var connection = new NpgsqlConnection(fixture.ConnectionString);

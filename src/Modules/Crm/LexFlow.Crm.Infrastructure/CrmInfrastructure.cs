@@ -36,6 +36,7 @@ public static class CrmInfrastructure
         services.AddScoped<PersonRules>();
         services.AddScoped<ConflictDetector>();
         services.AddScoped<IPeopleDirectory, PeopleDirectory>();
+        services.AddScoped<IPeopleRegistry, PeopleRegistry>();
         services.AddScoped<OpportunityRules>();
         services.AddScoped<ProposalDocumentComposer>();
         services.AddSingleton<IProposalDocuments, DocxProposalDocuments>();
