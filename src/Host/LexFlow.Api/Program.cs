@@ -8,6 +8,9 @@ using LexFlow.Identity.Infrastructure;
 using LexFlow.Infrastructure.Common.HealthChecks;
 using LexFlow.Infrastructure.Common.Integrations;
 using LexFlow.Infrastructure.Common.Messaging;
+using LexFlow.Litigation.Application;
+using LexFlow.Litigation.Endpoints;
+using LexFlow.Litigation.Infrastructure;
 using LexFlow.Organization.Application;
 using LexFlow.Organization.Endpoints;
 using LexFlow.Organization.Infrastructure;
@@ -22,7 +25,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Módulos da API (seção 4.2): cada um registra serviços e mapeia os próprios endpoints.
-IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule(), new CrmModule()];
+IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule(), new CrmModule(), new LitigationModule()];
 
 builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
@@ -30,12 +33,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddWebCommon();
 
 // Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
-builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly);
+builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly, LitigationApplication.Assembly);
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServer(builder.Environment);
 builder.Services.AddOrganizationInfrastructure(builder.Configuration);
 builder.Services.AddCrmInfrastructure(builder.Configuration);
+
+// Depois do Crm: as partes dos processos substituem o stub do conflito de interesses.
+builder.Services.AddLitigationInfrastructure(builder.Configuration);
 
 // A API só publica eventos (outbox) e agenda jobs; consumidores e servidor de jobs rodam no Worker.
 builder.Services.AddLexFlowMessaging(builder.Configuration);

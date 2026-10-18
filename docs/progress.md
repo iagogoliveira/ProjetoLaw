@@ -9,7 +9,53 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em planejamento** | `etapa-5a-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A pronto para revisão; faltam 5B a 5E) | `etapa-5a-processos` |
+
+---
+
+## Etapa 5 — Processos e casos (em andamento; plano aprovado em 2026-10-18)
+
+**RFs:** RF-09 (processos e casos), RF-13 (pedidos, valores e cálculos), RF-14 (risco básico) e RF-16 (acordos, estrutura).
+
+**Decisões de negócio (2026-10-18):**
+- A numeração interna conta a sequência por área e ano (`TRAB-2026-00001`); o escritório pode trocar o formato.
+- Os índices monetários (IPCA-E, INPC, SELIC, TR) vêm das APIs públicas do BCB (SGS) e do IBGE (SIDRA), com fonte falsa em dev e nos testes.
+- O cálculo da etapa é correção pelo índice mais juros simples em % ao mês, a partir de uma data. A regra da Lei 14.905/2024 fica para os cálculos completos.
+- O processo tem um campo filial opcional; quem tem escopo de filial vê os processos dela.
+
+**Plano (5 PRs):**
+- **5A — módulo Litigation e cadastro:** processo e caso, CNJ e tribunal, numeração, partes, responsáveis, hierarquia, encerramento, `ILitigationLookup` real e fusão de cadastros.
+- **5B — acesso e lista:** escopo de dados (próprio, equipe, área, filial, escritório), casos sigilosos (muralha ética), filtros e o teste de carga k6 com 100 mil processos.
+- **5C — pedidos, valores, risco, acordos e audiências:** índices monetários com importação mensal e `IMonetaryCorrection` conferido com 10 cálculos.
+- **5D — linha do tempo, importação XLSX/CSV e operações em lote.**
+- **5E — frontend e e2e.**
+
+**Critérios de aceite da Etapa 5:**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | Pendente (5B) | |
+| Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
+| Correção monetária confere com 10 casos calculados manualmente | Pendente (5C) | |
+
+### PR 5A — módulo Litigation e cadastro de processos (pronto para revisão)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.1 | Módulo `Litigation` (schema `litigation`, RLS nas 6 tabelas): processo judicial (CNJ com dígito verificador, único no escritório) e casos administrativos e extrajudiciais, com tribunal, instância, comarca, vara, rito, classe, assunto, tipo de ação, área, filial, fase, situação, valor e datas | `LegalCaseTests`, `LitigationDatabaseTests.Migrations_apply_from_scratch_and_revert`, `The_cnj_is_checked_unique_in_the_office_and_described_by_the_lookup` |
+| 5.2 | Numeração interna configurável, com contador atômico por escritório, área e ano | `CaseNumberingTests` (4 casos), `The_counter_runs_per_office_area_and_year_and_a_rollback_gives_the_number_back`, `Concurrent_registrations_never_get_the_same_number`, `The_office_numbering_format_and_area_codes_are_used_from_then_on` |
+| 5.3 | Tribunal e segmento pelo número CNJ (`ICourtDirectory`), no cadastro e na consulta `cnj-lookup` | `A_judicial_case_gets_the_court_from_the_cnj_and_a_folder_numbered_by_area_and_year` |
+| 5.4 | Partes (pessoas do Crm, polo, cliente, advogado contrário com OAB), cliente pagador e responsáveis (sócio, advogado, equipe), conferidos nos outros módulos por contratos | `Parties_and_responsibles_must_belong_to_the_office`, `Parties_need_a_client_without_repeating_a_person_and_the_payer_is_a_client` |
+| 5.5 | Hierarquia (principal, incidente, recurso, cumprimento, apenso), sem ciclo e com um principal por processo | `The_hierarchy_links_incidents_and_appeals_without_cycles` |
+| 5.6 | Encerramento com motivo, resultado e valor final; reabertura; suspensão | `A_closed_case_keeps_the_outcome_until_it_is_reopened`, `A_closed_case_does_not_change_until_reopened` |
+| 5.7 | `ILitigationLookup` real no conflito de interesses e fusão de cadastros do Crm refletida nas partes | `The_conflict_check_finds_an_opponent_in_a_case_of_another_client`, `Merging_people_in_the_crm_points_the_parties_to_the_kept_record` |
+| 5.8 | Endpoints com `cases.*`, casos entre organizações nas 8 rotas novas com id, OpenAPI (9 caminhos novos, só adições) e cliente TypeScript | `EndpointSecurityTests`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `OpenApiContractTests` |
+
+**ADR:** [0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm](adr/0025-modulo-litigation-processos-e-numeracao.md) (proposta, para revisão no PR).
+
+**Critério de aceite da Etapa 4 com processos reais:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ (`CaseTests.The_conflict_check_finds_an_opponent_in_a_case_of_another_client`).
+
+**Última verificação local (PR 5A):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 607 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Litigation.Application 90,5% e Litigation.Domain 98,7%. Sem mudança de modelo pendente nas migrations dos quatro módulos com banco próprio além do Identity. Sem mudança de tela (só o cliente TypeScript regenerado; Playwright não rodado de novo).
 
 ---
 

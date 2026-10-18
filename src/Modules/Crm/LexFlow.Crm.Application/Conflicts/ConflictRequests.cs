@@ -3,6 +3,7 @@ using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Crm.Application.Abstractions;
 using LexFlow.Crm.Application.People;
+using LexFlow.Crm.Contracts;
 using LexFlow.Crm.Domain;
 using LexFlow.Crm.Domain.Conflicts;
 using LexFlow.Crm.Domain.People;

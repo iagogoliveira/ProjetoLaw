@@ -3,6 +3,7 @@ using LexFlow.Crm.Application.Conflicts;
 using LexFlow.Crm.Application.People;
 using LexFlow.Crm.Domain.Conflicts;
 using LexFlow.Web.Common.Pagination;
+using LexFlow.Web.Common.Queries;
 using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Builder;

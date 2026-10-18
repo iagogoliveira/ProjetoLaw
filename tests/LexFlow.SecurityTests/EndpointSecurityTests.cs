@@ -55,7 +55,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     private sealed record CrossTenantCase(Guid Id, object? Body = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
-    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithCommercialCases(new(StringComparer.Ordinal)
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
     {
         ["GET /api/v1/jobs/{id:guid}"] = async owner => new CrossTenantCase(await CreateJobAsync(owner.OrganizationId)),
         ["DELETE /api/v1/me/sessions/{id:guid}"] = async owner => new CrossTenantCase(await CreateSessionAsync(owner.UserId)),
@@ -107,7 +107,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
-    });
+    }));
 
     /// <summary>Funil, propostas e modelos (Etapa 4, PR 4C).</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCommercialCases(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
@@ -142,6 +142,39 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
 
         return cases;
     }
+
+    /// <summary>Processos e casos (Etapa 5, PR 5A). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCaseRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        var parties = new[] { new { personId = Guid.CreateVersion7(), pole = "active", isClient = true } };
+        var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
+        {
+            ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["PUT /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { parties }),
+            ["DELETE /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/close"] = async owner =>
+                new CrossTenantCase(await CaseOfAsync(owner), new { reasonId = Guid.CreateVersion7(), outcome = "settlement", closedOn = "2026-09-01" }),
+            ["POST /api/v1/cases/{id:guid}/reopen"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/status"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { status = "suspended" }),
+            ["POST /api/v1/cases/{id:guid}/relations"] = async owner =>
+                new CrossTenantCase(await CaseOfAsync(owner), new { childCaseId = await CaseOfAsync(owner), kind = "appeal" }),
+            ["DELETE /api/v1/cases/{id:guid}/relations/{relationId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+        };
+        foreach (var (route, create) in routes)
+        {
+            cases.Add(route, create);
+        }
+
+        return cases;
+    }
+
+    /// <summary>Caso extrajudicial (sem CNJ) da organização do dono, com uma pessoa dela como cliente.</summary>
+    private async Task<Guid> CaseOfAsync(SeededMember owner) =>
+        await PostAsOwnerAsync(owner, "/api/v1/cases", new
+        {
+            kind = "extrajudicial",
+            parties = new[] { new { personId = await PersonOfAsync(owner), pole = "active", isClient = true } },
+        });
 
     private IReadOnlyList<ApiEndpoint> Endpoints() =>
         [.. _factory.Services.GetRequiredService<EndpointDataSource>().Endpoints

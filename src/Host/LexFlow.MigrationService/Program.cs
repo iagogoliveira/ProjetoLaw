@@ -5,6 +5,8 @@ using LexFlow.Identity.Infrastructure;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.Integrations;
+using LexFlow.Litigation.Infrastructure;
+using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.MigrationService;
 using LexFlow.Organization.Infrastructure;
 using LexFlow.Organization.Infrastructure.Persistence;
@@ -24,10 +26,11 @@ builder.Services.AddIdentityPersistence(builder.Configuration);
 builder.Services.AddIdentitySeeding(builder.Configuration);
 builder.Services.AddOrganizationPersistence(builder.Configuration);
 builder.Services.AddCrmPersistence(builder.Configuration);
+builder.Services.AddLitigationPersistence(builder.Configuration);
 builder.Services.AddExternalAdapters(builder.Configuration);
 
 // Ordem de aplicação: Platform primeiro (extensões e trilha de auditoria usadas pelos demais módulos).
-builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext), typeof(IdentityModuleDbContext), typeof(OrganizationDbContext), typeof(CrmDbContext)]));
+builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext), typeof(IdentityModuleDbContext), typeof(OrganizationDbContext), typeof(CrmDbContext), typeof(LitigationDbContext)]));
 builder.Services.AddHostedService<MigrationRunner>();
 
 using var host = builder.Build();

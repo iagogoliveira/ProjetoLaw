@@ -6,6 +6,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Transformador de operação dos filtros de enum na query (EnumQuery.DocumentEnumQuery). -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="LexFlow.BuildingBlocks.UnitTests" />
   </ItemGroup>
 

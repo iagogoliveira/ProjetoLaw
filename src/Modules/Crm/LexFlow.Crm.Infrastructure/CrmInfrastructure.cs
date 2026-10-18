@@ -3,6 +3,7 @@ using LexFlow.Crm.Application.Conflicts;
 using LexFlow.Crm.Application.Opportunities;
 using LexFlow.Crm.Application.People;
 using LexFlow.Crm.Application.Proposals;
+using LexFlow.Crm.Contracts;
 using LexFlow.Crm.Infrastructure.CnpjLookup;
 using LexFlow.Crm.Infrastructure.Conflicts;
 using LexFlow.Crm.Infrastructure.Persistence;
@@ -34,6 +35,7 @@ public static class CrmInfrastructure
         services.AddCrmPersistence(configuration);
         services.AddScoped<PersonRules>();
         services.AddScoped<ConflictDetector>();
+        services.AddScoped<IPeopleDirectory, PeopleDirectory>();
         services.AddScoped<OpportunityRules>();
         services.AddScoped<ProposalDocumentComposer>();
         services.AddSingleton<IProposalDocuments, DocxProposalDocuments>();

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexFlow.Litigation.Domain\LexFlow.Litigation.Domain.csproj" />
+    <ProjectReference Include="..\LexFlow.Litigation.Contracts\LexFlow.Litigation.Contracts.csproj" />
+    <!-- Contratos dos módulos de que os processos dependem: pessoas (partes), tribunais, estrutura e tabelas auxiliares. -->
+    <ProjectReference Include="..\..\Crm\LexFlow.Crm.Contracts\LexFlow.Crm.Contracts.csproj" />
+    <ProjectReference Include="..\..\Platform\LexFlow.Platform.Contracts\LexFlow.Platform.Contracts.csproj" />
+    <ProjectReference Include="..\..\Organization\LexFlow.Organization.Contracts\LexFlow.Organization.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Consultas LINQ assíncronas sobre a abstração do DbContext do módulo (sem provedor de banco). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LexFlow.Litigation.Infrastructure" />
+    <InternalsVisibleTo Include="LexFlow.Litigation.UnitTests" />
+    <InternalsVisibleTo Include="LexFlow.Litigation.IntegrationTests" />
+  </ItemGroup>
+
+</Project>

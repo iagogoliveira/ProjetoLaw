@@ -45,11 +45,25 @@ export type AssignMemberRolesRequest = {
     roles: Array<RoleAssignmentInput>;
 };
 
+/**
+ * Responsável: sócio e advogado são usuários; equipe é uma equipe do escritório.
+ */
+export type AssignmentInput = {
+    role: AssignmentRole;
+    userId: null | string;
+    teamId: null | string;
+};
+
 export type AssignmentResponse = {
     roleId: string;
     scope: DataScope;
     scopeRefId: null | string;
 };
+
+/**
+ * Papel de um responsável pelo caso.
+ */
+export type AssignmentRole = 'partner' | 'lawyer' | 'team';
 
 export type BranchRequest = {
     name: string;
@@ -64,11 +78,130 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+/**
+ * Processo ou caso enviado pela tela (criação e edição).
+ */
+export type CaseInput = {
+    cnjNumber: null | string;
+    courtId: null | string;
+    instance: null | CaseInstance;
+    district: null | string;
+    courtUnit: null | string;
+    rite: null | string;
+    proceduralClass: null | string;
+    subject: null | string;
+    actionTypeId: null | string;
+    practiceAreaId: null | string;
+    branchId: null | string;
+    phaseId: null | string;
+    claimValue: null | number | string;
+    filedOn: null | string;
+    servedOn: null | string;
+    description: null | string;
+    payerPersonId: null | string;
+    parties: null | Array<PartyInput>;
+    assignments: null | Array<AssignmentInput>;
+    customFields: null | JsonObject;
+};
+
+export type CaseInstance = 'first' | 'second' | 'superior' | 'supreme';
+
+/**
+ * Tipo do caso (RF-09): processo judicial (com CNJ) ou caso sem processo, no mesmo modelo.
+ */
+export type CaseKind = 'judicial' | 'administrative' | 'extrajudicial';
+
+export type CaseOutcome = 'granted' | 'partiallyGranted' | 'denied' | 'settlement' | 'dismissed' | 'withdrawn' | 'other';
+
+export type CaseResponse = {
+    id: string;
+    kind: CaseKind;
+    internalFolder: string;
+    cnjNumber: null | string;
+    court: null | CourtResponse;
+    instance: null | CaseInstance;
+    district: null | string;
+    courtUnit: null | string;
+    rite: null | string;
+    proceduralClass: null | string;
+    subject: null | string;
+    actionTypeId: null | string;
+    practiceAreaId: null | string;
+    branchId: null | string;
+    phaseId: null | string;
+    status: CaseStatus;
+    claimValue: null | number | string;
+    filedOn: null | string;
+    servedOn: null | string;
+    description: null | string;
+    payerPersonId: null | string;
+    parties: Array<PartyResponse>;
+    assignments: Array<AssignmentResponse>;
+    parent: null | RelatedCaseResponse;
+    children: Array<RelatedCaseResponse>;
+    closedOn: null | string;
+    closingReasonId: null | string;
+    outcome: null | CaseOutcome;
+    finalAmount: null | number | string;
+    closingNote: null | string;
+    customFields: JsonObject;
+    createdAt: string;
+};
+
+export type CasesPageResponse = {
+    items: Array<CaseSummary>;
+    nextCursor: null | string;
+};
+
+export type CaseStatus = 'active' | 'suspended' | 'closed';
+
+export type CaseStatusRequest = {
+    status: CaseStatus;
+};
+
+/**
+ * Linha da lista: pasta, CNJ, tipo, situação, área e os clientes (nomes do Crm).
+ */
+export type CaseSummary = {
+    id: string;
+    kind: CaseKind;
+    internalFolder: string;
+    cnjNumber: null | string;
+    status: CaseStatus;
+    practiceAreaId: null | string;
+    phaseId: null | string;
+    clients: Array<string>;
+    createdAt: string;
+};
+
 export type CheckConflictRequest = {
     name: string;
     document: null | string;
     side: ConflictSide;
     contactEmails: null | Array<string>;
+};
+
+/**
+ * Encerramento: motivo (tabela auxiliar), resultado, valor final e data.
+ */
+export type ClosingInput = {
+    reasonId: string;
+    outcome: CaseOutcome;
+    finalAmount: null | number | string;
+    closedOn: string;
+    note: null | string;
+};
+
+/**
+ * O que o número CNJ diz: a pontuação, o ano, o segmento (J), o tribunal (TR) e a origem (Etapa 5, tarefa 3).
+ */
+export type CnjInfoResponse = {
+    formatted: string;
+    year: number | string;
+    segment: number | string;
+    courtCode: string;
+    origin: string;
+    court: null | CourtResponse;
 };
 
 /**
@@ -166,6 +299,40 @@ export type CostCenterResponse = {
     id: string;
     code: string;
     name: string;
+};
+
+export type CourtResponse = {
+    id: string;
+    acronym: string;
+    name: string;
+    state: null | string;
+};
+
+/**
+ * Processo ou caso enviado na criação: o tipo (judicial, administrativo, extrajudicial) e os dados.
+ */
+export type CreateCaseRequest = {
+    kind: CaseKind;
+    cnjNumber: null | string;
+    courtId: null | string;
+    instance: null | CaseInstance;
+    district: null | string;
+    courtUnit: null | string;
+    rite: null | string;
+    proceduralClass: null | string;
+    subject: null | string;
+    actionTypeId: null | string;
+    practiceAreaId: null | string;
+    branchId: null | string;
+    phaseId: null | string;
+    claimValue: null | number | string;
+    filedOn: null | string;
+    servedOn: null | string;
+    description: null | string;
+    payerPersonId: null | string;
+    parties: null | Array<PartyInput>;
+    assignments: null | Array<AssignmentInput>;
+    customFields: null | JsonObject;
 };
 
 export type CreateCustomFieldRequest = {
@@ -357,6 +524,11 @@ export type JsonObject = {
     [key: string]: unknown;
 };
 
+export type LinkCaseRequest = {
+    childCaseId: string;
+    kind: RelationKind;
+};
+
 export type LookupItemRequest = {
     name: string;
     position: null | number | string;
@@ -433,6 +605,24 @@ export type MyAccessResponse = {
     organizations: Array<OrganizationSummary>;
     permissions: Array<string>;
     mfaRequired: boolean;
+};
+
+export type NumberingRequest = {
+    format: string;
+    areaCodes: null | {
+        [key: string]: string;
+    };
+};
+
+/**
+ * Formato da numeração e as siglas das áreas (as configuradas), com um exemplo do próximo número.
+ */
+export type NumberingResponse = {
+    format: string;
+    areaCodes: {
+        [key: string]: string;
+    };
+    example: string;
 };
 
 export type OpportunitiesPageResponse = {
@@ -535,6 +725,32 @@ export type PartnerResponse = {
     name: string;
     sharePercentage: number | string;
     memberId: null | string;
+};
+
+/**
+ * Parte como enviada pela tela: a pessoa do cadastro, o polo, se é cliente e o advogado da parte contrária.
+ */
+export type PartyInput = {
+    personId: string;
+    pole: PartyPole;
+    isClient: boolean;
+    counselName: null | string;
+    counselOab: null | string;
+};
+
+/**
+ * Polo da parte no processo.
+ */
+export type PartyPole = 'active' | 'passive' | 'third';
+
+export type PartyResponse = {
+    personId: string;
+    name: string;
+    document: null | string;
+    pole: PartyPole;
+    isClient: boolean;
+    counselName: null | string;
+    counselOab: null | string;
 };
 
 /**
@@ -768,6 +984,22 @@ export type RegisterRequest = {
     fullName: string;
     password: string;
 };
+
+/**
+ * Processo ligado na hierarquia (o principal, ou um incidente, recurso, cumprimento ou apenso).
+ */
+export type RelatedCaseResponse = {
+    relationId: string;
+    caseId: string;
+    internalFolder: string;
+    cnjNumber: null | string;
+    kind: RelationKind;
+};
+
+/**
+ * Como o processo vinculado se relaciona com o principal (RF-09: hierarquia de processos).
+ */
+export type RelationKind = 'incident' | 'appeal' | 'enforcement' | 'attached';
 
 export type RenameOrganizationRequest = {
     name: string;
@@ -4342,3 +4574,449 @@ export type DeleteProposalTemplateResponses = {
 };
 
 export type DeleteProposalTemplateResponse = DeleteProposalTemplateResponses[keyof DeleteProposalTemplateResponses];
+
+export type ListCasesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+        status?: CaseStatus;
+        practiceAreaId?: string;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/cases';
+};
+
+export type ListCasesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListCasesError = ListCasesErrors[keyof ListCasesErrors];
+
+export type ListCasesResponses = {
+    /**
+     * OK
+     */
+    200: CasesPageResponse;
+};
+
+export type ListCasesResponse = ListCasesResponses[keyof ListCasesResponses];
+
+export type CreateCaseData = {
+    body: CreateCaseRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases';
+};
+
+export type CreateCaseErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CreateCaseError = CreateCaseErrors[keyof CreateCaseErrors];
+
+export type CreateCaseResponses = {
+    /**
+     * Created
+     */
+    201: CaseResponse;
+};
+
+export type CreateCaseResponse = CreateCaseResponses[keyof CreateCaseResponses];
+
+export type LookupCnjData = {
+    body?: never;
+    path?: never;
+    query: {
+        number: string;
+    };
+    url: '/api/v1/cases/cnj-lookup';
+};
+
+export type LookupCnjErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type LookupCnjError = LookupCnjErrors[keyof LookupCnjErrors];
+
+export type LookupCnjResponses = {
+    /**
+     * OK
+     */
+    200: CnjInfoResponse;
+};
+
+export type LookupCnjResponse = LookupCnjResponses[keyof LookupCnjResponses];
+
+export type GetCaseNumberingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/numbering';
+};
+
+export type GetCaseNumberingErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetCaseNumberingError = GetCaseNumberingErrors[keyof GetCaseNumberingErrors];
+
+export type GetCaseNumberingResponses = {
+    /**
+     * OK
+     */
+    200: NumberingResponse;
+};
+
+export type GetCaseNumberingResponse = GetCaseNumberingResponses[keyof GetCaseNumberingResponses];
+
+export type ConfigureCaseNumberingData = {
+    body: NumberingRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/numbering';
+};
+
+export type ConfigureCaseNumberingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ConfigureCaseNumberingError = ConfigureCaseNumberingErrors[keyof ConfigureCaseNumberingErrors];
+
+export type ConfigureCaseNumberingResponses = {
+    /**
+     * OK
+     */
+    200: NumberingResponse;
+};
+
+export type ConfigureCaseNumberingResponse = ConfigureCaseNumberingResponses[keyof ConfigureCaseNumberingResponses];
+
+export type DeleteCaseData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}';
+};
+
+export type DeleteCaseErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type DeleteCaseError = DeleteCaseErrors[keyof DeleteCaseErrors];
+
+export type DeleteCaseResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteCaseResponse = DeleteCaseResponses[keyof DeleteCaseResponses];
+
+export type GetCaseData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}';
+};
+
+export type GetCaseErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseError = GetCaseErrors[keyof GetCaseErrors];
+
+export type GetCaseResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type GetCaseResponse = GetCaseResponses[keyof GetCaseResponses];
+
+export type UpdateCaseData = {
+    body: CaseInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}';
+};
+
+export type UpdateCaseErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateCaseError = UpdateCaseErrors[keyof UpdateCaseErrors];
+
+export type UpdateCaseResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type UpdateCaseResponse = UpdateCaseResponses[keyof UpdateCaseResponses];
+
+export type CloseCaseData = {
+    body: ClosingInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/close';
+};
+
+export type CloseCaseErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CloseCaseError = CloseCaseErrors[keyof CloseCaseErrors];
+
+export type CloseCaseResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type CloseCaseResponse = CloseCaseResponses[keyof CloseCaseResponses];
+
+export type ReopenCaseData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/reopen';
+};
+
+export type ReopenCaseErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ReopenCaseError = ReopenCaseErrors[keyof ReopenCaseErrors];
+
+export type ReopenCaseResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type ReopenCaseResponse = ReopenCaseResponses[keyof ReopenCaseResponses];
+
+export type ChangeCaseStatusData = {
+    body: CaseStatusRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/status';
+};
+
+export type ChangeCaseStatusErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ChangeCaseStatusError = ChangeCaseStatusErrors[keyof ChangeCaseStatusErrors];
+
+export type ChangeCaseStatusResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type ChangeCaseStatusResponse = ChangeCaseStatusResponses[keyof ChangeCaseStatusResponses];
+
+export type LinkCaseData = {
+    body: LinkCaseRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/relations';
+};
+
+export type LinkCaseErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type LinkCaseError = LinkCaseErrors[keyof LinkCaseErrors];
+
+export type LinkCaseResponses = {
+    /**
+     * OK
+     */
+    200: CaseResponse;
+};
+
+export type LinkCaseResponse = LinkCaseResponses[keyof LinkCaseResponses];
+
+export type UnlinkCaseData = {
+    body?: never;
+    path: {
+        id: string;
+        relationId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/relations/{relationId}';
+};
+
+export type UnlinkCaseErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type UnlinkCaseError = UnlinkCaseErrors[keyof UnlinkCaseErrors];
+
+export type UnlinkCaseResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type UnlinkCaseResponse = UnlinkCaseResponses[keyof UnlinkCaseResponses];

@@ -3,6 +3,8 @@ using LexFlow.Infrastructure.Common.Caching;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Organization.Application.Abstractions;
 using LexFlow.Organization.Application.Access;
+using LexFlow.Organization.Application.OrgStructure;
+using LexFlow.Organization.Contracts.OrgStructure;
 using LexFlow.Organization.Infrastructure.Access;
 using LexFlow.Organization.Infrastructure.Invitations;
 using LexFlow.Organization.Infrastructure.Persistence;
@@ -41,6 +43,7 @@ public static class OrganizationInfrastructure
         services.AddScoped<ICurrentAccess, CurrentAccess>();
         services.AddScoped<IMembershipLookup, MembershipLookup>();
         services.AddScoped<IOrganizationMembers, OrganizationMembers>();
+        services.AddScoped<IOrganizationDirectory, OrganizationDirectory>();
         return services;
     }
 }

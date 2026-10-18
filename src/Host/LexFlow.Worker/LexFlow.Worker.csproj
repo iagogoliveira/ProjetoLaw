@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\Modules\Identity\LexFlow.Identity.Infrastructure\LexFlow.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Organization\LexFlow.Organization.Infrastructure\LexFlow.Organization.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Crm\LexFlow.Crm.Infrastructure\LexFlow.Crm.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Litigation\LexFlow.Litigation.Infrastructure\LexFlow.Litigation.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
