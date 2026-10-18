@@ -723,6 +723,168 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                     b.ToTable("claim_value_changes", "litigation");
                 });
 
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Hearings.Hearing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("format");
+
+                    b.Property<Guid?>("LawyerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lawyer_user_id");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("MeetingLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("meeting_link");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("outcome");
+
+                    b.Property<string>("Representative")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("representative");
+
+                    b.Property<DateTimeOffset>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("scheduled_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.PrimitiveCollection<Guid[]>("WitnessPersonIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("witness_person_ids");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hearings");
+
+                    b.HasIndex("LegalCaseId")
+                        .HasDatabaseName("ix_hearings_legal_case_id");
+
+                    b.HasIndex("OrganizationId", "ScheduledAt")
+                        .HasDatabaseName("ix_hearings_organization_id_scheduled_at");
+
+                    b.HasIndex("OrganizationId", "LegalCaseId", "ScheduledAt")
+                        .HasDatabaseName("ix_hearings_organization_id_legal_case_id_scheduled_at");
+
+                    b.ToTable("hearings", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Hearings.HearingReschedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("changed_at");
+
+                    b.Property<Guid>("ChangedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("changed_by");
+
+                    b.Property<Guid>("HearingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hearing_id");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<DateTimeOffset>("NewDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("new_date");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("PreviousDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("previous_date");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hearing_reschedules");
+
+                    b.HasIndex("HearingId")
+                        .HasDatabaseName("ix_hearing_reschedules_hearing_id");
+
+                    b.ToTable("hearing_reschedules", "litigation");
+                });
+
             modelBuilder.Entity("LexFlow.Litigation.Domain.Numbering.CaseNumbering", b =>
                 {
                     b.Property<Guid>("Id")
@@ -775,6 +937,280 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_case_numberings_organization_id");
 
                     b.ToTable("case_numberings", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Risk.RiskAssessment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AssessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assessed_at");
+
+                    b.Property<Guid>("AssessedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessed_by");
+
+                    b.Property<Guid?>("ClaimId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("claim_id");
+
+                    b.Property<decimal?>("EstimatedLoss")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("estimated_loss");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Probability")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("probability");
+
+                    b.Property<string>("Rationale")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("rationale");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_risk_assessments");
+
+                    b.HasIndex("LegalCaseId")
+                        .HasDatabaseName("ix_risk_assessments_legal_case_id");
+
+                    b.HasIndex("OrganizationId", "LegalCaseId", "AssessedAt")
+                        .HasDatabaseName("ix_risk_assessments_organization_id_legal_case_id_assessed_at");
+
+                    b.ToTable("risk_assessments", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.Settlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("AgreedAmount")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("agreed_amount");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approved_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("direction");
+
+                    b.Property<DateOnly?>("HomologatedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("homologated_on");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("submitted_by");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_settlements");
+
+                    b.HasIndex("LegalCaseId")
+                        .HasDatabaseName("ix_settlements_legal_case_id");
+
+                    b.HasIndex("OrganizationId", "LegalCaseId")
+                        .HasDatabaseName("ix_settlements_organization_id_legal_case_id");
+
+                    b.ToTable("settlements", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.SettlementInstallment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateOnly>("DueOn")
+                        .HasColumnType("date")
+                        .HasColumnName("due_on");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<decimal?>("PaidAmount")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("paid_amount");
+
+                    b.Property<DateOnly?>("PaidOn")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_on");
+
+                    b.Property<Guid>("SettlementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("settlement_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_settlement_installments");
+
+                    b.HasIndex("OrganizationId", "DueOn")
+                        .HasDatabaseName("ix_settlement_installments_organization_id_due_on");
+
+                    b.HasIndex("SettlementId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_settlement_installments_settlement_id_number");
+
+                    b.ToTable("settlement_installments", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.SettlementOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<DateOnly>("OfferedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("offered_on");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Party")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("party");
+
+                    b.Property<int>("Round")
+                        .HasColumnType("integer")
+                        .HasColumnName("round");
+
+                    b.Property<Guid>("SettlementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("settlement_id");
+
+                    b.Property<string>("Terms")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("terms");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_settlement_offers");
+
+                    b.HasIndex("SettlementId", "Round")
+                        .IsUnique()
+                        .HasDatabaseName("ix_settlement_offers_settlement_id_round");
+
+                    b.ToTable("settlement_offers", "litigation");
                 });
 
             modelBuilder.Entity("LexFlow.Litigation.Infrastructure.Persistence.CaseCounter", b =>
@@ -978,6 +1414,66 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_claim_value_changes_claims_claim_id");
                 });
 
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Hearings.Hearing", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
+                        .WithMany()
+                        .HasForeignKey("LegalCaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_hearings_cases_legal_case_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Hearings.HearingReschedule", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Hearings.Hearing", null)
+                        .WithMany("Reschedules")
+                        .HasForeignKey("HearingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_hearing_reschedules_hearings_hearing_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Risk.RiskAssessment", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
+                        .WithMany()
+                        .HasForeignKey("LegalCaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_risk_assessments_cases_legal_case_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.Settlement", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
+                        .WithMany()
+                        .HasForeignKey("LegalCaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_settlements_cases_legal_case_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.SettlementInstallment", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Settlements.Settlement", null)
+                        .WithMany("Installments")
+                        .HasForeignKey("SettlementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_settlement_installments_settlements_settlement_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.SettlementOffer", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Settlements.Settlement", null)
+                        .WithMany("Offers")
+                        .HasForeignKey("SettlementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_settlement_offers_settlements_settlement_id");
+                });
+
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.LegalCase", b =>
                 {
                     b.Navigation("Assignments");
@@ -992,6 +1488,18 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                     b.Navigation("Changes");
 
                     b.Navigation("Valuations");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Hearings.Hearing", b =>
+                {
+                    b.Navigation("Reschedules");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Settlements.Settlement", b =>
+                {
+                    b.Navigation("Installments");
+
+                    b.Navigation("Offers");
                 });
 #pragma warning restore 612, 618
         }

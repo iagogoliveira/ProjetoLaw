@@ -1,6 +1,9 @@
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Litigation.Domain.Claims;
+using LexFlow.Litigation.Domain.Hearings;
 using LexFlow.Litigation.Domain.Numbering;
+using LexFlow.Litigation.Domain.Risk;
+using LexFlow.Litigation.Domain.Settlements;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Litigation.Application.Abstractions;
@@ -15,6 +18,12 @@ public interface ILitigationDbContext
     DbSet<CaseNumbering> Numberings { get; }
 
     DbSet<Claim> Claims { get; }
+
+    DbSet<RiskAssessment> RiskAssessments { get; }
+
+    DbSet<Settlement> Settlements { get; }
+
+    DbSet<Hearing> Hearings { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

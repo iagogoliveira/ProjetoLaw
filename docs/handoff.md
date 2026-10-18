@@ -10,6 +10,57 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (PR 5C2 implementado)
+
+**Branch:** `etapa-5c2-risco-acordos` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.
+
+**Feito:**
+- **Risco:** `RiskAssessment`, só com inserções, e as rotas `GET /cases/{id}/risk`, `GET /cases/{id}/risk/history` e `POST /cases/{id}/risk-assessments`. Permissão nova `cases.risk.assess`, com migration de dados no Organization para os perfis Administrador e Sócio.
+- **Acordos:** `Settlement`, com rodadas, envio dos termos, aprovação, devolução, homologação, recusa, cancelamento e baixa de parcela, mais o indicador pedido × acordado. A homologação publica `SettlementHomologatedIntegrationEvent`.
+- **Audiências:** `Hearing`, com agendar, editar, redesignar (com histórico), realizar e cancelar.
+- RLS nas 6 tabelas; risco e redesignações sem `UPDATE` nem `DELETE`. Também `CrossTenantCases`, OpenAPI só com adições, o cliente TypeScript, a ADR 0028 e o `progress.md`.
+- **Refatoração:** `CaseWrites` (`Litigation.Application/Cases`) concentra as conferências de "processo aberto" usadas por pedidos, risco, acordos e audiências.
+
+**Próximo agente:**
+1. Quando o usuário pedir, faça push e abra o PR do 5C2 (corpo no estilo do #26).
+2. Depois do merge, faça a arrumação:
+   - `progress.md` e ADR 0028 como aceita;
+   - crie o branch `etapa-5d-timeline-importacao`;
+   - atualize o "Onde paramos" do `AGENTS.md` e escreva uma entrada aqui;
+   - faça commit e push.
+3. Planeje o **5D** (linha do tempo, importação XLSX/CSV com ClosedXML e operações em lote). O ClosedXML é pacote novo: confira a licença (MIT) e registre uma ADR.
+
+---
+
+## 2026-10-18 — Claude Code (PR 5C2 em andamento)
+
+**Branch:** `etapa-5c2-risco-acordos`. O plano foi aprovado pelo usuário; a implementação está em andamento e **ainda não tem commit**. Se você (Codex) encontrar arquivos novos sem commit neste branch, são deste trabalho: confira com `git status` e continue de onde parou.
+
+**Plano aprovado:**
+- **Risco (`RiskAssessment`):**
+  - feito para o processo ou para um pedido;
+  - guarda a probabilidade (provável, possível ou remoto), o valor de perda estimado, a justificativa, o autor e a data;
+  - só recebe inserções, e a última avaliação é a atual;
+  - a resposta classifica: provável vira provisão, possível vira passivo contingente, remoto não entra.
+- **Acordos:**
+  - `Settlement`, com rodadas (`SettlementOffer`: nós ou a outra parte, valor, condições, data);
+  - situações: negociação → aguardando aprovação → aprovado → homologado → cumprido, além de recusado ou cancelado;
+  - parcelas (`SettlementInstallment`) com baixa manual, cuja soma precisa bater com o valor acordado;
+  - indicador de economia: valor pedido × valor acordado;
+  - a homologação publica `SettlementHomologatedIntegrationEvent`.
+- **Audiências (`Hearing`):**
+  - tipo, formato, data e hora, local ou link, advogado, preposto e testemunhas;
+  - situação: agendada, realizada, redesignada ou cancelada;
+  - resultado ou ata.
+
+**Decisões do usuário (2026-10-18):**
+- **Aprovação do acordo:** a negociação é livre. Os termos finais vão para a aprovação interna antes de serem assinados e homologados. Aprova quem tem `cases.settlements.approve`, inclusive o próprio acordo.
+- **Risco:** permissão nova, `cases.risk.assess`. Vai para os perfis padrão Administrador e Sócio, também nos escritórios já existentes (migration de dados, como a da `crm.people.anonymize`).
+- **Redesignação:** a audiência é a mesma; ela muda de data e guarda as datas anteriores com o motivo.
+- **Parcelas:** baixa manual (data e valor pagos); "vencida" é calculada pela data. Na Etapa 10, o financeiro passa a dar a baixa.
+
+---
+
 ## 2026-10-18 — Claude Code (arrumação depois do merge do #26)
 
 **Branch:** `etapa-5c2-risco-acordos`, criado a partir da `main` (bb14aec), com este commit de arrumação e push.

@@ -3,7 +3,10 @@ using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Application.Abstractions;
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Litigation.Domain.Claims;
+using LexFlow.Litigation.Domain.Hearings;
 using LexFlow.Litigation.Domain.Numbering;
+using LexFlow.Litigation.Domain.Risk;
+using LexFlow.Litigation.Domain.Settlements;
 using LexFlow.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -28,6 +31,12 @@ public sealed class LitigationDbContext(DbContextOptions<LitigationDbContext> op
     public DbSet<CaseNumbering> Numberings => Set<CaseNumbering>();
 
     public DbSet<Claim> Claims => Set<Claim>();
+
+    public DbSet<RiskAssessment> RiskAssessments => Set<RiskAssessment>();
+
+    public DbSet<Settlement> Settlements => Set<Settlement>();
+
+    public DbSet<Hearing> Hearings => Set<Hearing>();
 
     internal DbSet<CaseCounter> Counters => Set<CaseCounter>();
 
@@ -214,6 +223,103 @@ internal sealed class ClaimConfiguration :
         builder.Property(c => c.OldAmount).HasPrecision(19, 4);
         builder.Property(c => c.NewAmount).HasPrecision(19, 4);
         builder.HasIndex(c => c.ClaimId);
+    }
+}
+
+/// <summary>
+/// Risco (só inserções, como o histórico dos pedidos), acordos com rodadas e parcelas, e audiências com o histórico
+/// das redesignações.
+/// </summary>
+internal sealed class CaseFollowUpConfiguration :
+    IEntityTypeConfiguration<RiskAssessment>,
+    IEntityTypeConfiguration<Settlement>,
+    IEntityTypeConfiguration<SettlementOffer>,
+    IEntityTypeConfiguration<SettlementInstallment>,
+    IEntityTypeConfiguration<Hearing>,
+    IEntityTypeConfiguration<HearingReschedule>
+{
+    public void Configure(EntityTypeBuilder<RiskAssessment> builder)
+    {
+        builder.ToTable("risk_assessments");
+        builder.HasKey(r => r.Id);
+        builder.Property(r => r.Probability).HasConversion<string>().HasMaxLength(20);
+        builder.Property(r => r.EstimatedLoss).HasPrecision(19, 4);
+        builder.Property(r => r.Rationale).HasMaxLength(RiskAssessment.MaxRationaleLength);
+        builder.Ignore(r => r.Accounting);
+        builder.HasOne<LegalCase>().WithMany().HasForeignKey(r => r.LegalCaseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(r => new { r.OrganizationId, r.LegalCaseId, r.AssessedAt });
+    }
+
+    public void Configure(EntityTypeBuilder<Settlement> builder)
+    {
+        builder.ToTable("settlements");
+        builder.HasKey(s => s.Id);
+        builder.Property(s => s.Direction).HasConversion<string>().HasMaxLength(20);
+        builder.Property(s => s.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(s => s.Notes).HasMaxLength(Settlement.MaxTextLength);
+        builder.Property(s => s.Reason).HasMaxLength(Settlement.MaxTextLength);
+        builder.Property(s => s.AgreedAmount).HasPrecision(19, 4);
+        builder.Ignore(s => s.IsOpen);
+        builder.HasOne<LegalCase>().WithMany().HasForeignKey(s => s.LegalCaseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(s => s.Offers).WithOne().HasForeignKey(o => o.SettlementId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(s => s.Installments).WithOne().HasForeignKey(i => i.SettlementId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(s => s.Offers).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(s => s.Installments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(s => new { s.OrganizationId, s.LegalCaseId });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<SettlementOffer> builder)
+    {
+        builder.ToTable("settlement_offers");
+        builder.HasKey(o => o.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(o => o.Id).ValueGeneratedNever();
+        builder.Property(o => o.Party).HasConversion<string>().HasMaxLength(20);
+        builder.Property(o => o.Amount).HasPrecision(19, 4);
+        builder.Property(o => o.Terms).HasMaxLength(Settlement.MaxTextLength);
+        builder.HasIndex(o => new { o.SettlementId, o.Round }).IsUnique();
+    }
+
+    public void Configure(EntityTypeBuilder<SettlementInstallment> builder)
+    {
+        builder.ToTable("settlement_installments");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Id).ValueGeneratedNever();
+        builder.Property(i => i.Amount).HasPrecision(19, 4);
+        builder.Property(i => i.PaidAmount).HasPrecision(19, 4);
+        builder.HasIndex(i => new { i.SettlementId, i.Number }).IsUnique();
+        builder.HasIndex(i => new { i.OrganizationId, i.DueOn });
+    }
+
+    public void Configure(EntityTypeBuilder<Hearing> builder)
+    {
+        builder.ToTable("hearings");
+        builder.HasKey(h => h.Id);
+        builder.Property(h => h.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(h => h.Format).HasConversion<string>().HasMaxLength(20);
+        builder.Property(h => h.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(h => h.Location).HasMaxLength(Hearing.MaxTextLength);
+        builder.Property(h => h.MeetingLink).HasMaxLength(Hearing.MaxTextLength);
+        builder.Property(h => h.Representative).HasMaxLength(Hearing.MaxTextLength);
+        builder.Property(h => h.Notes).HasMaxLength(Hearing.MaxNotesLength);
+        builder.Property(h => h.Outcome).HasMaxLength(Hearing.MaxNotesLength);
+        builder.PrimitiveCollection(h => h.WitnessPersonIds);
+        builder.HasOne<LegalCase>().WithMany().HasForeignKey(h => h.LegalCaseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(h => h.Reschedules).WithOne().HasForeignKey(r => r.HearingId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(h => h.Reschedules).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(h => new { h.OrganizationId, h.LegalCaseId, h.ScheduledAt });
+        builder.HasIndex(h => new { h.OrganizationId, h.ScheduledAt });
+        builder.HasStandardColumns();
+    }
+
+    public void Configure(EntityTypeBuilder<HearingReschedule> builder)
+    {
+        builder.ToTable("hearing_reschedules");
+        builder.HasKey(r => r.Id);
+        builder.Property(r => r.Id).ValueGeneratedNever();
+        builder.Property(r => r.Reason).HasMaxLength(Hearing.MaxTextLength);
+        builder.HasIndex(r => r.HearingId);
     }
 }
 

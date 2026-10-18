@@ -138,11 +138,18 @@ public sealed class LitigationDatabaseTests(LitigationDatabaseFixture fixture)
         numbers.Order().ShouldBe(Enumerable.Range(1, 20).Select(n => (long)n));
     }
 
-    /// <summary>O histórico de valores dos pedidos (RF-13) só recebe inserções: a aplicação não altera nem apaga.</summary>
+    /// <summary>
+    /// O histórico de valores dos pedidos (RF-13), as avaliações de risco (RF-14) e as redesignações de audiência só
+    /// recebem inserções: a aplicação não altera nem apaga.
+    /// </summary>
     [Theory]
     [InlineData("UPDATE litigation.claim_value_changes SET new_amount = 0")]
     [InlineData("DELETE FROM litigation.claim_value_changes")]
-    public async Task The_application_cannot_rewrite_the_claim_value_history(string sql)
+    [InlineData("UPDATE litigation.risk_assessments SET estimated_loss = 0")]
+    [InlineData("DELETE FROM litigation.risk_assessments")]
+    [InlineData("UPDATE litigation.hearing_reschedules SET reason = NULL")]
+    [InlineData("DELETE FROM litigation.hearing_reschedules")]
+    public async Task The_application_cannot_rewrite_the_append_only_histories(string sql)
     {
         await using var connection = new NpgsqlConnection(fixture.ConnectionString);
         await connection.OpenAsync(Ct);

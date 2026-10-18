@@ -143,11 +143,12 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         return cases;
     }
 
-    /// <summary>Processos e casos (Etapa 5, PRs 5A a 5C1). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
+    /// <summary>Processos e casos (Etapa 5, PRs 5A a 5C2). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCaseRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
     {
         var parties = new[] { new { personId = Guid.CreateVersion7(), pole = "active", isClient = true } };
         var claim = new { claimTypeId = Guid.CreateVersion7(), valuations = Array.Empty<object>() };
+        var hearing = new { type = "conciliation", format = "virtual", scheduledAt = "2026-12-01T10:00:00Z", meetingLink = "https://meet.example.com/x" };
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
@@ -168,6 +169,25 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["PUT /api/v1/cases/{id:guid}/claims/{claimId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), claim),
             ["DELETE /api/v1/cases/{id:guid}/claims/{claimId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["GET /api/v1/cases/{id:guid}/claims/{claimId:guid}/history"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/risk"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/risk/history"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/risk-assessments"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { probability = "remote" }),
+            ["GET /api/v1/cases/{id:guid}/settlements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/settlements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { direction = "clientPays" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/offers"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { party = "office", amount = 1m, offeredOn = "2026-10-01" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/submit"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { agreedAmount = 1m, installments = new[] { new { dueOn = "2026-11-01", amount = 1m } } }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/approve"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/return"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/homologate"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { homologatedOn = "2026-10-01" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/reject"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/cancel"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/installments/{installmentId:guid}/pay"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { paidOn = "2026-11-01", paidAmount = 1m }),
+            ["GET /api/v1/cases/{id:guid}/hearings"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/hearings"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), hearing),
+            ["PUT /api/v1/cases/{id:guid}/hearings/{hearingId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), hearing),
+            ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/reschedule"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { newDate = "2026-12-01T10:00:00Z" }),
+            ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/hold"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { text = "x" }),
+            ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/cancel"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { text = "x" }),
         };
         foreach (var (route, create) in routes)
         {

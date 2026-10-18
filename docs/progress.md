@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25 e 5C1 #26 mergeados; faltam 5C2, 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25 e 5C1 #26 mergeados; 5C2 em revisão; faltam 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos` |
 
 ---
 
@@ -41,6 +41,33 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | ✅ (5B, local) | `tests/LexFlow.LoadTests/run-cases-list.sh` (k6): p95 de 91 ms com área e responsável e de 89 ms com área, com 10 usuários simultâneos e nenhuma falha |
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
+
+### PR 5C2 — risco, acordos e audiências (em revisão)
+
+**Decisões de negócio (2026-10-18):**
+- A negociação do acordo é livre; os termos finais (valor e parcelas) vão à aprovação interna antes de serem assinados e homologados.
+- Aprova quem tem `cases.settlements.approve`, inclusive o acordo que a própria pessoa enviou.
+- Avaliar risco pede a permissão nova `cases.risk.assess`, nos perfis padrão Administrador e Sócio, também dos escritórios já existentes.
+- A redesignação mantém a mesma audiência e guarda as datas anteriores com o motivo.
+- As parcelas recebem baixa manual até o financeiro da Etapa 10.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.23 | Risco (CPC 25) por processo e por pedido, só com inserções; risco atual, provisão e passivo contingente (somando os pedidos ou, sem eles, o processo); histórico | `FollowUpTests.Each_probability_has_its_accounting_treatment` (3 casos), `CaseFollowUpTests.Risk_totals_come_from_the_claims_and_assessing_needs_its_own_permission` |
+| 5.24 | Permissão `cases.risk.assess` no catálogo, nos perfis padrão e, por migration de dados, nos escritórios já criados | `Risk_totals_come_from_the_claims_and_assessing_needs_its_own_permission` (403 sem ela) |
+| 5.25 | Acordos: rodadas, envio dos termos com parcelas que somam o valor, aprovação, devolução, homologação, recusa, cancelamento e baixa manual até o cumprimento; indicador pedido × acordado | `A_settlement_goes_from_negotiation_to_fulfilled`, `The_terms_need_installments_that_add_up_to_the_agreed_amount`, `Returned_terms_go_back_to_negotiation_and_ended_negotiations_take_no_changes`, `A_settlement_is_negotiated_approved_homologated_and_fulfilled`, `The_settlement_rules_are_enforced_by_the_api` |
+| 5.26 | `SettlementHomologatedIntegrationEvent` (Litigation.Contracts) na homologação, para o financeiro da Etapa 10 | `A_settlement_is_negotiated_approved_homologated_and_fulfilled` |
+| 5.27 | Audiências: tipo, formato com local ou link, advogado (membro), preposto, testemunhas (pessoas do Crm); redesignação com histórico só de inserções; realizada ou cancelada não muda | `A_hearing_needs_the_place_its_format_asks_for`, `Rescheduling_keeps_the_same_hearing_with_the_previous_dates`, `A_held_or_cancelled_hearing_does_not_change`, `A_rescheduled_hearing_keeps_its_history_until_it_is_held` |
+| 5.28 | RLS nas 6 tabelas novas, risco e redesignações sem `UPDATE`/`DELETE` para a aplicação, alcance do processo nas 19 operações, casos entre organizações, OpenAPI (17 caminhos novos, só adições) e cliente TypeScript | `Risk_settlements_and_hearings_follow_the_reach_of_the_case`, `LitigationDatabaseTests.The_application_cannot_rewrite_the_append_only_histories` (6 casos), `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0028 — Risco, acordos e audiências do processo](adr/0028-risco-acordos-e-audiencias.md) (Proposta, para revisão no PR 5C2).
+
+**Última verificação local (PR 5C2):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 689 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Litigation.Application 93,6% e Litigation.Domain 97,6%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
+
+**Pendências do PR 5C2:**
+1. Provisão contábil com fechamento mensal, revisão periódica do risco e exportação ao ERP: com o financeiro e o BI.
+2. Contas a receber e a pagar a partir das parcelas: Etapa 10, consumindo `SettlementHomologatedIntegrationEvent`.
+3. Agenda, checklist e correspondentes das audiências: Etapa 7.
 
 ### PR 5C1 — índices monetários, correção e pedidos (concluído: PR #26 mergeado em 2026-10-18)
 
