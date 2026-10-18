@@ -8,11 +8,12 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19, 4C #20, 4D1 #21 e 4D2 #22 mergeados; 4E pronto para revisão) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
+| 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
+| 5 — Processos e casos (contencioso) | **Em planejamento** | `etapa-5a-processos` |
 
 ---
 
-## Etapa 4 — Pessoas e CRM (em andamento; plano aprovado em 2026-10-17)
+## Etapa 4 — Pessoas e CRM (concluída em 2026-10-18)
 
 **RFs:** RF-06 (pessoas, contatos e partes), RF-07 (conflito de interesses) e RF-08 (prospecção, propostas e contratação).
 
@@ -45,7 +46,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
 
-### PR 4E — aprovação da própria proposta em escritório de uma pessoa só (pronto para revisão)
+### PR 4E — aprovação da própria proposta em escritório de uma pessoa só (concluído: PR #23 mergeado em 2026-10-18)
 
 **Decisão de negócio (2026-10-18):** o escritório com um único usuário pode aprovar a própria proposta. Pela hierarquia, esse usuário é o de maior permissão.
 
