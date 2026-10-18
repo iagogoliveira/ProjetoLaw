@@ -1,6 +1,6 @@
 # ADR 0026 — Escopo de dados dos processos, casos sigilosos e teste de carga
 
-- **Status:** Proposta (para revisão no PR 5B)
+- **Status:** Aceita (PR #25 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5B)
 

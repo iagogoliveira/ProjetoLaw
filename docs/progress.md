@@ -2,6 +2,8 @@
 
 Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
+Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` (Codex e outros), com o próximo passo e as armadilhas conhecidas.
+
 | Etapa | Status | Branch |
 | --- | --- | --- |
 | 0 — Bootstrap do repositório | **Concluída** (PR #3 mergeado) | `etapa-0-bootstrap` |
@@ -9,7 +11,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 mergeado; 5B pronto para revisão; faltam 5C a 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 e 5B #25 mergeados; faltam 5C a 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco` |
 
 ---
 
@@ -38,7 +40,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
 | Correção monetária confere com 10 casos calculados manualmente | Pendente (5C) | |
 
-### PR 5B — escopo de dados, casos sigilosos e lista (pronto para revisão)
+### PR 5B — escopo de dados, casos sigilosos e lista (concluído: PR #25 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-18):**
 - O caso sigiloso tem duas listas, permitidos e bloqueados; cada entrada é um usuário ou uma equipe.
@@ -56,7 +58,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 5.14 | Teste de carga k6 (critério 1) | `tests/LexFlow.LoadTests` |
 | 5.15 | Casos entre organizações nas 2 rotas novas, OpenAPI (1 caminho novo, filtros e `isRestricted` como adições) e cliente TypeScript | `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0026 — Escopo de dados dos processos, casos sigilosos e teste de carga](adr/0026-escopo-de-dados-casos-sigilosos-e-carga.md) (proposta, para revisão no PR).
+**ADR:** [0026 — Escopo de dados dos processos, casos sigilosos e teste de carga](adr/0026-escopo-de-dados-casos-sigilosos-e-carga.md) (Aceita em 2026-10-18, com o merge do PR #25).
 
 **Última verificação local (PR 5B):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 617 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (11 aprovados; o preparo da carga é pulado fora dela), k6 com 100 mil processos (p95 de 91 ms), sem pacotes vulneráveis. Cobertura: Litigation.Application 91,8% e Litigation.Domain 98,4%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation.
 
