@@ -1,6 +1,6 @@
 # ADR 0028 — Risco, acordos e audiências do processo
 
-- **Status:** Proposta (para revisão no PR 5C2)
+- **Status:** Aceita (PR #27 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5C2)
 

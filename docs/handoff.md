@@ -10,6 +10,24 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (arrumação depois do merge do #27)
+
+**Branch:** `etapa-5d-timeline-importacao`, criado a partir da `main` (3a87168), com este commit de arrumação e push.
+
+**Feito:**
+- PR #27 (5C2) mergeado pelo usuário;
+- `progress.md`: 5C2 marcado como concluído e a linha de status atualizada;
+- ADR 0028 marcada como aceita;
+- "Onde paramos" do `AGENTS.md` atualizado.
+
+**Combinado com o usuário:**
+- Docs e código no mesmo push sempre que der: o CI cancela o run anterior a cada push novo no PR (`cancel-in-progress`). O "X" de cancelado não é falha de teste.
+
+**Próximo:**
+- Planejar o PR 5D (linha do tempo, importação XLSX/CSV com ClosedXML e operações em lote) e mostrar o plano ao usuário antes de implementar.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5C2 implementado)
 
 **Branch:** `etapa-5c2-risco-acordos` · **PR:** [#27](https://github.com/iagogoliveira/ProjetoLaw/pull/27), aberto e aguardando o CI e o merge do usuário.
