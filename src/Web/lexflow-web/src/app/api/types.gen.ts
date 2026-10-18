@@ -146,6 +146,15 @@ export type CaseResponse = {
     closingNote: null | string;
     customFields: JsonObject;
     createdAt: string;
+    isRestricted: boolean;
+};
+
+/**
+ * As listas do caso sigiloso: permitidos (se houver, só eles veem) e bloqueados (nunca veem).
+ */
+export type CaseRestrictionsResponse = {
+    allowed: Array<RestrictionEntry>;
+    blocked: Array<RestrictionEntry>;
 };
 
 export type CasesPageResponse = {
@@ -1009,6 +1018,19 @@ export type ResetPasswordRequest = {
     userId: string;
     token: string;
     newPassword: string;
+};
+
+/**
+ * Um usuário ou uma equipe numa das listas do caso sigiloso.
+ */
+export type RestrictionEntry = {
+    userId: null | string;
+    teamId: null | string;
+};
+
+export type RestrictionsRequest = {
+    allowed: null | Array<RestrictionEntry>;
+    blocked: null | Array<RestrictionEntry>;
 };
 
 export type RoleAssignmentInput = {
@@ -4579,11 +4601,17 @@ export type ListCasesData = {
     body?: never;
     path?: never;
     query?: {
-        q?: string;
-        status?: CaseStatus;
-        practiceAreaId?: string;
-        cursor?: string;
-        limit?: number | string;
+        Q?: string;
+        Status?: string;
+        Kind?: string;
+        PracticeAreaId?: string;
+        BranchId?: string;
+        PhaseId?: string;
+        ResponsibleId?: string;
+        TeamId?: string;
+        PersonId?: string;
+        Cursor?: string;
+        Limit?: number | string;
     };
     url: '/api/v1/cases';
 };
@@ -5020,3 +5048,69 @@ export type UnlinkCaseResponses = {
 };
 
 export type UnlinkCaseResponse = UnlinkCaseResponses[keyof UnlinkCaseResponses];
+
+export type GetCaseRestrictionsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/restrictions';
+};
+
+export type GetCaseRestrictionsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseRestrictionsError = GetCaseRestrictionsErrors[keyof GetCaseRestrictionsErrors];
+
+export type GetCaseRestrictionsResponses = {
+    /**
+     * OK
+     */
+    200: CaseRestrictionsResponse;
+};
+
+export type GetCaseRestrictionsResponse = GetCaseRestrictionsResponses[keyof GetCaseRestrictionsResponses];
+
+export type SetCaseRestrictionsData = {
+    body: RestrictionsRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/restrictions';
+};
+
+export type SetCaseRestrictionsErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type SetCaseRestrictionsError = SetCaseRestrictionsErrors[keyof SetCaseRestrictionsErrors];
+
+export type SetCaseRestrictionsResponses = {
+    /**
+     * OK
+     */
+    200: CaseRestrictionsResponse;
+};
+
+export type SetCaseRestrictionsResponse = SetCaseRestrictionsResponses[keyof SetCaseRestrictionsResponses];

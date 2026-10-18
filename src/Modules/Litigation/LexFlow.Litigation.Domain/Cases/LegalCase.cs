@@ -64,6 +64,19 @@ public enum AssignmentRole
     Team,
 }
 
+/// <summary>Restrição de caso sigiloso (muralha ética, seção 6.3; decisão de 2026-10-18).</summary>
+public enum RestrictionMode
+{
+    /// <summary>Com algum permitido, só os permitidos veem o caso (e quem gerencia restrições).</summary>
+    Allow,
+
+    /// <summary>Bloqueado nunca vê o caso, nem com escopo nem gerenciando restrições.</summary>
+    Block,
+}
+
+/// <summary>Um usuário ou uma equipe numa das listas do caso sigiloso.</summary>
+public sealed record RestrictionInput(RestrictionMode Mode, Guid? UserId, Guid? TeamId);
+
 /// <summary>Parte como enviada pela tela: a pessoa do cadastro, o polo, se é cliente e o advogado da parte contrária.</summary>
 public sealed record PartyInput(Guid PersonId, PartyPole Pole, bool IsClient, string? CounselName, string? CounselOab);
 
@@ -108,6 +121,7 @@ public sealed class LegalCase : AggregateRoot<Guid>, ITenantOwned, IAuditable, I
 
     private readonly List<CaseParty> _parties = [];
     private readonly List<CaseAssignment> _assignments = [];
+    private readonly List<CaseRestriction> _restrictions = [];
 
     private LegalCase()
     {
@@ -189,6 +203,9 @@ public sealed class LegalCase : AggregateRoot<Guid>, ITenantOwned, IAuditable, I
     public IReadOnlyCollection<CaseParty> Parties => _parties.AsReadOnly();
 
     public IReadOnlyCollection<CaseAssignment> Assignments => _assignments.AsReadOnly();
+
+    /// <summary>Listas de permitidos e bloqueados do caso sigiloso (vazias: o caso segue o escopo de dados).</summary>
+    public IReadOnlyCollection<CaseRestriction> Restrictions => _restrictions.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -342,6 +359,28 @@ public sealed class LegalCase : AggregateRoot<Guid>, ITenantOwned, IAuditable, I
         return Result.Success;
     }
 
+    /// <summary>
+    /// Troca as listas do caso sigiloso: cada entrada é um usuário ou uma equipe, sem repetir, e ninguém fica nas duas
+    /// listas. Listas vazias tiram o sigilo.
+    /// </summary>
+    public Result SetRestrictions(IReadOnlyCollection<RestrictionInput> restrictions)
+    {
+        ArgumentNullException.ThrowIfNull(restrictions);
+        if (restrictions.Any(r => (r.UserId is null) == (r.TeamId is null)))
+        {
+            return LitigationErrors.RestrictionInvalid;
+        }
+
+        if (restrictions.DistinctBy(r => (r.UserId, r.TeamId)).Count() != restrictions.Count)
+        {
+            return LitigationErrors.RestrictionDuplicated;
+        }
+
+        _restrictions.Clear();
+        _restrictions.AddRange(restrictions.Select(r => new CaseRestriction(Id, r)));
+        return Result.Success;
+    }
+
     /// <summary>Fusão de cadastros no Crm: a pessoa unificada passa a ser a mantida (sem repetir a mesma pessoa).</summary>
     public void ReplacePerson(Guid mergedPersonId, Guid keptPersonId)
     {
@@ -453,6 +492,37 @@ public sealed class CaseAssignment : ITenantOwned, ICaseScoped
     public Guid LegalCaseId { get; private set; }
 
     public AssignmentRole Role { get; private set; }
+
+    public Guid? UserId { get; private set; }
+
+    public Guid? TeamId { get; private set; }
+
+    Guid? ICaseScoped.CaseId => LegalCaseId;
+}
+
+/// <summary>Entrada da lista de permitidos ou bloqueados de um caso sigiloso: um usuário ou uma equipe.</summary>
+public sealed class CaseRestriction : ITenantOwned, ICaseScoped
+{
+    private CaseRestriction()
+    {
+    }
+
+    internal CaseRestriction(Guid caseId, RestrictionInput input)
+    {
+        Id = Guid.CreateVersion7();
+        LegalCaseId = caseId;
+        Mode = input.Mode;
+        UserId = input.UserId;
+        TeamId = input.TeamId;
+    }
+
+    public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
+
+    public Guid LegalCaseId { get; private set; }
+
+    public RestrictionMode Mode { get; private set; }
 
     public Guid? UserId { get; private set; }
 

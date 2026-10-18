@@ -11,6 +11,7 @@ using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ public static class LitigationPermissions
     public const string CasesCreate = "cases.create";
     public const string CasesEdit = "cases.edit";
     public const string CasesDelete = "cases.delete";
+    public const string CasesRestrictionsManage = "cases.restrictions.manage";
     public const string SettingsOrganizationManage = "settings.organization.manage";
 }
 
@@ -64,6 +66,22 @@ public sealed record NumberingRequest(string Format, IReadOnlyDictionary<Guid, s
 
 public sealed record CasesPageResponse(IReadOnlyList<CaseSummary> Items, string? NextCursor);
 
+public sealed record RestrictionsRequest(IReadOnlyList<RestrictionEntry>? Allowed, IReadOnlyList<RestrictionEntry>? Blocked);
+
+/// <summary>Parâmetros da lista de processos na query string.</summary>
+public sealed record CaseListQuery(
+    string? Q,
+    string? Status,
+    string? Kind,
+    Guid? PracticeAreaId,
+    Guid? BranchId,
+    Guid? PhaseId,
+    Guid? ResponsibleId,
+    Guid? TeamId,
+    Guid? PersonId,
+    string? Cursor,
+    int? Limit);
+
 /// <summary>
 /// Endpoints do módulo Litigation (Etapa 5, PR 5A): processos e casos (judiciais, administrativos e extrajudiciais),
 /// partes, responsáveis, hierarquia, encerramento, consulta do número CNJ e a numeração interna do escritório.
@@ -81,6 +99,7 @@ public sealed class LitigationModule : IModule
         MapQueries(endpoints);
         MapCommands(endpoints);
         MapLifecycle(endpoints);
+        MapRestrictions(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)
@@ -89,9 +108,10 @@ public sealed class LitigationModule : IModule
 
         cases.MapGet("/", ListAsync)
             .DocumentEnumQuery<CaseStatus>("status")
+            .DocumentEnumQuery<CaseKind>("kind")
             .RequirePermission(LitigationPermissions.CasesRead)
             .WithName("ListCases")
-            .WithSummary("Processos e casos, dos mais recentes aos mais antigos, com busca pela pasta ou pelo CNJ")
+            .WithSummary("Processos e casos ao alcance do usuário, dos mais recentes aos mais antigos, com busca e filtros")
             .Produces<CasesPageResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden);
@@ -123,9 +143,12 @@ public sealed class LitigationModule : IModule
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
-    /// <summary>Lista paginada por cursor (<c>?q=&amp;status=&amp;practiceAreaId=&amp;cursor=&amp;limit=</c>).</summary>
-    private static async Task<IResult> ListAsync(string? q, string? status, Guid? practiceAreaId, string? cursor, int? limit, IQueryHandler<ListCasesQuery, CasesPage> handler, CancellationToken cancellationToken)
+    /// <summary>
+    /// Lista paginada por cursor (<c>?q=&amp;status=&amp;kind=&amp;practiceAreaId=&amp;branchId=&amp;phaseId=&amp;responsibleId=&amp;teamId=&amp;personId=&amp;cursor=&amp;limit=</c>).
+    /// </summary>
+    private static async Task<IResult> ListAsync([AsParameters] CaseListQuery query, IQueryHandler<ListCasesQuery, CasesPage> handler, CancellationToken cancellationToken)
     {
+        var (q, status, cursor, limit) = (query.Q, query.Status, query.Cursor, query.Limit);
         var page = CursorPageRequest.Create(cursor, limit);
         if (page.IsFailure)
         {
@@ -136,6 +159,12 @@ public sealed class LitigationModule : IModule
         if (statusFilter.IsFailure)
         {
             return statusFilter.Error.ToProblem();
+        }
+
+        var kindFilter = EnumQuery.Parse<CaseKind>(query.Kind, InvalidFilter);
+        if (kindFilter.IsFailure)
+        {
+            return kindFilter.Error.ToProblem();
         }
 
         CasesPosition? after = null;
@@ -150,7 +179,8 @@ public sealed class LitigationModule : IModule
             after = decoded.Value;
         }
 
-        var result = await handler.Handle(new ListCasesQuery(q, statusFilter.Value, practiceAreaId, after, page.Value.Limit), cancellationToken);
+        var filters = new CaseFilters(q, statusFilter.Value, kindFilter.Value, query.PracticeAreaId, query.BranchId, query.PhaseId, query.ResponsibleId, query.TeamId, query.PersonId);
+        var result = await handler.Handle(new ListCasesQuery(filters, after, page.Value.Limit), cancellationToken);
         return result.ToHttpResult(p => TypedResults.Ok(new CasesPageResponse(p.Items, p.Next is null ? null : CursorCodec.Encode(p.Next))));
     }
 
@@ -198,6 +228,30 @@ public sealed class LitigationModule : IModule
             .Produces<NumberingResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden);
+    }
+
+    private static void MapRestrictions(IEndpointRouteBuilder endpoints)
+    {
+        var cases = endpoints.MapGroup("/api/v1/cases").WithTags("Cases");
+
+        cases.MapGet("/{id:guid}/restrictions", async (Guid id, IQueryHandler<GetCaseRestrictionsQuery, CaseRestrictionsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new GetCaseRestrictionsQuery(id), cancellationToken)).ToHttpResult())
+            .RequirePermission(LitigationPermissions.CasesRestrictionsManage)
+            .WithName("GetCaseRestrictions")
+            .WithSummary("Listas do caso sigiloso: permitidos e bloqueados")
+            .Produces<CaseRestrictionsResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        cases.MapPut("/{id:guid}/restrictions", async (Guid id, RestrictionsRequest request, ICommandHandler<SetCaseRestrictionsCommand, CaseRestrictionsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new SetCaseRestrictionsCommand(id, request.Allowed, request.Blocked), cancellationToken)).ToHttpResult())
+            .RequirePermission(LitigationPermissions.CasesRestrictionsManage)
+            .WithName("SetCaseRestrictions")
+            .WithSummary("Troca as listas do caso sigiloso (listas vazias tiram o sigilo)")
+            .Produces<CaseRestrictionsResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private static void MapLifecycle(IEndpointRouteBuilder endpoints)

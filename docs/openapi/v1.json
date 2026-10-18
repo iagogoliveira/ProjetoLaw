@@ -6188,25 +6188,32 @@
         "tags": [
           "Cases"
         ],
-        "summary": "Processos e casos, dos mais recentes aos mais antigos, com busca pela pasta ou pelo CNJ",
+        "summary": "Processos e casos ao alcance do usuário, dos mais recentes aos mais antigos, com busca e filtros",
         "operationId": "ListCases",
         "parameters": [
           {
-            "name": "q",
+            "name": "Q",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "status",
+            "name": "Status",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/CaseStatus"
+              "type": "string"
             }
           },
           {
-            "name": "practiceAreaId",
+            "name": "Kind",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PracticeAreaId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -6214,14 +6221,54 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "BranchId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "PhaseId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ResponsibleId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "TeamId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "PersonId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Cursor",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "limit",
+            "name": "Limit",
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -7013,6 +7060,128 @@
           }
         }
       }
+    },
+    "/api/v1/cases/{id}/restrictions": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Listas do caso sigiloso: permitidos e bloqueados",
+        "operationId": "GetCaseRestrictions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRestrictionsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Troca as listas do caso sigiloso (listas vazias tiram o sigilo)",
+        "operationId": "SetCaseRestrictions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestrictionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRestrictionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7506,7 +7675,8 @@
           "finalAmount",
           "closingNote",
           "customFields",
-          "createdAt"
+          "createdAt",
+          "isRestricted"
         ],
         "type": "object",
         "properties": {
@@ -7716,8 +7886,33 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "isRestricted": {
+            "type": "boolean"
           }
         }
+      },
+      "CaseRestrictionsResponse": {
+        "required": [
+          "allowed",
+          "blocked"
+        ],
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestrictionEntry"
+            }
+          },
+          "blocked": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestrictionEntry"
+            }
+          }
+        },
+        "description": "As listas do caso sigiloso: permitidos (se houver, só eles veem) e bloqueados (nunca veem)."
       },
       "CasesPageResponse": {
         "required": [
@@ -11041,6 +11236,57 @@
           },
           "newPassword": {
             "type": "string"
+          }
+        }
+      },
+      "RestrictionEntry": {
+        "required": [
+          "userId",
+          "teamId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        },
+        "description": "Um usuário ou uma equipe numa das listas do caso sigiloso."
+      },
+      "RestrictionsRequest": {
+        "required": [
+          "allowed",
+          "blocked"
+        ],
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/RestrictionEntry"
+            }
+          },
+          "blocked": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/RestrictionEntry"
+            }
           }
         }
       },

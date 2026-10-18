@@ -1,7 +1,10 @@
 using LexFlow.Crm.Contracts;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Application.Abstractions;
+using LexFlow.Litigation.Application.Access;
 using LexFlow.Litigation.Application.Cases;
+using LexFlow.Litigation.Contracts;
+using LexFlow.Litigation.Infrastructure.Access;
 using LexFlow.Litigation.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +33,9 @@ public static class LitigationInfrastructure
         services.AddScoped<CaseResponseBuilder>();
         services.AddScoped<ICaseCounter, CaseCounterStore>();
         services.AddScoped<ILitigationLookup, CasePartyLookup>();
+        services.AddScoped<CaseAccess>();
+        services.AddScoped<IAccessDenials, AccessDenials>();
+        services.AddScoped<ICaseVisibility, CaseVisibility>();
         return services;
     }
 }

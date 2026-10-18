@@ -324,7 +324,6 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LexFlow.Crm.Domain.People.Address", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -402,7 +401,6 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LexFlow.Crm.Domain.People.Contact", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -854,7 +852,6 @@ namespace LexFlow.Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LexFlow.Crm.Domain.Proposals.ProposalItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 

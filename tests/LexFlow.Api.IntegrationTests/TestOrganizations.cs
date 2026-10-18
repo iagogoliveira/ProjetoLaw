@@ -23,8 +23,13 @@ internal static class TestOrganizations
         return await AddMemberAsync(dependencies, organizationId, Guid.CreateVersion7(), permissions);
     }
 
-    /// <summary>Novo membro numa organização existente, com um perfil próprio.</summary>
-    public static async Task<SeededMember> AddMemberAsync(DependenciesFixture dependencies, Guid organizationId, Guid userId, params string[] permissions)
+    /// <summary>Novo membro numa organização existente, com um perfil próprio (escopo de dados do escritório).</summary>
+    public static Task<SeededMember> AddMemberAsync(DependenciesFixture dependencies, Guid organizationId, Guid userId, params string[] permissions) =>
+        AddScopedMemberAsync(dependencies, organizationId, userId, DataScope.Organization, null, permissions);
+
+    /// <summary>Novo membro com um perfil próprio atribuído no escopo informado (próprio, equipe, área, filial ou escritório).</summary>
+    public static async Task<SeededMember> AddScopedMemberAsync(
+        DependenciesFixture dependencies, Guid organizationId, Guid userId, DataScope scope, Guid? scopeRefId, params string[] permissions)
     {
         var member = OrganizationMember.Join(Guid.CreateVersion7(), organizationId, userId, new DateTimeOffset(2026, 10, 17, 12, 0, 0, TimeSpan.Zero));
         var role = Role.Create(Guid.CreateVersion7(), $"Perfil {Guid.CreateVersion7():N}");
@@ -34,7 +39,7 @@ internal static class TestOrganizations
             db.Roles.Add(role);
             db.Members.Add(member);
             db.UserOrganizations.Add(new UserOrganization(userId, organizationId));
-            db.RoleAssignments.Add(MemberRoleAssignment.Assign(Guid.CreateVersion7(), member.Id, role.Id, DataScope.Organization).Value);
+            db.RoleAssignments.Add(MemberRoleAssignment.Assign(Guid.CreateVersion7(), member.Id, role.Id, scope, scopeRefId).Value);
         });
         return new SeededMember(organizationId, userId, member.Id, role.Id);
     }

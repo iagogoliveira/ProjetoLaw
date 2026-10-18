@@ -9,7 +9,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A pronto para revisão; faltam 5B a 5E) | `etapa-5a-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 mergeado; 5B pronto para revisão; faltam 5C a 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos` |
 
 ---
 
@@ -34,11 +34,35 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 
 | Critério | Status | Evidência |
 | --- | --- | --- |
-| Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | Pendente (5B) | |
+| Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | ✅ (5B, local) | `tests/LexFlow.LoadTests/run-cases-list.sh` (k6): p95 de 91 ms com área e responsável e de 89 ms com área, com 10 usuários simultâneos e nenhuma falha |
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
 | Correção monetária confere com 10 casos calculados manualmente | Pendente (5C) | |
 
-### PR 5A — módulo Litigation e cadastro de processos (pronto para revisão)
+### PR 5B — escopo de dados, casos sigilosos e lista (pronto para revisão)
+
+**Decisões de negócio (2026-10-18):**
+- O caso sigiloso tem duas listas, permitidos e bloqueados; cada entrada é um usuário ou uma equipe.
+- Estar na lista de permitidos basta, mesmo fora do escopo.
+- Quem gerencia restrições vê os sigilosos, salvo se estiver bloqueado.
+- O teste de carga roda com k6 no Docker contra o AppHost, com login pelo fluxo real.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.9 | Escopo de dados dos processos: próprio (responsável), equipe (a equipe ou um membro dela é responsável), área, filial e escritório, somados; um único filtro na lista e nos autorizadores de recurso, com 404 fora do alcance | `CaseAccessTests.Each_scope_reaches_only_its_cases` |
+| 5.10 | Casos sigilosos: permitidos e bloqueados (usuário ou equipe), gestores de restrição, `isRestricted` na resposta e `AccessDenied` na auditoria | `A_blocked_user_never_sees_a_restricted_case_and_the_denial_is_audited`, `With_allowed_people_only_they_and_restriction_managers_see_the_case`, `A_team_in_the_lists_counts_for_every_member`, `Restrictions_accept_only_members_and_teams_of_the_office`, `CaseRestrictionTests` |
+| 5.11 | Lista com filtros por situação, tipo, área, filial, fase, responsável, equipe e pessoa; índices por área e por filial | `The_list_filters_by_responsible_area_kind_and_party` |
+| 5.12 | `ICaseVisibility` (Litigation.Contracts) para os módulos com dados ligados a processos | (usado a partir da Etapa 7) |
+| 5.13 | Correção: filhas novas numa edição (partes, responsáveis, restrições, endereços, contatos, itens de proposta) eram tratadas como alteração; chaves passam a ser geradas pela aplicação | `An_update_adds_parties_and_responsibles`, `An_update_adds_new_addresses_and_contacts`, `Editing_a_draft_replaces_its_items` |
+| 5.14 | Teste de carga k6 (critério 1) | `tests/LexFlow.LoadTests` |
+| 5.15 | Casos entre organizações nas 2 rotas novas, OpenAPI (1 caminho novo, filtros e `isRestricted` como adições) e cliente TypeScript | `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0026 — Escopo de dados dos processos, casos sigilosos e teste de carga](adr/0026-escopo-de-dados-casos-sigilosos-e-carga.md) (proposta, para revisão no PR).
+
+**Última verificação local (PR 5B):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 617 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (11 aprovados; o preparo da carga é pulado fora dela), k6 com 100 mil processos (p95 de 91 ms), sem pacotes vulneráveis. Cobertura: Litigation.Application 91,8% e Litigation.Domain 98,4%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation.
+
+**Pendência do PR 5B:** o segundo filtro global nas entidades `ICaseScoped` de outros módulos entra com o primeiro módulo que tiver esses dados (prazos, Etapa 7), usando `ICaseVisibility`.
+
+### PR 5A — módulo Litigation e cadastro de processos (concluído: PR #24 mergeado em 2026-10-18)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -51,7 +75,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 5.7 | `ILitigationLookup` real no conflito de interesses e fusão de cadastros do Crm refletida nas partes | `The_conflict_check_finds_an_opponent_in_a_case_of_another_client`, `Merging_people_in_the_crm_points_the_parties_to_the_kept_record` |
 | 5.8 | Endpoints com `cases.*`, casos entre organizações nas 8 rotas novas com id, OpenAPI (9 caminhos novos, só adições) e cliente TypeScript | `EndpointSecurityTests`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `OpenApiContractTests` |
 
-**ADR:** [0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm](adr/0025-modulo-litigation-processos-e-numeracao.md) (proposta, para revisão no PR).
+**ADR:** [0025 — Módulo Litigation: processos e casos, numeração interna e partes do Crm](adr/0025-modulo-litigation-processos-e-numeracao.md) (Aceita em 2026-10-18, com o merge do PR #24).
 
 **Critério de aceite da Etapa 4 com processos reais:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ (`CaseTests.The_conflict_check_finds_an_opponent_in_a_case_of_another_client`).
 

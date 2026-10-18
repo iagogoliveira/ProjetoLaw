@@ -114,7 +114,6 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseAssignment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -164,7 +163,6 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseParty", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -282,6 +280,49 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_case_relations_organization_id_parent_case_id");
 
                     b.ToTable("case_relations", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseRestriction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("mode");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid?>("TeamId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("team_id");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_case_restrictions");
+
+                    b.HasIndex("LegalCaseId")
+                        .HasDatabaseName("ix_case_restrictions_legal_case_id");
+
+                    b.ToTable("case_restrictions", "litigation");
                 });
 
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.LegalCase", b =>
@@ -465,6 +506,12 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                     b.HasIndex("OrganizationId", "InternalFolder")
                         .IsUnique()
                         .HasDatabaseName("ix_cases_organization_id_internal_folder");
+
+                    b.HasIndex("OrganizationId", "BranchId", "CreatedAt")
+                        .HasDatabaseName("ix_cases_organization_id_branch_id_created_at");
+
+                    b.HasIndex("OrganizationId", "PracticeAreaId", "CreatedAt")
+                        .HasDatabaseName("ix_cases_organization_id_practice_area_id_created_at");
 
                     b.HasIndex("OrganizationId", "Status", "PracticeAreaId")
                         .HasDatabaseName("ix_cases_organization_id_status_practice_area_id");
@@ -687,11 +734,23 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_case_relations_cases_parent_case_id");
                 });
 
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseRestriction", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
+                        .WithMany("Restrictions")
+                        .HasForeignKey("LegalCaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_case_restrictions_cases_legal_case_id");
+                });
+
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.LegalCase", b =>
                 {
                     b.Navigation("Assignments");
 
                     b.Navigation("Parties");
+
+                    b.Navigation("Restrictions");
                 });
 #pragma warning restore 612, 618
         }

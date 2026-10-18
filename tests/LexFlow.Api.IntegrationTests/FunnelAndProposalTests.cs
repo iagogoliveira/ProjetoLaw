@@ -237,6 +237,28 @@ public sealed class FunnelAndProposalTests(DependenciesFixture dependencies) : I
         OrganizationApi.Code(refused).ShouldBe("crm.proposal_self_approval");
     }
 
+    /// <summary>Regressão (PR 5B): item novo numa edição do rascunho é inserido (o id vem do domínio).</summary>
+    [Fact]
+    public async Task Editing_a_draft_replaces_its_items()
+    {
+        var office = await OfficeAsync();
+        var proposal = await ProposalAsync(office, await OpportunityAsync(office));
+
+        var (status, updated) = await SendAsync(office, HttpMethod.Put, $"/api/v1/proposals/{proposal}", new
+        {
+            title = "Proposta revisada",
+            items = new object[]
+            {
+                new { description = "Mensal", kind = "monthly", quantity = 12, unitAmount = 3_000m },
+                new { description = "Audiências", kind = "perAct", quantity = 2, unitAmount = 500m },
+            },
+        });
+
+        status.ShouldBe(HttpStatusCode.OK, updated.ToString());
+        updated.GetProperty("items").GetArrayLength().ShouldBe(2);
+        updated.GetProperty("total").GetDecimal().ShouldBe(37_000m);
+    }
+
     [Fact]
     public async Task The_sent_document_is_frozen_while_a_draft_is_rendered_on_demand()
     {
