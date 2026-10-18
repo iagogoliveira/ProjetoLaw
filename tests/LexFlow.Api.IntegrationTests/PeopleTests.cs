@@ -186,6 +186,27 @@ public sealed class PeopleTests(DependenciesFixture dependencies) : IAsyncLifeti
         againStatus.ShouldBe(HttpStatusCode.Created);
     }
 
+    /// <summary>Regressão (PR 5B): endereço e contato novos numa edição são inseridos (o id vem do domínio).</summary>
+    [Fact]
+    public async Task An_update_adds_new_addresses_and_contacts()
+    {
+        var (organization, user) = await OfficeAsync();
+        var (_, created) = await CreateAsync(organization, user, Company("Empresa com Sede"));
+        var id = created.GetProperty("id").GetGuid();
+
+        var (status, updated) = await _api.SendAsync(HttpMethod.Put, $"/api/v1/people/{id}", user, organization, new
+        {
+            name = "Empresa com Sede",
+            roles = ClientRole,
+            addresses = new[] { new { street = "Av. Paulista", number = "1000", city = "São Paulo", state = "SP", postalCode = "01310-100", isBilling = true } },
+            contacts = new[] { new { name = "Ana", email = "ana@sede.com.br", preferredChannel = "email" } },
+        });
+
+        status.ShouldBe(HttpStatusCode.OK, updated.ToString());
+        updated.GetProperty("addresses")[0].GetProperty("street").GetString().ShouldBe("Av. Paulista");
+        updated.GetProperty("contacts")[0].GetProperty("name").GetString().ShouldBe("Ana");
+    }
+
     [Fact]
     public async Task The_cnpj_lookup_fills_in_the_company_or_explains_why_not()
     {

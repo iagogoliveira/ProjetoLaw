@@ -22,4 +22,21 @@ internal sealed class OrganizationDirectory(IOrganizationDbContext db) : IOrgani
         };
         return [.. rows.Select(r => new OrgUnit(r.Id, kind, r.Name))];
     }
+
+    public async Task<IReadOnlyList<Guid>> TeamsOfUserAsync(Guid userId, CancellationToken cancellationToken) =>
+        await db.TeamMembers.AsNoTracking()
+            .Join(db.Members, t => t.MemberId, m => m.Id, (t, m) => new { t.TeamId, m.UserId })
+            .Where(x => x.UserId == userId)
+            .Select(x => x.TeamId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Guid>> UsersOfTeamsAsync(IReadOnlyCollection<Guid> teamIds, CancellationToken cancellationToken) =>
+        teamIds.Count == 0
+            ? []
+            : await db.TeamMembers.AsNoTracking()
+                .Where(t => teamIds.Contains(t.TeamId))
+                .Join(db.Members, t => t.MemberId, m => m.Id, (t, m) => m.UserId)
+                .Distinct()
+                .ToListAsync(cancellationToken);
 }

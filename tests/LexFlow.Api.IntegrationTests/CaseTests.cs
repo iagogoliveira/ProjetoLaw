@@ -125,6 +125,31 @@ public sealed class CaseTests(DependenciesFixture dependencies) : IAsyncLifetime
         fetched.GetProperty("assignments")[0].GetProperty("userId").GetGuid().ShouldBe(office.User);
     }
 
+    /// <summary>Regressão (PR 5B): parte e responsável novos numa edição são inseridos (o id vem do domínio).</summary>
+    [Fact]
+    public async Task An_update_adds_parties_and_responsibles()
+    {
+        var office = await OfficeAsync();
+        var created = await CreateCaseAsync(office, Case(office, assignments: []));
+        var witness = await _api.CreateAsync("/api/v1/people", office.User, office.Organization, new { kind = "individual", name = "Testemunha", roles = WitnessRole });
+
+        var (status, updated) = await SendAsync(office, HttpMethod.Put, $"/api/v1/cases/{IdOf(created)}", new
+        {
+            cnjNumber = TjspCnj,
+            parties = new object[]
+            {
+                new { personId = office.Client, pole = "active", isClient = true },
+                new { personId = office.Opponent, pole = "passive", isClient = false },
+                new { personId = witness, pole = "third", isClient = false },
+            },
+            assignments = new[] { new { role = "partner", userId = office.User } },
+        });
+
+        status.ShouldBe(HttpStatusCode.OK, updated.ToString());
+        updated.GetProperty("parties").GetArrayLength().ShouldBe(3);
+        updated.GetProperty("assignments")[0].GetProperty("role").GetString().ShouldBe("partner");
+    }
+
     [Fact]
     public async Task The_cnj_is_checked_unique_in_the_office_and_described_by_the_lookup()
     {

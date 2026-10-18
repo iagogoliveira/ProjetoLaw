@@ -44,7 +44,11 @@ internal sealed class CaseCounter : ITenantOwned
 /// Pasta interna única no escritório; número CNJ único entre os processos ativos; índices para a lista (data, situação
 /// e área) e para achar as partes de uma pessoa (conflito de interesses e fusão de cadastros).
 /// </summary>
-internal sealed class CaseConfiguration : IEntityTypeConfiguration<LegalCase>, IEntityTypeConfiguration<CaseParty>, IEntityTypeConfiguration<CaseAssignment>
+internal sealed class CaseConfiguration :
+    IEntityTypeConfiguration<LegalCase>,
+    IEntityTypeConfiguration<CaseParty>,
+    IEntityTypeConfiguration<CaseAssignment>,
+    IEntityTypeConfiguration<CaseRestriction>
 {
     public void Configure(EntityTypeBuilder<LegalCase> builder)
     {
@@ -74,6 +78,12 @@ internal sealed class CaseConfiguration : IEntityTypeConfiguration<LegalCase>, I
         builder.HasMany(c => c.Assignments).WithOne().HasForeignKey(a => a.LegalCaseId).OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(c => c.Parties).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(c => c.Assignments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasMany(c => c.Restrictions).WithOne().HasForeignKey(r => r.LegalCaseId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(c => c.Restrictions).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // Lista por área (o filtro do critério de aceite) e por filial, na ordem da lista.
+        builder.HasIndex(c => new { c.OrganizationId, c.PracticeAreaId, c.CreatedAt });
+        builder.HasIndex(c => new { c.OrganizationId, c.BranchId, c.CreatedAt });
         builder.HasStandardColumns();
     }
 
@@ -81,6 +91,8 @@ internal sealed class CaseConfiguration : IEntityTypeConfiguration<LegalCase>, I
     {
         builder.ToTable("case_parties");
         builder.HasKey(p => p.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(p => p.Id).ValueGeneratedNever();
         builder.Property(p => p.Pole).HasConversion<string>().HasMaxLength(20);
         builder.Property(p => p.CounselName).HasMaxLength(CaseParty.MaxCounselLength);
         builder.Property(p => p.CounselOab).HasMaxLength(20);
@@ -88,10 +100,22 @@ internal sealed class CaseConfiguration : IEntityTypeConfiguration<LegalCase>, I
         builder.HasIndex(p => p.LegalCaseId);
     }
 
+    public void Configure(EntityTypeBuilder<CaseRestriction> builder)
+    {
+        builder.ToTable("case_restrictions");
+        builder.HasKey(r => r.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(r => r.Id).ValueGeneratedNever();
+        builder.Property(r => r.Mode).HasConversion<string>().HasMaxLength(10);
+        builder.HasIndex(r => r.LegalCaseId);
+    }
+
     public void Configure(EntityTypeBuilder<CaseAssignment> builder)
     {
         builder.ToTable("case_assignments");
         builder.HasKey(a => a.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(a => a.Id).ValueGeneratedNever();
         builder.Property(a => a.Role).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(a => new { a.OrganizationId, a.UserId });
         builder.HasIndex(a => new { a.OrganizationId, a.TeamId });

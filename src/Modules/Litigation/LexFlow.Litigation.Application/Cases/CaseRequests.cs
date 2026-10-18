@@ -80,7 +80,8 @@ public sealed record CaseResponse(
     decimal? FinalAmount,
     string? ClosingNote,
     JsonObject CustomFields,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    bool IsRestricted);
 
 /// <summary>O número CNJ com a pontuação (<c>NNNNNNN-DD.AAAA.J.TR.OOOO</c>).</summary>
 internal static class CnjFormat
@@ -101,6 +102,7 @@ internal sealed class CaseResponseBuilder(ILitigationDbContext db, IPeopleDirect
             .Join(db.Cases, r => r.ParentCaseId == c.Id ? r.ChildCaseId : r.ParentCaseId, other => other.Id, (r, other) => new { r, other.Id, other.InternalFolder, other.CnjNumber })
             .ToListAsync(cancellationToken);
         var parent = relations.SingleOrDefault(x => x.r.ChildCaseId == c.Id);
+        var restricted = await db.Cases.AsNoTracking().AnyAsync(x => x.Id == c.Id && x.Restrictions.Any(), cancellationToken);
 
         return new CaseResponse(
             c.Id,
@@ -141,7 +143,8 @@ internal sealed class CaseResponseBuilder(ILitigationDbContext db, IPeopleDirect
             c.FinalAmount,
             c.ClosingNote,
             JsonNode.Parse(c.CustomFields)?.AsObject() ?? [],
-            c.CreatedAt);
+            c.CreatedAt,
+            restricted);
     }
 }
 

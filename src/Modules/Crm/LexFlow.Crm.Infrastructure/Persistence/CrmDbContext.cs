@@ -104,6 +104,8 @@ internal sealed class PersonPartsConfiguration :
     {
         builder.ToTable("addresses");
         builder.HasKey(a => a.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(a => a.Id).ValueGeneratedNever();
         builder.Property(a => a.Street).HasMaxLength(200);
         builder.Property(a => a.Number).HasMaxLength(20);
         builder.Property(a => a.Complement).HasMaxLength(100);
@@ -118,6 +120,8 @@ internal sealed class PersonPartsConfiguration :
     {
         builder.ToTable("contacts");
         builder.HasKey(c => c.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(c => c.Id).ValueGeneratedNever();
         builder.Property(c => c.Name).HasMaxLength(200);
         builder.Property(c => c.Department).HasMaxLength(100);
         builder.Property(c => c.Email).HasMaxLength(254);
@@ -224,6 +228,8 @@ internal sealed class CommercialConfiguration :
     {
         builder.ToTable("proposal_items");
         builder.HasKey(i => i.Id);
+        // Id gerado no domínio: filha nova numa edição precisa entrar como inserção, não como alteração.
+        builder.Property(i => i.Id).ValueGeneratedNever();
         builder.Property(i => i.Description).HasMaxLength(Proposal.MaxDescriptionLength);
         builder.Property(i => i.Kind).HasConversion<string>().HasMaxLength(20);
         builder.Property(i => i.Quantity).HasPrecision(12, 2);

@@ -159,6 +159,9 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["POST /api/v1/cases/{id:guid}/relations"] = async owner =>
                 new CrossTenantCase(await CaseOfAsync(owner), new { childCaseId = await CaseOfAsync(owner), kind = "appeal" }),
             ["DELETE /api/v1/cases/{id:guid}/relations/{relationId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/restrictions"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["PUT /api/v1/cases/{id:guid}/restrictions"] = async owner =>
+                new CrossTenantCase(await CaseOfAsync(owner), new { allowed = Array.Empty<object>(), blocked = Array.Empty<object>() }),
         };
         foreach (var (route, create) in routes)
         {

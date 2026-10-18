@@ -2,6 +2,7 @@ using FluentValidation;
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Crm.Contracts;
 using LexFlow.Litigation.Application.Abstractions;
+using LexFlow.Litigation.Application.Access;
 using LexFlow.Litigation.Domain;
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Platform.Contracts.Courts;
@@ -39,38 +40,36 @@ public sealed record CasesPosition(DateTimeOffset CreatedAt, Guid Id);
 
 public sealed record CasesPage(IReadOnlyList<CaseSummary> Items, CasesPosition? Next);
 
+/// <summary>Filtros da lista; todos opcionais e combinados com "e".</summary>
+public sealed record CaseFilters(
+    string? Term = null,
+    CaseStatus? Status = null,
+    CaseKind? Kind = null,
+    Guid? PracticeAreaId = null,
+    Guid? BranchId = null,
+    Guid? PhaseId = null,
+    Guid? ResponsibleUserId = null,
+    Guid? TeamId = null,
+    Guid? PersonId = null);
+
 /// <summary>
-/// Lista de processos e casos, dos mais recentes aos mais antigos, com busca pela pasta interna ou pelo número CNJ
-/// (com ou sem pontuação) e filtros por situação e área. Os filtros completos e o teste de carga chegam no PR 5B.
+/// Lista de processos e casos ao alcance do usuário (escopo de dados e casos sigilosos), dos mais recentes aos mais
+/// antigos, com busca pela pasta interna ou pelo número CNJ (com ou sem pontuação) e filtros por situação, tipo,
+/// área, filial, fase, responsável, equipe e pessoa (parte).
 /// </summary>
-public sealed record ListCasesQuery(string? Term, CaseStatus? Status, Guid? PracticeAreaId, CasesPosition? After, int Limit) : IQuery<CasesPage>;
+public sealed record ListCasesQuery(CaseFilters Filters, CasesPosition? After, int Limit) : IQuery<CasesPage>;
 
 internal sealed class ListCasesValidator : AbstractValidator<ListCasesQuery>
 {
     public ListCasesValidator() => RuleFor(q => q.Limit).InclusiveBetween(1, 200).WithErrorCode("pagination.limit_out_of_range");
 }
 
-internal sealed class ListCasesHandler(ILitigationDbContext db, IPeopleDirectory people) : IQueryHandler<ListCasesQuery, CasesPage>
+internal sealed class ListCasesHandler(ILitigationDbContext db, IPeopleDirectory people, CaseAccess access) : IQueryHandler<ListCasesQuery, CasesPage>
 {
     public async Task<Result<CasesPage>> Handle(ListCasesQuery query, CancellationToken cancellationToken)
     {
-        var cases = db.Cases.AsNoTracking();
-        if (query.Status is { } status)
-        {
-            cases = cases.Where(c => c.Status == status);
-        }
-
-        if (query.PracticeAreaId is { } area)
-        {
-            cases = cases.Where(c => c.PracticeAreaId == area);
-        }
-
-        if (!string.IsNullOrWhiteSpace(query.Term))
-        {
-            var term = query.Term.Trim().ToUpperInvariant();
-            var digits = new string([.. term.Where(char.IsAsciiDigit)]);
-            cases = cases.Where(c => c.InternalFolder.StartsWith(term) || (digits.Length > 0 && c.CnjNumber != null && c.CnjNumber.StartsWith(digits)));
-        }
+        var context = await access.ContextAsync(CasePermissions.Read, cancellationToken);
+        var cases = Filter(CaseAccess.Visible(db.Cases.AsNoTracking(), context), query.Filters);
 
         if (query.After is { } after)
         {
@@ -99,6 +98,26 @@ internal sealed class ListCasesHandler(ILitigationDbContext db, IPeopleDirectory
             .ToList();
         var last = page.Count > query.Limit ? page[query.Limit - 1] : null;
         return new CasesPage(items, last is null ? null : new CasesPosition(last.CreatedAt, last.Id));
+    }
+
+    private static IQueryable<LegalCase> Filter(IQueryable<LegalCase> cases, CaseFilters f)
+    {
+        cases = f.Status is { } status ? cases.Where(c => c.Status == status) : cases;
+        cases = f.Kind is { } kind ? cases.Where(c => c.Kind == kind) : cases;
+        cases = f.PracticeAreaId is { } area ? cases.Where(c => c.PracticeAreaId == area) : cases;
+        cases = f.BranchId is { } branch ? cases.Where(c => c.BranchId == branch) : cases;
+        cases = f.PhaseId is { } phase ? cases.Where(c => c.PhaseId == phase) : cases;
+        cases = f.ResponsibleUserId is { } responsible ? cases.Where(c => c.Assignments.Any(a => a.UserId == responsible)) : cases;
+        cases = f.TeamId is { } team ? cases.Where(c => c.Assignments.Any(a => a.TeamId == team)) : cases;
+        cases = f.PersonId is { } person ? cases.Where(c => c.Parties.Any(p => p.PersonId == person)) : cases;
+        if (!string.IsNullOrWhiteSpace(f.Term))
+        {
+            var term = f.Term.Trim().ToUpperInvariant();
+            var digits = new string([.. term.Where(char.IsAsciiDigit)]);
+            cases = cases.Where(c => c.InternalFolder.StartsWith(term) || (digits.Length > 0 && c.CnjNumber != null && c.CnjNumber.StartsWith(digits)));
+        }
+
+        return cases;
     }
 }
 

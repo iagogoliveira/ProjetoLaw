@@ -113,6 +113,28 @@ public sealed class LegalCaseTests
     }
 }
 
+public sealed class CaseRestrictionTests
+{
+    [Fact]
+    public void Each_entry_is_a_user_or_a_team_without_repeating_and_empty_lists_lift_the_restriction()
+    {
+        var legalCase = LegalCase.Create(Guid.CreateVersion7(), CaseKind.Extrajudicial, "X", new CaseDetails(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            [new PartyInput(Guid.CreateVersion7(), PartyPole.Active, true, null, null)], [])).Value;
+        var (user, team) = (Guid.CreateVersion7(), Guid.CreateVersion7());
+
+        legalCase.SetRestrictions([new RestrictionInput(RestrictionMode.Allow, user, team)]).Error.ShouldBe(LitigationErrors.RestrictionInvalid);
+        legalCase.SetRestrictions([new RestrictionInput(RestrictionMode.Allow, null, null)]).Error.ShouldBe(LitigationErrors.RestrictionInvalid);
+        legalCase.SetRestrictions([new RestrictionInput(RestrictionMode.Allow, user, null), new RestrictionInput(RestrictionMode.Block, user, null)])
+            .Error.ShouldBe(LitigationErrors.RestrictionDuplicated);
+
+        legalCase.SetRestrictions([new RestrictionInput(RestrictionMode.Allow, user, null), new RestrictionInput(RestrictionMode.Block, null, team)]).IsSuccess.ShouldBeTrue();
+        legalCase.Restrictions.Select(r => (r.Mode, r.UserId, r.TeamId)).ShouldBe([(RestrictionMode.Allow, (Guid?)user, (Guid?)null), (RestrictionMode.Block, null, team)]);
+        legalCase.SetRestrictions([]).IsSuccess.ShouldBeTrue();
+        legalCase.Restrictions.ShouldBeEmpty();
+    }
+}
+
 public sealed class CaseNumberingTests
 {
     private static readonly Guid Labor = Guid.CreateVersion7();

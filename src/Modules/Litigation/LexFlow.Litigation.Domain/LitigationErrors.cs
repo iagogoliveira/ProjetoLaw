@@ -76,6 +76,12 @@ public static class LitigationErrors
     public static readonly Error NumberingFormatInvalid =
         Error.Validation("litigation.numbering_format_invalid", "O formato precisa ter {SEQ} (ex.: {AREA}-{ANO}-{SEQ:00000}) e só os marcadores {AREA}, {ANO} e {SEQ}.");
 
+    public static readonly Error RestrictionInvalid =
+        Error.Validation("litigation.restriction_invalid", "Cada entrada da restrição é um usuário ou uma equipe.");
+
+    public static readonly Error RestrictionDuplicated =
+        Error.Validation("litigation.restriction_duplicated", "O mesmo usuário ou equipe aparece mais de uma vez nas restrições.");
+
     public static readonly Error AreaCodeInvalid =
         Error.Validation("litigation.area_code_invalid", "A sigla da área tem de 1 a 10 letras ou números.");
 }
