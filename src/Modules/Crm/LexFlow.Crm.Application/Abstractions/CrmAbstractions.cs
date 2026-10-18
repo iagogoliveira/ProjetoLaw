@@ -1,5 +1,8 @@
 using LexFlow.Crm.Domain.Conflicts;
+using LexFlow.Crm.Domain.Opportunities;
 using LexFlow.Crm.Domain.People;
+using LexFlow.Crm.Domain.Proposals;
+using LexFlow.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Crm.Application.Abstractions;
@@ -12,6 +15,12 @@ public interface ICrmDbContext
     DbSet<EconomicGroup> EconomicGroups { get; }
 
     DbSet<ConflictCheck> ConflictChecks { get; }
+
+    DbSet<Opportunity> Opportunities { get; }
+
+    DbSet<Proposal> Proposals { get; }
+
+    DbSet<ProposalTemplate> ProposalTemplates { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
@@ -76,4 +85,41 @@ public interface ILitigationLookup
 {
     /// <summary>Partes com o nome normalizado (<c>SearchText</c>) ou o documento (só dígitos) informados.</summary>
     Task<IReadOnlyList<CaseParty>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken);
+}
+
+/// <summary>Um item da proposta como entra no documento.</summary>
+public sealed record ProposalDocumentItem(string Description, FeeKind Kind, decimal Quantity, decimal? UnitAmount, decimal? Percentage, decimal? Amount);
+
+/// <summary>Os valores dos marcadores do modelo (<see cref="IProposalDocuments.Markers"/>).</summary>
+public sealed record ProposalDocumentData(
+    string ClientName,
+    string? ClientDocument,
+    string? ClientEmail,
+    string OpportunityTitle,
+    string Title,
+    string? Scope,
+    string? Conditions,
+    DateOnly Date,
+    DateOnly? ValidUntil,
+    decimal Total,
+    IReadOnlyList<ProposalDocumentItem> Items);
+
+/// <summary>
+/// Modelos DOCX de proposta com mesclagem simples (Etapa 4; o motor completo, com laços e condicionais, é da Etapa 9):
+/// marcadores <c>{{grupo.campo}}</c> no texto e uma linha de tabela com marcadores <c>{{item.*}}</c>, repetida por
+/// item. Implementado na Infrastructure sobre o Open XML SDK.
+/// </summary>
+public interface IProposalDocuments
+{
+    /// <summary>Marcadores aceitos, para a tela e para a validação do upload.</summary>
+    IReadOnlyList<string> Markers { get; }
+
+    /// <summary>O modelo padrão do sistema (também serve de ponto de partida para o escritório).</summary>
+    byte[] DefaultTemplate();
+
+    /// <summary>Confere se o arquivo é um DOCX e se só usa marcadores conhecidos.</summary>
+    Result Validate(Stream docx);
+
+    /// <summary>Gera a proposta a partir do modelo (o padrão, quando <paramref name="model"/> é nulo).</summary>
+    byte[] Render(Stream? model, ProposalDocumentData data);
 }

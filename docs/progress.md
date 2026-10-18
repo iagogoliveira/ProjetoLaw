@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18 e 4B #19 mergeados; faltam 4C e 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18 e 4B #19 mergeados; 4C pronto para revisão; falta 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas` |
 
 ---
 
@@ -41,6 +41,35 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - lista e detalhe de pessoas (abas dados, contatos, processos, documentos, financeiro; as três últimas como espaço reservado até as etapas delas);
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
+
+### PR 4C — funil de oportunidades e propostas (pronto para revisão)
+
+**Decisões de negócio (2026-10-18):**
+- O lead é um conjunto de dados soltos ou uma pessoa já cadastrada; a pessoa só nasce no aceite da proposta.
+- Há um modelo DOCX padrão do sistema, e o escritório pode enviar o próprio.
+- A aprovação interna é sempre exigida, e quem elabora não aprova a própria proposta.
+- Aceitar exige a verificação de conflito do lead já prosseguida.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.15 | `Opportunity` no funil lead → reunião → proposta → aceita ou perdida, com origem e motivo de perda das tabelas auxiliares novas, responsável membro do escritório, kanban com cursor e resumo por etapa | `FunnelAndProposalTests.Losing_needs_a_loss_reason_and_the_kanban_counts_by_stage`, `An_opportunity_refuses_an_unknown_origin_or_a_responsible_from_outside_the_office`, `FunnelAndProposalTests` (unitários, 5 casos) |
+| 4.16 | Verificação de conflito do lead ligada à oportunidade; mudar nome ou documento desliga a verificação | `Changing_the_prospect_name_or_document_unlinks_the_conflict_check`, `An_accepted_proposal_needs_approval_by_someone_else_and_a_cleared_conflict_and_creates_the_client` |
+| 4.17 | `Proposal` e `ProposalItem` (fixo, mensal, por hora, êxito, por ato; êxito fora do total), aprovação interna sem autoaprovação, envio, recusa, validade e substituição das outras propostas | `The_author_cannot_approve_and_only_an_approved_proposal_is_sent`, `An_expired_proposal_is_neither_sent_nor_accepted`, `Accepting_one_proposal_supersedes_the_other_open_ones` |
+| 4.18 | Aceite: cliente criado ou reaproveitado (mesmo documento) com o papel Cliente, oportunidade ganha e `ProposalAcceptedIntegrationEvent` | `An_accepted_proposal_needs_approval_by_someone_else_and_a_cleared_conflict_and_creates_the_client`, `Accepting_reuses_the_person_with_the_same_document_and_adds_the_client_role` |
+| 4.19 | Modelos DOCX (Open XML SDK): marcadores, linha de itens repetida, modelo padrão válido no esquema do Word, upload com antivírus, formato e marcadores conferidos, DOCX congelado no envio | `ProposalDocumentTests` (7 casos), `An_office_template_is_scanned_checked_and_used_by_the_proposal`, `Infected_invalid_or_unknown_marker_templates_are_refused`, `The_sent_document_is_frozen_while_a_draft_is_rendered_on_demand` |
+| 4.20 | Tabelas auxiliares "Origens de oportunidade" e "Motivos de perda" no onboarding e, por migration de dados, nos escritórios existentes | `Existing_offices_receive_the_opportunity_lookup_tables`, `Onboarding_creates_the_system_lookup_tables_once_with_suggested_items` |
+| 4.21 | Fusão e anonimização levam junto as oportunidades ligadas | `Merging_and_anonymizing_a_person_carry_over_to_the_linked_opportunities` |
+| 4.22 | RLS nas 4 tabelas novas, casos entre organizações nas 18 rotas novas com id, OpenAPI (19 caminhos novos, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests`, `OpenApiContractTests` |
+
+**ADR:** [0024 — Funil de oportunidades, propostas de honorários e modelos DOCX](adr/0024-funil-propostas-e-modelos-docx.md) (proposta, para revisão no PR). O pacote novo `DocumentFormat.OpenXml` 3.5.1 é MIT, e as dependências dele também.
+
+**Última verificação local (PR 4C):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos (os 14 do AppHost não rodaram de novo), 44 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os 4 fluxos que exigem o AppHost foram pulados; sem mudança de tela), sem pacotes vulneráveis. Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem mudança de modelo pendente nas migrations.
+
+**Pendências do PR 4C:**
+1. **Escritório de uma pessoa só:** a aprovação interna sem autoaprovação impede quem trabalha sozinho de enviar proposta. Isso é decisão de negócio (ver a ADR 0024).
+2. **Indicadores do RF-08** (conversão, tempo de fechamento, receita por origem): ficam para os relatórios. O funil já grava etapa, data da mudança, origem e valor.
+3. **DOCX órfão:** se o envio falhar depois de gravar o arquivo, ele fica no armazenamento sem referência. A limpeza entra com o GED (Etapa 9).
+4. **Assinatura eletrônica** da proposta (RF-29) fica para a Etapa 9.
 
 ### PR 4B — conflito de interesses, fusão e LGPD (concluído: PR #19 mergeado em 2026-10-18)
 

@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Crm\LexFlow.Crm.Application\LexFlow.Crm.Application.csproj" />
+    <!-- Mesclagem dos modelos DOCX (Open XML SDK), testada sem banco nem armazenamento. -->
+    <ProjectReference Include="..\..\src\Modules\Crm\LexFlow.Crm.Infrastructure\LexFlow.Crm.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

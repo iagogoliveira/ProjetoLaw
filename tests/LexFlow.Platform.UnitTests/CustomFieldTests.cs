@@ -156,10 +156,13 @@ public sealed class CustomFieldTests
     }
 
     [Fact]
-    public void Default_lookup_tables_cover_the_six_system_keys_without_duplicates()
+    public void Default_lookup_tables_cover_the_system_keys_without_duplicates()
     {
         DefaultLookupTables.All.Select(t => t.SystemKey).ShouldBe(
-            [SystemLookupTables.ActionTypes, SystemLookupTables.CasePhases, SystemLookupTables.Claims, SystemLookupTables.ClosingReasons, SystemLookupTables.ExpenseTypes, SystemLookupTables.TaskTypes]);
+        [
+            SystemLookupTables.ActionTypes, SystemLookupTables.CasePhases, SystemLookupTables.Claims, SystemLookupTables.ClosingReasons, SystemLookupTables.ExpenseTypes, SystemLookupTables.TaskTypes,
+            SystemLookupTables.OpportunityOrigins, SystemLookupTables.LossReasons,
+        ]);
         DefaultLookupTables.All.ShouldAllBe(t => t.Items.Count > 0 && t.Items.Distinct().Count() == t.Items.Count);
         CustomFieldEntities.Exists("cases").ShouldBeTrue();
         CustomFieldEntities.Exists("tasks").ShouldBeFalse();

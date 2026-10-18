@@ -9,10 +9,13 @@
     <!-- HttpClientFactory da consulta de CNPJ, pelo framework compartilhado (como no Identity), sem pacote novo. -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <!-- Mesclagem dos modelos DOCX de proposta (ADR 0024). -->
+    <PackageReference Include="DocumentFormat.OpenXml" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="LexFlow.Crm.IntegrationTests" />
+    <InternalsVisibleTo Include="LexFlow.Crm.UnitTests" />
   </ItemGroup>
 
 </Project>

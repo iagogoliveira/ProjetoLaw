@@ -12,7 +12,7 @@ namespace LexFlow.Crm.Application.People;
 
 /// <summary>
 /// Fusão de cadastros duplicados (Etapa 4, tarefa 5): <see cref="KeepId"/> absorve <see cref="DuplicateId"/>, que
-/// fica excluído logicamente e apontando para o mantido. Os achados de conflito passam para o mantido, e os demais
+/// fica excluído logicamente e apontando para o mantido. Os achados de conflito e as oportunidades passam para o mantido, e os demais
 /// módulos recebem <see cref="PeopleMergedIntegrationEvent"/>. A trilha de auditoria registra as duas alterações.
 /// </summary>
 public sealed record MergePeopleCommand(Guid KeepId, Guid DuplicateId) : ICommand<PersonResponse>;
@@ -48,6 +48,11 @@ internal sealed class MergePeopleHandler(ICrmDbContext db, IIntegrationEventPubl
             hit.PointTo(keep.Id, keep.Name);
         }
 
+        foreach (var opportunity in await db.Opportunities.Where(o => o.PersonId == duplicate.Id).ToListAsync(cancellationToken))
+        {
+            opportunity.PointTo(keep.Id);
+        }
+
         db.People.Remove(duplicate);
         events.Publish(new PeopleMergedIntegrationEvent(keep.Id, duplicate.Id));
         await db.SaveChangesAsync(cancellationToken);
@@ -67,7 +72,7 @@ internal sealed class MergePeopleHandler(ICrmDbContext db, IIntegrationEventPubl
 /// <summary>
 /// Anonimização LGPD (Etapa 4, tarefa 7): substitui os dados pessoais mantendo o cadastro (e os vínculos). Exige o
 /// motivo, que fica gravado no cadastro e na auditoria. Achados e consultas de conflito com o nome ou o documento da
-/// pessoa também são anonimizados.
+/// pessoa também são anonimizados, assim como os dados do interessado nas oportunidades ligadas a ela.
 /// </summary>
 public sealed record AnonymizePersonCommand(Guid Id, string Reason) : ICommand<PersonResponse>;
 
@@ -108,6 +113,11 @@ internal sealed class AnonymizePersonHandler(ICrmDbContext db, IIntegrationEvent
         foreach (var check in checks.Where(c => (document != null && string.Equals(c.QueryDocument, document, StringComparison.Ordinal)) || string.Equals(SearchText.Normalize(c.QueryName), searchName, StringComparison.Ordinal)))
         {
             check.RedactQuery(label);
+        }
+
+        foreach (var opportunity in await db.Opportunities.Where(o => o.PersonId == person.Id).ToListAsync(cancellationToken))
+        {
+            opportunity.Redact(label);
         }
 
         events.Publish(new PersonAnonymizedIntegrationEvent(person.Id));

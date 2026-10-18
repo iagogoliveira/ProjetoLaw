@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using LexFlow.Api.IntegrationTests;
+using LexFlow.Crm.Domain.Proposals;
+using LexFlow.Crm.Infrastructure.Persistence;
 using LexFlow.Identity.Domain.Sessions;
 using LexFlow.Identity.Domain.Users;
 using LexFlow.Identity.Infrastructure.Persistence;
@@ -53,7 +55,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     private sealed record CrossTenantCase(Guid Id, object? Body = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
-    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => new(StringComparer.Ordinal)
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithCommercialCases(new(StringComparer.Ordinal)
     {
         ["GET /api/v1/jobs/{id:guid}"] = async owner => new CrossTenantCase(await CreateJobAsync(owner.OrganizationId)),
         ["DELETE /api/v1/me/sessions/{id:guid}"] = async owner => new CrossTenantCase(await CreateSessionAsync(owner.UserId)),
@@ -105,7 +107,41 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
-    };
+    });
+
+    /// <summary>Funil, propostas e modelos (Etapa 4, PR 4C).</summary>
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCommercialCases(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        var commercial = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
+        {
+            ["GET /api/v1/opportunities/{id:guid}"] = async owner => new CrossTenantCase(await OpportunityOfAsync(owner)),
+            ["PUT /api/v1/opportunities/{id:guid}"] = async owner =>
+                new CrossTenantCase(await OpportunityOfAsync(owner), new { title = "Tomada", prospect = new { kind = "company", name = "Tomada" } }),
+            ["DELETE /api/v1/opportunities/{id:guid}"] = async owner => new CrossTenantCase(await OpportunityOfAsync(owner)),
+            ["POST /api/v1/opportunities/{id:guid}/stage"] = async owner => new CrossTenantCase(await OpportunityOfAsync(owner), new { stage = "meeting" }),
+            ["POST /api/v1/opportunities/{id:guid}/lose"] = async owner =>
+                new CrossTenantCase(await OpportunityOfAsync(owner), new { reasonId = Guid.CreateVersion7(), note = "Preço" }),
+            ["POST /api/v1/opportunities/{id:guid}/conflict-check"] = async owner => new CrossTenantCase(await OpportunityOfAsync(owner)),
+            ["POST /api/v1/opportunities/{id:guid}/proposals"] = async owner => new CrossTenantCase(await OpportunityOfAsync(owner), new { title = "Tomada" }),
+            ["GET /api/v1/proposals/{id:guid}"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["GET /api/v1/proposals/{id:guid}/document"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["PUT /api/v1/proposals/{id:guid}"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner), new { title = "Tomada" }),
+            ["DELETE /api/v1/proposals/{id:guid}"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["POST /api/v1/proposals/{id:guid}/submit"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["POST /api/v1/proposals/{id:guid}/approve"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["POST /api/v1/proposals/{id:guid}/return"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner), new { note = "Rever" }),
+            ["POST /api/v1/proposals/{id:guid}/decline"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner), new { note = "Caro" }),
+            ["POST /api/v1/proposals/{id:guid}/send"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["POST /api/v1/proposals/{id:guid}/accept"] = async owner => new CrossTenantCase(await ProposalOfAsync(owner)),
+            ["DELETE /api/v1/proposal-templates/{id:guid}"] = async owner => new CrossTenantCase(await ProposalTemplateOfAsync(owner)),
+        };
+        foreach (var (route, create) in commercial)
+        {
+            cases.Add(route, create);
+        }
+
+        return cases;
+    }
 
     private IReadOnlyList<ApiEndpoint> Endpoints() =>
         [.. _factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
@@ -177,6 +213,29 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
 
     private Task<Guid> ConflictCheckOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/conflict-checks", new { name = $"Consulta {Guid.CreateVersion7():N}", side = "client" });
+
+    private Task<Guid> OpportunityOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/opportunities", new { title = "Oportunidade", prospect = new { kind = "company", name = $"Interessado {Guid.CreateVersion7():N}" } });
+
+    private async Task<Guid> ProposalOfAsync(SeededMember owner) =>
+        await PostAsOwnerAsync(owner, $"/api/v1/opportunities/{await OpportunityOfAsync(owner)}/proposals", new
+        {
+            title = "Proposta",
+            items = new[] { new { description = "Mensal", kind = "monthly", quantity = 1, unitAmount = 100m } },
+        });
+
+    /// <summary>Modelo gravado direto no banco: o upload passa pelo antivírus, que não roda nos SecurityTests.</summary>
+    private async Task<Guid> ProposalTemplateOfAsync(SeededMember owner)
+    {
+        var template = ProposalTemplate.Create(Guid.CreateVersion7(), $"Modelo {Guid.CreateVersion7():N}", "modelo.docx", 1, new string('0', 64));
+        using var ambient = AmbientContext.Begin(owner.OrganizationId, "security-tests");
+        await using var provider = dependencies.PlatformServices();
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<CrmDbContext>();
+        db.ProposalTemplates.Add(template);
+        await db.SaveChangesAsync(Ct);
+        return template.Id;
+    }
 
     private Task<Guid> LookupTableOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/lookup-tables", new { name = $"Tabela {Guid.CreateVersion7():N}" });
