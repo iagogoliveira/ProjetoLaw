@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18 e 4B #19 mergeados; 4C pronto para revisão; falta 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19 e 4C #20 mergeados; falta 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm` |
 
 ---
 
@@ -42,7 +42,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
 
-### PR 4C — funil de oportunidades e propostas (pronto para revisão)
+### PR 4C — funil de oportunidades e propostas (concluído: PR #20 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-18):**
 - O lead é um conjunto de dados soltos ou uma pessoa já cadastrada; a pessoa só nasce no aceite da proposta.
@@ -61,7 +61,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 4.21 | Fusão e anonimização levam junto as oportunidades ligadas | `Merging_and_anonymizing_a_person_carry_over_to_the_linked_opportunities` |
 | 4.22 | RLS nas 4 tabelas novas, casos entre organizações nas 18 rotas novas com id, OpenAPI (19 caminhos novos, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0024 — Funil de oportunidades, propostas de honorários e modelos DOCX](adr/0024-funil-propostas-e-modelos-docx.md) (proposta, para revisão no PR). O pacote novo `DocumentFormat.OpenXml` 3.5.1 é MIT, e as dependências dele também.
+**ADR:** [0024 — Funil de oportunidades, propostas de honorários e modelos DOCX](adr/0024-funil-propostas-e-modelos-docx.md) (Aceita em 2026-10-18, com o merge do PR #20). O pacote novo `DocumentFormat.OpenXml` 3.5.1 é MIT, e as dependências dele também.
 
 **Última verificação local (PR 4C):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos (os 14 do AppHost não rodaram de novo), 44 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os 4 fluxos que exigem o AppHost foram pulados; sem mudança de tela), sem pacotes vulneráveis. Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem mudança de modelo pendente nas migrations.
 

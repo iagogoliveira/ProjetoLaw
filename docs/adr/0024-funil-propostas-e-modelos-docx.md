@@ -1,6 +1,6 @@
 # ADR 0024 — Funil de oportunidades, propostas de honorários e modelos DOCX
 
-- **Status:** Proposta (para revisão no PR 4C)
+- **Status:** Aceita (PR #20 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 4 (PR 4C)
 
