@@ -55,20 +55,19 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 - **Etapas 0 a 4: concluídas.**
 - **Etapa 5 (processos e casos):**
   - 5A (#24) e 5B (#25) mergeados;
-  - **5C1 (#26): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c-valores-risco`. Traz índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
-  - **o próximo é o PR 5C2**, no branch `etapa-5c2-risco-acordos`, que deve ser criado depois do merge do #26.
-- **Escopo do 5C2** (plano aprovado em 2026-10-18; mostre o plano detalhado antes de implementar):
-  - **risco:** `RiskAssessment` por processo e por pedido (provável, possível ou remoto, CPC 25), com histórico. A provisão contábil e a trava mensal ficam para depois;
-  - **acordos:** `Settlement` (proposta, contraproposta, aprovação, homologação) com `SettlementInstallment` e o indicador de economia (pedido × acordado). A homologação publica `SettlementHomologated`, para o financeiro da Etapa 10;
-  - **aprovação dos acordos** (decisão de 2026-10-18): basta `cases.settlements.approve`, inclusive para o acordo que a própria pessoa cadastrou;
-  - **audiências:** `Hearing` (presencial, virtual ou híbrida; local ou link; preposto, advogado e testemunhas; situação e resultado ou ata). O checklist, os correspondentes e a agenda ficam para a Etapa 7.
+  - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
+  - **5C2 (#27): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c2-risco-acordos`. Traz risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
+  - **o próximo é o PR 5D:** linha do tempo (`ITimelineContributor`), importação XLSX/CSV com ClosedXML (critério 2: 10 mil linhas com 3% inválidas e relatório exato; checar a licença e registrar ADR) e operações em lote (redistribuir responsável, alterar fase e situação). Planeje e mostre o plano antes.
+- **Decisões do 5C2 (2026-10-18), já implementadas:**
+  - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
+  - avaliar risco pede `cases.risk.assess`;
+  - a redesignação mantém a audiência e guarda o histórico;
+  - as parcelas recebem baixa manual até a Etapa 10.
 - **Decisões de cálculo já valendo** (ADR 0027):
   - a SELIC não leva juros extras e se acumula por soma;
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
-- **Depois do 5C2:**
-  - 5D: linha do tempo (`ITimelineContributor`), importação XLSX/CSV com ClosedXML (critério 2) e operações em lote;
-  - 5E: frontend e e2e dos processos.
+- **Depois do 5D:** 5E, com o frontend e os e2e dos processos (lista, detalhe com abas, pedidos, risco, acordos, audiências, importação).
 
 ## Ciclo de trabalho (um PR por vez)
 
@@ -136,3 +135,5 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
 - **API do BCB:** `api.bcb.gov.br` recusa as requisições da máquina de desenvolvimento. Para dados de SELIC e TR, use o Ipeadata. A Calculadora do Cidadão (`www3.bcb.gov.br/CALCIDADAO`) funciona e serve para conferir cálculos.
 - **Rotas aninhadas:** num `MapGroup`, `MapGet("/")` ou `MapGet("")` gera rota com barra no fim (`/claims/`). Use o caminho completo no grupo (`/{id:guid}/claims`).
 - **Erros de validação:** o FluentValidation responde `validation.failed`, com o código de cada campo em `errors`. Só os erros dos handlers vêm no `code` principal.
+- **`DateTimeOffset` no PostgreSQL:** o Npgsql só grava em UTC (`timestamptz`). Normalize com `ToUniversalTime()` no domínio quando a data vem do usuário com fuso.
+- **Eventos nos testes:** o `PublishedEvents` da fábrica guarda o evento antes de o publicador preencher `OrganizationId` e `EventId`; não confira esses campos ali.

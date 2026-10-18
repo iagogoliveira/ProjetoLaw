@@ -96,4 +96,45 @@ public static class LitigationErrors
     public static readonly Error ClaimCorrectionInvalid = Error.Validation(
         "litigation.claim_correction_invalid",
         "Juros pedem a data de início e uma taxa de 0 a 100% ao mês, e não se aplicam com a SELIC (ela já os inclui).");
+
+    public static readonly Error SettlementNotFound = Error.NotFound("litigation.settlement_not_found", "Acordo não encontrado.");
+
+    public static readonly Error SettlementNotNegotiating =
+        Error.BusinessRule("litigation.settlement_not_negotiating", "O acordo não está em negociação.");
+
+    public static readonly Error SettlementNotAwaitingApproval =
+        Error.BusinessRule("litigation.settlement_not_awaiting_approval", "O acordo não está aguardando aprovação.");
+
+    public static readonly Error SettlementNotApproved =
+        Error.BusinessRule("litigation.settlement_not_approved", "Só o acordo aprovado internamente pode ser homologado.");
+
+    public static readonly Error SettlementNotHomologated =
+        Error.BusinessRule("litigation.settlement_not_homologated", "As parcelas só recebem baixa depois da homologação.");
+
+    public static readonly Error SettlementClosed =
+        Error.BusinessRule("litigation.settlement_closed", "O acordo já foi homologado, cumprido, recusado ou cancelado.");
+
+    public static readonly Error SettlementInstallmentsMismatch = Error.Validation(
+        "litigation.settlement_installments_mismatch",
+        "Informe de 1 a 360 parcelas, cuja soma seja igual ao valor do acordo.");
+
+    public static readonly Error InstallmentNotFound = Error.NotFound("litigation.installment_not_found", "Parcela não encontrada.");
+
+    public static readonly Error InstallmentAlreadyPaid =
+        Error.BusinessRule("litigation.installment_already_paid", "A parcela já recebeu baixa.");
+
+    public static readonly Error HearingNotFound = Error.NotFound("litigation.hearing_not_found", "Audiência não encontrada.");
+
+    public static readonly Error HearingClosed =
+        Error.BusinessRule("litigation.hearing_closed", "A audiência já foi realizada ou cancelada.");
+
+    public static readonly Error HearingSameDate =
+        Error.Validation("litigation.hearing_same_date", "A nova data é igual à atual.");
+
+    public static readonly Error HearingPlaceRequired = Error.Validation(
+        "litigation.hearing_place_required",
+        "Audiência presencial precisa do local; virtual, do link; híbrida, dos dois.");
+
+    public static readonly Error HearingLinkInvalid =
+        Error.Validation("litigation.hearing_link_invalid", "O link da audiência precisa ser um endereço http ou https.");
 }

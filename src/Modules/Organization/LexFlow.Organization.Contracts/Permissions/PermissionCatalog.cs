@@ -89,6 +89,7 @@ public static partial class PermissionCatalog
         new("cases.delete", Groups.Cases, "Excluir processos e casos"),
         new("cases.export", Groups.Cases, "Exportar processos e casos"),
         new("cases.restrictions.manage", Groups.Cases, "Restringir o acesso a casos sigilosos"),
+        new("cases.risk.assess", Groups.Cases, "Avaliar o risco dos processos"),
         new("cases.settlements.approve", Groups.Cases, "Aprovar acordos"),
 
         new("publications.read", Groups.Publications, "Ver publicações e intimações"),

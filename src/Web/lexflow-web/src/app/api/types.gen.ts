@@ -163,6 +163,18 @@ export type CaseRestrictionsResponse = {
     blocked: Array<RestrictionEntry>;
 };
 
+/**
+ * Risco atual do processo: a avaliação mais recente do processo inteiro e a de cada pedido. Os totais somam as
+ * avaliações dos pedidos; sem nenhuma, valem a do processo. Provável entra em provisão e possível em passivo
+ * contingente (CPC 25).
+ */
+export type CaseRiskResponse = {
+    case: null | RiskAssessmentResponse;
+    claims: Array<RiskAssessmentResponse>;
+    provision: number | string;
+    contingentLiability: number | string;
+};
+
 export type CasesPageResponse = {
     items: Array<CaseSummary>;
     nextCursor: null | string;
@@ -578,6 +590,70 @@ export type ForgotPasswordRequest = {
     email: string;
 };
 
+export type HearingFormat = 'inPerson' | 'virtual' | 'hybrid';
+
+/**
+ * Dados da audiência: tipo, formato, data e hora, local (presencial e híbrida) e link (virtual e híbrida), advogado
+ * designado (membro do escritório), preposto e testemunhas (pessoas do cadastro).
+ */
+export type HearingInput = {
+    type: HearingType;
+    format: HearingFormat;
+    scheduledAt: string;
+    location: null | string;
+    meetingLink: null | string;
+    lawyerUserId: null | string;
+    representative: null | string;
+    witnessPersonIds: null | Array<string>;
+    notes: null | string;
+};
+
+export type HearingOutcomeRequest = {
+    text: null | string;
+};
+
+export type HearingRescheduleResponse = {
+    previousDate: string;
+    newDate: string;
+    reason: null | string;
+    changedBy: string;
+    changedAt: string;
+};
+
+export type HearingResponse = {
+    id: string;
+    caseId: string;
+    type: HearingType;
+    format: HearingFormat;
+    status: HearingStatus;
+    scheduledAt: string;
+    location: null | string;
+    meetingLink: null | string;
+    lawyerUserId: null | string;
+    representative: null | string;
+    witnessPersonIds: Array<string>;
+    notes: null | string;
+    outcome: null | string;
+    reschedules: Array<HearingRescheduleResponse>;
+    createdAt: string;
+};
+
+/**
+ * Uma audiência redesignada continua agendada; as datas anteriores ficam no histórico.
+ */
+export type HearingStatus = 'scheduled' | 'held' | 'cancelled';
+
+export type HearingType = 'conciliation' | 'instruction' | 'combined' | 'judgment' | 'other';
+
+export type HomologateSettlementRequest = {
+    homologatedOn: string;
+};
+
+export type InstallmentInput = {
+    dueOn: string;
+    amount: number | string;
+};
+
 export type InvitationAcceptedResponse = {
     organizationId: string;
     organizationName: string;
@@ -779,6 +855,18 @@ export type NumberingResponse = {
     example: string;
 };
 
+export type OfferInput = {
+    party: OfferParty;
+    amount: number | string;
+    terms: null | string;
+    offeredOn: string;
+};
+
+/**
+ * Quem fez a proposta da rodada.
+ */
+export type OfferParty = 'office' | 'counterparty';
+
 export type OpportunitiesPageResponse = {
     items: Array<OpportunitySummary>;
     nextCursor: null | string;
@@ -905,6 +993,11 @@ export type PartyResponse = {
     isClient: boolean;
     counselName: null | string;
     counselOab: null | string;
+};
+
+export type PayInstallmentRequest = {
+    paidOn: string;
+    paidAmount: number | string;
 };
 
 /**
@@ -1129,6 +1222,10 @@ export type ProspectResponse = {
     phone: null | string;
 };
 
+export type ReasonRequest = {
+    reason: null | string;
+};
+
 export type RecoveryCodesResponse = {
     recoveryCodes: Array<string>;
 };
@@ -1159,6 +1256,11 @@ export type RenameOrganizationRequest = {
     name: string;
 };
 
+export type RescheduleHearingRequest = {
+    newDate: string;
+    reason: null | string;
+};
+
 export type ResetPasswordRequest = {
     userId: string;
     token: string;
@@ -1177,6 +1279,37 @@ export type RestrictionsRequest = {
     allowed: null | Array<RestrictionEntry>;
     blocked: null | Array<RestrictionEntry>;
 };
+
+/**
+ * Como a avaliação entra na contabilidade: provável é provisão; possível, passivo contingente (só divulgado); remoto, nada.
+ */
+export type RiskAccounting = 'provision' | 'contingentLiability' | 'none';
+
+export type RiskAssessmentResponse = {
+    id: string;
+    claimId: null | string;
+    probability: RiskProbability;
+    accounting: RiskAccounting;
+    estimatedLoss: null | number | string;
+    rationale: null | string;
+    assessedBy: string;
+    assessedAt: string;
+};
+
+/**
+ * Avaliação do processo inteiro (sem Guid? RiskInput.ClaimId) ou de um pedido dele.
+ */
+export type RiskInput = {
+    claimId: null | string;
+    probability: RiskProbability;
+    estimatedLoss: null | number | string;
+    rationale: null | string;
+};
+
+/**
+ * Probabilidade de perda (CPC 25 / IAS 37).
+ */
+export type RiskProbability = 'probable' | 'possible' | 'remote';
 
 export type RoleAssignmentInput = {
     roleId: string;
@@ -1210,6 +1343,60 @@ export type SessionResponse = {
 };
 
 /**
+ * Quem recebe o valor do acordo: o cliente do escritório (contas a receber) ou a outra parte (contas a pagar).
+ */
+export type SettlementDirection = 'clientReceives' | 'clientPays';
+
+export type SettlementInstallmentResponse = {
+    id: string;
+    number: number | string;
+    dueOn: string;
+    amount: number | string;
+    paidOn: null | string;
+    paidAmount: null | number | string;
+    isOverdue: boolean;
+};
+
+export type SettlementOfferResponse = {
+    round: number | string;
+    party: OfferParty;
+    amount: number | string;
+    terms: null | string;
+    offeredOn: string;
+};
+
+/**
+ * Acordo com as rodadas, as parcelas e o indicador (RF-16): o valor pedido (soma dos pedidos do processo ou, sem
+ * eles, o valor da causa) comparado com o valor acordado (ou, antes dele, a última proposta). Quando o cliente paga,
+ * a diferença é a economia; quando recebe, é o deságio.
+ */
+export type SettlementResponse = {
+    id: string;
+    caseId: string;
+    direction: SettlementDirection;
+    status: SettlementStatus;
+    notes: null | string;
+    agreedAmount: null | number | string;
+    offers: Array<SettlementOfferResponse>;
+    installments: Array<SettlementInstallmentResponse>;
+    requestedAmount: null | number | string;
+    difference: null | number | string;
+    differencePercent: null | number | string;
+    submittedBy: null | string;
+    submittedAt: null | string;
+    approvedBy: null | string;
+    approvedAt: null | string;
+    homologatedOn: null | string;
+    reason: null | string;
+    createdAt: string;
+};
+
+/**
+ * Andamento do acordo (RF-16).
+ */
+export type SettlementStatus = 'negotiating' | 'awaitingApproval' | 'approved' | 'homologated' | 'fulfilled' | 'rejected' | 'cancelled';
+
+/**
  * Possível duplicidade (RF-06): mesmo documento ou nome parecido, para avisar antes de cadastrar.
  */
 export type SimilarPerson = {
@@ -1221,7 +1408,18 @@ export type SimilarPerson = {
     score: number | string;
 };
 
+export type StartSettlementRequest = {
+    direction: SettlementDirection;
+    notes: null | string;
+    firstOffer: null | OfferInput;
+};
+
 export type Stream = Blob | File;
+
+export type SubmitSettlementRequest = {
+    agreedAmount: number | string;
+    installments: null | Array<InstallmentInput>;
+};
 
 export type TeamMembersRequest = {
     memberIds: Array<string>;
@@ -5515,3 +5713,725 @@ export type GetCaseClaimHistoryResponses = {
 };
 
 export type GetCaseClaimHistoryResponse = GetCaseClaimHistoryResponses[keyof GetCaseClaimHistoryResponses];
+
+export type GetCaseRiskData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/risk';
+};
+
+export type GetCaseRiskErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseRiskError = GetCaseRiskErrors[keyof GetCaseRiskErrors];
+
+export type GetCaseRiskResponses = {
+    /**
+     * OK
+     */
+    200: CaseRiskResponse;
+};
+
+export type GetCaseRiskResponse = GetCaseRiskResponses[keyof GetCaseRiskResponses];
+
+export type GetCaseRiskHistoryData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/risk/history';
+};
+
+export type GetCaseRiskHistoryErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseRiskHistoryError = GetCaseRiskHistoryErrors[keyof GetCaseRiskHistoryErrors];
+
+export type GetCaseRiskHistoryResponses = {
+    /**
+     * OK
+     */
+    200: Array<RiskAssessmentResponse>;
+};
+
+export type GetCaseRiskHistoryResponse = GetCaseRiskHistoryResponses[keyof GetCaseRiskHistoryResponses];
+
+export type AssessCaseRiskData = {
+    body: RiskInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/risk-assessments';
+};
+
+export type AssessCaseRiskErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AssessCaseRiskError = AssessCaseRiskErrors[keyof AssessCaseRiskErrors];
+
+export type AssessCaseRiskResponses = {
+    /**
+     * Created
+     */
+    201: RiskAssessmentResponse;
+};
+
+export type AssessCaseRiskResponse = AssessCaseRiskResponses[keyof AssessCaseRiskResponses];
+
+export type ListCaseSettlementsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements';
+};
+
+export type ListCaseSettlementsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type ListCaseSettlementsError = ListCaseSettlementsErrors[keyof ListCaseSettlementsErrors];
+
+export type ListCaseSettlementsResponses = {
+    /**
+     * OK
+     */
+    200: Array<SettlementResponse>;
+};
+
+export type ListCaseSettlementsResponse = ListCaseSettlementsResponses[keyof ListCaseSettlementsResponses];
+
+export type StartCaseSettlementData = {
+    body: StartSettlementRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements';
+};
+
+export type StartCaseSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type StartCaseSettlementError = StartCaseSettlementErrors[keyof StartCaseSettlementErrors];
+
+export type StartCaseSettlementResponses = {
+    /**
+     * Created
+     */
+    201: SettlementResponse;
+};
+
+export type StartCaseSettlementResponse = StartCaseSettlementResponses[keyof StartCaseSettlementResponses];
+
+export type AddSettlementOfferData = {
+    body: OfferInput;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/offers';
+};
+
+export type AddSettlementOfferErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type AddSettlementOfferError = AddSettlementOfferErrors[keyof AddSettlementOfferErrors];
+
+export type AddSettlementOfferResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type AddSettlementOfferResponse = AddSettlementOfferResponses[keyof AddSettlementOfferResponses];
+
+export type SubmitSettlementData = {
+    body: SubmitSettlementRequest;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/submit';
+};
+
+export type SubmitSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type SubmitSettlementError = SubmitSettlementErrors[keyof SubmitSettlementErrors];
+
+export type SubmitSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type SubmitSettlementResponse = SubmitSettlementResponses[keyof SubmitSettlementResponses];
+
+export type ApproveSettlementData = {
+    body?: never;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/approve';
+};
+
+export type ApproveSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ApproveSettlementError = ApproveSettlementErrors[keyof ApproveSettlementErrors];
+
+export type ApproveSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type ApproveSettlementResponse = ApproveSettlementResponses[keyof ApproveSettlementResponses];
+
+export type ReturnSettlementData = {
+    body: ReasonRequest;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/return';
+};
+
+export type ReturnSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ReturnSettlementError = ReturnSettlementErrors[keyof ReturnSettlementErrors];
+
+export type ReturnSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type ReturnSettlementResponse = ReturnSettlementResponses[keyof ReturnSettlementResponses];
+
+export type HomologateSettlementData = {
+    body: HomologateSettlementRequest;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/homologate';
+};
+
+export type HomologateSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type HomologateSettlementError = HomologateSettlementErrors[keyof HomologateSettlementErrors];
+
+export type HomologateSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type HomologateSettlementResponse = HomologateSettlementResponses[keyof HomologateSettlementResponses];
+
+export type RejectSettlementData = {
+    body: ReasonRequest;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/reject';
+};
+
+export type RejectSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type RejectSettlementError = RejectSettlementErrors[keyof RejectSettlementErrors];
+
+export type RejectSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type RejectSettlementResponse = RejectSettlementResponses[keyof RejectSettlementResponses];
+
+export type CancelSettlementData = {
+    body: ReasonRequest;
+    path: {
+        id: string;
+        settlementId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/cancel';
+};
+
+export type CancelSettlementErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CancelSettlementError = CancelSettlementErrors[keyof CancelSettlementErrors];
+
+export type CancelSettlementResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type CancelSettlementResponse = CancelSettlementResponses[keyof CancelSettlementResponses];
+
+export type PaySettlementInstallmentData = {
+    body: PayInstallmentRequest;
+    path: {
+        id: string;
+        settlementId: string;
+        installmentId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/settlements/{settlementId}/installments/{installmentId}/pay';
+};
+
+export type PaySettlementInstallmentErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type PaySettlementInstallmentError = PaySettlementInstallmentErrors[keyof PaySettlementInstallmentErrors];
+
+export type PaySettlementInstallmentResponses = {
+    /**
+     * OK
+     */
+    200: SettlementResponse;
+};
+
+export type PaySettlementInstallmentResponse = PaySettlementInstallmentResponses[keyof PaySettlementInstallmentResponses];
+
+export type ListCaseHearingsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings';
+};
+
+export type ListCaseHearingsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type ListCaseHearingsError = ListCaseHearingsErrors[keyof ListCaseHearingsErrors];
+
+export type ListCaseHearingsResponses = {
+    /**
+     * OK
+     */
+    200: Array<HearingResponse>;
+};
+
+export type ListCaseHearingsResponse = ListCaseHearingsResponses[keyof ListCaseHearingsResponses];
+
+export type ScheduleCaseHearingData = {
+    body: HearingInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings';
+};
+
+export type ScheduleCaseHearingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ScheduleCaseHearingError = ScheduleCaseHearingErrors[keyof ScheduleCaseHearingErrors];
+
+export type ScheduleCaseHearingResponses = {
+    /**
+     * Created
+     */
+    201: HearingResponse;
+};
+
+export type ScheduleCaseHearingResponse = ScheduleCaseHearingResponses[keyof ScheduleCaseHearingResponses];
+
+export type UpdateCaseHearingData = {
+    body: HearingInput;
+    path: {
+        id: string;
+        hearingId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings/{hearingId}';
+};
+
+export type UpdateCaseHearingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type UpdateCaseHearingError = UpdateCaseHearingErrors[keyof UpdateCaseHearingErrors];
+
+export type UpdateCaseHearingResponses = {
+    /**
+     * OK
+     */
+    200: HearingResponse;
+};
+
+export type UpdateCaseHearingResponse = UpdateCaseHearingResponses[keyof UpdateCaseHearingResponses];
+
+export type RescheduleCaseHearingData = {
+    body: RescheduleHearingRequest;
+    path: {
+        id: string;
+        hearingId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings/{hearingId}/reschedule';
+};
+
+export type RescheduleCaseHearingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type RescheduleCaseHearingError = RescheduleCaseHearingErrors[keyof RescheduleCaseHearingErrors];
+
+export type RescheduleCaseHearingResponses = {
+    /**
+     * OK
+     */
+    200: HearingResponse;
+};
+
+export type RescheduleCaseHearingResponse = RescheduleCaseHearingResponses[keyof RescheduleCaseHearingResponses];
+
+export type HoldCaseHearingData = {
+    body: HearingOutcomeRequest;
+    path: {
+        id: string;
+        hearingId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings/{hearingId}/hold';
+};
+
+export type HoldCaseHearingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type HoldCaseHearingError = HoldCaseHearingErrors[keyof HoldCaseHearingErrors];
+
+export type HoldCaseHearingResponses = {
+    /**
+     * OK
+     */
+    200: HearingResponse;
+};
+
+export type HoldCaseHearingResponse = HoldCaseHearingResponses[keyof HoldCaseHearingResponses];
+
+export type CancelCaseHearingData = {
+    body: HearingOutcomeRequest;
+    path: {
+        id: string;
+        hearingId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/hearings/{hearingId}/cancel';
+};
+
+export type CancelCaseHearingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type CancelCaseHearingError = CancelCaseHearingErrors[keyof CancelCaseHearingErrors];
+
+export type CancelCaseHearingResponses = {
+    /**
+     * OK
+     */
+    200: HearingResponse;
+};
+
+export type CancelCaseHearingResponse = CancelCaseHearingResponses[keyof CancelCaseHearingResponses];

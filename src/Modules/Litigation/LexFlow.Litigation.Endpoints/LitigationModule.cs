@@ -26,6 +26,8 @@ public static class LitigationPermissions
     public const string CasesEdit = "cases.edit";
     public const string CasesDelete = "cases.delete";
     public const string CasesRestrictionsManage = "cases.restrictions.manage";
+    public const string CasesRiskAssess = "cases.risk.assess";
+    public const string CasesSettlementsApprove = "cases.settlements.approve";
     public const string SettingsOrganizationManage = "settings.organization.manage";
 }
 
@@ -85,7 +87,7 @@ public sealed record CaseListQuery(
 /// <summary>
 /// Endpoints do módulo Litigation (Etapa 5, PR 5A): processos e casos (judiciais, administrativos e extrajudiciais),
 /// partes, responsáveis, hierarquia, encerramento, consulta do número CNJ, a numeração interna do escritório e os
-/// pedidos com valores por instância (PR 5C1).
+/// pedidos com valores por instância (PR 5C1), além de risco, acordos e audiências (PR 5C2).
 /// </summary>
 public sealed class LitigationModule : IModule
 {
@@ -102,6 +104,7 @@ public sealed class LitigationModule : IModule
         MapLifecycle(endpoints);
         MapRestrictions(endpoints);
         ClaimEndpoints.Map(endpoints);
+        FollowUpEndpoints.Map(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)

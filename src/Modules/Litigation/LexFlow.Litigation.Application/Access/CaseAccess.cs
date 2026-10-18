@@ -18,6 +18,8 @@ public static class CasePermissions
     public const string Edit = "cases.edit";
     public const string Delete = "cases.delete";
     public const string ManageRestrictions = "cases.restrictions.manage";
+    public const string AssessRisk = "cases.risk.assess";
+    public const string ApproveSettlements = "cases.settlements.approve";
 }
 
 /// <summary>

@@ -2,6 +2,7 @@ using FluentValidation;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Litigation.Application.Abstractions;
+using LexFlow.Litigation.Application.Cases;
 using LexFlow.Litigation.Domain;
 using LexFlow.Litigation.Domain.Cases;
 using LexFlow.Litigation.Domain.Claims;
@@ -200,27 +201,18 @@ internal sealed class GetClaimHistoryHandler(ILitigationDbContext db) : IQueryHa
     }
 }
 
-/// <summary>Conferências comuns às alterações: o processo existe e está aberto, e o objeto do pedido está ativo.</summary>
-internal sealed class ClaimWrites(ILitigationDbContext db, ILookupItemValidator lookups, ICurrentUser user, IClock clock)
+/// <summary>Conferência própria dos pedidos: além do processo aberto, o objeto do pedido precisa estar ativo.</summary>
+internal sealed class ClaimWrites(CaseWrites cases, ILookupItemValidator lookups)
 {
-    public Guid UserId => user.UserId ?? throw new InvalidOperationException("Pedido alterado sem usuário autenticado.");
+    public Guid UserId => cases.UserId;
 
-    public DateTimeOffset Now => clock.UtcNow;
+    public DateTimeOffset Now => cases.Now;
 
-    public async Task<Result> CheckCaseAsync(Guid caseId, CancellationToken cancellationToken)
-    {
-        var status = await db.Cases.Where(c => c.Id == caseId).Select(c => (CaseStatus?)c.Status).SingleOrDefaultAsync(cancellationToken);
-        return status switch
-        {
-            null => LitigationErrors.CaseNotFound,
-            CaseStatus.Closed => LitigationErrors.CaseClosed,
-            _ => Result.Success,
-        };
-    }
+    public Task<Result> CheckCaseAsync(Guid caseId, CancellationToken cancellationToken) => cases.CheckOpenAsync(caseId, cancellationToken);
 
     public async Task<Result> CheckAsync(Guid caseId, ClaimInput input, CancellationToken cancellationToken)
     {
-        var open = await CheckCaseAsync(caseId, cancellationToken);
+        var open = await cases.CheckOpenAsync(caseId, cancellationToken);
         if (open.IsFailure)
         {
             return open;
