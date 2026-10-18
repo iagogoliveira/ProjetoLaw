@@ -6,6 +6,7 @@ using LexFlow.Crm.Domain.People;
 using LexFlow.SharedKernel.Results;
 using LexFlow.Web.Common.Modules;
 using LexFlow.Web.Common.Pagination;
+using LexFlow.Web.Common.Queries;
 using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Builder;

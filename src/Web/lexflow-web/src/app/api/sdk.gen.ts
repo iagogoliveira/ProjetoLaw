@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AcceptProposalData, AcceptProposalErrors, AcceptProposalResponses, AnonymizePersonData, AnonymizePersonErrors, AnonymizePersonResponses, ApproveProposalData, ApproveProposalErrors, ApproveProposalResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, CheckConflictData, CheckConflictErrors, CheckConflictResponses, CheckOpportunityConflictData, CheckOpportunityConflictErrors, CheckOpportunityConflictResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateEconomicGroupData, CreateEconomicGroupErrors, CreateEconomicGroupResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOpportunityData, CreateOpportunityErrors, CreateOpportunityResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePersonData, CreatePersonErrors, CreatePersonResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateProposalData, CreateProposalErrors, CreateProposalResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeclineProposalData, DeclineProposalErrors, DeclineProposalResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeleteEconomicGroupData, DeleteEconomicGroupErrors, DeleteEconomicGroupResponses, DeleteOpportunityData, DeleteOpportunityErrors, DeleteOpportunityResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePersonData, DeletePersonErrors, DeletePersonResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteProposalData, DeleteProposalErrors, DeleteProposalResponses, DeleteProposalTemplateData, DeleteProposalTemplateErrors, DeleteProposalTemplateResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, FindSimilarPeopleData, FindSimilarPeopleErrors, FindSimilarPeopleResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetConflictCheckData, GetConflictCheckErrors, GetConflictCheckResponses, GetDefaultProposalTemplateData, GetDefaultProposalTemplateErrors, GetDefaultProposalTemplateResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOpportunityData, GetOpportunityErrors, GetOpportunityResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, GetPersonData, GetPersonErrors, GetPersonResponses, GetProposalData, GetProposalDocumentData, GetProposalDocumentErrors, GetProposalDocumentResponses, GetProposalErrors, GetProposalResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListConflictChecksData, ListConflictChecksErrors, ListConflictChecksResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListEconomicGroupsData, ListEconomicGroupsErrors, ListEconomicGroupsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListOpportunitiesData, ListOpportunitiesErrors, ListOpportunitiesResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPeopleData, ListPeopleErrors, ListPeopleResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListProposalsData, ListProposalsErrors, ListProposalsResponses, ListProposalTemplatesData, ListProposalTemplatesErrors, ListProposalTemplatesResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, LookupCnpjData, LookupCnpjErrors, LookupCnpjResponses, LoseOpportunityData, LoseOpportunityErrors, LoseOpportunityResponses, MergePeopleData, MergePeopleErrors, MergePeopleResponses, MoveOpportunityData, MoveOpportunityErrors, MoveOpportunityResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, ProceedConflictData, ProceedConflictErrors, ProceedConflictResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameEconomicGroupData, RenameEconomicGroupErrors, RenameEconomicGroupResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, ReturnProposalData, ReturnProposalErrors, ReturnProposalResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SendProposalData, SendProposalErrors, SendProposalResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, SubmitProposalData, SubmitProposalErrors, SubmitProposalResponses, SummarizeOpportunitiesData, SummarizeOpportunitiesErrors, SummarizeOpportunitiesResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdateOpportunityData, UpdateOpportunityErrors, UpdateOpportunityResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePersonData, UpdatePersonErrors, UpdatePersonResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateProposalData, UpdateProposalErrors, UpdateProposalResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, UploadProposalTemplateData, UploadProposalTemplateErrors, UploadProposalTemplateResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
+import type { AcceptInvitationData, AcceptInvitationErrors, AcceptInvitationResponses, AcceptProposalData, AcceptProposalErrors, AcceptProposalResponses, AnonymizePersonData, AnonymizePersonErrors, AnonymizePersonResponses, ApproveProposalData, ApproveProposalErrors, ApproveProposalResponses, AssignMemberRolesData, AssignMemberRolesErrors, AssignMemberRolesResponses, ChangeCaseStatusData, ChangeCaseStatusErrors, ChangeCaseStatusResponses, CheckConflictData, CheckConflictErrors, CheckConflictResponses, CheckOpportunityConflictData, CheckOpportunityConflictErrors, CheckOpportunityConflictResponses, CloseCaseData, CloseCaseErrors, CloseCaseResponses, ConfigureCaseNumberingData, ConfigureCaseNumberingErrors, ConfigureCaseNumberingResponses, ConfirmEmailData, ConfirmEmailErrors, ConfirmEmailResponses, ConfirmTotpData, ConfirmTotpErrors, ConfirmTotpResponses, CreateBranchData, CreateBranchErrors, CreateBranchResponses, CreateCaseData, CreateCaseErrors, CreateCaseResponses, CreateCostCenterData, CreateCostCenterErrors, CreateCostCenterResponses, CreateCustomFieldData, CreateCustomFieldErrors, CreateCustomFieldResponses, CreateEconomicGroupData, CreateEconomicGroupErrors, CreateEconomicGroupResponses, CreateInvitationData, CreateInvitationErrors, CreateInvitationResponses, CreateLookupItemData, CreateLookupItemErrors, CreateLookupItemResponses, CreateLookupTableData, CreateLookupTableErrors, CreateLookupTableResponses, CreateOpportunityData, CreateOpportunityErrors, CreateOpportunityResponses, CreateOrganizationData, CreateOrganizationErrors, CreateOrganizationResponses, CreatePartnerData, CreatePartnerErrors, CreatePartnerResponses, CreatePersonData, CreatePersonErrors, CreatePersonResponses, CreatePracticeAreaData, CreatePracticeAreaErrors, CreatePracticeAreaResponses, CreateProposalData, CreateProposalErrors, CreateProposalResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateTeamData, CreateTeamErrors, CreateTeamResponses, DeclineProposalData, DeclineProposalErrors, DeclineProposalResponses, DeleteBranchData, DeleteBranchErrors, DeleteBranchResponses, DeleteCaseData, DeleteCaseErrors, DeleteCaseResponses, DeleteCostCenterData, DeleteCostCenterErrors, DeleteCostCenterResponses, DeleteEconomicGroupData, DeleteEconomicGroupErrors, DeleteEconomicGroupResponses, DeleteOpportunityData, DeleteOpportunityErrors, DeleteOpportunityResponses, DeletePartnerData, DeletePartnerErrors, DeletePartnerResponses, DeletePersonData, DeletePersonErrors, DeletePersonResponses, DeletePracticeAreaData, DeletePracticeAreaErrors, DeletePracticeAreaResponses, DeleteProposalData, DeleteProposalErrors, DeleteProposalResponses, DeleteProposalTemplateData, DeleteProposalTemplateErrors, DeleteProposalTemplateResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteTeamData, DeleteTeamErrors, DeleteTeamResponses, EnableEmailMfaData, EnableEmailMfaErrors, EnableEmailMfaResponses, EndMySessionData, EndMySessionErrors, EndMySessionResponses, FindSimilarPeopleData, FindSimilarPeopleErrors, FindSimilarPeopleResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, GetCaseData, GetCaseErrors, GetCaseNumberingData, GetCaseNumberingErrors, GetCaseNumberingResponses, GetCaseResponses, GetConflictCheckData, GetConflictCheckErrors, GetConflictCheckResponses, GetDefaultProposalTemplateData, GetDefaultProposalTemplateErrors, GetDefaultProposalTemplateResponses, GetJobData, GetJobErrors, GetJobResponses, GetMeData, GetMeErrors, GetMeResponses, GetMyAccessData, GetMyAccessErrors, GetMyAccessResponses, GetOpportunityData, GetOpportunityErrors, GetOpportunityResponses, GetOrganizationData, GetOrganizationErrors, GetOrganizationResponses, GetPersonData, GetPersonErrors, GetPersonResponses, GetProposalData, GetProposalDocumentData, GetProposalDocumentErrors, GetProposalDocumentResponses, GetProposalErrors, GetProposalResponses, LinkCaseData, LinkCaseErrors, LinkCaseResponses, ListBranchesData, ListBranchesErrors, ListBranchesResponses, ListCasesData, ListCasesErrors, ListCasesResponses, ListConflictChecksData, ListConflictChecksErrors, ListConflictChecksResponses, ListCostCentersData, ListCostCentersErrors, ListCostCentersResponses, ListCustomFieldsData, ListCustomFieldsErrors, ListCustomFieldsResponses, ListEconomicGroupsData, ListEconomicGroupsErrors, ListEconomicGroupsResponses, ListInvitationsData, ListInvitationsErrors, ListInvitationsResponses, ListLookupTablesData, ListLookupTablesErrors, ListLookupTablesResponses, ListMembersData, ListMembersErrors, ListMembersResponses, ListMySessionsData, ListMySessionsErrors, ListMySessionsResponses, ListOpportunitiesData, ListOpportunitiesErrors, ListOpportunitiesResponses, ListPartnersData, ListPartnersErrors, ListPartnersResponses, ListPeopleData, ListPeopleErrors, ListPeopleResponses, ListPermissionsData, ListPermissionsErrors, ListPermissionsResponses, ListPracticeAreasData, ListPracticeAreasErrors, ListPracticeAreasResponses, ListProposalsData, ListProposalsErrors, ListProposalsResponses, ListProposalTemplatesData, ListProposalTemplatesErrors, ListProposalTemplatesResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListTeamsData, ListTeamsErrors, ListTeamsResponses, LookupCnjData, LookupCnjErrors, LookupCnjResponses, LookupCnpjData, LookupCnpjErrors, LookupCnpjResponses, LoseOpportunityData, LoseOpportunityErrors, LoseOpportunityResponses, MergePeopleData, MergePeopleErrors, MergePeopleResponses, MoveOpportunityData, MoveOpportunityErrors, MoveOpportunityResponses, PreviewInvitationData, PreviewInvitationErrors, PreviewInvitationResponses, ProceedConflictData, ProceedConflictErrors, ProceedConflictResponses, RegisterData, RegisterErrors, RegisterResponses, RemoveMemberData, RemoveMemberErrors, RemoveMemberResponses, RenameEconomicGroupData, RenameEconomicGroupErrors, RenameEconomicGroupResponses, RenameOrganizationData, RenameOrganizationErrors, RenameOrganizationResponses, ReopenCaseData, ReopenCaseErrors, ReopenCaseResponses, ResendInvitationData, ResendInvitationErrors, ResendInvitationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, ReturnProposalData, ReturnProposalErrors, ReturnProposalResponses, RevokeInvitationData, RevokeInvitationErrors, RevokeInvitationResponses, SelectActiveOrganizationData, SelectActiveOrganizationErrors, SelectActiveOrganizationResponses, SendProposalData, SendProposalErrors, SendProposalResponses, SetMfaPolicyData, SetMfaPolicyErrors, SetMfaPolicyResponses, SetTeamMembersData, SetTeamMembersErrors, SetTeamMembersResponses, StartTotpSetupData, StartTotpSetupErrors, StartTotpSetupResponses, SubmitProposalData, SubmitProposalErrors, SubmitProposalResponses, SummarizeOpportunitiesData, SummarizeOpportunitiesErrors, SummarizeOpportunitiesResponses, UnlinkCaseData, UnlinkCaseErrors, UnlinkCaseResponses, UpdateBranchData, UpdateBranchErrors, UpdateBranchResponses, UpdateCaseData, UpdateCaseErrors, UpdateCaseResponses, UpdateCostCenterData, UpdateCostCenterErrors, UpdateCostCenterResponses, UpdateCustomFieldData, UpdateCustomFieldErrors, UpdateCustomFieldResponses, UpdateLookupItemData, UpdateLookupItemErrors, UpdateLookupItemResponses, UpdateLookupTableData, UpdateLookupTableErrors, UpdateLookupTableResponses, UpdateOpportunityData, UpdateOpportunityErrors, UpdateOpportunityResponses, UpdatePartnerData, UpdatePartnerErrors, UpdatePartnerResponses, UpdatePersonData, UpdatePersonErrors, UpdatePersonResponses, UpdatePracticeAreaData, UpdatePracticeAreaErrors, UpdatePracticeAreaResponses, UpdateProposalData, UpdateProposalErrors, UpdateProposalResponses, UpdateRoleData, UpdateRoleErrors, UpdateRolePermissionsData, UpdateRolePermissionsErrors, UpdateRolePermissionsResponses, UpdateRoleResponses, UpdateTeamData, UpdateTeamErrors, UpdateTeamResponses, UploadProposalTemplateData, UploadProposalTemplateErrors, UploadProposalTemplateResponses, ValidateCustomFieldValuesData, ValidateCustomFieldValuesErrors, ValidateCustomFieldValuesResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -909,3 +909,110 @@ export const getDefaultProposalTemplate = <ThrowOnError extends boolean = false>
  * Exclui (logicamente) um modelo; as propostas que o usavam saem no modelo padrão
  */
 export const deleteProposalTemplate = <ThrowOnError extends boolean = false>(options: Options<DeleteProposalTemplateData, ThrowOnError>): RequestResult<DeleteProposalTemplateResponses, DeleteProposalTemplateErrors, ThrowOnError> => (options.client ?? client).delete<DeleteProposalTemplateResponses, DeleteProposalTemplateErrors, ThrowOnError>({ url: '/api/v1/proposal-templates/{id}', ...options });
+
+/**
+ * Processos e casos, dos mais recentes aos mais antigos, com busca pela pasta ou pelo CNJ
+ */
+export const listCases = <ThrowOnError extends boolean = false>(options?: Options<ListCasesData, ThrowOnError>): RequestResult<ListCasesResponses, ListCasesErrors, ThrowOnError> => (options?.client ?? client).get<ListCasesResponses, ListCasesErrors, ThrowOnError>({ url: '/api/v1/cases', ...options });
+
+/**
+ * Cadastra um processo ou caso; a pasta interna sai da numeração do escritório
+ */
+export const createCase = <ThrowOnError extends boolean = false>(options: Options<CreateCaseData, ThrowOnError>): RequestResult<CreateCaseResponses, CreateCaseErrors, ThrowOnError> => (options.client ?? client).post<CreateCaseResponses, CreateCaseErrors, ThrowOnError>({
+    url: '/api/v1/cases',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Confere o número CNJ e diz o ano, o segmento e o tribunal, para pré-preencher o cadastro
+ */
+export const lookupCnj = <ThrowOnError extends boolean = false>(options: Options<LookupCnjData, ThrowOnError>): RequestResult<LookupCnjResponses, LookupCnjErrors, ThrowOnError> => (options.client ?? client).get<LookupCnjResponses, LookupCnjErrors, ThrowOnError>({ url: '/api/v1/cases/cnj-lookup', ...options });
+
+/**
+ * Formato da numeração interna e as siglas das áreas
+ */
+export const getCaseNumbering = <ThrowOnError extends boolean = false>(options?: Options<GetCaseNumberingData, ThrowOnError>): RequestResult<GetCaseNumberingResponses, GetCaseNumberingErrors, ThrowOnError> => (options?.client ?? client).get<GetCaseNumberingResponses, GetCaseNumberingErrors, ThrowOnError>({ url: '/api/v1/cases/numbering', ...options });
+
+/**
+ * Troca o formato da numeração interna e as siglas das áreas
+ */
+export const configureCaseNumbering = <ThrowOnError extends boolean = false>(options: Options<ConfigureCaseNumberingData, ThrowOnError>): RequestResult<ConfigureCaseNumberingResponses, ConfigureCaseNumberingErrors, ThrowOnError> => (options.client ?? client).put<ConfigureCaseNumberingResponses, ConfigureCaseNumberingErrors, ThrowOnError>({
+    url: '/api/v1/cases/numbering',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Exclui (logicamente) um processo ou caso
+ */
+export const deleteCase = <ThrowOnError extends boolean = false>(options: Options<DeleteCaseData, ThrowOnError>): RequestResult<DeleteCaseResponses, DeleteCaseErrors, ThrowOnError> => (options.client ?? client).delete<DeleteCaseResponses, DeleteCaseErrors, ThrowOnError>({ url: '/api/v1/cases/{id}', ...options });
+
+/**
+ * Um processo ou caso com as partes, os responsáveis e a hierarquia
+ */
+export const getCase = <ThrowOnError extends boolean = false>(options: Options<GetCaseData, ThrowOnError>): RequestResult<GetCaseResponses, GetCaseErrors, ThrowOnError> => (options.client ?? client).get<GetCaseResponses, GetCaseErrors, ThrowOnError>({ url: '/api/v1/cases/{id}', ...options });
+
+/**
+ * Substitui os dados do processo ou caso (o tipo e a pasta interna não mudam)
+ */
+export const updateCase = <ThrowOnError extends boolean = false>(options: Options<UpdateCaseData, ThrowOnError>): RequestResult<UpdateCaseResponses, UpdateCaseErrors, ThrowOnError> => (options.client ?? client).put<UpdateCaseResponses, UpdateCaseErrors, ThrowOnError>({
+    url: '/api/v1/cases/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Encerra com motivo, resultado, valor final e data
+ */
+export const closeCase = <ThrowOnError extends boolean = false>(options: Options<CloseCaseData, ThrowOnError>): RequestResult<CloseCaseResponses, CloseCaseErrors, ThrowOnError> => (options.client ?? client).post<CloseCaseResponses, CloseCaseErrors, ThrowOnError>({
+    url: '/api/v1/cases/{id}/close',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Reabre o caso encerrado
+ */
+export const reopenCase = <ThrowOnError extends boolean = false>(options: Options<ReopenCaseData, ThrowOnError>): RequestResult<ReopenCaseResponses, ReopenCaseErrors, ThrowOnError> => (options.client ?? client).post<ReopenCaseResponses, ReopenCaseErrors, ThrowOnError>({ url: '/api/v1/cases/{id}/reopen', ...options });
+
+/**
+ * Suspende ou reativa o caso (o encerramento é pela ação própria)
+ */
+export const changeCaseStatus = <ThrowOnError extends boolean = false>(options: Options<ChangeCaseStatusData, ThrowOnError>): RequestResult<ChangeCaseStatusResponses, ChangeCaseStatusErrors, ThrowOnError> => (options.client ?? client).post<ChangeCaseStatusResponses, ChangeCaseStatusErrors, ThrowOnError>({
+    url: '/api/v1/cases/{id}/status',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Liga um incidente, recurso, cumprimento ou apenso a este processo principal
+ */
+export const linkCase = <ThrowOnError extends boolean = false>(options: Options<LinkCaseData, ThrowOnError>): RequestResult<LinkCaseResponses, LinkCaseErrors, ThrowOnError> => (options.client ?? client).post<LinkCaseResponses, LinkCaseErrors, ThrowOnError>({
+    url: '/api/v1/cases/{id}/relations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Desfaz uma relação da hierarquia
+ */
+export const unlinkCase = <ThrowOnError extends boolean = false>(options: Options<UnlinkCaseData, ThrowOnError>): RequestResult<UnlinkCaseResponses, UnlinkCaseErrors, ThrowOnError> => (options.client ?? client).delete<UnlinkCaseResponses, UnlinkCaseErrors, ThrowOnError>({ url: '/api/v1/cases/{id}/relations/{relationId}', ...options });

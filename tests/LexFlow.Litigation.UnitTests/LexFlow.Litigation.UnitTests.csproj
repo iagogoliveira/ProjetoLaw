@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Litigation\LexFlow.Litigation.Application\LexFlow.Litigation.Application.csproj" />
+  </ItemGroup>
+
+</Project>

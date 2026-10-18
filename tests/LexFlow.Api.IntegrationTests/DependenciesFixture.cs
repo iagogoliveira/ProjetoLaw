@@ -10,6 +10,8 @@ using LexFlow.Identity.Infrastructure.Emails;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Infrastructure.Common.Persistence;
+using LexFlow.Litigation.Infrastructure;
+using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.Organization.Infrastructure;
 using LexFlow.Organization.Infrastructure.Invitations;
 using LexFlow.Organization.Infrastructure.Persistence;
@@ -98,6 +100,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
             await scope.ServiceProvider.GetRequiredService<IdentityModuleDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<CrmDbContext>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<LitigationDbContext>().Database.MigrateAsync();
             await using (var connection = new Npgsql.NpgsqlConnection(AdminConnectionString))
             {
                 await connection.OpenAsync();
@@ -128,6 +131,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddIdentitySeeding(configuration);
         services.AddOrganizationInfrastructure(configuration);
         services.AddCrmPersistence(configuration);
+        services.AddLitigationPersistence(configuration);
         return services.BuildServiceProvider();
     }
 

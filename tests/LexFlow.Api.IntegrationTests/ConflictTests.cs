@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using LexFlow.Crm.Application.Abstractions;
 using LexFlow.Crm.Contracts;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,9 +30,9 @@ public sealed class ConflictTests(DependenciesFixture dependencies) : IAsyncLife
     /// <summary>Processos falsos: a "Construtora Rival" é parte contrária num processo do cliente "Banco Alfa".</summary>
     private sealed class FakeLitigation : ILitigationLookup
     {
-        public Task<IReadOnlyList<CaseParty>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken) =>
-            Task.FromResult<IReadOnlyList<CaseParty>>(string.Equals(searchName, "construtora rival", StringComparison.Ordinal) || string.Equals(document, "11444777000161", StringComparison.Ordinal)
-                ? [new CaseParty(Guid.CreateVersion7(), "0001234-56.2026.8.26.0100", "Construtora Rival Ltda.", "11444777000161", CasePartySide.Opponent, "Banco Alfa")]
+        public Task<IReadOnlyList<CasePartyMatch>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<CasePartyMatch>>(string.Equals(searchName, "construtora rival", StringComparison.Ordinal) || string.Equals(document, "11444777000161", StringComparison.Ordinal)
+                ? [new CasePartyMatch(Guid.CreateVersion7(), "0001234-56.2026.8.26.0100", "Construtora Rival Ltda.", "11444777000161", CasePartySide.Opponent, "Banco Alfa")]
                 : []);
     }
 

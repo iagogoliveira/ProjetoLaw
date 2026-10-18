@@ -1,4 +1,4 @@
-using LexFlow.Crm.Application.Abstractions;
+using LexFlow.Crm.Contracts;
 
 namespace LexFlow.Crm.Infrastructure.Conflicts;
 
@@ -8,6 +8,6 @@ namespace LexFlow.Crm.Infrastructure.Conflicts;
 /// </summary>
 internal sealed class NoCasesLitigationLookup : ILitigationLookup
 {
-    public Task<IReadOnlyList<CaseParty>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<CaseParty>>([]);
+    public Task<IReadOnlyList<CasePartyMatch>> FindPartiesAsync(string searchName, string? document, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<CasePartyMatch>>([]);
 }

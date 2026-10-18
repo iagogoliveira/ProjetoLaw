@@ -6182,6 +6182,837 @@
           }
         }
       }
+    },
+    "/api/v1/cases": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Processos e casos, dos mais recentes aos mais antigos, com busca pela pasta ou pelo CNJ",
+        "operationId": "ListCases",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CaseStatus"
+            }
+          },
+          {
+            "name": "practiceAreaId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CasesPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Cadastra um processo ou caso; a pasta interna sai da numeração do escritório",
+        "operationId": "CreateCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/cnj-lookup": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Confere o número CNJ e diz o ano, o segmento e o tribunal, para pré-preencher o cadastro",
+        "operationId": "LookupCnj",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CnjInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/numbering": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Formato da numeração interna e as siglas das áreas",
+        "operationId": "GetCaseNumbering",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberingResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Troca o formato da numeração interna e as siglas das áreas",
+        "operationId": "ConfigureCaseNumbering",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NumberingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Um processo ou caso com as partes, os responsáveis e a hierarquia",
+        "operationId": "GetCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Substitui os dados do processo ou caso (o tipo e a pasta interna não mudam)",
+        "operationId": "UpdateCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Exclui (logicamente) um processo ou caso",
+        "operationId": "DeleteCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/close": {
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Encerra com motivo, resultado, valor final e data",
+        "operationId": "CloseCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClosingInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/reopen": {
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Reabre o caso encerrado",
+        "operationId": "ReopenCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/status": {
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Suspende ou reativa o caso (o encerramento é pela ação própria)",
+        "operationId": "ChangeCaseStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/relations": {
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Liga um incidente, recurso, cumprimento ou apenso a este processo principal",
+        "operationId": "LinkCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkCaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/relations/{relationId}": {
+      "delete": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Desfaz uma relação da hierarquia",
+        "operationId": "UnlinkCase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "relationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6325,6 +7156,34 @@
           }
         }
       },
+      "AssignmentInput": {
+        "required": [
+          "role",
+          "userId",
+          "teamId"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/AssignmentRole"
+          },
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        },
+        "description": "Responsável: sócio e advogado são usuários; equipe é uma equipe do escritório."
+      },
       "AssignmentResponse": {
         "required": [
           "roleId",
@@ -6348,6 +7207,14 @@
             "format": "uuid"
           }
         }
+      },
+      "AssignmentRole": {
+        "enum": [
+          "partner",
+          "lawyer",
+          "team"
+        ],
+        "description": "Papel de um responsável pelo caso."
       },
       "BranchRequest": {
         "required": [
@@ -6404,6 +7271,553 @@
           }
         }
       },
+      "CaseInput": {
+        "required": [
+          "cnjNumber",
+          "courtId",
+          "instance",
+          "district",
+          "courtUnit",
+          "rite",
+          "proceduralClass",
+          "subject",
+          "actionTypeId",
+          "practiceAreaId",
+          "branchId",
+          "phaseId",
+          "claimValue",
+          "filedOn",
+          "servedOn",
+          "description",
+          "payerPersonId",
+          "parties",
+          "assignments",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "cnjNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "instance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CaseInstance"
+              }
+            ]
+          },
+          "district": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtUnit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rite": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proceduralClass": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subject": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actionTypeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "practiceAreaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "branchId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "phaseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "claimValue": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "filedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "servedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "payerPersonId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "parties": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PartyInput"
+            }
+          },
+          "assignments": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AssignmentInput"
+            }
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            ]
+          }
+        },
+        "description": "Processo ou caso enviado pela tela (criação e edição)."
+      },
+      "CaseInstance": {
+        "enum": [
+          "first",
+          "second",
+          "superior",
+          "supreme",
+          null
+        ]
+      },
+      "CaseKind": {
+        "enum": [
+          "judicial",
+          "administrative",
+          "extrajudicial"
+        ],
+        "description": "Tipo do caso (RF-09): processo judicial (com CNJ) ou caso sem processo, no mesmo modelo."
+      },
+      "CaseOutcome": {
+        "enum": [
+          "granted",
+          "partiallyGranted",
+          "denied",
+          "settlement",
+          "dismissed",
+          "withdrawn",
+          "other",
+          null
+        ]
+      },
+      "CaseResponse": {
+        "required": [
+          "id",
+          "kind",
+          "internalFolder",
+          "cnjNumber",
+          "court",
+          "instance",
+          "district",
+          "courtUnit",
+          "rite",
+          "proceduralClass",
+          "subject",
+          "actionTypeId",
+          "practiceAreaId",
+          "branchId",
+          "phaseId",
+          "status",
+          "claimValue",
+          "filedOn",
+          "servedOn",
+          "description",
+          "payerPersonId",
+          "parties",
+          "assignments",
+          "parent",
+          "children",
+          "closedOn",
+          "closingReasonId",
+          "outcome",
+          "finalAmount",
+          "closingNote",
+          "customFields",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CaseKind"
+          },
+          "internalFolder": {
+            "type": "string"
+          },
+          "cnjNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "court": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourtResponse"
+              }
+            ]
+          },
+          "instance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CaseInstance"
+              }
+            ]
+          },
+          "district": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtUnit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rite": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proceduralClass": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subject": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actionTypeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "practiceAreaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "branchId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "phaseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus"
+          },
+          "claimValue": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "filedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "servedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "payerPersonId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "parties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartyResponse"
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignmentResponse"
+            }
+          },
+          "parent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RelatedCaseResponse"
+              }
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RelatedCaseResponse"
+            }
+          },
+          "closedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "closingReasonId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "outcome": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CaseOutcome"
+              }
+            ]
+          },
+          "finalAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "closingNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "customFields": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CasesPageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseSummary"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CaseStatus": {
+        "enum": [
+          "active",
+          "suspended",
+          "closed"
+        ]
+      },
+      "CaseStatusRequest": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus"
+          }
+        }
+      },
+      "CaseSummary": {
+        "required": [
+          "id",
+          "kind",
+          "internalFolder",
+          "cnjNumber",
+          "status",
+          "practiceAreaId",
+          "phaseId",
+          "clients",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CaseKind"
+          },
+          "internalFolder": {
+            "type": "string"
+          },
+          "cnjNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus"
+          },
+          "practiceAreaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "phaseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "clients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Linha da lista: pasta, CNJ, tipo, situação, área e os clientes (nomes do Crm)."
+      },
       "CheckConflictRequest": {
         "required": [
           "name",
@@ -6435,6 +7849,94 @@
             }
           }
         }
+      },
+      "ClosingInput": {
+        "required": [
+          "reasonId",
+          "outcome",
+          "finalAmount",
+          "closedOn",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "reasonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/CaseOutcome"
+          },
+          "finalAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "closedOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Encerramento: motivo (tabela auxiliar), resultado, valor final e data."
+      },
+      "CnjInfoResponse": {
+        "required": [
+          "formatted",
+          "year",
+          "segment",
+          "courtCode",
+          "origin",
+          "court"
+        ],
+        "type": "object",
+        "properties": {
+          "formatted": {
+            "type": "string"
+          },
+          "year": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "segment": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "courtCode": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "court": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourtResponse"
+              }
+            ]
+          }
+        },
+        "description": "O que o número CNJ diz: a pontuação, o ano, o segmento (J), o tribunal (TR) e a origem (Etapa 5, tarefa 3)."
       },
       "CompanyRegistration": {
         "required": [
@@ -6790,6 +8292,210 @@
             "type": "string"
           }
         }
+      },
+      "CourtResponse": {
+        "required": [
+          "id",
+          "acronym",
+          "name",
+          "state"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "acronym": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreateCaseRequest": {
+        "required": [
+          "kind",
+          "cnjNumber",
+          "courtId",
+          "instance",
+          "district",
+          "courtUnit",
+          "rite",
+          "proceduralClass",
+          "subject",
+          "actionTypeId",
+          "practiceAreaId",
+          "branchId",
+          "phaseId",
+          "claimValue",
+          "filedOn",
+          "servedOn",
+          "description",
+          "payerPersonId",
+          "parties",
+          "assignments",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/CaseKind"
+          },
+          "cnjNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "instance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CaseInstance"
+              }
+            ]
+          },
+          "district": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtUnit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rite": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proceduralClass": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subject": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actionTypeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "practiceAreaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "branchId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "phaseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "claimValue": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "filedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "servedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "payerPersonId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "parties": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PartyInput"
+            }
+          },
+          "assignments": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AssignmentInput"
+            }
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            ]
+          }
+        },
+        "description": "Processo ou caso enviado na criação: o tipo (judicial, administrativo, extrajudicial) e os dados."
       },
       "CreateCustomFieldRequest": {
         "required": [
@@ -7416,6 +9122,22 @@
       "JsonObject": {
         "type": "object"
       },
+      "LinkCaseRequest": {
+        "required": [
+          "childCaseId",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "childCaseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RelationKind"
+          }
+        }
+      },
       "LookupItemRequest": {
         "required": [
           "name",
@@ -7688,6 +9410,50 @@
           }
         },
         "description": "Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA\nesconder o que não cabe (a UI só esconde; quem bloqueia é o servidor)."
+      },
+      "NumberingRequest": {
+        "required": [
+          "format",
+          "areaCodes"
+        ],
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "areaCodes": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NumberingResponse": {
+        "required": [
+          "format",
+          "areaCodes",
+          "example"
+        ],
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "areaCodes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "type": "string"
+          }
+        },
+        "description": "Formato da numeração e as siglas das áreas (as configuradas), com um exemplo do próximo número."
       },
       "OpportunitiesPageResponse": {
         "required": [
@@ -8134,6 +9900,94 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "PartyInput": {
+        "required": [
+          "personId",
+          "pole",
+          "isClient",
+          "counselName",
+          "counselOab"
+        ],
+        "type": "object",
+        "properties": {
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pole": {
+            "$ref": "#/components/schemas/PartyPole"
+          },
+          "isClient": {
+            "type": "boolean"
+          },
+          "counselName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "counselOab": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Parte como enviada pela tela: a pessoa do cadastro, o polo, se é cliente e o advogado da parte contrária."
+      },
+      "PartyPole": {
+        "enum": [
+          "active",
+          "passive",
+          "third"
+        ],
+        "description": "Polo da parte no processo."
+      },
+      "PartyResponse": {
+        "required": [
+          "personId",
+          "name",
+          "document",
+          "pole",
+          "isClient",
+          "counselName",
+          "counselOab"
+        ],
+        "type": "object",
+        "properties": {
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "document": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pole": {
+            "$ref": "#/components/schemas/PartyPole"
+          },
+          "isClient": {
+            "type": "boolean"
+          },
+          "counselName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "counselOab": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -9117,6 +10971,48 @@
           }
         }
       },
+      "RelatedCaseResponse": {
+        "required": [
+          "relationId",
+          "caseId",
+          "internalFolder",
+          "cnjNumber",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "relationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "internalFolder": {
+            "type": "string"
+          },
+          "cnjNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RelationKind"
+          }
+        },
+        "description": "Processo ligado na hierarquia (o principal, ou um incidente, recurso, cumprimento ou apenso)."
+      },
+      "RelationKind": {
+        "enum": [
+          "incident",
+          "appeal",
+          "enforcement",
+          "attached"
+        ],
+        "description": "Como o processo vinculado se relaciona com o principal (RF-09: hierarquia de processos)."
+      },
       "RenameOrganizationRequest": {
         "required": [
           "name"
@@ -9600,6 +11496,9 @@
     },
     {
       "name": "ProposalTemplates"
+    },
+    {
+      "name": "Cases"
     }
   ]
 }

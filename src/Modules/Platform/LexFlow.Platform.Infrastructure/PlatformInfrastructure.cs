@@ -2,7 +2,9 @@ using LexFlow.Application.Abstractions.Idempotency;
 using LexFlow.Application.Abstractions.Integrations;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Platform.Application.Abstractions;
+using LexFlow.Platform.Application.Courts;
 using LexFlow.Platform.Application.CustomFields;
+using LexFlow.Platform.Contracts.Courts;
 using LexFlow.Platform.Contracts.CustomFields;
 using LexFlow.Platform.Infrastructure.Idempotency;
 using LexFlow.Platform.Infrastructure.Persistence;
@@ -22,6 +24,7 @@ public static class PlatformInfrastructure
         services.AddScoped<IdempotencyKeysCleanupJob>();
         services.AddScoped<ICustomFieldValidator, CustomFieldValidator>();
         services.AddScoped<ILookupItemValidator, LookupItemValidator>();
+        services.AddScoped<ICourtDirectory, CourtDirectory>();
         services.AddScoped<LookupTableSeeder>();
         return services;
     }
