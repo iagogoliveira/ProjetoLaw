@@ -10,6 +10,22 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (arrumação depois do merge do #26)
+
+**Branch:** `etapa-5c2-risco-acordos`, criado a partir da `main` (bb14aec), com este commit de arrumação e push.
+
+**Feito:**
+- PR #26 (5C1) mergeado pelo usuário em 2026-10-18;
+- `progress.md`: 5C1 marcado como concluído e a linha de status da Etapa 5 atualizada;
+- ADR 0027 marcada como aceita;
+- "Onde paramos" do `AGENTS.md` atualizado.
+
+**Próximo:**
+- Planejar o PR 5C2 (risco, acordos e audiências) e mostrar o plano ao usuário antes de implementar. O escopo está no `AGENTS.md`.
+- Se o Claude Code estiver no meio desse planejamento, a próxima entrada aqui dirá.
+
+---
+
 ## 2026-10-18 — Claude Code
 
 **Branch:** `etapa-5c-valores-risco` · **PR:** [#26](https://github.com/iagogoliveira/ProjetoLaw/pull/26), aberto e aguardando o CI e o merge do usuário.

@@ -55,8 +55,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 - **Etapas 0 a 4: concluídas.**
 - **Etapa 5 (processos e casos):**
   - 5A (#24) e 5B (#25) mergeados;
-  - **5C1 (#26): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c-valores-risco`. Traz índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
-  - **o próximo é o PR 5C2**, no branch `etapa-5c2-risco-acordos`, que deve ser criado depois do merge do #26.
+  - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
+  - **o próximo é o PR 5C2**, no branch `etapa-5c2-risco-acordos`, que já existe com o commit de progresso.
 - **Escopo do 5C2** (plano aprovado em 2026-10-18; mostre o plano detalhado antes de implementar):
   - **risco:** `RiskAssessment` por processo e por pedido (provável, possível ou remoto, CPC 25), com histórico. A provisão contábil e a trava mensal ficam para depois;
   - **acordos:** `Settlement` (proposta, contraproposta, aprovação, homologação) com `SettlementInstallment` e o indicador de economia (pedido × acordado). A homologação publica `SettlementHomologated`, para o financeiro da Etapa 10;

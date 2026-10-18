@@ -1,6 +1,6 @@
 # ADR 0027 — Índices monetários, correção e pedidos do processo
 
-- **Status:** Proposta (para revisão no PR 5C1)
+- **Status:** Aceita (PR #26 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5C1)
 

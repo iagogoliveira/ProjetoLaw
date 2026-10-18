@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24 e 5B #25 mergeados; 5C1 em revisão; faltam 5C2, 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25 e 5C1 #26 mergeados; faltam 5C2, 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos` |
 
 ---
 
@@ -42,7 +42,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5C1 — índices monetários, correção e pedidos (em revisão)
+### PR 5C1 — índices monetários, correção e pedidos (concluído: PR #26 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-18):**
 - Com a SELIC não há juros extras: ela já os embute (STF, ADC 58).
@@ -61,7 +61,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.21 | Histórico das alterações de valor (quem, quando, anterior e novo), só com inserções: a aplicação não tem `UPDATE` nem `DELETE` | `Every_value_change_goes_to_the_history_and_deleting_hides_the_claim`, `LitigationDatabaseTests.The_application_cannot_rewrite_the_claim_value_history` |
 | 5.22 | Alcance do processo nos pedidos (`CaseAccess`), casos entre organizações nas 5 rotas novas, OpenAPI (5 caminhos novos, só adições) e cliente TypeScript | `Claims_follow_the_reach_of_the_case`, `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0027 — Índices monetários, correção e pedidos do processo](adr/0027-indices-monetarios-correcao-e-pedidos.md) (Proposta, para revisão no PR 5C1).
+**ADR:** [0027 — Índices monetários, correção e pedidos do processo](adr/0027-indices-monetarios-correcao-e-pedidos.md) (Aceita em 2026-10-18, com o merge do PR #26).
 
 **Última verificação local (PR 5C1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 671 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Platform.Application 97,1%, Platform.Domain 99,3%, Litigation.Application 92,4% e Litigation.Domain 98,0%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
 
