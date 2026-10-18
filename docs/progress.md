@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18 mergeado; 4B pronto para revisão; faltam 4C e 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18 e 4B #19 mergeados; faltam 4C e 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas` |
 
 ---
 
@@ -42,7 +42,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
 
-### PR 4B — conflito de interesses, fusão e LGPD (pronto para revisão)
+### PR 4B — conflito de interesses, fusão e LGPD (concluído: PR #19 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-17):**
 - A consulta de conflito informa o lado: a pessoa vai ser cliente ou parte contrária.
@@ -59,11 +59,13 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 4.13 | Filtros `?role=` e `?risk=` sem diferenciar maiúsculas (400 `crm.filter_invalid`), com o contrato OpenAPI mantido no schema do enum | `The_list_filters_by_role_written_in_camel_case`, `OpenApiContractTests` |
 | 4.14 | RLS nas 2 tabelas novas, casos entre organizações nas 4 rotas novas com id, OpenAPI (6 operações novas, só adições) e cliente TypeScript | `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `EndpointSecurityTests` |
 
-**ADR:** [0023 — Conflito de interesses, fusão de cadastros e anonimização LGPD](adr/0023-conflito-fusao-e-anonimizacao.md) (proposta, para revisão no PR).
+**ADR:** [0023 — Conflito de interesses, fusão de cadastros e anonimização LGPD](adr/0023-conflito-fusao-e-anonimizacao.md) (Aceita em 2026-10-18, com o merge do PR #19).
 
 **Critério de aceite da Etapa 4:** "conflito detecta parte contrária cadastrada em processo de outro cliente" ✅ com processos falsos (`ConflictTests.An_opponent_in_a_case_of_another_client_is_a_direct_conflict`). A prova com processos reais fica para a Etapa 5.
 
 **Última verificação local (PR 4B):** `dotnet build` (0 warnings), `dotnet format --verify-no-changes`, 553 testes .NET em 13 projetos e 14 do AppHost, 44 Vitest, `npm run lint`, `npm run build`, sem pacotes vulneráveis. Cobertura: Crm.Application 96,6% e Crm.Domain 100%. Sem mudança de modelo pendente nas migrations. Sem mudança de tela.
+
+**CI do PR 4B:** os testes do ClamAV falharam com "Broken pipe": o freshclam atualizava as assinaturas na partida e o clamd recarregava no meio do teste. O container de teste agora roda sem freshclam e espera o `clamdcheck.sh`, não só a porta.
 
 **Pendências do PR 4B:**
 1. LGPD × auditoria: a trilha só de inserção guarda os valores anteriores; o prazo de retenção e o tratamento dela para titulares é decisão jurídica antes de produção.
