@@ -1,0 +1,282 @@
+<section class="page" *transloco="let t">
+  @if (store.opportunity(); as opportunity) {
+    <a mat-button [routerLink]="['/funil', opportunity.id]">{{
+      t('funnel.proposal.backTo', { title: opportunity.title })
+    }}</a>
+  } @else {
+    <a mat-button routerLink="/funil">{{ t('funnel.back') }}</a>
+  }
+
+  <div class="inline header">
+    <div>
+      <h1>{{ store.proposal()?.title ?? t('funnel.proposal.newTitle') }}</h1>
+      @if (store.proposal(); as proposal) {
+        <p>
+          <span class="chip">{{ t('funnel.proposal.statuses.' + proposal.status) }}</span>
+          @if (store.opportunity(); as opportunity) {
+            <span class="hint">{{ opportunity.prospect.name }}</span>
+          }
+        </p>
+      }
+    </div>
+    @if (store.proposal(); as proposal) {
+      <div class="actions">
+        <button mat-stroked-button type="button" (click)="store.download()">
+          {{ t('funnel.proposal.download') }}
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (store.proposal(); as proposal) {
+    @if (proposal.returnNote && proposal.status === 'draft') {
+      <p class="panel" role="note">
+        {{ t('funnel.proposal.returned') }}: {{ proposal.returnNote }}
+      </p>
+    }
+    @if (proposal.declineNote) {
+      <p class="panel" role="note">
+        {{ t('funnel.proposal.declinedNote') }}: {{ proposal.declineNote }}
+      </p>
+    }
+    @if (store.clientPersonId(); as client) {
+      <p class="status" role="status">
+        {{ t('funnel.proposal.acceptedNote') }}
+        <a [routerLink]="['/pessoas', client]">{{ t('funnel.proposal.openClient') }}</a>
+      </p>
+    }
+
+    <div class="actions">
+      @switch (proposal.status) {
+        @case ('draft') {
+          <button
+            *lfCan="'crm.proposals.manage'"
+            mat-flat-button
+            type="button"
+            [disabled]="store.busy() || form.dirty || proposal.items.length === 0"
+            (click)="submit()"
+          >
+            {{ t('funnel.proposal.submit') }}
+          </button>
+        }
+        @case ('pendingApproval') {
+          <button
+            *lfCan="'crm.proposals.approve'"
+            mat-flat-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="store.step('approve')"
+          >
+            {{ t('funnel.proposal.approve') }}
+          </button>
+          <button *lfCan="'crm.proposals.manage'" mat-button type="button" (click)="open('return')">
+            {{ t('funnel.proposal.return') }}
+          </button>
+        }
+        @case ('approved') {
+          <button
+            *lfCan="'crm.proposals.manage'"
+            mat-flat-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="store.send()"
+          >
+            {{ t('funnel.proposal.send') }}
+          </button>
+          <button *lfCan="'crm.proposals.manage'" mat-button type="button" (click)="open('return')">
+            {{ t('funnel.proposal.return') }}
+          </button>
+        }
+        @case ('sent') {
+          <button
+            *lfCan="'crm.proposals.manage'"
+            mat-flat-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="store.accept()"
+          >
+            {{ t('funnel.proposal.accept') }}
+          </button>
+          <button
+            *lfCan="'crm.proposals.manage'"
+            mat-button
+            type="button"
+            (click)="open('decline')"
+          >
+            {{ t('funnel.proposal.decline') }}
+          </button>
+        }
+      }
+      @if (
+        proposal.status === 'draft' ||
+        proposal.status === 'pendingApproval' ||
+        proposal.status === 'approved'
+      ) {
+        <button *lfCan="'crm.proposals.manage'" mat-button type="button" (click)="open('delete')">
+          {{ t('people.detail.delete') }}
+        </button>
+      }
+    </div>
+
+    @if (proposal.status === 'draft' && form.dirty) {
+      <p class="hint">{{ t('funnel.proposal.saveBeforeSubmit') }}</p>
+    }
+
+    @if (pending(); as action) {
+      <section class="panel" aria-labelledby="note-title">
+        <h2 id="note-title">{{ t('funnel.proposal.confirm.' + action) }}</h2>
+        @if (action !== 'delete') {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('funnel.proposal.note') }}</mat-label>
+            <textarea
+              matInput
+              rows="2"
+              maxlength="1000"
+              [ngModel]="note()"
+              (ngModelChange)="note.set($event)"
+            ></textarea>
+          </mat-form-field>
+        }
+        <div class="actions">
+          <button mat-flat-button type="button" [disabled]="store.busy()" (click)="confirm()">
+            {{ t('funnel.proposal.confirmButton.' + action) }}
+          </button>
+          <button mat-button type="button" (click)="open(null)">
+            {{ t('people.form.cancel') }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <dl>
+      @if (proposal.submittedAt) {
+        <dt>{{ t('funnel.proposal.submittedAt') }}</dt>
+        <dd>{{ proposal.submittedAt | date: 'short' }}</dd>
+      }
+      @if (proposal.approvedAt) {
+        <dt>{{ t('funnel.proposal.approvedAt') }}</dt>
+        <dd>{{ proposal.approvedAt | date: 'short' }}</dd>
+      }
+      @if (proposal.sentAt) {
+        <dt>{{ t('funnel.proposal.sentAt') }}</dt>
+        <dd>{{ proposal.sentAt | date: 'short' }}</dd>
+      }
+      @if (proposal.acceptedAt) {
+        <dt>{{ t('funnel.proposal.acceptedAt') }}</dt>
+        <dd>{{ proposal.acceptedAt | date: 'short' }}</dd>
+      }
+    </dl>
+  }
+
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+    @if (code === 'crm.conflict_check_required' && store.opportunity(); as opportunity) {
+      <a mat-button [routerLink]="['/funil', opportunity.id]">{{
+        t('funnel.proposal.goToConflict')
+      }}</a>
+    }
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('funnel.proposal.title') }}</mat-label>
+      <input matInput formControlName="title" required />
+      <mat-error>{{ t('errors.crm.title_required') }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('funnel.proposal.scope') }}</mat-label>
+      <textarea matInput formControlName="scope" rows="4"></textarea>
+    </mat-form-field>
+
+    <fieldset formArrayName="items">
+      <legend>{{ t('funnel.proposal.items') }}</legend>
+      @for (item of items.controls; track item; let i = $index) {
+        <div class="inline" [formGroupName]="i">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('funnel.proposal.description') }}</mat-label>
+            <input matInput formControlName="description" required />
+            <mat-error>{{ t('errors.crm.item_description_required') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('funnel.proposal.kind') }}</mat-label>
+            <mat-select formControlName="kind">
+              @for (kind of kinds; track kind) {
+                <mat-option [value]="kind">{{ t('funnel.proposal.kinds.' + kind) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (item.controls.kind.value === 'success') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('funnel.proposal.percentage') }}</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0.01"
+                max="100"
+                step="0.01"
+                formControlName="percentage"
+              />
+              <span matTextSuffix>%</span>
+              <mat-error>{{ t('errors.crm.proposal_percentage_invalid') }}</mat-error>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('funnel.proposal.quantity') }}</mat-label>
+              <input matInput type="number" min="0.01" step="0.01" formControlName="quantity" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('funnel.proposal.unitAmount') }}</mat-label>
+              <span matTextPrefix>R$&nbsp;</span>
+              <input matInput type="number" min="0" step="0.01" formControlName="unitAmount" />
+            </mat-form-field>
+            <span>{{ amountOf(i) | currency: 'BRL' }}</span>
+          }
+          @if (editable()) {
+            <button mat-button type="button" (click)="items.removeAt(i)">
+              {{ t('people.form.remove') }}
+            </button>
+          }
+        </div>
+      }
+      @if (editable()) {
+        <div>
+          <button mat-button type="button" (click)="addItem()">
+            {{ t('funnel.proposal.addItem') }}
+          </button>
+        </div>
+      }
+      <p>
+        <strong>{{ t('funnel.proposal.total') }}: {{ total() | currency: 'BRL' }}</strong>
+        <span class="hint"> {{ t('funnel.proposal.totalHint') }}</span>
+      </p>
+    </fieldset>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('funnel.proposal.conditions') }}</mat-label>
+      <textarea matInput formControlName="conditions" rows="3"></textarea>
+    </mat-form-field>
+    <div class="inline">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('funnel.proposal.validUntil') }}</mat-label>
+        <input matInput type="date" formControlName="validUntil" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('funnel.proposal.template') }}</mat-label>
+        <mat-select formControlName="templateId">
+          <mat-option [value]="null">{{ t('funnel.proposal.defaultTemplate') }}</mat-option>
+          @for (template of store.templates(); track template.id) {
+            <mat-option [value]="template.id">{{ template.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (editable()) {
+      <div class="actions">
+        <button mat-flat-button type="submit" [disabled]="store.busy()">
+          {{ t('funnel.proposal.saveDraft') }}
+        </button>
+      </div>
+    }
+  </form>
+</section>

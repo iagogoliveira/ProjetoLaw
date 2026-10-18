@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19 e 4C #20 mergeados; 4D1 pronto para revisão; falta 4D2) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19, 4C #20 e 4D1 #21 mergeados; 4D2 pronto para revisão) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas` |
 
 ---
 
@@ -45,7 +45,24 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
 
-### PR 4D1 — telas de pessoas e conflito (pronto para revisão)
+### PR 4D2 — telas do funil, das propostas e dos modelos (pronto para revisão)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.29 | `features/funnel` com `FunnelApi` (único ponto HTTP) e stores em signals; menu "Funil comercial" (`crm.opportunities.read`) e rotas protegidas por permissão | `funnel-stores.spec.ts` |
+| 4.30 | Kanban: colunas por etapa com quantidade e valor estimado, arrastar e soltar (CDK) entre lead, reunião e proposta, com o seletor "Mover para" como alternativa pelo teclado; o cartão volta se o servidor recusar; fila de propostas aguardando aprovação para quem aprova | `FunnelStore` (3 casos), `e2e/funnel-flow.spec.ts` |
+| 4.31 | Oportunidade: cadastro com interessado solto ou pessoa cadastrada, origem e motivo de perda das tabelas auxiliares, responsável, campos customizados; detalhe com perder, reabrir, excluir, verificação de conflito com "prosseguir" e a lista de propostas | `OpportunityStore` (3 casos), `e2e/funnel-flow.spec.ts` |
+| 4.32 | Proposta: editor do rascunho com itens por modalidade e total sem o êxito; fluxo enviar para aprovação → aprovar → registrar envio → aceite ou recusa, devolver e excluir; download do DOCX; atalho para a verificação de conflito quando o aceite é recusado | `ProposalStore` (3 casos), `e2e/funnel-flow.spec.ts` (autoaprovação recusada, aprovação pelo sócio convidado, aceite que cria o cliente) |
+| 4.33 | Aba "Modelos de proposta" nas configurações: modelos do escritório, marcadores aceitos, upload, exclusão e o modelo padrão para baixar | `TemplatesStore` (1 caso), `e2e/funnel-flow.spec.ts` |
+| 4.34 | Estilos de página e formatos brasileiros (CPF/CNPJ/CEP) movidos para `shared/`; downloads como `Blob` sobre o HttpClient do Angular; textos pt-BR e en; WCAG 2.1 AA (o quadro do kanban, com rolagem, é uma região focável) | `translations.spec.ts`, `expectAccessible` no e2e |
+
+**Última verificação local (PR 4D2):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos e 14 do AppHost (sem mudança no backend), 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (11 aprovados, duas execuções seguidas) e contra o `ng serve` (4 aprovados; os 7 que exigem o AppHost são pulados). Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem pacote novo.
+
+**Pendências do PR 4D2:**
+1. Com o download como `Blob`, um erro da API nesse pedido (ex.: 404) chega sem o `code` e aparece como erro genérico.
+2. O nome do responsável no cartão do kanban não aparece (a lista de membros exige `settings.users.read`); o detalhe mostra quando há a permissão.
+
+### PR 4D1 — telas de pessoas e conflito (concluído: PR #21 mergeado em 2026-10-18)
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -90,7 +107,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 **Última verificação local (PR 4C):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos (os 14 do AppHost não rodaram de novo), 44 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os 4 fluxos que exigem o AppHost foram pulados; sem mudança de tela), sem pacotes vulneráveis. Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem mudança de modelo pendente nas migrations.
 
 **Pendências do PR 4C:**
-1. **Escritório de uma pessoa só:** a aprovação interna sem autoaprovação impede quem trabalha sozinho de enviar proposta. Isso é decisão de negócio (ver a ADR 0024).
+1. **Escritório de uma pessoa só:** decidido em 2026-10-18. Com um único membro ativo, quem elaborou pode aprovar a própria proposta, porque é o usuário de maior permissão. Com mais membros, a autoaprovação continua proibida. A implementação está pendente, num PR próprio (ver a ADR 0024, "Atualização").
 2. **Indicadores do RF-08** (conversão, tempo de fechamento, receita por origem): ficam para os relatórios. O funil já grava etapa, data da mudança, origem e valor.
 3. **DOCX órfão:** se o envio falhar depois de gravar o arquivo, ele fica no armazenamento sem referência. A limpeza entra com o GED (Etapa 9).
 4. **Assinatura eletrônica** da proposta (RF-29) fica para a Etapa 9.

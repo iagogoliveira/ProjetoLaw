@@ -1,0 +1,248 @@
+<section class="page" *transloco="let t">
+  <a mat-button routerLink="/funil">{{ t('funnel.back') }}</a>
+
+  @if (store.opportunity(); as opportunity) {
+    <div class="inline header">
+      <div>
+        <h1>{{ opportunity.title }}</h1>
+        <p>
+          <span class="chip">{{ t('funnel.stages.' + opportunity.stage) }}</span>
+          <span class="hint">{{
+            t('funnel.since', { date: (opportunity.stageChangedAt | date: 'shortDate') })
+          }}</span>
+        </p>
+      </div>
+      <div class="actions" *lfCan="'crm.opportunities.manage'">
+        @if (opportunity.stage !== 'won') {
+          <a mat-stroked-button routerLink="editar">{{ t('people.detail.edit') }}</a>
+        }
+        @if (opportunity.stage === 'lost') {
+          <button mat-button type="button" [disabled]="store.busy()" (click)="store.reopen()">
+            {{ t('funnel.detail.reopen') }}
+          </button>
+        } @else if (opportunity.stage !== 'won') {
+          <button mat-button type="button" (click)="open('lose')">
+            {{ t('funnel.detail.lose') }}
+          </button>
+        }
+        @if (opportunity.stage !== 'won') {
+          <button mat-button type="button" (click)="open('delete')">
+            {{ t('people.detail.delete') }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (store.errorCode(); as code) {
+      <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+    }
+
+    @switch (pending()) {
+      @case ('lose') {
+        <section class="panel" aria-labelledby="lose-title">
+          <h2 id="lose-title">{{ t('funnel.detail.loseTitle') }}</h2>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('funnel.detail.lossReason') }}</mat-label>
+            <mat-select [ngModel]="reasonId()" (ngModelChange)="reasonId.set($event)" required>
+              @for (reason of store.lossReasons(); track reason.id) {
+                <mat-option [value]="reason.id">{{ reason.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('funnel.detail.lossNote') }}</mat-label>
+            <textarea
+              matInput
+              rows="2"
+              maxlength="1000"
+              [ngModel]="note()"
+              (ngModelChange)="note.set($event)"
+            ></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy() || !reasonId()"
+              (click)="confirmLose()"
+            >
+              {{ t('funnel.detail.confirmLose') }}
+            </button>
+            <button mat-button type="button" (click)="open(null)">
+              {{ t('people.form.cancel') }}
+            </button>
+          </div>
+        </section>
+      }
+      @case ('delete') {
+        <section class="panel" aria-labelledby="delete-title">
+          <h2 id="delete-title">{{ t('funnel.detail.deleteTitle') }}</h2>
+          <p>{{ t('funnel.detail.deleteHint') }}</p>
+          <div class="actions">
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="confirmDelete()"
+            >
+              {{ t('people.detail.confirmDelete') }}
+            </button>
+            <button mat-button type="button" (click)="open(null)">
+              {{ t('people.form.cancel') }}
+            </button>
+          </div>
+        </section>
+      }
+    }
+
+    <dl>
+      <dt>{{ t('funnel.form.prospect') }}</dt>
+      <dd>
+        @if (opportunity.personId) {
+          <a [routerLink]="['/pessoas', opportunity.personId]">{{ opportunity.prospect.name }}</a>
+        } @else {
+          {{ opportunity.prospect.name }}
+        }
+        @if (opportunity.prospect.document) {
+          ({{ format(opportunity.prospect.document) }})
+        }
+      </dd>
+      @if (opportunity.prospect.email || opportunity.prospect.phone) {
+        <dt>{{ t('funnel.detail.contact') }}</dt>
+        <dd>{{ opportunity.prospect.email ?? '' }} {{ opportunity.prospect.phone ?? '' }}</dd>
+      }
+      <dt>{{ t('funnel.form.origin') }}</dt>
+      <dd>{{ (opportunity.originId && store.itemNames().get(opportunity.originId)) || '—' }}</dd>
+      <dt>{{ t('funnel.form.estimatedValue') }}</dt>
+      <dd>
+        {{
+          opportunity.estimatedValue === null
+            ? '—'
+            : (+opportunity.estimatedValue | currency: 'BRL')
+        }}
+      </dd>
+      <dt>{{ t('funnel.form.expectedCloseDate') }}</dt>
+      <dd>
+        {{
+          opportunity.expectedCloseDate ? (opportunity.expectedCloseDate | date: 'shortDate') : '—'
+        }}
+      </dd>
+      @if (opportunity.responsibleUserId) {
+        <dt>{{ t('funnel.form.responsible') }}</dt>
+        <dd>{{ store.memberNames().get(opportunity.responsibleUserId) ?? '—' }}</dd>
+      }
+      @if (opportunity.stage === 'lost') {
+        <dt>{{ t('funnel.detail.lossReason') }}</dt>
+        <dd>
+          {{ (opportunity.lossReasonId && store.itemNames().get(opportunity.lossReasonId)) || '—' }}
+          @if (opportunity.lossNote) {
+            — {{ opportunity.lossNote }}
+          }
+        </dd>
+      }
+      @if (opportunity.notes) {
+        <dt>{{ t('people.form.notes') }}</dt>
+        <dd>{{ opportunity.notes }}</dd>
+      }
+    </dl>
+
+    <section class="panel" aria-labelledby="conflict-title">
+      <h2 id="conflict-title">{{ t('funnel.detail.conflictTitle') }}</h2>
+      @if (store.conflict(); as conflict) {
+        <p>
+          <span [class]="'risk-' + conflict.risk">{{ t('conflicts.risks.' + conflict.risk) }}</span>
+          · {{ conflict.createdAt | date: 'short' }}
+        </p>
+        @if (conflict.hits.length > 0) {
+          <ul>
+            @for (hit of conflict.hits; track $index) {
+              <li>{{ hit.matchedName }} — {{ t('conflicts.reasons.' + hit.reason) }}</li>
+            }
+          </ul>
+        }
+        @if (conflict.proceeded) {
+          <p class="status" role="status">{{ t('funnel.detail.conflictCleared') }}</p>
+        } @else {
+          <ng-container *lfCan="'crm.conflicts.check'">
+            @if (conflict.risk !== 'none') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('conflicts.justification') }}</mat-label>
+                <textarea
+                  matInput
+                  rows="2"
+                  maxlength="2000"
+                  [ngModel]="justification()"
+                  (ngModelChange)="justification.set($event)"
+                ></textarea>
+                <mat-hint>{{ t('conflicts.justificationHint') }}</mat-hint>
+              </mat-form-field>
+            }
+            <div class="actions">
+              <button
+                mat-flat-button
+                type="button"
+                [disabled]="store.busy() || (conflict.risk !== 'none' && !justification().trim())"
+                (click)="proceed()"
+              >
+                {{ t('conflicts.proceed') }}
+              </button>
+            </div>
+          </ng-container>
+        }
+      } @else {
+        <p class="hint">{{ t('funnel.detail.conflictMissing') }}</p>
+      }
+      @if (opportunity.stage !== 'won' && opportunity.stage !== 'lost') {
+        <div class="actions" *lfCan="'crm.conflicts.check'">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="store.checkConflict()"
+          >
+            {{ t(store.conflict() ? 'funnel.detail.checkAgain' : 'funnel.detail.checkConflict') }}
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="page" aria-labelledby="proposals-title" *lfCan="'crm.proposals.read'">
+      <div class="inline header">
+        <h2 id="proposals-title">{{ t('funnel.detail.proposals') }}</h2>
+        @if (opportunity.stage !== 'won' && opportunity.stage !== 'lost') {
+          <a *lfCan="'crm.proposals.manage'" mat-stroked-button routerLink="propostas/nova">{{
+            t('funnel.detail.newProposal')
+          }}</a>
+        }
+      </div>
+      @if (store.proposals().length === 0) {
+        <p class="empty">{{ t('funnel.detail.noProposals') }}</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('funnel.proposal.title') }}</th>
+              <th scope="col">{{ t('funnel.proposal.status') }}</th>
+              <th scope="col">{{ t('funnel.proposal.total') }}</th>
+              <th scope="col">{{ t('funnel.proposal.sentAt') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (proposal of store.proposals(); track proposal.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/funil/propostas', proposal.id]">{{ proposal.title }}</a>
+                </td>
+                <td>{{ t('funnel.proposal.statuses.' + proposal.status) }}</td>
+                <td>{{ +proposal.total | currency: 'BRL' }}</td>
+                <td>{{ proposal.sentAt ? (proposal.sentAt | date: 'shortDate') : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  } @else if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+</section>

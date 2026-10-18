@@ -47,6 +47,14 @@
             >{{ t('shell.people') }}</a
           >
           <a
+            *lfCan="'crm.opportunities.read'"
+            mat-list-item
+            routerLink="/funil"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.funnel') }}</a
+          >
+          <a
             *lfCan="'crm.conflicts.check'"
             mat-list-item
             routerLink="/conflitos"

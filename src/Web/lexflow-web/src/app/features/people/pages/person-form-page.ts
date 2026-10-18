@@ -90,7 +90,7 @@ const orNull = (value: string): string | null => (value.trim() === '' ? null : v
   ],
   providers: [PersonEditorStore],
   templateUrl: './person-form-page.html',
-  styleUrl: './people-page.scss',
+  styleUrl: '../../../shared/ui/page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonFormPage implements OnInit, OnDestroy {
