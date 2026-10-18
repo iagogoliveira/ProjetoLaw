@@ -1,0 +1,284 @@
+<section class="page" *transloco="let t">
+  <h1>{{ t(editing() ? 'people.form.editTitle' : 'people.form.newTitle') }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    @if (!editing()) {
+      <mat-radio-group
+        formControlName="kind"
+        class="inline"
+        [attr.aria-label]="t('people.form.kind')"
+      >
+        <mat-radio-button value="company">{{ t('people.kinds.company') }}</mat-radio-button>
+        <mat-radio-button value="individual">{{ t('people.kinds.individual') }}</mat-radio-button>
+      </mat-radio-group>
+    } @else {
+      <p class="hint">{{ t('people.kinds.' + form.controls.kind.value) }}</p>
+    }
+
+    <div class="inline">
+      <mat-form-field appearance="outline">
+        <mat-label>{{
+          t(
+            form.controls.kind.value === 'company'
+              ? 'people.form.documentCnpj'
+              : 'people.form.documentCpf'
+          )
+        }}</mat-label>
+        <input matInput formControlName="document" inputmode="numeric" />
+        @if (form.controls.kind.value === 'company') {
+          <mat-hint>{{ t('people.form.cnpjHint') }}</mat-hint>
+        }
+      </mat-form-field>
+      @if (form.controls.kind.value === 'company') {
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="store.busy() || !form.controls.document.value"
+          (click)="lookupCnpj()"
+        >
+          {{ t('people.form.lookupCnpj') }}
+        </button>
+      }
+    </div>
+    @if (cnpjFilled()) {
+      <p class="status" role="status">{{ t('people.form.cnpjFilled') }}</p>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{
+        t(form.controls.kind.value === 'company' ? 'people.form.legalName' : 'people.form.name')
+      }}</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error>{{ t('errors.crm.name_required') }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{
+        t(
+          form.controls.kind.value === 'company'
+            ? 'people.form.tradeName'
+            : 'people.form.socialName'
+        )
+      }}</mat-label>
+      <input matInput formControlName="alternateName" />
+    </mat-form-field>
+
+    @if (store.similar().length > 0) {
+      <div class="panel" role="status">
+        <p class="hint">{{ t('people.form.similar') }}</p>
+        <ul>
+          @for (match of store.similar(); track match.id) {
+            <li>
+              <a [routerLink]="['/pessoas', match.id]">{{ match.name }}</a>
+              @if (match.document) {
+                ({{ format(match.document) }})
+              }
+              —
+              {{
+                match.sameDocument
+                  ? t('people.form.sameDocument')
+                  : t('people.form.similarName', { score: (+match.score * 100).toFixed(0) })
+              }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <fieldset formGroupName="roles">
+      <legend>{{ t('people.rolesLabel') }}</legend>
+      <div class="inline">
+        @for (role of roles; track role) {
+          <mat-checkbox [formControlName]="role">{{ t('people.roles.' + role) }}</mat-checkbox>
+        }
+      </div>
+      @if (submitted() && noRole) {
+        <p class="error" role="alert">{{ t('errors.crm.role_required') }}</p>
+      }
+    </fieldset>
+
+    <div class="inline">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('people.form.email') }}</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error>{{ t('errors.crm.email_invalid') }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('people.form.phone') }}</mat-label>
+        <input matInput type="tel" formControlName="phone" />
+      </mat-form-field>
+    </div>
+
+    <div class="inline">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('people.form.economicGroup') }}</mat-label>
+        <mat-select formControlName="economicGroupId">
+          <mat-option [value]="null">{{ t('people.form.noGroup') }}</mat-option>
+          @for (group of store.groups(); track group.id) {
+            <mat-option [value]="group.id">{{ group.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('people.form.newGroup') }}</mat-label>
+        <input matInput [formControl]="newGroup" />
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="store.busy() || !newGroup.value.trim()"
+        (click)="createGroup()"
+      >
+        {{ t('people.form.createGroup') }}
+      </button>
+    </div>
+
+    <fieldset formArrayName="contacts">
+      <legend>{{ t('people.form.contacts') }}</legend>
+      @for (contact of contacts.controls; track contact; let i = $index) {
+        <div class="inline" [formGroupName]="i">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.contactName') }}</mat-label>
+            <input matInput formControlName="name" required />
+            <mat-error>{{ t('errors.crm.contact_name_required') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.department') }}</mat-label>
+            <input matInput formControlName="department" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.email') }}</mat-label>
+            <input matInput type="email" formControlName="email" />
+            <mat-error>{{ t('errors.crm.email_invalid') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.phone') }}</mat-label>
+            <input matInput type="tel" formControlName="phone" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.channel') }}</mat-label>
+            <mat-select formControlName="preferredChannel">
+              @for (channel of channels; track channel) {
+                <mat-option [value]="channel">{{ t('people.channels.' + channel) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-button type="button" (click)="contacts.removeAt(i)">
+            {{ t('people.form.remove') }}
+          </button>
+        </div>
+      }
+      <div>
+        <button mat-button type="button" (click)="addContact()">
+          {{ t('people.form.addContact') }}
+        </button>
+      </div>
+    </fieldset>
+
+    <fieldset formArrayName="addresses">
+      <legend>{{ t('people.form.addresses') }}</legend>
+      @for (address of addresses.controls; track address; let i = $index) {
+        <div class="inline" [formGroupName]="i">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.postalCode') }}</mat-label>
+            <input matInput formControlName="postalCode" inputmode="numeric" required />
+            <mat-error>{{ t('errors.crm.postal_code_invalid') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.street') }}</mat-label>
+            <input matInput formControlName="street" required />
+            <mat-error>{{ t('errors.crm.street_required') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.number') }}</mat-label>
+            <input matInput formControlName="number" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.complement') }}</mat-label>
+            <input matInput formControlName="complement" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.district') }}</mat-label>
+            <input matInput formControlName="district" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.city') }}</mat-label>
+            <input matInput formControlName="city" required />
+            <mat-error>{{ t('errors.crm.city_required') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('people.form.state') }}</mat-label>
+            <mat-select formControlName="state" required>
+              @for (state of states; track state) {
+                <mat-option [value]="state">{{ state }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>{{ t('errors.crm.state_invalid') }}</mat-error>
+          </mat-form-field>
+          <mat-checkbox formControlName="isBilling">{{ t('people.form.billing') }}</mat-checkbox>
+          <button mat-button type="button" (click)="addresses.removeAt(i)">
+            {{ t('people.form.remove') }}
+          </button>
+        </div>
+      }
+      <div>
+        <button mat-button type="button" (click)="addAddress()">
+          {{ t('people.form.addAddress') }}
+        </button>
+      </div>
+    </fieldset>
+
+    <fieldset formGroupName="fiscal">
+      <legend>{{ t('people.form.fiscal') }}</legend>
+      <div class="inline">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('people.form.stateRegistration') }}</mat-label>
+          <input matInput formControlName="stateRegistration" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('people.form.municipalRegistration') }}</mat-label>
+          <input matInput formControlName="municipalRegistration" />
+        </mat-form-field>
+      </div>
+      <div class="inline">
+        <mat-checkbox formControlName="withholdsIss">{{
+          t('people.form.withholdsIss')
+        }}</mat-checkbox>
+        <mat-checkbox formControlName="withholdsIncomeTax">{{
+          t('people.form.withholdsIncomeTax')
+        }}</mat-checkbox>
+        <mat-checkbox formControlName="withholdsPisCofinsCsll">{{
+          t('people.form.withholdsPisCofinsCsll')
+        }}</mat-checkbox>
+      </div>
+    </fieldset>
+
+    @if (store.fields().length > 0) {
+      <fieldset>
+        <legend>{{ t('people.form.customFields') }}</legend>
+        <lf-custom-fields
+          [definitions]="store.fields()"
+          [group]="customFields"
+          [lookupTables]="store.tables()"
+        />
+      </fieldset>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('people.form.notes') }}</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+
+    @if (store.errorCode(); as code) {
+      <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+    }
+
+    <div class="actions">
+      <button mat-flat-button type="submit" [disabled]="store.busy()">
+        {{ t('people.form.save') }}
+      </button>
+      <a mat-button [routerLink]="editing() ? ['/pessoas', id()] : ['/pessoas']">{{
+        t('people.form.cancel')
+      }}</a>
+    </div>
+  </form>
+</section>

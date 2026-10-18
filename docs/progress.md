@@ -8,7 +8,7 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
 | 1 — Building blocks | **Concluída** (PRs #4, #5 e #6 mergeados; CI do `main` verde) | `etapa-1a-shared-kernel`, `etapa-1b-application-web`, `etapa-1c-infra-platform` |
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
-| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19 e 4C #20 mergeados; falta 4D) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm` |
+| 4 — Pessoas e CRM | **Em andamento** (4A #18, 4B #19 e 4C #20 mergeados; 4D1 pronto para revisão; falta 4D2) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm` |
 
 ---
 
@@ -37,10 +37,34 @@ Ordem das etapas: `docs/spec/implementacao.md`, seções 9 a 12.
   - `Opportunity` no funil lead → reunião → proposta → aceita ou perdida, com origem e motivo de perda;
   - `Proposal` e `ProposalItem`, com DOCX por mesclagem simples de modelo (pacote OpenXml, que precisa de ADR e checagem de licença);
   - proposta aceita vira cliente e publica `ProposalAccepted` (o contrato de honorários entra na Etapa 10).
-- **4D — frontend e e2e:**
+- **4D — frontend e e2e** (dividido em 2026-10-18):
+  - **4D1:** telas de pessoas (lista, cadastro, detalhe com abas, unificar e anonimizar) e de conflito (verificação e relatório), com o e2e dos critérios de aceite;
+  - **4D2:** kanban do funil, oportunidade, propostas com o fluxo de aprovação, modelos de proposta nas configurações e o e2e do funil até o aceite.
+- **Escopo original do 4D:**
   - lista e detalhe de pessoas (abas dados, contatos, processos, documentos, financeiro; as três últimas como espaço reservado até as etapas delas);
   - tela de conflito e kanban do funil;
   - e2e dos critérios de aceite.
+
+### PR 4D1 — telas de pessoas e conflito (pronto para revisão)
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 4.23 | `features/people` com `CrmApi` (único ponto HTTP) e stores em signals; menu "Pessoas" (`crm.people.read`) e "Conflito de interesses" (`crm.conflicts.check`), com rotas protegidas por permissão | `people-store.spec.ts`, `conflict-store.spec.ts` |
+| 4.24 | Lista de pessoas: busca sem acentos com espera entre teclas (só a última resposta conta), filtro por papel, "carregar mais" | `PeopleStore` (2 casos), `e2e/people-flow.spec.ts` |
+| 4.25 | Cadastro e edição: física ou jurídica, consulta de CNPJ, papéis, contatos, endereços, dados fiscais, grupo econômico (com criação na hora), campos customizados e aviso de possíveis duplicatas | `PersonEditorStore` (4 casos), `e2e/people-flow.spec.ts` |
+| 4.26 | Detalhe com as abas Dados, Contatos, Processos, Documentos e Financeiro (as três últimas como espaço reservado) e as ações editar, unificar duplicado, anonimizar (com motivo) e excluir, confirmadas antes; a API passa a devolver `anonymizedAt` (só adição no OpenAPI) | `PersonDetailStore` (2 casos) |
+| 4.27 | Conflito: verificação por lado, resultado com risco e achados, prosseguir com justificativa obrigatória quando há alerta e relatório filtrado por risco | `ConflictStore` (3 casos), `e2e/people-flow.spec.ts` |
+| 4.28 | Textos em pt-BR e en (Transloco), WCAG 2.1 AA (axe) nas telas novas | `translations.spec.ts`, `expectAccessible` no e2e |
+
+**Critérios de aceite da Etapa 4 pela tela (e2e contra o AppHost):**
+
+| Critério | Status | Evidência |
+| --- | --- | --- |
+| CPF/CNPJ duplicado no mesmo tenant é bloqueado; em tenants diferentes é permitido | ✅ | `e2e/people-flow.spec.ts` (o mesmo CNPJ recusado no escritório e aceito no segundo) |
+| Busca por "Joao da Silva" encontra "João da Silva Ltda." | ✅ | `e2e/people-flow.spec.ts` |
+| Conflito detecta parte contrária cadastrada em processo de outro cliente | ✅ com processos falsos (API) | `ConflictTests.An_opponent_in_a_case_of_another_client_is_a_direct_conflict`; na tela, o conflito direto com parte contrária cadastrada e a justificativa obrigatória (`e2e/people-flow.spec.ts`). A prova com processos reais fica para a Etapa 5 |
+
+**Última verificação local (PR 4D1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 581 testes .NET em 13 projetos e 14 do AppHost, 56 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (10 aprovados, a suíte rodou duas vezes seguidas) e contra o `ng serve` (4 aprovados; os 6 que exigem o AppHost são pulados). Cobertura: Crm.Application 93,6% e Crm.Domain 98,6%. Sem pacote novo; o modelo do banco não mudou (só a resposta da API).
 
 ### PR 4C — funil de oportunidades e propostas (concluído: PR #20 mergeado em 2026-10-18)
 

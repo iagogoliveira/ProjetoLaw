@@ -39,6 +39,22 @@
             >{{ t('shell.home') }}</a
           >
           <a
+            *lfCan="'crm.people.read'"
+            mat-list-item
+            routerLink="/pessoas"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.people') }}</a
+          >
+          <a
+            *lfCan="'crm.conflicts.check'"
+            mat-list-item
+            routerLink="/conflitos"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.conflicts') }}</a
+          >
+          <a
             mat-list-item
             routerLink="/conta"
             routerLinkActive="active"

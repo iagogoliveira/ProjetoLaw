@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { anonymousGuard, authGuard } from './core/auth/auth.guard';
-import { organizationGuard } from './core/organization/organization.guards';
+import { organizationGuard, permissionGuard } from './core/organization/organization.guards';
 
 export const routes: Routes = [
   {
@@ -36,6 +36,17 @@ export const routes: Routes = [
         canMatch: [organizationGuard],
         loadChildren: () =>
           import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
+      {
+        path: 'pessoas',
+        canMatch: [organizationGuard, permissionGuard('crm.people.read')],
+        loadChildren: () => import('./features/people/people.routes').then((m) => m.PEOPLE_ROUTES),
+      },
+      {
+        path: 'conflitos',
+        canMatch: [organizationGuard, permissionGuard('crm.conflicts.check')],
+        loadChildren: () =>
+          import('./features/people/people.routes').then((m) => m.CONFLICT_ROUTES),
       },
       {
         path: 'conta',
