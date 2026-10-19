@@ -12,7 +12,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (6A #31 e 6B #32 concluídos; 6C/DataJud implementado e verificado localmente, aguardando envio/revisão; fornecedor real pendente; 6D/6E seguem depois do merge) | `codex/etapa-6c-datajud-integracoes` |
+| 6 — Publicações e andamentos | **Em implementação** (6A #31 e 6B #32 concluídos; 6C/DataJud verificado, envio/PR autorizados; aguardando CI/revisão; fornecedor real pendente; 6D/6E seguem depois do merge) | `codex/etapa-6c-datajud-integracoes` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -60,9 +60,15 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
 
-### PR 6C — DataJud e integrações (implementado/verificado localmente; sem push/PR)
+### PR 6C — DataJud e integrações (verificado; envio/PR autorizados)
 
 **Branch:** `codex/etapa-6c-datajud-integracoes`, base `a137919`. O escopo geral 6A a 6E já foi aprovado; não pedir nova aprovação das mesmas escolhas.
+
+**Publicação autorizada em 2026-10-19:** usuário pediu abrir o PR. Implementação `dd3bc20` e documentos serão enviados juntos no mesmo push; confirmar número/endereço do PR pelo head deste branch. Main remota continua em `a137919`, sem PR anterior para o branch na conferência prévia. ADR 0034 segue proposta; merge exclusivamente pelo usuário.
+
+**Preferência de ambiente atualizada:** aplicação e os sete serviços Docker desta instância encerrados a pedido, sem remoção de volumes/cadastros. Deixar fechada após verificações; reabrir para exploração manual somente quando o usuário pedir. AGENTS/CLAUDE e guia local atualizados. Manual revisado, sem mudança nos fluxos de uso.
+
+**Última verificação desta publicação:** somente documentação alterada; conferidos encerramento dos serviços, base remota, diff/UTF-8 e sincronização dos agentes. Preservados os gates completos do 6C abaixo, sem repetir testes de runtime para este registro.
 
 **Decisões adicionais aprovadas pelo usuário em 2026-10-19:** na primeira consulta DataJud, importar todo o histórico público disponível, preservando as datas dos andamentos. Nas seguintes, acrescentar apenas novidades, sem duplicar; reler documentos permite encontrar atos históricos incluídos tardiamente. O usuário autorizou reiniciar o AppHost quando necessário para a verificação do 6C, preservando os cadastros.
 
@@ -84,7 +90,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Adaptador do fornecedor real de publicações | Pendência externa | Aguardando escolha, documentação e acesso; início com fake + DataJud autorizado pelo usuário |
 | ADR 0034 e atualização dos dois guias | Atualizados e revisados | ADR proposta; manual informa disponibilidade/sem telas e histórico; guia descreve configuração, chave e operação local; AGENTS/CLAUDE sincronizados |
 
-**Estado e pendências:** código e documentos consolidados em commit local desta entrega, sem push/PR novo solicitado. O escopo DataJud/configuração está implementado e verificado; nenhuma pendência local de testes. **Fornecedor real continua pendente de escolha, documentação e acesso**; fake + DataJud foram autorizados como início e não representam captura real de intimações. A Etapa 6 permanece em andamento. Aguardar pedido de push/PR, CI/revisão e merge pelo usuário; depois seguir o ciclo documental e o 6D (triagem/Scheduling/fechamento), deixando telas para o 6E. Nenhuma nova decisão de negócio ficou sem resposta nesta entrega.
+**Estado e pendências:** implementação consolidada em `dd3bc20`, com push/PR autorizados pelo usuário nesta publicação e documentos no mesmo envio. O escopo DataJud/configuração está implementado e verificado; nenhuma pendência local de testes. **Fornecedor real continua pendente de escolha, documentação e acesso**; fake + DataJud foram autorizados como início e não representam captura real de intimações. A Etapa 6 permanece em andamento. Concluir a publicação autorizada, acompanhar CI/revisão e aguardar merge pelo usuário; depois seguir o ciclo documental e o 6D (triagem/Scheduling/fechamento), deixando telas para o 6E. Nenhuma nova decisão de negócio ficou sem resposta nesta entrega.
 
 ### PR 6B — captura e alertas (concluído: PR #32 mergeado em 2026-10-19)
 

@@ -10,6 +10,20 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio/PR do 6C autorizados; ambiente local encerrado)
+
+**Pedido explícito do usuário:** “Não é preciso manter a aplicação rodando [...] quando eu pedir novamente você abre. pode abrir o PR”. Autoriza push do código/documentação e criação do PR 6C para main; não autoriza merge. A preferência substitui as entradas anteriores que pediam manter a instância manual aberta.
+
+**Ambiente:** AppHost da sessão `47794` encerrado. Os sete contêineres desta instância foram identificados pelos labels do Aspire e parados explicitamente; frontend, API e Mailpit sem portas de escuta. Nenhum volume removido; cadastros preservados. Manter o ambiente fechado após verificações e reabrir para exploração manual somente a pedido. Regra registrada no AGENTS/CLAUDE e no guia local; manual de uso revisado, sem alteração dos fluxos de tela.
+
+**Branch/estado de publicação:** `codex/etapa-6c-datajud-integracoes`; implementação `dd3bc20`, política de testes `05076bb` e arrumação pós-merge `928f0d3`. Main remota conferida em `a137919`; nenhum PR anterior encontrado para este branch. Este registro documental acompanha o código no mesmo push. Após o envio, criar o PR e confirmar seu número/endereço no GitHub pelo head do branch; anexá-lo à conversa. Não fazer outro push apenas para registrar o número e cancelar o CI recém-iniciado.
+
+**Verificação:** nenhuma mudança de runtime nesta publicação; mantidos os 794 testes .NET, cobertura acima de 80%, 96 Vitest, builds/formatação/dependências/modelos e duas rodadas de 14 Playwright registrados abaixo. Conferir diff documental, UTF-8 e igualdade AGENTS/CLAUDE antes do commit. Não repetir a suíte sem nova mudança/falha/preocupação concreta.
+
+**Próximos passos:** concluir push/PR autorizado e acompanhar CI/revisão; merge somente pelo usuário. ADR 0034 permanece proposta. Após aviso de merge, fazer a arrumação e seguir o 6D já aprovado. Fornecedor real continua pendente; a Etapa 6 não está concluída.
+
+---
+
 ## 2026-10-19 — Codex (6C/DataJud implementado e verificado; commit local)
 
 **Branch/estado:** `codex/etapa-6c-datajud-integracoes`; base `a137919`, arrumação pós-merge enviada em `928f0d3`, política de testes preservada no commit local `05076bb`. Código e documentos do 6C consolidados em commit local desta entrega, sem push/PR novo solicitado. Consultar `git log -1` para o hash. ADR 0034 proposta; não marcar a Etapa 6 concluída.

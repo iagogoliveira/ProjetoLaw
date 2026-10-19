@@ -42,6 +42,8 @@ Para o primeiro acesso, siga a seção inicial do manual. Não há credencial co
 
 No terminal que está executando o AppHost, pressione **Ctrl+C** e aguarde o encerramento. Para voltar, execute o mesmo comando de inicialização.
 
+**Preferência registrada em 2026-10-19:** deixar a aplicação fechada após as verificações e reabri-la para exploração manual somente a pedido do usuário. O AppHost e seus serviços Docker foram encerrados após a verificação do 6C. Se algum contêiner dessa instância permanecer ligado após encerrar o AppHost, parar apenas os serviços identificados como pertencentes a ela, sem remover volumes.
+
 O ambiente padrão usa volumes persistentes para banco e armazenamento. Parar e iniciar normalmente preserva os cadastros locais. Remover os volumes Docker pode apagar esses dados; isso não faz parte do procedimento normal de encerramento.
 
 Enquanto estiver explorando a aplicação, não execute `LexFlow.AppHost.Tests` em paralelo: esse projeto de testes sobe outro AppHost e usa as mesmas portas. Também evite rodar a suíte completa de navegador enquanto faz sua navegação manual.
