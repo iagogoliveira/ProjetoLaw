@@ -1,6 +1,6 @@
 # ADR 0031 — Telas de valores, acompanhamento e importação de processos
 
-- **Status:** Proposta (para revisão no PR 5E2)
+- **Status:** Aceita (PR #30 mergeado em 2026-10-19)
 - **Data:** 2026-10-19
 - **Etapa:** 5 (PR 5E2)
 
@@ -27,4 +27,4 @@ O plano aprovado em 2026-10-19 completa as telas da Etapa 5: pedidos e valores (
 - As telas usam as regras de cálculo, autorização, aprovação e importação já registradas nas ADRs 0027 a 0029; não há nova decisão de negócio.
 - Vitest cobre as cinco stores, respostas atrasadas, erros, interrupção da consulta periódica e o gerador de parcelas. Os e2e percorrem pedidos, risco, acordo até a baixa, audiência redesignada e realizada, importação parcial com relatório e WCAG 2.1 AA.
 - A correção da contagem não exige migration nem regeneração do OpenAPI. Segurança e isolamento permanecem nos endpoints existentes.
-- O 5E2 encerra o escopo da Etapa 5; a conclusão oficial da etapa e a aceitação desta ADR aguardam o merge pelo usuário. Agenda, financeiro, fechamento contábil e cálculos completos continuam nas etapas previstas.
+- O 5E2 encerrou a Etapa 5 com o merge do PR #30 pelo usuário em 2026-10-19. Agenda, financeiro, fechamento contábil e cálculos completos continuam nas etapas previstas.

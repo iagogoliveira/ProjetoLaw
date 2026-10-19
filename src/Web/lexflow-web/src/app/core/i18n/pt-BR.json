@@ -968,6 +968,10 @@
       "save": "Salvar sigilo"
     },
     "timeline": {
+      "publications": {
+        "movement": "Andamento: {{ description }}",
+        "received": "Publicação recebida: {{ journal }}"
+      },
       "filter": "Tipos de acontecimento",
       "empty": "Nada registrado ainda.",
       "groups": {

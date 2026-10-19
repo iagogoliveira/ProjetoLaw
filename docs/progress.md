@@ -11,11 +11,55 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27, 5D #28 e 5E1 #29 mergeados; os 3 critérios de aceite atendidos; 5E2 implementado e verificado em 2026-10-19, com commit local; push e PR aguardam pedido; o merge do 5E2 conclui a etapa) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
+| 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
+| 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A implementado e verificado; em revisão; envio e PR autorizados em 2026-10-19) | `codex/etapa-6-publicacoes-andamentos` |
 
 ---
 
-## Etapa 5 — Processos e casos (em andamento; plano aprovado em 2026-10-18)
+## Etapa 6 — Publicações e andamentos (plano aprovado; 6A implementado e verificado)
+
+**Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
+
+**RFs:** RF-10 e RF-11. **Base:** seção 10 da `docs/spec/implementacao.md`. O plano e o histórico das decisões estão em `docs/handoff.md`; as recomendações foram aprovadas, mantendo apenas o fornecedor real como pendência externa.
+
+**Sequência aprovada em 2026-10-19 (um PR por vez):**
+
+| PR | Escopo aprovado | Evidências previstas |
+| --- | --- | --- |
+| 6A | Módulo Publications, fontes monitoradas, publicações e andamentos manuais, consultas, vínculo por CNJ e contratos com Litigation | Domínio, integração, permissões, RLS, escopo/sigilo e contribuição na linha do tempo |
+| 6B | Captura fake, deduplicação, jobs das 05:00 com tentativas até 07:00, monitoramento e notificações persistidas/in-app, e-mail e SignalR | Captura repetida não duplica; toda publicação fica vinculada ou não vinculada; falha do fake gera alerta |
+| 6C | DataJud para movimentações, adaptador do fornecedor contratado, consultas a cada 6 h distribuídas ao longo do dia e configuração das integrações | Contratos dos provedores, respostas gravadas/anônimas, paginação, indisponibilidade, reprocessamento e deduplicação |
+| 6D | Triagem, distribuição, núcleo mínimo de Scheduling aprovado, criação atômica de prazo/tarefa/audiência e fechamento diário auditado com `publications.close` | Falha no meio desfaz triagem e destino; responsável/permissão/escopo; bloqueio do fechamento com pendências ou captura incompleta |
+| 6E | Telas das fontes, fila dividida com atalhos, não vinculadas, triagem, contador e atualização em tempo real, andamentos na linha do tempo | Vitest das stores, Playwright contra o AppHost e WCAG 2.1 AA |
+
+**Pendência externa:** escolha, contratação e validação do fornecedor real de publicações/intimações. O início com fake + DataJud está autorizado, sem declarar a Etapa 6 integralmente concluída antes da integração real. As demais decisões foram aprovadas acima.
+
+**Dependência técnica a resolver em ADR:** a unidade de trabalho atual é por módulo (ADR 0007). A triagem exige atomicidade entre Publications e Scheduling/Litigation; somente publicar um evento no outbox não satisfaz o critério de gravação na mesma transação. A proposta é um coordenador de transação local compartilhada, mantendo acesso entre módulos por Contracts, com teste de rollback conjunto. A proposta foi aprovada em 2026-10-19; o desenho será detalhado na ADR do 6D antes da implementação. O 6A mantém o pipeline atual.
+
+**Última verificação local (arrumação pós-merge, 2026-10-19):** merge do PR #30 confirmado no GitHub (`33ec6bb`); `main` atualizada por fast-forward e branch da Etapa 6 criado a partir dela. Somente documentação alterada; mantém-se a verificação completa do 5E2 registrada abaixo e o CI aprovado informado pelo usuário. Nenhum teste de runtime reexecutado para esta arrumação documental.
+
+### PR 6A — base de Publications, fontes e andamentos (implementado e verificado; em revisão; envio e PR autorizados em 2026-10-19)
+
+**Escopo:** primeiro PR do plano aprovado em 2026-10-19; não antecipa os fluxos dos PRs 6B a 6E. ADR [0032 — Módulo Publications: fontes, consultas e andamentos](adr/0032-modulo-publications-fontes-consultas-e-andamentos.md), proposta para revisão no PR 6A.
+
+| Subtarefa | Implementação | Testes |
+| --- | --- | --- |
+| Módulo e persistência | Cinco projetos, schema próprio, registro nos três hosts, cinco entidades, tenant e RLS, migrations aditivas | `PublicationsDatabaseTests`: criação, reversão/reaplicação e modelo; `RowLevelSecurityTests`; arquitetura |
+| Fontes | OAB/nome/CNPJ com value objects existentes; cadastro, consulta, edição e desativação com `settings.integrations.manage` | Domínio e API; autenticação/permissão e isolamento em SecurityTests |
+| Entrada interna de publicações | Texto original e datas separados; hash normalizado com índice único; CNJ validado, vínculo único por Contracts e retenção de não vinculadas | Domínio e API: normalização, CNJ inválido/ambíguo/repetido, duplicata sequencial e vínculo |
+| Consulta e alcance | Cursor, situação, vínculo e processo; alcance da permissão e sigilo; candidatas a processo inacessível não revelam texto pela fila ambígua | API com escopo próprio/escritório e bloqueio de caso; SecurityTests entre organizações |
+| Andamentos manuais | Data/origem/coleta em UTC; registro com `cases.edit`, consulta com `cases.read`, autorizadores via `ICaseDirectory` | Domínio/API: datas, entradas inválidas, alcance e paginação com empate |
+| Linha do tempo e contrato | Contributor de recebimentos/andamentos, paginação estável, traduções pt-BR/en, OpenAPI aditivo e cliente TypeScript gerado | API: contribuição e leitura de todas as páginas sem repetição; contrato; traduções/Vitest e regressão Playwright |
+
+**Última verificação local (PR 6A, 2026-10-19):** builds Release e Debug sem warnings; `dotnet format LexFlow.sln --verify-no-changes --no-restore`; **751 testes .NET em 18 projetos**, todos aprovados e com cobertura (inclui 19 testes unitários de Publications, 2 de banco/migrations, 9 novos testes de API, 11 SecurityTests e 14 do AppHost). Gate de 80% aprovado em todas as camadas: Publications.Application **100%**, Publications.Domain **95,4%**, Litigation.Application 92,4%. Nenhum pacote vulnerável; Platform, Organization, Crm, Litigation e Publications sem mudança de modelo pendente. OpenAPI atualizado pelo teste oficial, com diff apenas aditivo; cliente TypeScript regenerado. `npm run lint`, `npm test` (**96 aprovados**) e `npm run build` passaram com o cliente atualizado. Playwright contra o AppHost com relatório HTML: **14 aprovados em duas rodadas finais consecutivas (37,6 s e 29,2 s)**; só o preparo opcional da carga foi pulado. Relatórios .NET em `TestResults/6a-final-validation`, cobertura em `TestResults/6a-coverage-gate.log`, relatório da primeira rodada final em `TestResults/6a-playwright-report-final-run1`, último relatório em `src/Web/lexflow-web/playwright-report/index.html` (artefatos locais ignorados pelo Git).
+
+**Ocorrência na verificação:** a primeira rodada com limite local padrão passou (14 testes, 36,7 s), mas a repetição imediata atingiu HTTP 429 em `/conta/confirmar-email`; os testes afetados e traces foram preservados em `TestResults/6a-playwright-rate-limit-failure`, e a rodada foi interrompida. O AppHost foi reiniciado com a configuração de teste já existente `LexFlow__PublicPermitsPerMinute=10000`; as duas rodadas finais passaram. Nenhum limite de produção nem teste foi alterado para contornar a proteção. A orientação foi registrada em AGENTS/CLAUDE.
+
+**Pendências do 6A:** nenhuma de implementação/verificação do escopo aprovado; implementação no commit `a4c2d75`; **push e PR autorizados pelo usuário em 2026-10-19**, com código e documentação no mesmo envio. Aguardam-se CI, revisão e merge pelo usuário. As capturas concorrentes e os jobs/provedores são do 6B/6C; triagem e fechamento com Scheduling são do 6D; telas de fila/fontes são do 6E. A Etapa 6 continua em implementação e o fornecedor real permanece pendente.
+
+---
+
+## Etapa 5 — Processos e casos (concluída: PR #30 mergeado em 2026-10-19)
 
 **RFs:** RF-09 (processos e casos), RF-13 (pedidos, valores e cálculos), RF-14 (risco básico) e RF-16 (acordos, estrutura).
 
@@ -34,7 +78,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 - **5D — linha do tempo, importação XLSX/CSV e operações em lote.**
 - **5E — frontend e e2e.** Dividido em 2026-10-18:
   - **5E1** (#29): lista, assistente, detalhe básico, linha do tempo, sigilo e numeração;
-  - **5E2** (implementado e verificado em 2026-10-19; commit local, sem push nem PR): abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação.
+  - **5E2** (#30, mergeado em 2026-10-19): abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação.
 
 **Critérios de aceite da Etapa 5:**
 
@@ -44,9 +88,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | ✅ (5D) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones`: 9.700 processos gravados e o relatório com exatamente as 300 linhas inválidas (6 defeitos × 50), cada uma com o código esperado |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5E2 — telas de valores, acompanhamento e importação (implementado e verificado; commit local, aguardando pedido de push e PR)
+### PR 5E2 — telas de valores, acompanhamento e importação (concluído: PR #30 mergeado em 2026-10-19)
 
-**Escopo:** plano aprovado em 2026-10-19, sem nova decisão de negócio. Completa o frontend da Etapa 5. O encerramento oficial da etapa aguarda o merge pelo usuário.
+**Escopo:** plano aprovado em 2026-10-19, sem nova decisão de negócio. Completa o frontend e encerra a Etapa 5 com o merge do PR #30 pelo usuário em 2026-10-19.
 
 | # | Subtarefa | Testes |
 | --- | --- | --- |
@@ -60,11 +104,11 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.52 | Correção do total final de inválidas: contar os erros da revalidação ainda em memória, somando os persistidos ao retomar | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones` agora confere também 10.000 / 9.700 / 300 ao final; e2e de importação |
 | 5.53 | Textos pt-BR/en, permissões, WCAG 2.1 AA e relatório Playwright com trace/screenshot na primeira falha | `translations.spec.ts`; `expectAccessible` em todas as abas novas e na importação |
 
-**ADR:** [0031 — Telas de valores, acompanhamento e importação de processos](adr/0031-telas-de-valores-acompanhamento-e-importacao.md) (Proposta para revisão no PR 5E2).
+**ADR:** [0031 — Telas de valores, acompanhamento e importação de processos](adr/0031-telas-de-valores-acompanhamento-e-importacao.md) (Aceita em 2026-10-19, com o merge do PR #30).
 
 **Última verificação local (PR 5E2, 2026-10-19):** `dotnet build LexFlow.sln -c Release` e build Debug (0 warnings), `dotnet format LexFlow.sln --verify-no-changes`, 721 testes .NET em 16 projetos (707 + 14 do AppHost), todos com cobertura, gate de 80% aprovado em todas as camadas. Litigation.Application 92,4%, Litigation.Domain 97,9%, Platform.Application 97,2% e Crm.Application 94,4%. `dotnet list ... --vulnerable --include-transitive` sem achados; nenhuma mudança de modelo pendente no Platform, Organization, Crm ou Litigation. `npm run lint`, `npm test` (96 aprovados), `npm run build` e a suíte Playwright contra o AppHost, com relatório HTML: **14 aprovados em duas execuções consecutivas** (56,4 s e 46,9 s; só o preparo da carga é pulado). Nenhum pacote novo, migration nova ou mudança no contrato OpenAPI. Relatórios da rodada final .NET em `TestResults/5e2-final-validation`; último relatório de telas em `src/Web/lexflow-web/playwright-report/index.html` (artefatos locais ignorados pelo Git).
 
-**Pendências do PR 5E2:** push e abertura do PR somente quando solicitados, enviando código e documentos juntos. Depois do merge pelo usuário: atualizar a `main`, aceitar a ADR 0031, marcar o 5E2 e a Etapa 5 como concluídos, criar o branch da Etapa 6, atualizar as passagens de bastão e fazer commit/push da arrumação. Planejar a Etapa 6 e apresentar dúvidas de negócio antes de implementar. Sem pendência de implementação ou verificação do escopo aprovado do 5E2.
+**Pendências do PR 5E2:** nenhuma de implementação ou verificação do escopo aprovado. PR #30 mergeado pelo usuário; arrumação registrada no branch da Etapa 6. O próximo trabalho é aprovar o plano e resolver as dúvidas da Etapa 6, sem antecipar sua implementação.
 
 ### PR 5E1 — telas de processos: lista, assistente e detalhe (concluído: PR #29 mergeado em 2026-10-19)
 
@@ -91,7 +135,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Pendências do PR 5E1:**
 1. Exceção do oasdiff registrada em `docs/openapi/oasdiff-ignore.txt` (21 entradas da correção do `CaseAssignmentResponse`).
 2. O filtro por pessoa (parte) existe na API, mas ainda não tem campo na tela.
-3. Pedidos, risco, acordos, audiências e importação: implementados no PR 5E2 (acima), aguardando o merge.
+3. Pedidos, risco, acordos, audiências e importação: concluídos no PR 5E2 (#30, acima).
 
 ### PR 5D — linha do tempo, importação e operações em lote (concluído: PR #28 mergeado em 2026-10-18)
 

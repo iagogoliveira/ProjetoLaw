@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../LexFlow.Publications.Domain/LexFlow.Publications.Domain.csproj" />
+    <ProjectReference Include="../LexFlow.Publications.Contracts/LexFlow.Publications.Contracts.csproj" />
+    <ProjectReference Include="../../Litigation/LexFlow.Litigation.Contracts/LexFlow.Litigation.Contracts.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/LexFlow.Application.Abstractions/LexFlow.Application.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><PackageReference Include="Microsoft.EntityFrameworkCore" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="LexFlow.Publications.Infrastructure" /><InternalsVisibleTo Include="LexFlow.Publications.UnitTests" /></ItemGroup>
+</Project>

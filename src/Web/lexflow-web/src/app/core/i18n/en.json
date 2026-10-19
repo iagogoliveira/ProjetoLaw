@@ -968,6 +968,10 @@
       "save": "Save restrictions"
     },
     "timeline": {
+      "publications": {
+        "movement": "Movement: {{ description }}",
+        "received": "Publication received: {{ journal }}"
+      },
       "filter": "Event types",
       "empty": "Nothing recorded yet.",
       "groups": {

@@ -61,6 +61,7 @@ public static class LitigationInfrastructure
         services.AddScoped<CaseAccess>();
         services.AddScoped<IAccessDenials, AccessDenials>();
         services.AddScoped<ICaseVisibility, CaseVisibility>();
+        services.AddScoped<ICaseDirectory, CaseDirectory>();
         return services;
     }
 }

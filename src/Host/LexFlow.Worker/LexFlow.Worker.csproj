@@ -14,4 +14,7 @@
     <ProjectReference Include="..\..\Modules\Litigation\LexFlow.Litigation.Infrastructure\LexFlow.Litigation.Infrastructure.csproj" />
   </ItemGroup>
 
+<ItemGroup>
+<ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Infrastructure/LexFlow.Publications.Infrastructure.csproj" />
+</ItemGroup>
 </Project>

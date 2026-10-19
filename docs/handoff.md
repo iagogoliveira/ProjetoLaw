@@ -10,6 +10,90 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio e PR do 6A autorizados)
+
+**Branch:** `codex/etapa-6-publicacoes-andamentos`, base `main`. **Implementação:** commit `a4c2d75` — “Etapa 6A: base de publicações, fontes e andamentos”. O usuário pediu “Faça push e PR”; este registro documental acompanha o código no mesmo push. A entrega segue para revisão como PR 6A, com a ADR 0032 ainda proposta.
+
+**Feito nesta entrega:** conferência do branch, diretório limpo, commit e remoto; verificado que não havia PR aberto para o branch; registro da autorização e preparação do envio e do PR. O resultado da publicação e o link do PR são confirmados na resposta desta conversa. Não há alteração de código em relação à verificação completa anterior: 751 testes .NET, gate de cobertura, frontend e duas rodadas Playwright aprovados. Somente documentação de estado foi atualizada; diff e sincronização AGENTS/CLAUDE conferidos.
+
+**Próximo:** acompanhar o CI e a revisão do PR 6A; aguardar o usuário fazer e avisar do merge. Depois, atualizar a main, aceitar a ADR 0032 com número/data do PR, atualizar progresso/AGENTS/CLAUDE/handoff, criar o branch do 6B e fazer a arrumação pós-merge. Nunca fazer merge pelo usuário. As decisões da Etapa 6 continuam aprovadas; fornecedor real permanece pendente e não bloqueia o 6A.
+
+---
+## 2026-10-19 — Codex (plano da Etapa 6 aprovado; PR 6A implementado e verificado localmente)
+
+**Branch:** `codex/etapa-6-publicacoes-andamentos`. **Estado:** último commit enviado `beee338` (arrumação pós-merge do #30); 6A implementado e verificado, em commit local desta entrega, sem novo push e sem PR aberto. O usuário aprovou o plano e as recomendações com “Ok, gostei das sugestões, pode seguir.” Não pedir novamente aprovação das mesmas escolhas.
+
+**Decisões aprovadas:** iniciar com fake + DataJud, mantendo fornecedor real de publicações como pendência explícita; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local PostgreSQL compartilhada (ADR específica no 6D); fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova `publications.close`; escritório individual pode acumular permissões sem segunda aprovação. Fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores, e captura esperada ausente impede conclusão integral. A data da publicação continua separada.
+
+**Escopo do 6A:** cinco projetos Publications, fontes OAB/nome/CNPJ, estrutura de captura/publicação/triagem/andamento, RLS, consultas paginadas, entrada interna de publicação com extração/validação do CNJ, vínculo por Contracts, andamento manual com autorização do processo e contribuição na timeline. ADR 0032 proposta. Nenhum provedor externo, job de captura, triagem, fechamento ou tela de fila antecipado.
+
+**Segurança:** o novo `ICaseDirectory` usa o `CaseAccess` do Litigation com a permissão do caso de uso; não há acesso a outro DbContext. A fila sem vínculo exige escopo de escritório e oculta também publicações que mencionam CNJs inacessíveis, inclusive ambíguas, para preservar o sigilo antes de haver vínculo.
+
+**Verificação concluída:** Docker Desktop rodando; builds Release/Debug sem warnings, format sem alterações; **751 testes .NET em 18 projetos**, incluindo os 9 novos de API e os 14 do AppHost; cobertura >=80% em todas as camadas (Publications.Application 100%, Domain 95,4%); NuGet sem vulneráveis; cinco contextos sem mudança de modelo pendente. OpenAPI gerado pelo teste oficial, diff apenas aditivo, cliente TypeScript regenerado. Lint, 96 Vitest e build Angular aprovados. Duas rodadas finais consecutivas de Playwright: **14 aprovados em cada (37,6 s e 29,2 s)**, com relatório HTML e WCAG; apenas preparo opcional de carga pulado. Artefatos ignorados em `TestResults/6a-*` e `src/Web/lexflow-web/playwright-report`.
+
+**Armadilha confirmada:** a repetição imediata das suítes com limite local padrão (120/min por IP) gerou 429 na confirmação de e-mail; traces preservados em `TestResults/6a-playwright-rate-limit-failure`, rodada interrompida. Reiniciar o AppHost com `LexFlow__PublicPermitsPerMinute=10000` (configuração existente, só E2E) permitiu as duas rodadas finais. Não foi mudado limite de produção nem mascarado erro no teste; orientação incluída em AGENTS/CLAUDE. O AppHost da verificação final ficou em execução.
+
+**Próximo:** aguardar o pedido do usuário para enviar o commit local do 6A e abrir o PR. Não fazer push nem abrir PR sem pedido. Depois do merge do 6A pelo usuário, seguir o ciclo pós-merge e o 6B; não implementar 6B no mesmo PR.
+
+---
+
+## 2026-10-19 — Codex (PR #30 mergeado; arrumação e plano proposto da Etapa 6)
+
+**Branch:** `codex/etapa-6-publicacoes-andamentos`, criado da `main` atualizada no merge `33ec6bb` do PR #30. **Estado:** esta arrumação documental segue em commit/push neste branch, como já autorizado pelo ciclo pós-merge. Nenhum código da Etapa 6 foi implementado e nenhum PR da Etapa 6 foi aberto.
+
+**Feito:** o usuário informou que os testes passaram e que fez o merge; o estado `MERGED` e a data de 2026-10-19 foram confirmados no GitHub. `main` atualizada por fast-forward; 5E2 e Etapa 5 concluídos no progresso; ADR 0031 aceita; `AGENTS.md` e `CLAUDE.md` atualizados e sincronizados. O registro local da leitura integral da especificação/ADRs foi preservado e incluído aqui, sem perda do histórico.
+
+**Verificação desta arrumação:** conferência do merge e da base do branch, diff somente documental, `git diff --check` e igualdade de `AGENTS.md`/`CLAUDE.md`. Não houve alteração de runtime, pacote, migration, endpoint ou contrato; a suíte completa aprovada no 5E2 e o CI informado pelo usuário continuam sendo a última verificação de código.
+
+### Plano da Etapa 6 — proposta para aprovação, sem implementação
+
+**Objetivo:** RF-10 e RF-11, seção 10 da `implementacao.md`: captura rastreável de publicações, vinculação ao processo, triagem da controladoria, andamentos e fechamento diário. Um PR por vez, com a verificação completa e uma ADR por mudança de arquitetura. O plano abaixo ainda não foi aprovado pelo usuário.
+
+| PR | Entrega proposta | Testes previstos |
+| --- | --- | --- |
+| 6A | Criar os cinco projetos de Publications, entidades `CaptureSource`, `CaptureRun`, `Publication`, `PublicationTriage` e `CaseMovement`, schema/RLS, consultas e gravação manual; fontes de OAB/nome/CNPJ; contratos para localizar processos e validar alcance sem acessar outro DbContext; vínculo por CNJ validado e contribuição na linha do tempo | Domínio, migrations do zero/incrementais, API, descoberta automática e casos entre organizações nos SecurityTests, escopo e muralha ética, OpenAPI/cliente gerado |
+| 6B | `IPublicationProvider`/`IMovementProvider` com fake determinístico; captura das 05:00, retentativas até 07:00 e retomada; hash de diário/data/texto normalizado; estados vinculada/não vinculada; monitor independente da captura, alerta persistido sem duplicação e métrica `lexflow_capture_missing_total`; infraestrutura mínima de notificações in-app/e-mail e SignalR com autorização por usuário/escritório/processo | Reexecutar captura não duplica; nenhuma publicação é descartada; provedor fake indisponível gera alerta; sucesso posterior resolve a situação de captura; reconexão e isolamento das notificações |
+| 6C | Adaptador DataJud de metadados/movimentações públicas e adaptador do fornecedor contratado (dependente da escolha e do contrato); configurações/credenciais fora do código; andamentos a cada 6 h por processo ativo, distribuídos ao longo do dia; cursor por tribunal, paginação `search_after`, idempotência e reprocessamento | Contratos de provedores com respostas gravadas/anônimas, indisponibilidade, paginação, deduplicação, relógio falso e limites de concorrência; testes reais opcionais sem dependência externa no CI |
+| 6D | Triagem com as seis classificações da especificação, distribuição, vínculo manual auditado e criação de prazo/tarefa/audiência; fechamento diário com responsável e bloqueio por pendências. Antecipação mínima de Scheduling e transação entre módulos dependem de aprovação (abaixo) | Rollback conjunto com falha induzida; repetição idempotente; permissão/escopo de cada recurso; fechamento recusado enquanto houver pendência; fechamento auditado |
+| 6E | `features/publications`: configuração das fontes, fila com filtros e paginação, não vinculadas, painel texto/formulário, CNJ destacado, atalhos de teclado, distribuição e fechamento; contador no menu, notificações/SignalR e andamentos na linha do tempo | Vitest de cada store, chaves pt-BR/en iguais, Playwright contra o AppHost em duas rodadas, `expectAccessible` nas telas novas e casos de acesso negado |
+
+**Permissões propostas, para validação no plano:** fontes e credenciais com `settings.integrations.manage`; consulta com `publications.read`; triagem com `publications.triage`; distribuição com `publications.distribute`; andamentos manuais com `cases.edit` e alcance do processo. O fechamento pode usar `publications.triage` ou uma permissão própria, conforme a decisão do usuário. Novas permissões exigem catálogo, perfis e testes, inclusive nos escritórios existentes quando aplicável.
+
+**Vínculo e sigilo:** os dados ligados a processo devem implementar `ICaseScoped` e respeitar o alcance completo e o sigilo do processo; `ICaseVisibility` hoje cobre os ids ocultos por sigilo e precisará ser complementado para as consultas necessárias. CNJs ambíguos não devem ser vinculados arbitrariamente; permanecem para conferência manual. Não expor texto nem notificações de processo fora do alcance do usuário.
+
+**Dependência e atomicidade a aprovar:** a especificação exige que a triagem crie prazo/tarefa/audiência na mesma transação, mas Scheduling só está previsto para a Etapa 7. A ADR 0007 e o `IUnitOfWork` atual abrem transação por módulo, portanto apenas gravar um evento no outbox não atende ao critério. Recomendo antecipar o núcleo mínimo de prazos/tarefas (processo, responsável, data fatal explícita e estado inicial, com validação e confirmação humana) e criar um coordenador de transação local compartilhada entre os contextos participantes, com comunicação por Contracts e rollback conjunto. A calculadora de prazos, agenda completa, feriados forenses, revisão e cumprimento com evidência seguem na Etapa 7. O desenho da transação e a exceção à decisão por módulo devem ser formalizados em ADR antes de implementar; não usar gravações sequenciais independentes como se fossem atômicas.
+
+**Critérios de aceite propostos (nomes de testes ainda não implementados):**
+- `Capturing_twice_does_not_duplicate_publications`;
+- `Every_captured_publication_is_linked_or_waits_for_linking`;
+- `An_unavailable_provider_raises_a_missing_capture_alert`;
+- `A_failed_triage_rolls_back_the_created_deadline`;
+- adicional: `Closing_a_day_with_pending_publications_is_refused` e testes de isolamento/escopo em todas as rotas e notificações.
+
+**Dúvidas para o usuário antes de implementar:**
+1. Qual fornecedor de publicações/intimações está contratado e há documentação/sandbox? Se ainda não houver, autoriza começar com fake + DataJud e manter o adaptador contratado como pendência explícita (a etapa não será declarada integralmente concluída sem ele)? DataJud atende movimentações públicas; não substitui a captura contratada de diários/intimações.
+2. Aprova antecipar o núcleo mínimo de Scheduling para gerar os registros reais na triagem, com responsável/data informados e confirmados pelo usuário, mantendo a calculadora e a agenda completa na Etapa 7? Aprova a proposta de transação local compartilhada formalizada em ADR?
+3. Fontes/integrações ficam com o Administrador (`settings.integrations.manage`) e o fechamento com quem pode triar, ou o fechamento deve ter permissão própria?
+4. Para o fechamento, "do dia" significa data de captura/recebimento ou data de publicação no diário? Recomendo capturadas/recebidas até a data escolhida, no fuso legal, incluindo pendências anteriores para não ocultar atraso; confirmar antes de gravar essa regra.
+
+**Fontes técnicas consultadas para o plano:** [API pública do DataJud](https://datajud-wiki.cnj.jus.br/api-publica/), [acesso](https://datajud-wiki.cnj.jus.br/api-publica/acesso/) e [paginação](https://datajud-wiki.cnj.jus.br/api-publica/exemplos/exemplo3/), além da especificação, das ADRs e do código local. A chave pública vigente deve ser configurada, nunca copiada para o código/documentação do projeto.
+
+**Próximo agente:** aguardar respostas e aprovação do plano. Não implementar nem abrir o PR 6A ainda. Após aprovação, registrar as decisões no progresso, detalhar apenas o primeiro PR e executar um PR por vez.
+
+---
+
+## 2026-10-19 — Codex (leitura integral da especificação e das ADRs)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`. **Estado:** PR #30 aberto na sessão anterior, com os commits `e993a8b` (implementação) e `775484d` (autorização do envio). Esta entrada é somente um registro local da leitura, sem alteração de código nem novo push.
+
+**Pedido do usuário:** ler integralmente os dois documentos de `docs/spec` e todos os documentos de `docs/adr`. Antes deste pedido, a especificação havia sido consultada por seções pertinentes ao 5E2; isso foi esclarecido ao usuário.
+
+**Leitura concluída:** `docs/spec/implementacao.md` e `docs/spec/requisitos-v3.md`, do início ao fim, e todas as 31 ADRs existentes, de 0001 a 0031, incluindo contexto, decisões, consequências, pendências e atualizações. As decisões posteriores registradas nas ADRs e no progresso prevalecem sobre os exemplos genéricos da especificação. Esta leitura não é uma nova auditoria do código nem uma nova execução dos testes.
+
+**Próximo:** aguardar o usuário avisar do merge do PR #30 antes da arrumação e do planejamento da Etapa 6. Nenhuma nova decisão de negócio ou implementação nesta solicitação.
+
+---
+
 ## 2026-10-19 — Codex (envio do 5E2 aprovado pelo usuário)
 
 **Branch:** `etapa-5e2-telas-valores-importacao`. **Commit de implementação:** `e993a8b` (`Etapa 5E2: telas de valores, acompanhamento e importação`).
