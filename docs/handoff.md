@@ -10,6 +10,15 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio e PR do 6A autorizados)
+
+**Branch:** `codex/etapa-6-publicacoes-andamentos`, base `main`. **Implementação:** commit `a4c2d75` — “Etapa 6A: base de publicações, fontes e andamentos”. O usuário pediu “Faça push e PR”; este registro documental acompanha o código no mesmo push. A entrega segue para revisão como PR 6A, com a ADR 0032 ainda proposta.
+
+**Feito nesta entrega:** conferência do branch, diretório limpo, commit e remoto; verificado que não havia PR aberto para o branch; registro da autorização e preparação do envio e do PR. O resultado da publicação e o link do PR são confirmados na resposta desta conversa. Não há alteração de código em relação à verificação completa anterior: 751 testes .NET, gate de cobertura, frontend e duas rodadas Playwright aprovados. Somente documentação de estado foi atualizada; diff e sincronização AGENTS/CLAUDE conferidos.
+
+**Próximo:** acompanhar o CI e a revisão do PR 6A; aguardar o usuário fazer e avisar do merge. Depois, atualizar a main, aceitar a ADR 0032 com número/data do PR, atualizar progresso/AGENTS/CLAUDE/handoff, criar o branch do 6B e fazer a arrumação pós-merge. Nunca fazer merge pelo usuário. As decisões da Etapa 6 continuam aprovadas; fornecedor real permanece pendente e não bloqueia o 6A.
+
+---
 ## 2026-10-19 — Codex (plano da Etapa 6 aprovado; PR 6A implementado e verificado localmente)
 
 **Branch:** `codex/etapa-6-publicacoes-andamentos`. **Estado:** último commit enviado `beee338` (arrumação pós-merge do #30); 6A implementado e verificado, em commit local desta entrega, sem novo push e sem PR aberto. O usuário aprovou o plano e as recomendações com “Ok, gostei das sugestões, pode seguir.” Não pedir novamente aprovação das mesmas escolhas.
