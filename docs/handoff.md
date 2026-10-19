@@ -10,6 +10,17 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (6A #31 mergeado; arrumação e início do 6B aprovado)
+
+**Branch:** `codex/etapa-6b-captura-alertas`, criado da `main` atualizada no merge `f2e01a9` do PR #31. **Estado:** o usuário informou merge e aprovação; confirmado `MERGED` no GitHub em 2026-10-19. Arrumação documental em commit/push neste branch, conforme o ciclo já autorizado. Nenhum PR do 6B aberto.
+
+**Feito:** main atualizada por fast-forward; 6A concluído no progresso; ADR 0032 aceita; AGENTS/CLAUDE sincronizados. Conferidos branch/base, diff documental e ausência de alterações locais anteriores. Mantida a verificação completa do 6A (751 testes .NET, cobertura, frontend e duas rodadas Playwright); esta arrumação não muda runtime.
+
+**Próximo:** seguir a implementação do **6B já aprovado**, um PR por vez: provedores fake, captura idempotente inclusive concorrente, jobs às 05:00 e retentativas até 07:00, monitor independente de captura ausente, alerta persistido sem duplicação/métrica e notificações mínimas in-app/e-mail/SignalR com isolamento e autorização. Detalhar o desenho na ADR 0033 proposta, adicionar testes e executar verificação completa. Não antecipar DataJud/fornecedor real, triagem/fechamento ou telas de fila. A implementação do 6B termina em commit local; push/PR só quando solicitado. Nunca fazer merge.
+
+**Decisões:** nenhuma decisão de negócio nova. Todas as escolhas da aprovação da Etapa 6 permanecem válidas, incluindo fake + DataJud inicialmente e fornecedor real como pendência, núcleo mínimo de Scheduling no 6D, `publications.close` e fechamento por recebimento no fuso legal.
+
+---
 ## 2026-10-19 — Codex (envio e PR do 6A autorizados)
 
 **Branch:** `codex/etapa-6-publicacoes-andamentos`, base `main`. **Implementação:** commit `a4c2d75` — “Etapa 6A: base de publicações, fontes e andamentos”. O usuário pediu “Faça push e PR”; este registro documental acompanha o código no mesmo push. A entrega segue para revisão como PR 6A, com a ADR 0032 ainda proposta.

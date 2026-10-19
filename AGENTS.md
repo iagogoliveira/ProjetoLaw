@@ -35,7 +35,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - §9 a §12: as etapas, cada uma com escopo e critérios de aceite. **A Etapa 5 está na §10.**
    - §13: estratégia de testes e qualidade. §14: modelos de prompt e checklist do agente.
 3. **`docs/spec/requisitos-v3.md`**: os requisitos de negócio. A seção de cada módulo diz o que construir. Para a Etapa 5: **§7 (Contencioso)**, e também §3 (perfis e permissões) e §14 (requisitos não funcionais).
-4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0032 (0032 proposta no PR 6A). Antes de mexer numa área, leia as ADRs dela. As de base:
+4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0032 (aceita no PR #31). Antes de mexer numa área, leia as ADRs dela. As de base:
    - 0001 a 0003: monolito modular, stack e módulos por etapa;
    - 0007: pipeline de casos de uso (validação, autorização, transação);
    - 0010: trilha de auditoria;
@@ -60,7 +60,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
   - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
-- **Etapa 6 (publicações e andamentos):** branch `codex/etapa-6-publicacoes-andamentos`. Plano 6A a 6E aprovado em 2026-10-19, junto das quatro recomendações registradas no progresso. PR 6A implementado e verificado localmente (751 testes .NET, gate de 80%, frontend e duas rodadas Playwright aprovados; push e PR autorizados em 2026-10-19): módulo Publications, fontes, consultas, andamentos manuais, contratos de acesso e timeline; ADR 0032 proposta. Captura/alertas, integrações, triagem/fechamento e telas seguem nos próximos PRs. Um PR por vez; push e abertura de PR só a pedido.
+- **Etapa 6 (publicações e andamentos):** plano 6A a 6E aprovado em 2026-10-19. **6A (#31) aprovado e mergeado pelo usuário em 2026-10-19**: base Publications, fontes, consultas, andamentos, alcance/sigilo e timeline; ADR 0032 aceita. Branch atual `codex/etapa-6b-captura-alertas`, criado da main atualizada (`f2e01a9`). Próximo PR 6B: captura fake, deduplicação concorrente, agendamento/retentativas, monitor independente e notificações mínimas in-app/e-mail/SignalR. Sem nova aprovação do mesmo plano. Triagem/fechamento e telas seguem em 6D/6E; fornecedor real pendente no 6C.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -71,7 +71,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Próximo trabalho:** aguardar o CI, a revisão e o usuário fazer/avisar do merge do PR 6A; depois, fazer a arrumação e seguir o 6B (um PR por vez). Decisões aprovadas: fake + DataJud com fornecedor real pendente; núcleo mínimo de Scheduling e transação local compartilhada no 6D; fechamento com `publications.close`, por recebimento em America/Sao_Paulo, incluindo pendências antigas e captura esperada ausente. Sem nova aprovação do mesmo plano.
+- **Próximo trabalho:** implementar e verificar o 6B conforme o plano aprovado; commit local ao concluir. Push e PR da implementação só a pedido. A arrumação documental pós-merge tem commit/push autorizado pelo ciclo de trabalho. Não fazer merge pelo usuário.
 
 ## Ciclo de trabalho (um PR por vez)
 

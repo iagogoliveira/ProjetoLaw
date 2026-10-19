@@ -12,11 +12,11 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A implementado e verificado; em revisão; envio e PR autorizados em 2026-10-19) | `codex/etapa-6-publicacoes-andamentos` |
+| 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A concluído (#31, 2026-10-19); próximo PR 6B) | `codex/etapa-6b-captura-alertas` |
 
 ---
 
-## Etapa 6 — Publicações e andamentos (plano aprovado; 6A implementado e verificado)
+## Etapa 6 — Publicações e andamentos (plano aprovado; 6A concluído; PR 6B em preparação)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -38,9 +38,10 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local (arrumação pós-merge, 2026-10-19):** merge do PR #30 confirmado no GitHub (`33ec6bb`); `main` atualizada por fast-forward e branch da Etapa 6 criado a partir dela. Somente documentação alterada; mantém-se a verificação completa do 5E2 registrada abaixo e o CI aprovado informado pelo usuário. Nenhum teste de runtime reexecutado para esta arrumação documental.
 
-### PR 6A — base de Publications, fontes e andamentos (implementado e verificado; em revisão; envio e PR autorizados em 2026-10-19)
+**Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
+### PR 6A — base de Publications, fontes e andamentos (concluído: PR #31 mergeado em 2026-10-19)
 
-**Escopo:** primeiro PR do plano aprovado em 2026-10-19; não antecipa os fluxos dos PRs 6B a 6E. ADR [0032 — Módulo Publications: fontes, consultas e andamentos](adr/0032-modulo-publications-fontes-consultas-e-andamentos.md), proposta para revisão no PR 6A.
+**Escopo:** primeiro PR do plano aprovado em 2026-10-19; não antecipa os fluxos dos PRs 6B a 6E. ADR [0032 — Módulo Publications: fontes, consultas e andamentos](adr/0032-modulo-publications-fontes-consultas-e-andamentos.md), aceita com o merge do PR #31 em 2026-10-19.
 
 | Subtarefa | Implementação | Testes |
 | --- | --- | --- |
@@ -55,7 +56,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Ocorrência na verificação:** a primeira rodada com limite local padrão passou (14 testes, 36,7 s), mas a repetição imediata atingiu HTTP 429 em `/conta/confirmar-email`; os testes afetados e traces foram preservados em `TestResults/6a-playwright-rate-limit-failure`, e a rodada foi interrompida. O AppHost foi reiniciado com a configuração de teste já existente `LexFlow__PublicPermitsPerMinute=10000`; as duas rodadas finais passaram. Nenhum limite de produção nem teste foi alterado para contornar a proteção. A orientação foi registrada em AGENTS/CLAUDE.
 
-**Pendências do 6A:** nenhuma de implementação/verificação do escopo aprovado; implementação no commit `a4c2d75`; **push e PR autorizados pelo usuário em 2026-10-19**, com código e documentação no mesmo envio. Aguardam-se CI, revisão e merge pelo usuário. As capturas concorrentes e os jobs/provedores são do 6B/6C; triagem e fechamento com Scheduling são do 6D; telas de fila/fontes são do 6E. A Etapa 6 continua em implementação e o fornecedor real permanece pendente.
+**Pendências do 6A:** nenhuma de implementação/verificação do escopo aprovado; implementação no commit `a4c2d75`; **push e PR autorizados pelo usuário em 2026-10-19**, com código e documentação no mesmo envio. PR #31 aprovado e mergeado pelo usuário em 2026-10-19; merge `f2e01a9` confirmado no GitHub. Nenhuma pendência do 6A; próximo PR 6B. As capturas concorrentes e os jobs/provedores são do 6B/6C; triagem e fechamento com Scheduling são do 6D; telas de fila/fontes são do 6E. A Etapa 6 continua em implementação e o fornecedor real permanece pendente.
 
 ---
 
