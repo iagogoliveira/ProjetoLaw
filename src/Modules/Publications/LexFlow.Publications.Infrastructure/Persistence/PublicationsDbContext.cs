@@ -14,6 +14,7 @@ public sealed class PublicationsDbContext(DbContextOptions<PublicationsDbContext
     public const string ModuleName = "Publications";
     protected override string Schema => SchemaName;
     public DbSet<CaptureSource> Sources => Set<CaptureSource>();
+    public DbSet<CaptureAlert> Alerts => Set<CaptureAlert>();
     public DbSet<CaptureRun> Runs => Set<CaptureRun>();
     public DbSet<Publication> Publications => Set<Publication>();
     public DbSet<PublicationTriage> Triages => Set<PublicationTriage>();

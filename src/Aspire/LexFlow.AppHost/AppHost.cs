@@ -73,6 +73,7 @@ var migrations = builder.AddProject<Projects.LexFlow_MigrationService>("migratio
     .WaitFor(storage);
 
 var api = builder.AddProject<Projects.LexFlow_Api>("api")
+    .WithEnvironment("Publications__Provider", "Fake")
     .WithEnvironment("ConnectionStrings__lexflow", appConnection).WaitFor(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)
@@ -93,6 +94,7 @@ builder.AddProject<Projects.LexFlow_Worker>("worker")
     .WithEnvironment("Identity__PublicUrl", api.GetEndpoint("http"))
     // Índices monetários: fonte falsa no ambiente local (decisão de 2026-10-18); o seed traz os valores reais até 09/2026.
     .WithEnvironment("Platform__MonetaryIndexes__Source", "Fake")
+    .WithEnvironment("Publications__Provider", "Fake")
     .WithEnvironment("ConnectionStrings__lexflow", appConnection).WaitFor(database).WaitForCompletion(migrations)
     .WithReference(redis).WaitFor(redis)
     .WithReference(rabbit).WaitFor(rabbit)

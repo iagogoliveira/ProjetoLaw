@@ -7,6 +7,16 @@ namespace LexFlow.Litigation.Application.Access;
 
 internal sealed class CaseDirectory(ILitigationDbContext db, CaseAccess access) : ICaseDirectory
 {
+    public async Task<CaseReadScope> ScopeForUserAsync(Guid userId, string permission, CancellationToken cancellationToken)
+    {
+        var context = await access.ContextForUserAsync(userId, permission, cancellationToken);
+        var visible = CaseAccess.Visible(db.Cases.AsNoTracking(), context).Select(c => c.Id);
+        var ids = await visible.ToListAsync(cancellationToken);
+        var cnjs = await db.Cases.AsNoTracking().Where(c => c.CnjNumber != null && !visible.Contains(c.Id))
+            .Select(c => c.CnjNumber!).ToListAsync(cancellationToken);
+        return new CaseReadScope(ids, cnjs);
+    }
+
     public async Task<IReadOnlyCollection<string>> InaccessibleCnjsAsync(string permission, CancellationToken cancellationToken)
     {
         var context = await access.ContextAsync(permission, cancellationToken);

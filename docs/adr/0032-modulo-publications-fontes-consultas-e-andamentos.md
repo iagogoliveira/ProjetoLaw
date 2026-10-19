@@ -1,6 +1,6 @@
 # ADR 0032 — Módulo Publications: fontes, consultas e andamentos
 
-- **Status:** Proposta (para revisão no PR 6A)
+- **Status:** Aceita (PR #31 mergeado em 2026-10-19)
 - **Data:** 2026-10-19
 - **Etapa:** 6 (PR 6A)
 

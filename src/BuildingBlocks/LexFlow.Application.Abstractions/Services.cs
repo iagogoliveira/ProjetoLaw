@@ -77,10 +77,9 @@ public interface IRequestContext
 }
 
 /// <summary>
-/// Tenant definido pelo próprio caso de uso, por escopo de DI. Usos permitidos, ambos quando o usuário ainda não é
-/// membro da organização e por isso não há tenant ativo: gravar os primeiros dados de uma organização
-/// <b>recém-criada</b> (onboarding) e entrar numa organização pelo <b>aceite de um convite</b> já validado. As
-/// implementações de <see cref="ITenantContext"/> dão precedência a ele.
+/// Tenant definido por escopo de DI: onboarding, aceite de convite já validado, jobs internos com metadados de
+/// organização ou conexão persistente depois de validar novamente a pertença do usuário. Nunca aceita um tenant
+/// arbitrário do provedor externo. As implementações de <see cref="ITenantContext"/> dão precedência a ele.
 /// </summary>
 public sealed class TenantOverride
 {
@@ -90,6 +89,12 @@ public sealed class TenantOverride
 
     /// <summary>Aceite de convite: o token já foi conferido e aponta para esta organização.</summary>
     public IDisposable BeginForInvitationAcceptance(Guid organizationId) => Begin(organizationId);
+
+    /// <summary>Job interno: organização obtida do diretório de escritórios ou dos metadados autenticados do job.</summary>
+    public IDisposable BeginForBackgroundJob(Guid organizationId) => Begin(organizationId);
+
+    /// <summary>Conexão persistente: pertença do usuário já validada novamente no diretório.</summary>
+    public IDisposable BeginForValidatedMembership(Guid organizationId) => Begin(organizationId);
 
     private End Begin(Guid organizationId)
     {

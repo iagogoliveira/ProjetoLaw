@@ -53,8 +53,23 @@ internal sealed class CaseAccess(
     ICurrentAccess access,
     ICurrentUser user,
     IOrganizationDirectory organization,
-    IAccessDenials denials)
+    IAccessDenials denials,
+    IOrganizationAccessDirectory directory)
 {
+    public async Task<CaseAccessContext> ContextForUserAsync(Guid userId, string permission, CancellationToken cancellationToken)
+    {
+        var snapshot = await directory.GetAsync(userId, cancellationToken);
+        var grants = snapshot?.Permissions.GetValueOrDefault(permission) ?? [];
+        List<Guid> Refs(OfficeAccessScope scope) => [.. grants.Where(g => g.Scope == scope && g.ReferenceId is not null).Select(g => g.ReferenceId!.Value).Distinct()];
+        var teams = Refs(OfficeAccessScope.Team);
+        return new CaseAccessContext(userId, grants.Count > 0,
+            grants.Any(g => g.Scope == OfficeAccessScope.Organization), grants.Any(g => g.Scope == OfficeAccessScope.Own),
+            teams, await organization.UsersOfTeamsAsync(teams, cancellationToken),
+            Refs(OfficeAccessScope.PracticeArea), Refs(OfficeAccessScope.Branch),
+            await organization.TeamsOfUserAsync(userId, cancellationToken),
+            snapshot?.Permissions.ContainsKey(CasePermissions.ManageRestrictions) == true);
+    }
+
     public async Task<CaseAccessContext> ContextAsync(string permission, CancellationToken cancellationToken)
     {
         var userId = user.UserId ?? Guid.Empty;

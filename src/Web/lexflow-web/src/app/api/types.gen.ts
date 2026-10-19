@@ -78,6 +78,27 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+export type CaptureAlertResponse = {
+    id: string;
+    sourceId: string;
+    day: string;
+    raisedAt: string;
+    resolvedAt: null | string;
+    errorCode: string;
+};
+
+export type CaptureRunResponse = {
+    id: string;
+    day: string;
+    status: CaptureRunStatus;
+    startedAt: string;
+    finishedAt: null | string;
+    count: number | string;
+    errorCode: null | string;
+};
+
+export type CaptureRunStatus = 'running' | 'succeeded' | 'failed';
+
 export type CaptureSourceInput = {
     kind: CaptureSourceKind;
     label: string;
@@ -93,6 +114,14 @@ export type CaptureSourceResponse = {
     label: string;
     value: string;
     isActive: boolean;
+};
+
+export type CaptureStateResponse = {
+    sourceId: string;
+    day: string;
+    dueBy: string;
+    runs: Array<CaptureRunResponse>;
+    alert: null | CaptureAlertResponse;
 };
 
 export type CaseAssignmentResponse = {
@@ -995,6 +1024,19 @@ export type MyAccessResponse = {
     organizations: Array<OrganizationSummary>;
     permissions: Array<string>;
     mfaRequired: boolean;
+};
+
+export type NotificationResponse = {
+    id: string;
+    kind: string;
+    resourceId: string;
+    createdAt: string;
+    readAt: null | string;
+};
+
+export type NotificationsPageResponse = {
+    items: Array<NotificationResponse>;
+    nextCursor: null | string;
 };
 
 export type NumberingRequest = {
@@ -1915,6 +1957,44 @@ export type GetJobResponses = {
 };
 
 export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type ListNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        cursor?: string;
+        limit?: number | string;
+        unreadOnly?: boolean;
+    };
+    url: '/api/v1/notifications';
+};
+
+export type ListNotificationsResponses = {
+    /**
+     * OK
+     */
+    200: NotificationsPageResponse;
+};
+
+export type ListNotificationsResponse = ListNotificationsResponses[keyof ListNotificationsResponses];
+
+export type ReadNotificationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/notifications/{id}/read';
+};
+
+export type ReadNotificationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ReadNotificationResponse = ReadNotificationResponses[keyof ReadNotificationResponses];
 
 export type ListCustomFieldsData = {
     body?: never;
@@ -6969,6 +7049,43 @@ export type GetCaseImportErrorsResponses = {
 };
 
 export type GetCaseImportErrorsResponse = GetCaseImportErrorsResponses[keyof GetCaseImportErrorsResponses];
+
+export type GetCaptureStateData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publication-sources/{id}/capture';
+};
+
+export type GetCaptureStateResponses = {
+    /**
+     * OK
+     */
+    200: CaptureStateResponse;
+};
+
+export type GetCaptureStateResponse = GetCaptureStateResponses[keyof GetCaptureStateResponses];
+
+export type ListCaptureAlertsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        day?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/publications/capture-alerts';
+};
+
+export type ListCaptureAlertsResponses = {
+    /**
+     * OK
+     */
+    200: Array<CaptureAlertResponse>;
+};
+
+export type ListCaptureAlertsResponse = ListCaptureAlertsResponses[keyof ListCaptureAlertsResponses];
 
 export type ListCaptureSourcesData = {
     body?: never;

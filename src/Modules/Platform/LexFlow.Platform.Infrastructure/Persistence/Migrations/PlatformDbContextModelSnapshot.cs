@@ -1682,6 +1682,104 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                     b.ToTable("jobs", "platform");
                 });
 
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("OrganizationId", "Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notifications_organization_id_key");
+
+                    b.HasIndex("OrganizationId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_notifications_organization_id_created_at_id");
+
+                    b.ToTable("notifications", "platform");
+                });
+
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.NotificationReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("notification_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("ReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("read_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_receipts");
+
+                    b.HasIndex("NotificationId")
+                        .HasDatabaseName("ix_notification_receipts_notification_id");
+
+                    b.HasIndex("OrganizationId", "NotificationId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_receipts_organization_id_notification_id_user_");
+
+                    b.ToTable("notification_receipts", "platform");
+                });
+
             modelBuilder.Entity("LexFlow.Platform.Domain.Preferences.UserPreference", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1838,6 +1936,16 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_lookup_items_lookup_tables_table_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.NotificationReceipt", b =>
+                {
+                    b.HasOne("LexFlow.Platform.Domain.Notifications.Notification", null)
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_receipts_notifications_notification_id");
                 });
 #pragma warning restore 612, 618
         }

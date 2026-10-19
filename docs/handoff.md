@@ -10,6 +10,58 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio e abertura do PR 6B autorizados)
+
+**Branch:** `codex/etapa-6b-captura-alertas`. **Decisão do usuário:** “Crie o PR”. Isso autoriza o push do código/documentação e a abertura do PR para `main`; não autoriza merge. Implementação pronta no commit `6de6b4f`, após `d46b774` (perguntas) e `4bcc2cd` (arrumação pós-merge do #31).
+
+**Estado e envio:** esta entrada registra a autorização antes da publicação, em commit documental para acompanhar o código no mesmo push. Base remota `main` conferida em `f2e01a9`; nenhum PR anterior encontrado para este branch. Após o push, abrir o PR 6B, anexá-lo à conversa e confirmar o endereço/estado no GitHub. A ADR 0033 permanece proposta até o merge pelo usuário.
+
+**Verificado:** diretório limpo antes desta atualização, branch e commits conferidos, documentação de envio sincronizada em progress/AGENTS/CLAUDE e diff documental a verificar antes do commit. Nenhuma mudança de runtime; preservada a verificação completa do `6de6b4f`: 771 testes .NET, cobertura acima de 80%, builds/formatação, pacotes/modelos, lint, 96 Vitest, build Angular e duas rodadas Playwright de 14 testes cada. Ocorrências e relatórios estão registrados na entrada anterior e no progress; não repetir sem nova mudança ou falha.
+
+**Próximos passos:** concluir a publicação autorizada e aguardar CI/revisão/merge pelo usuário. Se houver falha no CI, investigar e corrigir no branch do 6B. Depois do merge, executar o ciclo documental e preparar o 6C; fornecedor real continua pendente, triagem/fechamento são do 6D e telas do 6E. Não iniciar outro PR de implementação antes do merge do 6B.
+
+---
+
+## 2026-10-19 — Codex (6B implementado e verificado; commit local, sem push/PR)
+
+**Branch:** `codex/etapa-6b-captura-alertas`, da main/merge `f2e01a9`. **Estado:** arrumação pós-merge do #31 enviada em `4bcc2cd`; dúvidas registradas no commit local `d46b774`, depois respondidas pelo usuário. Código e documentos do 6B consolidados no commit local desta entrega, sem push nem PR da implementação. ADR 0033 proposta; 6A #31 permanece concluído e ADR 0032 aceita.
+
+**Decisões novas aprovadas:** o usuário respondeu “Adotar a sugestão” às duas perguntas: alertas de captura por e-mail/in-app para membros ativos com `settings.integrations.manage` ou `publications.triage` em escopo de escritório; novas publicações somente in-app/SignalR para `publications.read` com alcance do conteúdo; fontes criadas/reativadas depois de 05h capturam imediatamente, depois de 07h ganham até uma hora; execução concluída com zero publicações conta como sucesso. Nenhuma dessas perguntas continua pendente.
+
+**Feito:** contratos de provedores e fake explícito no AppHost (padrão Disabled fora dele); jobs de captura/monitor separados, janela e retentativas, ativação tardia, timeout, locks PostgreSQL por fonte/dia e hash, deduplicação concorrente, alerta persistido/resolução e métrica. Platform ganhou notificações por referência e recibo por usuário, consumers com inbox e e-mail apenas de alerta. REST e stream SignalR LongPolling renovam pertença/permissões/MFA/escopo/sigilo, restauram avisos persistidos na reconexão e não transmitem texto por broadcast. Migrations aditivas com RLS, quatro rotas OpenAPI novas e cliente gerado.
+
+**Verificado:** Release/Debug sem warnings; format; 771 testes .NET em 18 projetos com cobertura/gate de 80% (Publications.Application 99,2%, Domain 95,9%); pacotes sem vulnerabilidades e cinco contextos sem modelo pendente; lint, 96 Vitest e build Angular. Contrato anterior preservado, só adições. Nove testes API de captura/notificações incluem concorrência e stream SignalR real com reconexão/revogação de alcance. Playwright contra o AppHost aprovado em duas rodadas finais consecutivas, com 14 testes em cada (2,0 min e 1,6 min), relatório HTML e um worker; apenas o preparo opcional de carga foi pulado. AppHost de verificação encerrado ao fim.
+
+**Ocorrências preservadas:** a primeira suíte API pegou o snapshot OpenAPI anterior; após gerar oficialmente o contrato e o cliente, os 164 testes passaram. A primeira regressão Playwright com oito workers, durante verificações .NET, teve cinco falhas em fluxos existentes (controles/esperas, acessibilidade e convite); logs/traces/HTML em `TestResults/6b-playwright-initial-failure*`. A execução inicial de AppHost.Tests foi interrompida para não disputar portas com o AppHost manual; a repetição isolada passou (14 testes). As rodadas finais de navegador usam uma única instância do AppHost e `--workers=1`; não foram relaxadas asserções nem critérios de acessibilidade.
+
+**Próximo passo:** aguardar pedido de push/PR; enviar código e documentos juntos no mesmo push quando autorizado. Progress/AGENTS/CLAUDE atualizados e sincronizados; resultados completos e caminhos dos relatórios no progress. Não repetir testes sem nova mudança, falha ou dúvida que justifique. Push e PR da implementação somente quando o usuário pedir. Depois do merge, seguir o ciclo para o 6C; fornecedor real continua pendente, DataJud não substitui publicações. Triagem/Scheduling/fechamento são do 6D, telas e cliente visual SignalR do 6E. Nunca fazer merge pelo usuário.
+
+---
+
+## 2026-10-19 — Codex (arrumação do #31 enviada; duas regras complementares antes do 6B)
+
+**Branch:** `codex/etapa-6b-captura-alertas`. **Estado:** arrumação pós-merge enviada no commit `4bcc2cd`, a partir de `main`/merge `f2e01a9`. 6A #31 concluído, ADR 0032 aceita. Nenhum código ou PR do 6B criado. Este registro das perguntas fica em commit documental local, para acompanhar o próximo envio autorizado.
+
+**Feito/verificado:** confirmado merge do #31 e main atualizada; branch do 6B criado; progresso/AGENTS/CLAUDE/handoff atualizados, diff documental conferido e AGENTS/CLAUDE idênticos. Lidos novamente RF-05/RF-10, seção da captura e contratos locais de jobs/estrutura. Não repetida a suíte de runtime porque só houve documentação; mantidos os resultados completos do 6A.
+
+**Aguardar respostas do usuário antes de implementar as regras:**
+1. Alertas de captura ausente por e-mail/in-app para membros ativos com `settings.integrations.manage` ou `publications.triage` em escopo de escritório? Novas publicações só por in-app/SignalR, para quem tem `publications.read` e alcance do conteúdo, sem e-mail individual? Essa é a proposta, ainda não aprovada especificamente.
+2. Fontes criadas/reativadas após 05h capturam imediatamente? Depois de 07h, tolerância de até uma hora desde a ativação antes do alerta? Execução concluída com zero publicações conta como sucesso, ao contrário de falha ou ausência de execução? Essa é a proposta, ainda não aprovada especificamente.
+
+**Motivo:** o plano 6B e os canais foram aprovados, mas os destinatários e essas situações de captura não estavam definidos no plano, especificação ou ADRs. Segue a regra do projeto de perguntar antes de decidir dúvida de negócio; não pedir nova aprovação do plano inteiro. Não presumir resposta pelo silêncio. Com as respostas, registrar decisões, formalizar ADR 0033 proposta e implementar/verificar o 6B; commit local, sem push/PR até pedido. Nunca fazer merge.
+
+---
+## 2026-10-19 — Codex (6A #31 mergeado; arrumação e início do 6B aprovado)
+
+**Branch:** `codex/etapa-6b-captura-alertas`, criado da `main` atualizada no merge `f2e01a9` do PR #31. **Estado:** o usuário informou merge e aprovação; confirmado `MERGED` no GitHub em 2026-10-19. Arrumação documental em commit/push neste branch, conforme o ciclo já autorizado. Nenhum PR do 6B aberto.
+
+**Feito:** main atualizada por fast-forward; 6A concluído no progresso; ADR 0032 aceita; AGENTS/CLAUDE sincronizados. Conferidos branch/base, diff documental e ausência de alterações locais anteriores. Mantida a verificação completa do 6A (751 testes .NET, cobertura, frontend e duas rodadas Playwright); esta arrumação não muda runtime.
+
+**Próximo:** seguir a implementação do **6B já aprovado**, um PR por vez: provedores fake, captura idempotente inclusive concorrente, jobs às 05:00 e retentativas até 07:00, monitor independente de captura ausente, alerta persistido sem duplicação/métrica e notificações mínimas in-app/e-mail/SignalR com isolamento e autorização. Detalhar o desenho na ADR 0033 proposta, adicionar testes e executar verificação completa. Não antecipar DataJud/fornecedor real, triagem/fechamento ou telas de fila. A implementação do 6B termina em commit local; push/PR só quando solicitado. Nunca fazer merge.
+
+**Decisões:** nenhuma decisão de negócio nova. Todas as escolhas da aprovação da Etapa 6 permanecem válidas, incluindo fake + DataJud inicialmente e fornecedor real como pendência, núcleo mínimo de Scheduling no 6D, `publications.close` e fechamento por recebimento no fuso legal.
+
+---
 ## 2026-10-19 — Codex (envio e PR do 6A autorizados)
 
 **Branch:** `codex/etapa-6-publicacoes-andamentos`, base `main`. **Implementação:** commit `a4c2d75` — “Etapa 6A: base de publicações, fontes e andamentos”. O usuário pediu “Faça push e PR”; este registro documental acompanha o código no mesmo push. A entrega segue para revisão como PR 6A, com a ADR 0032 ainda proposta.

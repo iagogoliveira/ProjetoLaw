@@ -12,6 +12,7 @@ using LexFlow.Litigation.Domain.CaseImports;
 using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.Organization.Contracts.Permissions;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Notifications;
 using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Domain;
 using LexFlow.Publications.Infrastructure.Persistence;
@@ -59,7 +60,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     private sealed record CrossTenantCase(Guid Id, object? Body = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
-    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
     {
         ["GET /api/v1/jobs/{id:guid}"] = async owner => new CrossTenantCase(await CreateJobAsync(owner.OrganizationId)),
         ["DELETE /api/v1/me/sessions/{id:guid}"] = async owner => new CrossTenantCase(await CreateSessionAsync(owner.UserId)),
@@ -111,7 +112,17 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
-    }));
+    })));
+
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithPublicationsRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        cases.Add("GET /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner)));
+        cases.Add("GET /api/v1/publication-sources/{id:guid}/capture", async owner => new CrossTenantCase(await SourceOfAsync(owner)));
+        cases.Add("POST /api/v1/notifications/{id:guid}/read", async owner => new CrossTenantCase(await NotificationOfAsync(owner)));
+        cases.Add("PUT /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }));
+        cases.Add("GET /api/v1/publications/{id:guid}", async owner => new CrossTenantCase(await PublicationOfAsync(owner)));
+        return cases;
+    }
 
     /// <summary>Funil, propostas e modelos (Etapa 4, PR 4C).</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCommercialCases(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
@@ -155,9 +166,6 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         var hearing = new { type = "conciliation", format = "virtual", scheduledAt = "2026-12-01T10:00:00Z", meetingLink = "https://meet.example.com/x" };
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
-            ["GET /api/v1/publication-sources/{id:guid}"] = async owner => new CrossTenantCase(await SourceOfAsync(owner)),
-            ["PUT /api/v1/publication-sources/{id:guid}"] = async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }),
-            ["GET /api/v1/publications/{id:guid}"] = async owner => new CrossTenantCase(await PublicationOfAsync(owner)),
             ["GET /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { occurredAt = "2026-10-19T12:00:00Z", description = "Sentença" }),
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
@@ -226,6 +234,20 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         db.Publications.Add(publication);
         await db.SaveChangesAsync(Ct);
         return publication.Id;
+    }
+
+    private async Task<Guid> NotificationOfAsync(SeededMember owner)
+    {
+        var publication = await PublicationOfAsync(owner);
+        using var ambient = AmbientContext.Begin(owner.OrganizationId, "security-tests");
+        await using var provider = dependencies.PlatformServices();
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<PlatformDbContext>();
+        var notification = Notification.Create($"publication:{publication}", "publications.received", publication, null,
+            new DateTimeOffset(2026, 10, 19, 12, 0, 0, TimeSpan.Zero));
+        db.Notifications.Add(notification);
+        await db.SaveChangesAsync(Ct);
+        return notification.Id;
     }
 
     private async Task<Guid> ImportOfAsync(SeededMember owner)
