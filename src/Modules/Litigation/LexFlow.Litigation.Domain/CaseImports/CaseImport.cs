@@ -80,7 +80,9 @@ public sealed class CaseImport : AggregateRoot<Guid>, ITenantOwned, IAuditable
 
     public static CaseImport Start(Guid id, string fileName, Guid validationJobId)
     {
-        var name = Path.GetFileName(fileName ?? string.Empty).Trim();
+        // Só o nome: alguns navegadores mandam o caminho do Windows, e no Linux a "\" não separa pastas.
+        var path = fileName ?? string.Empty;
+        var name = path[(path.LastIndexOfAny(['/', '\\']) + 1)..].Trim();
         return new CaseImport(id, name.Length == 0 ? "planilha" : name[..Math.Min(name.Length, MaxFileNameLength)], validationJobId);
     }
 
