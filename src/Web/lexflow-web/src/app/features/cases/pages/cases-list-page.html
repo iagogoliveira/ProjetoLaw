@@ -1,7 +1,10 @@
 <section class="page" *transloco="let t">
   <div class="inline header">
     <h1>{{ t('cases.title') }}</h1>
-    <a *lfCan="'cases.create'" mat-flat-button routerLink="novo">{{ t('cases.new') }}</a>
+    <div class="actions" *lfCan="'cases.create'">
+      <a mat-stroked-button routerLink="importar">{{ t('cases.import.title') }}</a>
+      <a mat-flat-button routerLink="novo">{{ t('cases.new') }}</a>
+    </div>
   </div>
 
   <div class="inline" role="search" [attr.aria-label]="t('cases.filtersLabel')">

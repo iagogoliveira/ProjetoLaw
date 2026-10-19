@@ -10,6 +10,111 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio do 5E2 aprovado pelo usuário)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`. **Commit de implementação:** `e993a8b` (`Etapa 5E2: telas de valores, acompanhamento e importação`).
+
+**Decisão do usuário:** aprovou o resultado e autorizou enviar o commit e criar o PR para a `main`. Este registro é feito antes do envio para que código e documentação sigam juntos em um único push. Nenhuma mudança de código após a verificação completa registrada abaixo; este commit só documenta a autorização.
+
+**Estado neste registro:** implementação e documentação commitadas localmente; envio e criação do PR autorizados. Consulte o PR pelo branch no GitHub para obter o número, a URL e o estado atual do CI, antes de tentar reenviar ou criar outro PR.
+
+**Próximo:** conferir o CI e aguardar o merge pelo usuário. Nunca fazer merge. Quando o usuário avisar do merge, seguir a arrumação e o planejamento da Etapa 6 descritos na entrada anterior. A Etapa 5 e a ADR 0031 ainda aguardam o merge para serem marcadas como concluída/aceita.
+
+---
+
+## 2026-10-19 — Codex (5E2 implementado e verificado)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`. **Estado:** código e documentos neste commit local; sem push, sem PR e sem merge. O plano aprovado foi implementado diretamente, sem nova decisão de negócio.
+
+**Feito:**
+- Abas Pedidos e valores, Risco, Acordos e Audiências, em componentes próprios com carregamento ao abrir, forms reativos, OnPush, SignalStores e permissões. Chamadas concentradas no `CasesApi`.
+- Pedidos com correção por data, totais e histórico; risco por processo/pedido e histórico; fluxo completo dos acordos com gerador de parcelas (centavos na última, vencimentos ancorados no primeiro dia escolhido), aprovação, homologação e baixa manual; audiências por formato, pessoas e membros, redesignação com histórico e realização/cancelamento.
+- `/processos/importar`: modelo, envio, consulta periódica, prévia, confirmação, andamento, resultado e relatório XLSX como Blob. A URL permite retomar após recarregar e a consulta para ao sair da tela.
+- O e2e revelou uma falha anterior no `CaseImportJobs.ImportAsync`: a contagem final consultava o banco antes de salvar os erros da revalidação e zerava as inválidas. Corrigido para contar os erros em memória e os persistidos na retomada. O teste de integração das 10 mil linhas agora também confere os totais finais 10.000 / 9.700 / 300.
+- Proteção contra consulta de histórico durante a gravação do pedido, com regressão no Vitest. Datas de audiência usam o fuso legal, inclusive as regras históricas de horário de verão.
+- Textos pt-BR/en, testes das cinco stores e dos auxiliares, e2e novos e relatório Playwright ligado também localmente, com trace/screenshot nas falhas.
+- ADR 0031 proposta, `progress.md` atualizado e `AGENTS.md`/`CLAUDE.md` sincronizados integralmente (o `CLAUDE.md` anterior tinha só um resumo das regras).
+
+**Verificado:** builds Release e Debug sem warnings; `dotnet format --verify-no-changes`; 721 testes .NET em 16 projetos (incluindo 14 do AppHost), com cobertura e gate de 80% aprovados; Litigation.Application 92,4% e Domain 97,9%; sem pacotes vulneráveis nem mudanças de modelo pendentes nos quatro módulos; lint, build Angular e 96 Vitest aprovados. **Playwright completo contra o AppHost: 14 aprovados em duas execuções consecutivas**, com WCAG 2.1 AA nas abas novas e na importação. Só o preparo da carga é pulado. Nenhum pacote, migration ou contrato novo.
+
+**Armadilhas confirmadas nesta sessão:**
+- A CLI do Aspire executou API/Worker em Debug mesmo ao chamar `dotnet run ... -c Release --no-build`. Depois de mudar o backend, compile Debug antes de usar `--no-build` e aguarde HTTP 200 em `:4200` antes dos e2e.
+- Para avançar passos consecutivos, além de `.filter({ visible: true }).last()`, espere o conteúdo do passo anterior ficar escondido. O auxiliar `e2e/support/cases.ts` usa o `aria-controls` do cabeçalho expandido para isso.
+- Use relatórios de cobertura de uma mesma versão dos fontes para o gate; a rodada final isolada está em `TestResults/5e2-final-validation`. O relatório de telas mais recente está em `src/Web/lexflow-web/playwright-report/index.html`.
+
+**Próximos passos combinados com o usuário:**
+1. Aguardar o pedido de push/PR. Código e documentos no mesmo push, pois o CI cancela o run anterior a cada push. Nunca fazer merge.
+2. Quando o usuário avisar do merge, atualizar a `main`, concluir o 5E2 e a Etapa 5 no progresso, aceitar a ADR 0031 e criar o branch da Etapa 6; atualizar `AGENTS.md`, `CLAUDE.md` e esta passagem; fazer commit e push da arrumação.
+3. Só então planejar a Etapa 6 (publicações e andamentos, seção 10 da `implementacao.md`), apresentar o plano e as dúvidas de negócio, e esperar aprovação antes de implementar. Sem pendência de código ou verificação no 5E2.
+
+---
+
+## 2026-10-19 — Claude Code (plano do 5E2 aprovado; passagem para o Codex)
+
+**Branch:** `etapa-5e2-telas-valores-importacao` (já criado e enviado, com a arrumação do #29). **Nenhum código do 5E2 foi escrito.** O usuário aprovou o plano e pediu para outro agente (Codex) continuar daqui.
+
+**Plano do PR 5E2 (aprovado pelo usuário em 2026-10-19; implementação ainda não começou).** Só frontend: as APIs existem desde o 5C1 ao 5D, e não há permissão nova.
+- **Aba "Pedidos e valores"** no detalhe do processo (`features/cases/pages/case-detail-page.*`):
+  - lista dos pedidos (objeto da tabela "Objetos/pedidos" via `options.claimTypes`, descrição, forma de correção, valores por instância);
+  - cadastrar, editar e excluir (`cases.edit`; rotas `/api/v1/cases/{id}/claims`);
+  - campo "Atualizar até" (padrão: hoje) → `GET /cases/{id}/claims?updateTo=`: valores corrigidos, totais por instância e o aviso `correctionError` por pedido;
+  - histórico de cada pedido (`GET /cases/{id}/claims/{claimId}/history`).
+- **Aba "Risco":**
+  - risco atual (`GET /cases/{id}/risk`) com provisão e passivo contingente;
+  - formulário de avaliação só com `*lfCan="'cases.risk.assess'"` (`POST /cases/{id}/risk-assessments`), por processo ou por pedido;
+  - histórico (`GET /cases/{id}/risk/history`).
+- **Aba "Acordos":**
+  - lista (`GET /cases/{id}/settlements`) com situação, valor pedido × acordado (`difference`/`differencePercent`: economia quando o cliente paga, deságio quando recebe), rodadas e parcelas (`isOverdue` em destaque);
+  - ações conforme a situação: nova rodada (`offers`), enviar termos (`submit`), aprovar (`approve`, só com `cases.settlements.approve`), devolver (`return`), homologar (`homologate`), recusar (`reject`), cancelar (`cancel`), baixa (`installments/{installmentId}/pay`);
+  - **gerador de parcelas** na tela: número, primeiro vencimento e intervalo mensal, com a última parcela ajustando os centavos para a soma bater com o valor acordado (o servidor recusa com `litigation.settlement_installments_mismatch`).
+- **Aba "Audiências":**
+  - lista (`GET /cases/{id}/hearings`) por data, com o histórico de redesignações;
+  - agendar e editar: o formato pede local (presencial), link (virtual) ou os dois (híbrida); advogado de `options.members`, preposto e testemunhas (busca de pessoas como no assistente);
+  - redesignar com motivo (`reschedule`), realizar com resultado ou ata (`hold`), cancelar (`cancel`).
+- **Tela de importação** `/processos/importar` (`cases.create`, link na lista):
+  1. modelo (`GET /cases/imports/template`) e envio (`POST /cases/imports`, multipart campo `file`, resposta 202 com `importId`/`jobId`);
+  2. acompanhamento por consulta periódica de `GET /cases/imports/{id}` (ou `GET /api/v1/jobs/{jobId}`) até sair de `validating`/`importing`;
+  3. pré-visualização com totais, `preview` e os primeiros `errors`;
+  4. confirmação (`POST /cases/imports/{id}/confirm`);
+  5. andamento e resultado;
+  6. relatório das inválidas (`GET /cases/imports/{id}/errors`, XLSX; baixar como Blob, ver `features/funnel/data/save-file.ts` e o spread `{ responseType: 'blob' } as object` usado no `FunnelApi`).
+- **Onde pôr o código:**
+  - chamadas novas no `CasesApi` (único ponto de HTTP);
+  - stores novas em `features/cases/data` (ex.: `claims-store.ts`, `settlements-store.ts`, `hearings-store.ts`, `import-store.ts`), com testes Vitest no padrão de `cases-stores.spec.ts`;
+  - se o detalhe crescer demais, extrair cada aba em componente próprio em `features/cases/pages/tabs/`.
+- **Textos:** pt-BR e en no `core/i18n/*.json`, com as mesmas chaves. Os erros `litigation.*` e `platform.*` já estão traduzidos.
+- **E2E** (`e2e/cases-values-flow.spec.ts` e `e2e/case-import-flow.spec.ts`), contra o AppHost, onde o Worker roda os jobs de verdade:
+  - importação de CSV com linhas válidas e inválidas até a gravação e o relatório;
+  - acordo da proposta à homologação e baixa de parcela;
+  - audiência redesignada e realizada;
+  - pedido com valor atualizado e histórico;
+  - `expectAccessible` em cada aba;
+  - abrir mat-select pelo teclado e clicar no "Próximo" visível com `.last()` (armadilhas no `AGENTS.md`);
+  - rode os e2e com o relatório ligado: no 5E1, a primeira execução logo depois de subir o AppHost falhou uma vez num `toBeVisible` sem detalhe capturado.
+- **Ao concluir:**
+  - ADR 0031;
+  - seção do 5E2 no `progress.md`: o 5E2 fecha a Etapa 5, então marque a etapa como concluída depois do merge;
+  - `AGENTS.md`, entrada aqui, verificação completa e commit;
+  - push e PR só quando o usuário pedir.
+
+**Próximo agente:** leia o `AGENTS.md` (regras e armadilhas) e implemente o 5E2 conforme o plano acima, no branch `etapa-5e2-telas-valores-importacao`. Não é preciso mostrar o plano de novo, porque já foi aprovado; dúvidas de negócio que surgirem vão para o usuário.
+
+---
+
+## 2026-10-19 — Claude Code (arrumação depois do merge do #29)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`, criado a partir da `main`, com este commit de arrumação e push.
+
+**Feito:**
+- PR #29 (5E1) mergeado pelo usuário. Antes do merge, duas correções de CI:
+  - a exceção do oasdiff;
+  - o e2e passou a abrir os mat-select pelo teclado (registrado no `AGENTS.md`).
+- `progress.md`: 5E1 concluído. ADR 0030 aceita. `AGENTS.md` atualizado.
+
+**Próximo:** planejar o PR 5E2 (abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação) e mostrar o plano ao usuário antes de implementar.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5E1 implementado)
 
 **Branch:** `etapa-5e-telas-processos` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.

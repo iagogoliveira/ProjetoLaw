@@ -112,7 +112,11 @@ internal sealed class CaseImportJobs
         var pending = sheet.Rows.Where(r => r.Number > import.LastImportedRow).ToList();
         var (valid, errors) = await CheckAsync(import.Id, pending, cancellationToken);
         await (resuming ? AppendErrorsAsync(import.Id, errors, cancellationToken) : ReplaceErrorsAsync(import.Id, errors, cancellationToken));
-        var invalidRows = await _db.ImportErrors.Where(e => e.ImportId == import.Id).Select(e => e.Row).Distinct().CountAsync(cancellationToken);
+        // Os erros desta revalidação ainda estão no ChangeTracker: uma consulta ao banco não os enxerga.
+        var previousRows = resuming
+            ? await _db.ImportErrors.Where(e => e.ImportId == import.Id).Select(e => e.Row).Distinct().ToListAsync(cancellationToken)
+            : [];
+        var invalidRows = previousRows.Concat(errors.Select(e => e.Row)).Distinct().Count();
         import.Revalidated(sheet.Rows.Count, invalidRows);
         await _db.SaveChangesAsync(cancellationToken);
 

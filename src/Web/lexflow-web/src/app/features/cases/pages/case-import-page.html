@@ -1,0 +1,130 @@
+<section class="page" *transloco="let t">
+  <a mat-button routerLink="/processos">{{ t('cases.back') }}</a>
+  <h1>{{ t('cases.import.title') }}</h1>
+  <p class="hint">{{ t('cases.import.hint') }}</p>
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+    <button mat-stroked-button type="button" [disabled]="store.busy()" (click)="store.refresh()">
+      {{ t('cases.import.retry') }}
+    </button>
+  }
+  <ng-container *lfCan="'cases.create'">
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="store.busy()"
+      (click)="download('template')"
+    >
+      {{ t('cases.import.template') }}
+    </button>
+    @if (
+      !store.importId() || store.data()?.status === 'completed' || store.data()?.status === 'failed'
+    ) {
+      <div class="panel">
+        <label for="case-import-file">{{ t('cases.import.file') }}</label
+        ><input
+          id="case-import-file"
+          type="file"
+          accept=".csv,.xlsx"
+          [disabled]="store.busy()"
+          (change)="selectFile($event)"
+        /><button
+          mat-flat-button
+          type="button"
+          [disabled]="!file() || store.busy()"
+          (click)="upload()"
+        >
+          {{ t('cases.import.upload') }}
+        </button>
+      </div>
+    }
+    @if (store.data(); as data) {
+      <p role="status" class="status">{{ t('cases.import.statuses.' + data.status) }}</p>
+      <p>{{ data.fileName }}</p>
+      <dl>
+        @for (key of totals; track key) {
+          <dt>{{ t('cases.import.' + key) }}</dt>
+          <dd>{{ data[key] }}</dd>
+        }
+      </dl>
+      @if (data.status === 'ready') {
+        <p>{{ t('cases.import.confirmHint') }}</p>
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="store.busy() || +data.validRows === 0"
+          (click)="store.confirm()"
+        >
+          {{ t('cases.import.confirm') }}
+        </button>
+      }
+      @if (data.preview.length) {
+        <table>
+          <caption>
+            {{
+              t('cases.import.preview')
+            }}
+          </caption>
+          <thead>
+            <tr>
+              @for (key of ['row', 'kind', 'cnj', 'folder', 'client', 'opponent']; track key) {
+                <th>{{ t('cases.import.' + key) }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.preview; track row.row) {
+              <tr>
+                <td>{{ row.row }}</td>
+                <td>{{ t('cases.kind.' + row.kind) }}</td>
+                <td>{{ row.cnj }}</td>
+                <td>{{ row.folder }}</td>
+                <td>{{ row.client }}</td>
+                <td>{{ row.opponent }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+      @if (data.errors.length) {
+        <table>
+          <caption>
+            {{
+              t('cases.import.errors')
+            }}
+          </caption>
+          <thead>
+            <tr>
+              @for (key of ['row', 'column', 'value', 'error']; track key) {
+                <th>{{ t('cases.import.' + key) }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (error of data.errors; track $index) {
+              <tr>
+                <td>{{ error.row }}</td>
+                <td>{{ error.column }}</td>
+                <td>{{ error.value }}</td>
+                <td>{{ t('errors.' + error.code) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="hint">{{ t('cases.import.errorsHint') }}</p>
+      }
+      @if (+data.invalidRows > 0 && data.status !== 'validating') {
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="store.busy()"
+          (click)="download('errors')"
+        >
+          {{ t('cases.import.report') }}
+        </button>
+      }
+    } @else if (store.importId()) {
+      <p role="status">{{ t('cases.import.loading') }}</p>
+    }
+  </ng-container>
+</section>

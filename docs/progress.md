@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 em revisão; falta o 5E2) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27, 5D #28 e 5E1 #29 mergeados; os 3 critérios de aceite atendidos; 5E2 implementado e verificado em 2026-10-19, com commit local; push e PR aguardam pedido; o merge do 5E2 conclui a etapa) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 
 ---
 
@@ -32,7 +32,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
   - **5C1:** índices monetários, correção e pedidos com valores por instância (critério 3);
   - **5C2:** risco (CPC 25), acordos com parcelas e audiências.
 - **5D — linha do tempo, importação XLSX/CSV e operações em lote.**
-- **5E — frontend e e2e.**
+- **5E — frontend e e2e.** Dividido em 2026-10-18:
+  - **5E1** (#29): lista, assistente, detalhe básico, linha do tempo, sigilo e numeração;
+  - **5E2** (implementado e verificado em 2026-10-19; commit local, sem push nem PR): abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação.
 
 **Critérios de aceite da Etapa 5:**
 
@@ -42,7 +44,29 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | ✅ (5D) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones`: 9.700 processos gravados e o relatório com exatamente as 300 linhas inválidas (6 defeitos × 50), cada uma com o código esperado |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5E1 — telas de processos: lista, assistente e detalhe (em revisão)
+### PR 5E2 — telas de valores, acompanhamento e importação (implementado e verificado; commit local, aguardando pedido de push e PR)
+
+**Escopo:** plano aprovado em 2026-10-19, sem nova decisão de negócio. Completa o frontend da Etapa 5. O encerramento oficial da etapa aguarda o merge pelo usuário.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.45 | Abas independentes com carregamento ao abrir, forms reativos, OnPush, SignalStores e HTTP no `CasesApi` | `values-stores.spec.ts` |
+| 5.46 | Pedidos: cadastrar, editar, excluir com confirmação, valores nas quatro instâncias, correção até uma data, totais, aviso por pedido e histórico de valores | `ClaimsStore`; `cases-values-flow.spec.ts` (INPC conferido com o caso C1 da ADR 0027 e histórico após edição) |
+| 5.47 | Risco atual por processo/pedido, provisão e passivo contingente, avaliação com `cases.risk.assess` e histórico | `RiskStore`; `cases-values-flow.spec.ts` |
+| 5.48 | Acordos: rodadas, envio, aprovação com permissão própria, devolução, homologação, recusa, cancelamento, parcelas vencidas e baixa manual | `SettlementsStore`; `cases-values-flow.spec.ts` |
+| 5.49 | Gerador de parcelas em centavos inteiros, ajuste na última e vencimentos ancorados no primeiro dia escolhido, com intervalo mensal | `value form helpers` (100 / 3, fim de mês, intervalo, limites); prévia no e2e |
+| 5.50 | Audiências: agendar/editar por formato, membros, busca de preposto/testemunhas, redesignar com histórico, realizar e cancelar | `HearingsStore`; `cases-values-flow.spec.ts` |
+| 5.51 | `/processos/importar` (`cases.create`): modelo, multipart, consulta periódica, retomada após recarregar, prévia, confirmação, resultado e relatório XLSX em Blob | `ImportStore` (inclusive destruição durante requisição); `case-import-flow.spec.ts` (CSV misto, gravação parcial e assinatura binária do relatório) |
+| 5.52 | Correção do total final de inválidas: contar os erros da revalidação ainda em memória, somando os persistidos ao retomar | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones` agora confere também 10.000 / 9.700 / 300 ao final; e2e de importação |
+| 5.53 | Textos pt-BR/en, permissões, WCAG 2.1 AA e relatório Playwright com trace/screenshot na primeira falha | `translations.spec.ts`; `expectAccessible` em todas as abas novas e na importação |
+
+**ADR:** [0031 — Telas de valores, acompanhamento e importação de processos](adr/0031-telas-de-valores-acompanhamento-e-importacao.md) (Proposta para revisão no PR 5E2).
+
+**Última verificação local (PR 5E2, 2026-10-19):** `dotnet build LexFlow.sln -c Release` e build Debug (0 warnings), `dotnet format LexFlow.sln --verify-no-changes`, 721 testes .NET em 16 projetos (707 + 14 do AppHost), todos com cobertura, gate de 80% aprovado em todas as camadas. Litigation.Application 92,4%, Litigation.Domain 97,9%, Platform.Application 97,2% e Crm.Application 94,4%. `dotnet list ... --vulnerable --include-transitive` sem achados; nenhuma mudança de modelo pendente no Platform, Organization, Crm ou Litigation. `npm run lint`, `npm test` (96 aprovados), `npm run build` e a suíte Playwright contra o AppHost, com relatório HTML: **14 aprovados em duas execuções consecutivas** (56,4 s e 46,9 s; só o preparo da carga é pulado). Nenhum pacote novo, migration nova ou mudança no contrato OpenAPI. Relatórios da rodada final .NET em `TestResults/5e2-final-validation`; último relatório de telas em `src/Web/lexflow-web/playwright-report/index.html` (artefatos locais ignorados pelo Git).
+
+**Pendências do PR 5E2:** push e abertura do PR somente quando solicitados, enviando código e documentos juntos. Depois do merge pelo usuário: atualizar a `main`, aceitar a ADR 0031, marcar o 5E2 e a Etapa 5 como concluídos, criar o branch da Etapa 6, atualizar as passagens de bastão e fazer commit/push da arrumação. Planejar a Etapa 6 e apresentar dúvidas de negócio antes de implementar. Sem pendência de implementação ou verificação do escopo aprovado do 5E2.
+
+### PR 5E1 — telas de processos: lista, assistente e detalhe (concluído: PR #29 mergeado em 2026-10-19)
 
 **Decisões de negócio (2026-10-18):**
 - Filtros salvos e colunas da lista ficam no servidor, por usuário.
@@ -60,14 +84,14 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.43 | Configurações: aba "Numeração de processos" | `NumberingStore` |
 | 5.44 | Textos pt-BR e en (inclusive os erros `litigation.*`) e WCAG 2.1 AA nas telas novas | `translations.spec.ts`, `expectAccessible` no e2e |
 
-**ADR:** [0030 — Telas de processos, preferências do usuário e opções de cadastro](adr/0030-telas-de-processos-e-preferencias.md) (Proposta, para revisão no PR 5E1).
+**ADR:** [0030 — Telas de processos, preferências do usuário e opções de cadastro](adr/0030-telas-de-processos-e-preferencias.md) (Aceita em 2026-10-19, com o merge do PR #29).
 
 **Última verificação local (PR 5E1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 707 testes .NET em 15 projetos e 14 do AppHost, 76 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (12 aprovados, inclusive o `cases-flow.spec.ts`; o preparo da carga é pulado), sem pacotes vulneráveis. Cobertura: Litigation.Application 92,3%, Platform.Application 97,2% e Platform.Domain 100%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
 
 **Pendências do PR 5E1:**
-1. O oasdiff do CI vai acusar a correção do `CaseAssignmentResponse`. A exceção é registrada em `docs/openapi/oasdiff-ignore.txt` com a mensagem exata do CI.
+1. Exceção do oasdiff registrada em `docs/openapi/oasdiff-ignore.txt` (21 entradas da correção do `CaseAssignmentResponse`).
 2. O filtro por pessoa (parte) existe na API, mas ainda não tem campo na tela.
-3. Pedidos, risco, acordos, audiências e importação: PR 5E2.
+3. Pedidos, risco, acordos, audiências e importação: implementados no PR 5E2 (acima), aguardando o merge.
 
 ### PR 5D — linha do tempo, importação e operações em lote (concluído: PR #28 mergeado em 2026-10-18)
 

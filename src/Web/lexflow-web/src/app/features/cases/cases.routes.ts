@@ -13,6 +13,11 @@ export const CASES_ROUTES: Routes = [
     loadComponent: () => import('./pages/case-wizard-page').then((m) => m.CaseWizardPage),
   },
   {
+    path: 'importar',
+    canMatch: [permissionGuard('cases.create')],
+    loadComponent: () => import('./pages/case-import-page').then((m) => m.CaseImportPage),
+  },
+  {
     path: ':id/editar',
     canMatch: [permissionGuard('cases.edit')],
     loadComponent: () => import('./pages/case-wizard-page').then((m) => m.CaseWizardPage),

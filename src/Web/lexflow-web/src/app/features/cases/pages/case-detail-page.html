@@ -446,6 +446,41 @@
         </div>
       </mat-tab>
 
+      <mat-tab *lfCan="'cases.read'" [label]="t('cases.tabs.claims')">
+        <ng-template matTabContent
+          ><lf-claims-tab
+            [caseId]="c.id"
+            [options]="store.options()"
+            [closed]="closed()"
+            (changed)="store.loadTimeline(timelineFilter())"
+        /></ng-template>
+      </mat-tab>
+      <mat-tab *lfCan="'cases.read'" [label]="t('cases.tabs.risk')">
+        <ng-template matTabContent
+          ><lf-risk-tab
+            [caseId]="c.id"
+            [options]="store.options()"
+            [closed]="closed()"
+            (changed)="store.loadTimeline(timelineFilter())"
+        /></ng-template>
+      </mat-tab>
+      <mat-tab *lfCan="'cases.read'" [label]="t('cases.tabs.settlements')">
+        <ng-template matTabContent
+          ><lf-settlements-tab
+            [caseId]="c.id"
+            [closed]="closed()"
+            (changed)="store.loadTimeline(timelineFilter())"
+        /></ng-template>
+      </mat-tab>
+      <mat-tab *lfCan="'cases.read'" [label]="t('cases.tabs.hearings')">
+        <ng-template matTabContent
+          ><lf-hearings-tab
+            [caseId]="c.id"
+            [options]="store.options()"
+            [closed]="closed()"
+            (changed)="store.loadTimeline(timelineFilter())"
+        /></ng-template>
+      </mat-tab>
       <mat-tab [label]="t('cases.tabs.documents')">
         <p class="tab empty">{{ t('cases.comingSoon') }}</p>
       </mat-tab>
