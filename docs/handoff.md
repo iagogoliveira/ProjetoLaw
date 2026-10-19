@@ -10,6 +10,18 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio e abertura do PR 6B autorizados)
+
+**Branch:** `codex/etapa-6b-captura-alertas`. **Decisão do usuário:** “Crie o PR”. Isso autoriza o push do código/documentação e a abertura do PR para `main`; não autoriza merge. Implementação pronta no commit `6de6b4f`, após `d46b774` (perguntas) e `4bcc2cd` (arrumação pós-merge do #31).
+
+**Estado e envio:** esta entrada registra a autorização antes da publicação, em commit documental para acompanhar o código no mesmo push. Base remota `main` conferida em `f2e01a9`; nenhum PR anterior encontrado para este branch. Após o push, abrir o PR 6B, anexá-lo à conversa e confirmar o endereço/estado no GitHub. A ADR 0033 permanece proposta até o merge pelo usuário.
+
+**Verificado:** diretório limpo antes desta atualização, branch e commits conferidos, documentação de envio sincronizada em progress/AGENTS/CLAUDE e diff documental a verificar antes do commit. Nenhuma mudança de runtime; preservada a verificação completa do `6de6b4f`: 771 testes .NET, cobertura acima de 80%, builds/formatação, pacotes/modelos, lint, 96 Vitest, build Angular e duas rodadas Playwright de 14 testes cada. Ocorrências e relatórios estão registrados na entrada anterior e no progress; não repetir sem nova mudança ou falha.
+
+**Próximos passos:** concluir a publicação autorizada e aguardar CI/revisão/merge pelo usuário. Se houver falha no CI, investigar e corrigir no branch do 6B. Depois do merge, executar o ciclo documental e preparar o 6C; fornecedor real continua pendente, triagem/fechamento são do 6D e telas do 6E. Não iniciar outro PR de implementação antes do merge do 6B.
+
+---
+
 ## 2026-10-19 — Codex (6B implementado e verificado; commit local, sem push/PR)
 
 **Branch:** `codex/etapa-6b-captura-alertas`, da main/merge `f2e01a9`. **Estado:** arrumação pós-merge do #31 enviada em `4bcc2cd`; dúvidas registradas no commit local `d46b774`, depois respondidas pelo usuário. Código e documentos do 6B consolidados no commit local desta entrega, sem push nem PR da implementação. ADR 0033 proposta; 6A #31 permanece concluído e ADR 0032 aceita.
