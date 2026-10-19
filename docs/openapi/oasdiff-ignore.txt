@@ -1,0 +1,25 @@
+# Exceções do oasdiff (quebras aceitas de propósito). Cada linha é a mensagem que o oasdiff mostra, com o método e o
+# caminho; só entram correções de descrição que não mudam o JSON da API, com a ADR que justifica.
+# ADR 0030: CaseResponse.assignments passou a usar CaseAssignmentResponse (o esquema antigo era o do Organization, por
+# colisão de nomes, e descrevia campos que a API nunca devolveu).
+POST /api/v1/cases removed the required property `assignments/items/roleId` from the response with the `201` status
+POST /api/v1/cases removed the required property `assignments/items/scope` from the response with the `201` status
+POST /api/v1/cases removed the required property `assignments/items/scopeRefId` from the response with the `201` status
+GET /api/v1/cases/{id} removed the required property `assignments/items/roleId` from the response with the `200` status
+GET /api/v1/cases/{id} removed the required property `assignments/items/scope` from the response with the `200` status
+GET /api/v1/cases/{id} removed the required property `assignments/items/scopeRefId` from the response with the `200` status
+PUT /api/v1/cases/{id} removed the required property `assignments/items/roleId` from the response with the `200` status
+PUT /api/v1/cases/{id} removed the required property `assignments/items/scope` from the response with the `200` status
+PUT /api/v1/cases/{id} removed the required property `assignments/items/scopeRefId` from the response with the `200` status
+POST /api/v1/cases/{id}/close removed the required property `assignments/items/roleId` from the response with the `200` status
+POST /api/v1/cases/{id}/close removed the required property `assignments/items/scope` from the response with the `200` status
+POST /api/v1/cases/{id}/close removed the required property `assignments/items/scopeRefId` from the response with the `200` status
+POST /api/v1/cases/{id}/relations removed the required property `assignments/items/roleId` from the response with the `200` status
+POST /api/v1/cases/{id}/relations removed the required property `assignments/items/scope` from the response with the `200` status
+POST /api/v1/cases/{id}/relations removed the required property `assignments/items/scopeRefId` from the response with the `200` status
+POST /api/v1/cases/{id}/reopen removed the required property `assignments/items/roleId` from the response with the `200` status
+POST /api/v1/cases/{id}/reopen removed the required property `assignments/items/scope` from the response with the `200` status
+POST /api/v1/cases/{id}/reopen removed the required property `assignments/items/scopeRefId` from the response with the `200` status
+POST /api/v1/cases/{id}/status removed the required property `assignments/items/roleId` from the response with the `200` status
+POST /api/v1/cases/{id}/status removed the required property `assignments/items/scope` from the response with the `200` status
+POST /api/v1/cases/{id}/status removed the required property `assignments/items/scopeRefId` from the response with the `200` status

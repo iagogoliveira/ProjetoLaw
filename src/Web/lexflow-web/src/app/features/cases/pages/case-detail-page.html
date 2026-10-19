@@ -1,0 +1,460 @@
+<section class="page" *transloco="let t">
+  <a mat-button routerLink="/processos">{{ t('cases.back') }}</a>
+
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+
+  @if (store.legalCase(); as c) {
+    <div class="inline header">
+      <div>
+        <h1>{{ c.internalFolder }}</h1>
+        <p class="hint">
+          {{ t('cases.kind.' + c.kind) }} · {{ formatCnj(c.cnjNumber) || t('cases.noCnj') }}
+          <span class="chip">{{ t('cases.status.' + c.status) }}</span>
+          @if (c.isRestricted) {
+            <span class="chip">{{ t('cases.restricted') }}</span>
+          }
+        </p>
+      </div>
+      <div class="actions" *lfCan="'cases.edit'">
+        @if (!closed()) {
+          <a mat-stroked-button [routerLink]="['editar']">{{ t('cases.edit') }}</a>
+          @if (c.status === 'active') {
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="changeStatus('suspended')"
+            >
+              {{ t('cases.suspend') }}
+            </button>
+          } @else {
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="changeStatus('active')"
+            >
+              {{ t('cases.reactivate') }}
+            </button>
+          }
+          <button mat-stroked-button type="button" (click)="pending.set('close')">
+            {{ t('cases.close') }}
+          </button>
+        } @else {
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="changeStatus('reopen')"
+          >
+            {{ t('cases.reopen') }}
+          </button>
+        }
+        <button *lfCan="'cases.delete'" mat-button type="button" (click)="pending.set('delete')">
+          {{ t('cases.delete') }}
+        </button>
+      </div>
+    </div>
+
+    @if (pending() === 'close' && store.options(); as options) {
+      <div class="panel" role="region" [attr.aria-label]="t('cases.closeTitle')">
+        <h2>{{ t('cases.closeTitle') }}</h2>
+        <div class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.closingReason') }}</mat-label>
+            <mat-select
+              [ngModel]="closing().reasonId"
+              (ngModelChange)="
+                closing.set({
+                  reasonId: $event,
+                  outcome: closing().outcome,
+                  finalAmount: closing().finalAmount,
+                  closedOn: closing().closedOn,
+                  note: closing().note,
+                })
+              "
+            >
+              @for (o of options.closingReasons; track o.id) {
+                <mat-option [value]="o.id">{{ o.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.outcome') }}</mat-label>
+            <mat-select
+              [ngModel]="closing().outcome"
+              (ngModelChange)="
+                closing.set({
+                  reasonId: closing().reasonId,
+                  outcome: $event,
+                  finalAmount: closing().finalAmount,
+                  closedOn: closing().closedOn,
+                  note: closing().note,
+                })
+              "
+            >
+              @for (o of outcomes; track o) {
+                <mat-option [value]="o">{{ t('cases.outcome.' + o) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.finalAmount') }}</mat-label>
+            <input
+              matInput
+              inputmode="decimal"
+              [ngModel]="closing().finalAmount"
+              (ngModelChange)="
+                closing.set({
+                  reasonId: closing().reasonId,
+                  outcome: closing().outcome,
+                  finalAmount: $event,
+                  closedOn: closing().closedOn,
+                  note: closing().note,
+                })
+              "
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.closedOn') }}</mat-label>
+            <input
+              matInput
+              type="date"
+              [ngModel]="closing().closedOn"
+              (ngModelChange)="
+                closing.set({
+                  reasonId: closing().reasonId,
+                  outcome: closing().outcome,
+                  finalAmount: closing().finalAmount,
+                  closedOn: $event,
+                  note: closing().note,
+                })
+              "
+            />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('cases.fields.closingNote') }}</mat-label>
+          <input
+            matInput
+            [ngModel]="closing().note"
+            (ngModelChange)="
+              closing.set({
+                reasonId: closing().reasonId,
+                outcome: closing().outcome,
+                finalAmount: closing().finalAmount,
+                closedOn: closing().closedOn,
+                note: $event,
+              })
+            "
+          />
+        </mat-form-field>
+        <div class="actions">
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="store.busy() || !closing().reasonId || !closing().closedOn"
+            (click)="confirmClose()"
+          >
+            {{ t('cases.close') }}
+          </button>
+          <button mat-button type="button" (click)="pending.set(null)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (pending() === 'delete') {
+      <div class="panel" role="alertdialog" [attr.aria-label]="t('cases.deleteTitle')">
+        <h2>{{ t('cases.deleteTitle') }}</h2>
+        <p>{{ t('cases.deleteHint') }}</p>
+        <div class="actions">
+          <button mat-flat-button type="button" [disabled]="store.busy()" (click)="confirmDelete()">
+            {{ t('cases.delete') }}
+          </button>
+          <button mat-button type="button" (click)="pending.set(null)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <mat-tab-group>
+      <mat-tab [label]="t('cases.tabs.summary')">
+        <div class="tab">
+          <dl>
+            <dt>{{ t('cases.fields.court') }}</dt>
+            <dd>{{ c.court ? c.court.acronym + ' — ' + c.court.name : '—' }}</dd>
+            <dt>{{ t('cases.fields.instance') }}</dt>
+            <dd>{{ c.instance ? t('cases.instance.' + c.instance) : '—' }}</dd>
+            <dt>{{ t('cases.fields.district') }}</dt>
+            <dd>{{ c.district || '—' }}</dd>
+            <dt>{{ t('cases.fields.courtUnit') }}</dt>
+            <dd>{{ c.courtUnit || '—' }}</dd>
+            <dt>{{ t('cases.fields.rite') }}</dt>
+            <dd>{{ c.rite || '—' }}</dd>
+            <dt>{{ t('cases.fields.proceduralClass') }}</dt>
+            <dd>{{ c.proceduralClass || '—' }}</dd>
+            <dt>{{ t('cases.fields.subject') }}</dt>
+            <dd>{{ c.subject || '—' }}</dd>
+            <dt>{{ t('cases.fields.actionType') }}</dt>
+            <dd>{{ nameOf('actionTypes', c.actionTypeId) }}</dd>
+            <dt>{{ t('cases.fields.area') }}</dt>
+            <dd>{{ nameOf('practiceAreas', c.practiceAreaId) }}</dd>
+            <dt>{{ t('cases.fields.branch') }}</dt>
+            <dd>{{ nameOf('branches', c.branchId) }}</dd>
+            <dt>{{ t('cases.fields.phase') }}</dt>
+            <dd>{{ nameOf('phases', c.phaseId) }}</dd>
+            <dt>{{ t('cases.fields.claimValue') }}</dt>
+            <dd>{{ amount(c.claimValue) }}</dd>
+            <dt>{{ t('cases.fields.filedOn') }}</dt>
+            <dd>{{ dateBr(c.filedOn) }}</dd>
+            <dt>{{ t('cases.fields.servedOn') }}</dt>
+            <dd>{{ dateBr(c.servedOn) }}</dd>
+            <dt>{{ t('cases.fields.description') }}</dt>
+            <dd>{{ c.description || '—' }}</dd>
+            @if (c.status === 'closed') {
+              <dt>{{ t('cases.fields.closedOn') }}</dt>
+              <dd>{{ dateBr(c.closedOn) }}</dd>
+              <dt>{{ t('cases.fields.closingReason') }}</dt>
+              <dd>{{ nameOf('closingReasons', c.closingReasonId) }}</dd>
+              <dt>{{ t('cases.fields.outcome') }}</dt>
+              <dd>{{ c.outcome ? t('cases.outcome.' + c.outcome) : '—' }}</dd>
+              <dt>{{ t('cases.fields.finalAmount') }}</dt>
+              <dd>{{ amount(c.finalAmount) }}</dd>
+            }
+          </dl>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('cases.tabs.parties')">
+        <div class="tab">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">{{ t('cases.parties.name') }}</th>
+                <th scope="col">{{ t('cases.parties.document') }}</th>
+                <th scope="col">{{ t('cases.parties.pole') }}</th>
+                <th scope="col">{{ t('cases.parties.counsel') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of c.parties; track p.personId) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/pessoas', p.personId]">{{ p.name }}</a>
+                    @if (p.isClient) {
+                      <span class="chip">{{ t('cases.parties.client') }}</span>
+                    }
+                  </td>
+                  <td>{{ formatDocument(p.document) || '—' }}</td>
+                  <td>{{ t('cases.pole.' + p.pole) }}</td>
+                  <td>{{ p.counselName || '—' }} {{ p.counselOab || '' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <h2>{{ t('cases.tabs.responsibles') }}</h2>
+          <ul>
+            @for (a of c.assignments; track $index) {
+              <li>
+                {{ a.userId ? memberName(a.userId) : nameOf('teams', a.teamId) }}
+                ({{ t('cases.roles.' + a.role) }})
+              </li>
+            } @empty {
+              <li class="hint">{{ t('cases.wizard.noResponsibles') }}</li>
+            }
+          </ul>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('cases.tabs.hierarchy')">
+        <div class="tab">
+          @if (c.parent; as parent) {
+            <p>
+              {{ t('cases.hierarchy.parent') }}:
+              <a [routerLink]="['/processos', parent.caseId]">{{ parent.internalFolder }}</a>
+              ({{ t('cases.relation.' + parent.kind) }})
+            </p>
+          }
+          <h2>{{ t('cases.hierarchy.children') }}</h2>
+          <ul>
+            @for (child of c.children; track child.relationId) {
+              <li class="inline">
+                <a [routerLink]="['/processos', child.caseId]">{{ child.internalFolder }}</a>
+                <span>({{ t('cases.relation.' + child.kind) }})</span>
+                <button
+                  *lfCan="'cases.edit'"
+                  mat-button
+                  type="button"
+                  (click)="store.unlink(child.relationId)"
+                >
+                  {{ t('cases.hierarchy.unlink') }}
+                </button>
+              </li>
+            } @empty {
+              <li class="hint">{{ t('cases.hierarchy.none') }}</li>
+            }
+          </ul>
+          <div class="inline" *lfCan="'cases.edit'">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.hierarchy.search') }}</mat-label>
+              <input
+                matInput
+                type="search"
+                [ngModel]="candidateTerm()"
+                (ngModelChange)="candidateTerm.set($event); store.findCandidates($event)"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.hierarchy.child') }}</mat-label>
+              <mat-select [ngModel]="childId()" (ngModelChange)="childId.set($event)">
+                @for (candidate of store.candidates(); track candidate.id) {
+                  <mat-option [value]="candidate.id">{{ candidate.internalFolder }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.hierarchy.kind') }}</mat-label>
+              <mat-select [ngModel]="relationKind()" (ngModelChange)="relationKind.set($event)">
+                @for (k of relationKinds; track k) {
+                  <mat-option [value]="k">{{ t('cases.relation.' + k) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="!childId() || store.busy()"
+              (click)="link()"
+            >
+              {{ t('cases.hierarchy.link') }}
+            </button>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('cases.tabs.timeline')">
+        <div class="tab">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.timeline.filter') }}</mat-label>
+            <mat-select
+              multiple
+              [ngModel]="timelineFilter()"
+              (ngModelChange)="filterTimeline($event)"
+            >
+              @for (g of groups; track g) {
+                <mat-option [value]="g">{{
+                  t('cases.timeline.groups.' + g.replace('litigation.', ''))
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <ol class="timeline">
+            @for (e of store.timeline(); track e.id) {
+              @let d = describe(e);
+              <li>
+                <span class="hint">{{ dateBr(e.at) }}</span>
+                {{ t(d.key, d.params) }}
+              </li>
+            } @empty {
+              <li class="hint">{{ t('cases.timeline.empty') }}</li>
+            }
+          </ol>
+          @if (store.timelineCursor()) {
+            <button mat-button type="button" (click)="store.moreTimeline()">
+              {{ t('cases.loadMore') }}
+            </button>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab *lfCan="'cases.restrictions.manage'" [label]="t('cases.tabs.restrictions')">
+        <div class="tab">
+          @if (store.restrictions() === null) {
+            <button mat-stroked-button type="button" (click)="openRestrictions()">
+              {{ t('cases.restrictions.load') }}
+            </button>
+          } @else if (store.options(); as options) {
+            <p class="hint">{{ t('cases.restrictions.hint') }}</p>
+            <div class="inline">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.restrictions.allowedUsers') }}</mat-label>
+                <mat-select
+                  multiple
+                  [ngModel]="allowedUsers()"
+                  (ngModelChange)="allowedUsers.set($event)"
+                >
+                  @for (m of options.members; track m.userId) {
+                    <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.restrictions.allowedTeams') }}</mat-label>
+                <mat-select
+                  multiple
+                  [ngModel]="allowedTeams()"
+                  (ngModelChange)="allowedTeams.set($event)"
+                >
+                  @for (o of options.teams; track o.id) {
+                    <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="inline">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.restrictions.blockedUsers') }}</mat-label>
+                <mat-select
+                  multiple
+                  [ngModel]="blockedUsers()"
+                  (ngModelChange)="blockedUsers.set($event)"
+                >
+                  @for (m of options.members; track m.userId) {
+                    <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.restrictions.blockedTeams') }}</mat-label>
+                <mat-select
+                  multiple
+                  [ngModel]="blockedTeams()"
+                  (ngModelChange)="blockedTeams.set($event)"
+                >
+                  @for (o of options.teams; track o.id) {
+                    <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="actions">
+              <button
+                mat-flat-button
+                type="button"
+                [disabled]="store.busy()"
+                (click)="saveRestrictions()"
+              >
+                {{ t('cases.restrictions.save') }}
+              </button>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('cases.tabs.documents')">
+        <p class="tab empty">{{ t('cases.comingSoon') }}</p>
+      </mat-tab>
+      <mat-tab [label]="t('cases.tabs.deadlines')">
+        <p class="tab empty">{{ t('cases.comingSoon') }}</p>
+      </mat-tab>
+      <mat-tab [label]="t('cases.tabs.finance')">
+        <p class="tab empty">{{ t('cases.comingSoon') }}</p>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</section>

@@ -78,6 +78,12 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+export type CaseAssignmentResponse = {
+    role: AssignmentRole;
+    userId: null | string;
+    teamId: null | string;
+};
+
 /**
  * Ações em lote sobre processos selecionados (Etapa 5, tarefa 7).
  */
@@ -187,6 +193,38 @@ export type CaseInstance = 'first' | 'second' | 'superior' | 'supreme';
  */
 export type CaseKind = 'judicial' | 'administrative' | 'extrajudicial';
 
+/**
+ * Um membro do escritório que pode ser responsável: o usuário, o nome e o e-mail.
+ */
+export type CaseMemberOption = {
+    userId: string;
+    name: string;
+    email: string;
+};
+
+/**
+ * Uma opção de cadastro: o id e o nome.
+ */
+export type CaseOption = {
+    id: string;
+    name: string;
+};
+
+/**
+ * As opções das telas de processos (5E1): áreas, filiais, equipes e membros do escritório, e os itens ativos das
+ * tabelas auxiliares dos processos. Só id e nome: quem cadastra processos não precisa das permissões de configuração.
+ */
+export type CaseOptionsResponse = {
+    practiceAreas: Array<CaseOption>;
+    branches: Array<CaseOption>;
+    teams: Array<CaseOption>;
+    members: Array<CaseMemberOption>;
+    phases: Array<CaseOption>;
+    actionTypes: Array<CaseOption>;
+    closingReasons: Array<CaseOption>;
+    claimTypes: Array<CaseOption>;
+};
+
 export type CaseOutcome = 'granted' | 'partiallyGranted' | 'denied' | 'settlement' | 'dismissed' | 'withdrawn' | 'other';
 
 export type CaseResponse = {
@@ -212,7 +250,7 @@ export type CaseResponse = {
     description: null | string;
     payerPersonId: null | string;
     parties: Array<PartyResponse>;
-    assignments: Array<AssignmentResponse>;
+    assignments: Array<CaseAssignmentResponse>;
     parent: null | RelatedCaseResponse;
     children: Array<RelatedCaseResponse>;
     closedOn: null | string;
@@ -787,6 +825,8 @@ export type JobResponse = {
     completedAt: null | string;
 };
 
+export type JsonElement = unknown;
+
 export type JsonObject = {
     [key: string]: unknown;
 };
@@ -1169,6 +1209,15 @@ export type PracticeAreaResponse = {
     name: string;
 };
 
+/**
+ * Uma preferência de tela do usuário: a chave e o valor JSON.
+ */
+export type PreferenceResponse = {
+    key: string;
+    value: JsonElement;
+    updatedAt: string;
+};
+
 export type ProblemDetails = {
     type?: null | string;
     title?: null | string;
@@ -1422,6 +1471,11 @@ export type SessionResponse = {
     ipAddress: null | string;
     userAgent: null | string;
     current: boolean;
+};
+
+export type SetPreferenceCommand = {
+    key: string;
+    value: JsonElement;
 };
 
 /**
@@ -2065,6 +2119,70 @@ export type CreateLookupItemResponses = {
 };
 
 export type CreateLookupItemResponse = CreateLookupItemResponses[keyof CreateLookupItemResponses];
+
+export type GetMyPreferenceData = {
+    body?: never;
+    path?: never;
+    query: {
+        key: string;
+    };
+    url: '/api/v1/me/preferences';
+};
+
+export type GetMyPreferenceErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetMyPreferenceError = GetMyPreferenceErrors[keyof GetMyPreferenceErrors];
+
+export type GetMyPreferenceResponses = {
+    /**
+     * OK
+     */
+    200: PreferenceResponse;
+};
+
+export type GetMyPreferenceResponse = GetMyPreferenceResponses[keyof GetMyPreferenceResponses];
+
+export type SetMyPreferenceData = {
+    body: SetPreferenceCommand;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/preferences';
+};
+
+export type SetMyPreferenceErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type SetMyPreferenceError = SetMyPreferenceErrors[keyof SetMyPreferenceErrors];
+
+export type SetMyPreferenceResponses = {
+    /**
+     * OK
+     */
+    200: PreferenceResponse;
+};
+
+export type SetMyPreferenceResponse = SetMyPreferenceResponses[keyof SetMyPreferenceResponses];
 
 export type GetMeData = {
     body?: never;
@@ -5222,6 +5340,31 @@ export type LookupCnjResponses = {
 };
 
 export type LookupCnjResponse = LookupCnjResponses[keyof LookupCnjResponses];
+
+export type GetCaseOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/options';
+};
+
+export type GetCaseOptionsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetCaseOptionsError = GetCaseOptionsErrors[keyof GetCaseOptionsErrors];
+
+export type GetCaseOptionsResponses = {
+    /**
+     * OK
+     */
+    200: CaseOptionsResponse;
+};
+
+export type GetCaseOptionsResponse = GetCaseOptionsResponses[keyof GetCaseOptionsResponses];
 
 export type GetCaseNumberingData = {
     body?: never;

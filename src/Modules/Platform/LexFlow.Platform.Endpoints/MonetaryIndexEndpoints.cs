@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Platform.Application.Indexes;
+using LexFlow.Platform.Application.Preferences;
 using LexFlow.Platform.Contracts.Indexes;
 using LexFlow.SharedKernel.Results;
 using LexFlow.Web.Common.Queries;
@@ -18,6 +19,8 @@ internal static class MonetaryIndexEndpoints
 
     public static void Map(IEndpointRouteBuilder endpoints)
     {
+        MapPreferences(endpoints);
+
         endpoints.MapGet("/api/v1/monetary-indexes", ListAsync)
             .WithTags("MonetaryIndexes")
             .DocumentEnumQuery<MonetaryIndexCode>("index")
@@ -38,6 +41,34 @@ internal static class MonetaryIndexEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+    }
+
+    /// <summary>
+    /// Preferências de tela do usuário no escritório ativo (ex.: <c>cases.list</c>: filtros salvos e colunas da lista de
+    /// processos). A chave vai na query; cada usuário só lê e grava as dele.
+    /// </summary>
+    private static void MapPreferences(IEndpointRouteBuilder endpoints)
+    {
+        var me = endpoints.MapGroup("/api/v1/me").WithTags("Me");
+
+        me.MapGet("/preferences", async (string key, IQueryHandler<GetPreferenceQuery, PreferenceResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new GetPreferenceQuery(key), cancellationToken)).ToHttpResult())
+            .RequirePermission(PlatformPermissions.ProfileRead)
+            .WithName("GetMyPreference")
+            .WithSummary("Uma preferência de tela do usuário (404 se ainda não salva)")
+            .Produces<PreferenceResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        me.MapPut("/preferences", async (SetPreferenceCommand request, ICommandHandler<SetPreferenceCommand, PreferenceResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(request, cancellationToken)).ToHttpResult())
+            .RequirePermission(PlatformPermissions.ProfileManage)
+            .WithName("SetMyPreference")
+            .WithSummary("Cria ou troca uma preferência de tela do usuário (objeto ou lista JSON de até 16 KB)")
+            .Produces<PreferenceResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 
     /// <summary><c>?index=Selic&amp;from=2025-01-01&amp;to=2025-12-01</c>; sem datas, a série inteira.</summary>

@@ -10,6 +10,63 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (PR 5E1 implementado)
+
+**Branch:** `etapa-5e-telas-processos` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.
+
+**Feito:**
+- **Backend:**
+  - preferências de tela por usuário (`platform.user_preferences`, `GET`/`PUT /api/v1/me/preferences`);
+  - opções de cadastro (`GET /api/v1/cases/options`);
+  - correção do contrato (`CaseAssignmentResponse`).
+- **Frontend `features/cases`:**
+  - lista com filtros salvos, colunas e lote;
+  - assistente em passos;
+  - detalhe com ações e as abas Resumo, Partes, Hierarquia, Linha do tempo e Sigilo;
+  - numeração nas configurações;
+  - textos pt-BR e en.
+- **E2E** `cases-flow.spec.ts`: passou contra o AppHost, junto com a suíte inteira (12 aprovados).
+- ADR 0030, `progress.md` e `AGENTS.md` atualizados.
+
+**Atenção no CI:** o oasdiff vai acusar a troca do esquema de `CaseResponse.assignments`. É uma correção de descrição, porque o JSON não mudou. O CI agora lê `docs/openapi/oasdiff-ignore.txt`: copie para lá a mensagem exata que o CI mostrar e faça um commit pequeno.
+
+**Próximo agente:**
+1. Quando o usuário pedir, faça o push e abra o PR do 5E1. Trate a exceção do oasdiff como descrito acima.
+2. Depois do merge, faça a arrumação:
+   - ADR 0030 aceita;
+   - crie o branch do 5E2;
+   - atualize o `AGENTS.md` e escreva uma entrada aqui.
+3. Planeje o 5E2.
+
+---
+
+## 2026-10-18 — Claude Code (arrumação depois do merge do #28)
+
+**Branch:** `etapa-5e-telas-processos`, criado a partir da `main`, com este commit de arrumação e push.
+
+**Feito:**
+- PR #28 (5D) mergeado pelo usuário. Antes do merge, uma correção de CI: `Path.GetFileName` no Linux (registrado no `AGENTS.md`).
+- `progress.md`: 5D concluído, e os 3 critérios da Etapa 5 atendidos.
+- ADR 0029 marcada como aceita.
+- "Onde paramos" do `AGENTS.md` atualizado.
+
+**Pendência anotada:** o upload dos modelos de proposta (Crm) também usa `Path.GetFileName`. Um nome com caminho do Windows ficaria inteiro num servidor Linux. Isso pede um PR pequeno, se o usuário quiser.
+
+**Plano do 5E mostrado ao usuário** (aguardando aprovação), dividido em dois PRs:
+- **5E1:** `features/cases` com:
+  - lista com filtros salvos, colunas configuráveis e operações em lote;
+  - assistente de cadastro em passos;
+  - detalhe com Resumo, Partes, Hierarquia, Linha do tempo, Sigilo e as abas reservadas (Documentos, Prazos, Financeiro);
+  - aba "Numeração de processos" nas configurações;
+  - e2e.
+- **5E2:** abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação, com e2e contra o AppHost.
+
+**Decisões do usuário (2026-10-18):**
+- Filtros salvos e colunas da lista ficam **no servidor, por usuário** (preferências por tela, no backend do 5E1).
+- O 5E é dividido em **5E1 e 5E2**.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5D implementado)
 
 **Branch:** `etapa-5d-timeline-importacao` · **Estado:** PR aberto (`gh pr list --head etapa-5d-timeline-importacao`), aguardando o CI e o merge do usuário.

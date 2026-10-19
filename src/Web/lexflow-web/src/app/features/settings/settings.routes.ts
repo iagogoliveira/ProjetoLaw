@@ -42,6 +42,12 @@ export const SETTINGS_ROUTES: Routes = [
           import('../funnel/pages/proposal-templates-page').then((m) => m.ProposalTemplatesPage),
       },
       {
+        // A tela é dos processos (features/cases); aqui só a aba nas configurações.
+        path: 'numeracao',
+        canMatch: [permissionGuard('settings.organization.manage')],
+        loadComponent: () => import('../cases/pages/numbering-page').then((m) => m.NumberingPage),
+      },
+      {
         path: 'campos',
         canMatch: [permissionGuard('settings.custom_fields.read')],
         loadComponent: () => import('./pages/custom-fields-page').then((m) => m.CustomFieldsPage),

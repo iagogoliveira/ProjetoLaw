@@ -1,6 +1,6 @@
 # ADR 0029 — Linha do tempo, importação de processos e operações em lote
 
-- **Status:** Proposta (para revisão no PR 5D)
+- **Status:** Aceita (PR #28 mergeado em 2026-10-18)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5D)
 

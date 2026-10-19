@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26 e 5C2 #27 mergeados; 5D em revisão; falta o 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 em revisão; falta o 5E2) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos` |
 
 ---
 
@@ -42,7 +42,34 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | ✅ (5D) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones`: 9.700 processos gravados e o relatório com exatamente as 300 linhas inválidas (6 defeitos × 50), cada uma com o código esperado |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5D — linha do tempo, importação e operações em lote (em revisão)
+### PR 5E1 — telas de processos: lista, assistente e detalhe (em revisão)
+
+**Decisões de negócio (2026-10-18):**
+- Filtros salvos e colunas da lista ficam no servidor, por usuário.
+- O 5E foi dividido em 5E1 (lista, assistente, detalhe básico, lote, linha do tempo, sigilo e numeração) e 5E2 (pedidos, risco, acordos, audiências e importação).
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.36 | Preferências de tela por usuário (`platform.user_preferences`, RLS): `GET` e `PUT /api/v1/me/preferences` | `MyPreferencesTests` (2 casos) |
+| 5.37 | `GET /api/v1/cases/options` (`cases.read`): áreas, filiais, equipes, membros e itens das tabelas auxiliares, sem as permissões de configuração | `CaseTimelineAndBatchTests.Whoever_reads_cases_gets_the_form_options_without_settings_permissions` |
+| 5.38 | Correção do contrato: `CaseAssignmentResponse` (antes colidia com o `AssignmentResponse` do Organization no OpenAPI) | `OpenApiContractTests` e a exceção do oasdiff (ADR 0030) |
+| 5.39 | `features/cases`: `CasesApi`, stores em signals, menu "Processos" e rotas protegidas | `cases-stores.spec.ts` (10 casos) |
+| 5.40 | Lista com busca, filtros, filtros salvos, colunas, "carregar mais" e operações em lote | `CasesListStore`, `e2e/cases-flow.spec.ts` |
+| 5.41 | Assistente em 5 passos: tipo e CNJ (consulta do tribunal), dados, partes (busca e cadastro rápido), responsáveis e revisão; também na edição | `CaseEditorStore`, `e2e/cases-flow.spec.ts` |
+| 5.42 | Detalhe: ações de ciclo de vida, abas Resumo, Partes e responsáveis, Hierarquia, Linha do tempo e Sigilo; Documentos, Prazos e Financeiro reservados | `CaseDetailStore`, `e2e/cases-flow.spec.ts` |
+| 5.43 | Configurações: aba "Numeração de processos" | `NumberingStore` |
+| 5.44 | Textos pt-BR e en (inclusive os erros `litigation.*`) e WCAG 2.1 AA nas telas novas | `translations.spec.ts`, `expectAccessible` no e2e |
+
+**ADR:** [0030 — Telas de processos, preferências do usuário e opções de cadastro](adr/0030-telas-de-processos-e-preferencias.md) (Proposta, para revisão no PR 5E1).
+
+**Última verificação local (PR 5E1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 707 testes .NET em 15 projetos e 14 do AppHost, 76 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (12 aprovados, inclusive o `cases-flow.spec.ts`; o preparo da carga é pulado), sem pacotes vulneráveis. Cobertura: Litigation.Application 92,3%, Platform.Application 97,2% e Platform.Domain 100%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
+
+**Pendências do PR 5E1:**
+1. O oasdiff do CI vai acusar a correção do `CaseAssignmentResponse`. A exceção é registrada em `docs/openapi/oasdiff-ignore.txt` com a mensagem exata do CI.
+2. O filtro por pessoa (parte) existe na API, mas ainda não tem campo na tela.
+3. Pedidos, risco, acordos, audiências e importação: PR 5E2.
+
+### PR 5D — linha do tempo, importação e operações em lote (concluído: PR #28 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-18):**
 - Cliente ou parte contrária fora do cadastro é cadastrado automaticamente; se o CPF/CNPJ já existe, usa-se a pessoa existente.
@@ -60,7 +87,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.34 | ClosedXML 0.105.1 (MIT), com a SixLabors.Fonts presa na 1.0.1 (Apache-2.0) | ADR 0029 e ADR 0002 |
 | 5.35 | RLS nas 3 tabelas novas, casos entre organizações nas 4 rotas novas com id, OpenAPI (7 caminhos novos, só adições) e cliente TypeScript | `EndpointSecurityTests`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `OpenApiContractTests` |
 
-**ADR:** [0029 — Linha do tempo, importação de processos e operações em lote](adr/0029-linha-do-tempo-importacao-e-lote.md) (Proposta, para revisão no PR 5D).
+**ADR:** [0029 — Linha do tempo, importação de processos e operações em lote](adr/0029-linha-do-tempo-importacao-e-lote.md) (Aceita em 2026-10-18, com o merge do PR #28).
 
 **Última verificação local (PR 5D):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 704 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Litigation.Application 92,2%, Litigation.Domain 97,9%, Platform.Application 97,2% e Crm.Application 94,4%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Pacote novo: ClosedXML 0.105.1 (ADR 0029).
 

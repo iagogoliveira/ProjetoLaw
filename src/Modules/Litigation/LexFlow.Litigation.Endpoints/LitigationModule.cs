@@ -131,6 +131,14 @@ public sealed class LitigationModule : IModule
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
+        cases.MapGet("/options", async (IQueryHandler<GetCaseOptionsQuery, CaseOptionsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new GetCaseOptionsQuery(), cancellationToken)).ToHttpResult())
+            .RequirePermission(LitigationPermissions.CasesRead)
+            .WithName("GetCaseOptions")
+            .WithSummary("Opções das telas de processos: áreas, filiais, equipes, membros e os itens das tabelas auxiliares (id e nome)")
+            .Produces<CaseOptionsResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+
         cases.MapGet("/numbering", async (IQueryHandler<GetNumberingQuery, NumberingResponse> handler, CancellationToken cancellationToken) =>
                 (await handler.Handle(new GetNumberingQuery(), cancellationToken)).ToHttpResult())
             .RequirePermission(LitigationPermissions.CasesRead)

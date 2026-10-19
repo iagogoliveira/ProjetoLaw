@@ -47,6 +47,14 @@
             >{{ t('shell.people') }}</a
           >
           <a
+            *lfCan="'cases.read'"
+            mat-list-item
+            routerLink="/processos"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('shell.cases') }}</a
+          >
+          <a
             *lfCan="'crm.opportunities.read'"
             mat-list-item
             routerLink="/funil"
