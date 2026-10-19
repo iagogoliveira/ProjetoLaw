@@ -4,9 +4,14 @@ import { createOfficeAsNewAdmin, expectAccessible, mailpitUrl } from './support/
 /** CNJ válido (TJSP), com o dígito verificador conferido. */
 const CNJ = '2238058-98.2025.8.26.8434';
 
-/** Escolhe a opção de um mat-select pelo rótulo do campo. */
+/**
+ * Escolhe a opção de um mat-select pelo rótulo do campo. Abre pelo teclado: com o campo vazio, o rótulo flutuante
+ * fica por cima da caixa e intercepta o clique (no CI, de forma permanente).
+ */
 async function choose(page: Page, label: string, option: string): Promise<void> {
-  await page.getByLabel(label, { exact: true }).click();
+  const select = page.getByRole('combobox', { name: label, exact: true });
+  await select.focus();
+  await select.press('Enter');
   await page.getByRole('option', { name: option, exact: true }).click();
 }
 
@@ -58,7 +63,9 @@ test.describe('Cases flow', () => {
     await next(page);
 
     // Responsáveis: o próprio administrador.
-    await page.getByLabel('Membro', { exact: true }).click();
+    const member = page.getByRole('combobox', { name: 'Membro', exact: true });
+    await member.focus();
+    await member.press('Enter');
     await page.getByRole('option').first().click();
     await page.getByRole('button', { name: 'Incluir', exact: true }).first().click();
     await next(page);
