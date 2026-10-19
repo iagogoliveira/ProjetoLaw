@@ -10,6 +10,18 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio do 5E2 aprovado pelo usuário)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`. **Commit de implementação:** `e993a8b` (`Etapa 5E2: telas de valores, acompanhamento e importação`).
+
+**Decisão do usuário:** aprovou o resultado e autorizou enviar o commit e criar o PR para a `main`. Este registro é feito antes do envio para que código e documentação sigam juntos em um único push. Nenhuma mudança de código após a verificação completa registrada abaixo; este commit só documenta a autorização.
+
+**Estado neste registro:** implementação e documentação commitadas localmente; envio e criação do PR autorizados. Consulte o PR pelo branch no GitHub para obter o número, a URL e o estado atual do CI, antes de tentar reenviar ou criar outro PR.
+
+**Próximo:** conferir o CI e aguardar o merge pelo usuário. Nunca fazer merge. Quando o usuário avisar do merge, seguir a arrumação e o planejamento da Etapa 6 descritos na entrada anterior. A Etapa 5 e a ADR 0031 ainda aguardam o merge para serem marcadas como concluída/aceita.
+
+---
+
 ## 2026-10-19 — Codex (5E2 implementado e verificado)
 
 **Branch:** `etapa-5e2-telas-valores-importacao`. **Estado:** código e documentos neste commit local; sem push, sem PR e sem merge. O plano aprovado foi implementado diretamente, sem nova decisão de negócio.
