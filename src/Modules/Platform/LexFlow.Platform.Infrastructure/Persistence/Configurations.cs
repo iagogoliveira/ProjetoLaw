@@ -5,6 +5,7 @@ using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Preferences;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -64,6 +65,20 @@ internal sealed class CourtConfiguration : IEntityTypeConfiguration<Court>
         builder.Property(c => c.State).HasMaxLength(2).IsFixedLength();
         builder.HasIndex(c => new { c.Segment, c.Code }).IsUnique();
         builder.HasData(ReferenceData.Courts);
+    }
+}
+
+/// <summary>Preferências de tela: uma por usuário, escritório e chave.</summary>
+internal sealed class UserPreferenceConfiguration : IEntityTypeConfiguration<UserPreference>
+{
+    public void Configure(EntityTypeBuilder<UserPreference> builder)
+    {
+        builder.ToTable("user_preferences");
+        builder.HasKey(p => p.Id);
+        builder.Property(p => p.Id).ValueGeneratedNever();
+        builder.Property(p => p.Key).HasMaxLength(UserPreference.MaxKeyLength);
+        builder.Property(p => p.Value).HasColumnType("jsonb");
+        builder.HasIndex(p => new { p.OrganizationId, p.UserId, p.Key }).IsUnique();
     }
 }
 

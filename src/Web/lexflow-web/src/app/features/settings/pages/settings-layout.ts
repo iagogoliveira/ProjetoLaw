@@ -57,5 +57,6 @@ export class SettingsLayout {
     { path: 'estrutura', label: 'structure', permission: 'settings.structure.manage' },
     { path: 'campos', label: 'customFields', permission: 'settings.custom_fields.read' },
     { path: 'modelos-proposta', label: 'proposalTemplates', permission: 'crm.proposals.read' },
+    { path: 'numeracao', label: 'caseNumbering', permission: 'settings.organization.manage' },
   ] as const;
 }

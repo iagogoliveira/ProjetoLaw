@@ -4,6 +4,7 @@ using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Preferences;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Platform.Application.Abstractions;
@@ -26,6 +27,8 @@ public interface IPlatformDbContext
     DbSet<LookupItem> LookupItems { get; }
 
     DbSet<MonetaryIndex> MonetaryIndexes { get; }
+
+    DbSet<UserPreference> Preferences { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -1,0 +1,4 @@
+# Exceções do oasdiff (quebras aceitas de propósito). Cada linha é a mensagem que o oasdiff mostra, com o método e o
+# caminho; só entram correções de descrição que não mudam o JSON da API, com a ADR que justifica.
+# ADR 0030: CaseResponse.assignments passou a usar CaseAssignmentResponse (o esquema antigo era o do Organization, por
+# colisão de nomes, e descrevia campos que a API nunca devolveu).

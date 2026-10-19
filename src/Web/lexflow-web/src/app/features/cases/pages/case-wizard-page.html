@@ -1,0 +1,443 @@
+<section class="page" *transloco="let t">
+  <div class="inline header">
+    <h1>{{ t(editing() ? 'cases.wizard.editTitle' : 'cases.wizard.newTitle') }}</h1>
+    <a mat-button routerLink="/processos">{{ t('cases.back') }}</a>
+  </div>
+
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+
+  @if (store.options(); as options) {
+    <mat-stepper orientation="vertical" [linear]="false" [formGroup]="form">
+      <mat-step [label]="t('cases.wizard.stepNumber')">
+        <div class="form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.kind') }}</mat-label>
+            <mat-select formControlName="kind">
+              @for (k of kinds; track k) {
+                <mat-option [value]="k">{{ t('cases.kind.' + k) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (form.controls.kind.value === 'judicial') {
+            <div class="inline">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.fields.cnj') }}</mat-label>
+                <input
+                  matInput
+                  formControlName="cnjNumber"
+                  placeholder="0000000-00.0000.0.00.0000"
+                />
+                @if (fieldError('cnjNumber'); as code) {
+                  <mat-error>{{ t('errors.' + code) }}</mat-error>
+                }
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="store.busy()"
+                (click)="lookupCnj()"
+              >
+                {{ t('cases.wizard.lookupCnj') }}
+              </button>
+            </div>
+            @if (store.cnj(); as cnj) {
+              <p class="status" role="status">
+                {{ t('cases.wizard.cnjFound', { year: cnj.year, court: cnj.court?.name ?? '—' }) }}
+              </p>
+            }
+          }
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.instance') }}</mat-label>
+            <mat-select formControlName="instance">
+              <mat-option [value]="null">—</mat-option>
+              @for (i of instances; track i) {
+                <mat-option [value]="i">{{ t('cases.instance.' + i) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-flat-button matStepperNext type="button">
+              {{ t('cases.wizard.next') }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step [label]="t('cases.wizard.stepData')">
+        <div class="form">
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.area') }}</mat-label>
+              <mat-select formControlName="practiceAreaId">
+                <mat-option [value]="null">—</mat-option>
+                @for (o of options.practiceAreas; track o.id) {
+                  <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.branch') }}</mat-label>
+              <mat-select formControlName="branchId">
+                <mat-option [value]="null">—</mat-option>
+                @for (o of options.branches; track o.id) {
+                  <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.phase') }}</mat-label>
+              <mat-select formControlName="phaseId">
+                <mat-option [value]="null">—</mat-option>
+                @for (o of options.phases; track o.id) {
+                  <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.actionType') }}</mat-label>
+              <mat-select formControlName="actionTypeId">
+                <mat-option [value]="null">—</mat-option>
+                @for (o of options.actionTypes; track o.id) {
+                  <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.district') }}</mat-label>
+              <input matInput formControlName="district" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.courtUnit') }}</mat-label>
+              <input matInput formControlName="courtUnit" />
+            </mat-form-field>
+          </div>
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.rite') }}</mat-label>
+              <input matInput formControlName="rite" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.proceduralClass') }}</mat-label>
+              <input matInput formControlName="proceduralClass" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.subject') }}</mat-label>
+              <input matInput formControlName="subject" />
+            </mat-form-field>
+          </div>
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.claimValue') }}</mat-label>
+              <input matInput formControlName="claimValue" inputmode="decimal" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.filedOn') }}</mat-label>
+              <input matInput type="date" formControlName="filedOn" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.servedOn') }}</mat-label>
+              <input matInput type="date" formControlName="servedOn" />
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.fields.description') }}</mat-label>
+            <textarea matInput rows="3" formControlName="description"></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-button matStepperPrevious type="button">
+              {{ t('cases.wizard.previous') }}
+            </button>
+            <button mat-flat-button matStepperNext type="button">
+              {{ t('cases.wizard.next') }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step [label]="t('cases.wizard.stepParties')">
+        <div class="form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.wizard.searchPerson') }}</mat-label>
+            <input
+              matInput
+              type="search"
+              [ngModel]="personTerm()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onPersonTerm($event)"
+            />
+          </mat-form-field>
+          @if (store.people().length > 0) {
+            <ul aria-live="polite">
+              @for (p of store.people(); track p.id) {
+                <li class="inline">
+                  <span>{{ p.name }} {{ formatDocument(p.document) }}</span>
+                  <button mat-button type="button" (click)="addParty(p.id, p.name, true)">
+                    {{ t('cases.wizard.addClient') }}
+                  </button>
+                  <button mat-button type="button" (click)="addParty(p.id, p.name, false)">
+                    {{ t('cases.wizard.addOpponent') }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+
+          <fieldset>
+            <legend>{{ t('cases.wizard.quickPerson') }}</legend>
+            <div class="inline">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.wizard.personName') }}</mat-label>
+                <input
+                  matInput
+                  [ngModel]="newPerson().name"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="
+                    newPerson.set({
+                      name: $event,
+                      document: newPerson().document,
+                      kind: newPerson().kind,
+                    })
+                  "
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.wizard.personDocument') }}</mat-label>
+                <input
+                  matInput
+                  [ngModel]="newPerson().document"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="
+                    newPerson.set({
+                      name: newPerson().name,
+                      document: $event,
+                      kind: newPerson().kind,
+                    })
+                  "
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.wizard.personKind') }}</mat-label>
+                <mat-select
+                  [ngModel]="newPerson().kind"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="
+                    newPerson.set({
+                      name: newPerson().name,
+                      document: newPerson().document,
+                      kind: $event,
+                    })
+                  "
+                >
+                  <mat-option value="company">{{ t('cases.wizard.company') }}</mat-option>
+                  <mat-option value="individual">{{ t('cases.wizard.individual') }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="actions">
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="store.busy()"
+                (click)="createPerson(true)"
+              >
+                {{ t('cases.wizard.createClient') }}
+              </button>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="store.busy()"
+                (click)="createPerson(false)"
+              >
+                {{ t('cases.wizard.createOpponent') }}
+              </button>
+            </div>
+          </fieldset>
+
+          @if (parties().length === 0) {
+            <p class="hint">{{ t('cases.wizard.noParties') }}</p>
+          } @else {
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{{ t('cases.parties.name') }}</th>
+                  <th scope="col">{{ t('cases.parties.pole') }}</th>
+                  <th scope="col">{{ t('cases.parties.client') }}</th>
+                  <th scope="col">{{ t('cases.parties.counsel') }}</th>
+                  <th scope="col">
+                    <span class="hint">{{ t('cases.actions') }}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of parties(); track p.personId; let i = $index) {
+                  <tr>
+                    <td>{{ p.name }}</td>
+                    <td>
+                      <mat-select
+                        [aria-label]="t('cases.parties.pole')"
+                        [ngModel]="p.pole"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateParty(i, { pole: $event })"
+                      >
+                        @for (pole of poles; track pole) {
+                          <mat-option [value]="pole">{{ t('cases.pole.' + pole) }}</mat-option>
+                        }
+                      </mat-select>
+                    </td>
+                    <td>
+                      <mat-checkbox
+                        [checked]="p.isClient"
+                        (change)="updateParty(i, { isClient: $event.checked })"
+                        [aria-label]="t('cases.parties.client')"
+                      ></mat-checkbox>
+                    </td>
+                    <td class="inline">
+                      <input
+                        [attr.aria-label]="t('cases.parties.counselName')"
+                        [placeholder]="t('cases.parties.counselName')"
+                        [ngModel]="p.counselName"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateParty(i, { counselName: $event })"
+                      />
+                      <input
+                        [attr.aria-label]="t('cases.parties.counselOab')"
+                        [placeholder]="t('cases.parties.counselOab')"
+                        [ngModel]="p.counselOab"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateParty(i, { counselOab: $event })"
+                      />
+                    </td>
+                    <td>
+                      <button mat-button type="button" (click)="removeParty(i)">
+                        {{ t('cases.remove') }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          @if (parties().length > 0 && !hasClient()) {
+            <p class="error" role="alert">{{ t('errors.litigation.client_required') }}</p>
+          }
+          <div class="actions">
+            <button mat-button matStepperPrevious type="button">
+              {{ t('cases.wizard.previous') }}
+            </button>
+            <button mat-flat-button matStepperNext type="button">
+              {{ t('cases.wizard.next') }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step [label]="t('cases.wizard.stepResponsibles')">
+        <div class="form">
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.wizard.member') }}</mat-label>
+              <mat-select
+                [ngModel]="member()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="member.set($event)"
+              >
+                @for (m of options.members; track m.userId) {
+                  <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.batch.role') }}</mat-label>
+              <mat-select
+                [ngModel]="memberRole()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="memberRole.set($event)"
+              >
+                <mat-option value="lawyer">{{ t('cases.roles.lawyer') }}</mat-option>
+                <mat-option value="partner">{{ t('cases.roles.partner') }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-stroked-button type="button" [disabled]="!member()" (click)="addMember()">
+              {{ t('cases.wizard.add') }}
+            </button>
+          </div>
+          <div class="inline">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.fields.team') }}</mat-label>
+              <mat-select
+                [ngModel]="team()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="team.set($event)"
+              >
+                @for (o of options.teams; track o.id) {
+                  <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-stroked-button type="button" [disabled]="!team()" (click)="addTeam()">
+              {{ t('cases.wizard.add') }}
+            </button>
+          </div>
+          <ul>
+            @for (a of assignments(); track $index; let i = $index) {
+              <li class="inline">
+                <span>{{ a.label }} ({{ t('cases.roles.' + a.role) }})</span>
+                <button mat-button type="button" (click)="removeAssignment(i)">
+                  {{ t('cases.remove') }}
+                </button>
+              </li>
+            } @empty {
+              <li class="hint">{{ t('cases.wizard.noResponsibles') }}</li>
+            }
+          </ul>
+          <div class="actions">
+            <button mat-button matStepperPrevious type="button">
+              {{ t('cases.wizard.previous') }}
+            </button>
+            <button mat-flat-button matStepperNext type="button">
+              {{ t('cases.wizard.next') }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step [label]="t('cases.wizard.stepReview')">
+        <div class="form">
+          <dl>
+            <dt>{{ t('cases.fields.kind') }}</dt>
+            <dd>{{ t('cases.kind.' + form.controls.kind.value) }}</dd>
+            <dt>{{ t('cases.fields.cnj') }}</dt>
+            <dd>{{ form.controls.cnjNumber.value || '—' }}</dd>
+            <dt>{{ t('cases.fields.area') }}</dt>
+            <dd>{{ nameOf('practiceAreas', form.controls.practiceAreaId.value) }}</dd>
+            <dt>{{ t('cases.fields.phase') }}</dt>
+            <dd>{{ nameOf('phases', form.controls.phaseId.value) }}</dd>
+            <dt>{{ t('cases.tabs.parties') }}</dt>
+            <dd>{{ parties().length }}</dd>
+            <dt>{{ t('cases.tabs.responsibles') }}</dt>
+            <dd>{{ assignments().length }}</dd>
+          </dl>
+          <div class="actions">
+            <button mat-button matStepperPrevious type="button">
+              {{ t('cases.wizard.previous') }}
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy() || !hasClient()"
+              (click)="save()"
+            >
+              {{ t(editing() ? 'cases.wizard.saveChanges' : 'cases.wizard.create') }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  }
+</section>

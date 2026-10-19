@@ -162,7 +162,7 @@ jobs:
           fi
           git show "origin/${{ github.base_ref }}:docs/openapi/v1.json" > base-openapi.json
           curl -fsSL https://github.com/oasdiff/oasdiff/releases/download/v1.33.0/oasdiff_1.33.0_linux_amd64.tar.gz | tar xz oasdiff
-          ./oasdiff breaking base-openapi.json docs/openapi/v1.json --fail-on ERR
+          ./oasdiff breaking base-openapi.json docs/openapi/v1.json --fail-on ERR --err-ignore docs/openapi/oasdiff-ignore.txt
 
   codeql:
     name: CodeQL (${{ matrix.language }})

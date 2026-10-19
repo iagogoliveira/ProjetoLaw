@@ -7,6 +7,7 @@ using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Preferences;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Platform.Infrastructure.Persistence;
@@ -33,6 +34,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<LookupItem> LookupItems => Set<LookupItem>();
 
     public DbSet<MonetaryIndex> MonetaryIndexes => Set<MonetaryIndex>();
+
+    public DbSet<UserPreference> Preferences => Set<UserPreference>();
 
     protected override string Schema => SchemaName;
 

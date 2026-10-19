@@ -41,7 +41,7 @@ public sealed record CaseInput(
 
 public sealed record PartyResponse(Guid PersonId, string Name, string? Document, PartyPole Pole, bool IsClient, string? CounselName, string? CounselOab);
 
-public sealed record AssignmentResponse(AssignmentRole Role, Guid? UserId, Guid? TeamId);
+public sealed record CaseAssignmentResponse(AssignmentRole Role, Guid? UserId, Guid? TeamId);
 
 public sealed record CourtResponse(Guid Id, string Acronym, string Name, string? State);
 
@@ -71,7 +71,7 @@ public sealed record CaseResponse(
     string? Description,
     Guid? PayerPersonId,
     IReadOnlyList<PartyResponse> Parties,
-    IReadOnlyList<AssignmentResponse> Assignments,
+    IReadOnlyList<CaseAssignmentResponse> Assignments,
     RelatedCaseResponse? Parent,
     IReadOnlyList<RelatedCaseResponse> Children,
     DateOnly? ClosedOn,
@@ -134,7 +134,7 @@ internal sealed class CaseResponseBuilder(ILitigationDbContext db, IPeopleDirect
                 p.IsClient,
                 p.CounselName,
                 p.CounselOab))],
-            [.. c.Assignments.Select(a => new AssignmentResponse(a.Role, a.UserId, a.TeamId))],
+            [.. c.Assignments.Select(a => new CaseAssignmentResponse(a.Role, a.UserId, a.TeamId))],
             parent is null ? null : new RelatedCaseResponse(parent.r.Id, parent.Id, parent.InternalFolder, CnjFormat.Of(parent.CnjNumber), parent.r.Kind),
             [.. relations.Where(x => x.r.ParentCaseId == c.Id).Select(x => new RelatedCaseResponse(x.r.Id, x.Id, x.InternalFolder, CnjFormat.Of(x.CnjNumber), x.r.Kind))],
             c.ClosedOn,

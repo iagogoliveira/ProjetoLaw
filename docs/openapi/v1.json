@@ -897,6 +897,116 @@
         }
       }
     },
+    "/api/v1/me/preferences": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Uma preferência de tela do usuário (404 se ainda não salva)",
+        "operationId": "GetMyPreference",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Cria ou troca uma preferência de tela do usuário (objeto ou lista JSON de até 16 KB)",
+        "operationId": "SetMyPreference",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPreferenceCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/me": {
       "get": {
         "tags": [
@@ -6554,6 +6664,37 @@
         }
       }
     },
+    "/api/v1/cases/options": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Opções das telas de processos: áreas, filiais, equipes, membros e os itens das tabelas auxiliares (id e nome)",
+        "operationId": "GetCaseOptions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseOptionsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cases/numbering": {
       "get": {
         "tags": [
@@ -9876,6 +10017,33 @@
           }
         }
       },
+      "CaseAssignmentResponse": {
+        "required": [
+          "role",
+          "userId",
+          "teamId"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/AssignmentRole"
+          },
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
       "CaseBatchAction": {
         "enum": [
           "redistribute",
@@ -10372,6 +10540,108 @@
         ],
         "description": "Tipo do caso (RF-09): processo judicial (com CNJ) ou caso sem processo, no mesmo modelo."
       },
+      "CaseMemberOption": {
+        "required": [
+          "userId",
+          "name",
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "description": "Um membro do escritório que pode ser responsável: o usuário, o nome e o e-mail."
+      },
+      "CaseOption": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "description": "Uma opção de cadastro: o id e o nome."
+      },
+      "CaseOptionsResponse": {
+        "required": [
+          "practiceAreas",
+          "branches",
+          "teams",
+          "members",
+          "phases",
+          "actionTypes",
+          "closingReasons",
+          "claimTypes"
+        ],
+        "type": "object",
+        "properties": {
+          "practiceAreas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseMemberOption"
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "actionTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "closingReasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          },
+          "claimTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseOption"
+            }
+          }
+        },
+        "description": "As opções das telas de processos (5E1): áreas, filiais, equipes e membros do escritório, e os itens ativos das\ntabelas auxiliares dos processos. Só id e nome: quem cadastra processos não precisa das permissões de configuração."
+      },
       "CaseOutcome": {
         "enum": [
           "granted",
@@ -10564,7 +10834,7 @@
           "assignments": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AssignmentResponse"
+              "$ref": "#/components/schemas/CaseAssignmentResponse"
             }
           },
           "parent": {
@@ -12787,6 +13057,7 @@
         },
         "description": "Estado de uma operação longa para `GET /api/v1/jobs/{id}` (seção 4.4)."
       },
+      "JsonElement": {},
       "JsonObject": {
         "type": "object"
       },
@@ -14254,6 +14525,27 @@
           }
         }
       },
+      "PreferenceResponse": {
+        "required": [
+          "key",
+          "value",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/JsonElement"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Uma preferência de tela do usuário: a chave e o valor JSON."
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -15256,6 +15548,21 @@
           }
         },
         "description": "Sessão aberta. `current` marca a do token que fez a consulta."
+      },
+      "SetPreferenceCommand": {
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/JsonElement"
+          }
+        }
       },
       "SettlementDirection": {
         "enum": [

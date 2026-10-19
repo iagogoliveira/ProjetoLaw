@@ -18,6 +18,8 @@ public static class PlatformPermissions
     public const string CustomFieldsRead = "settings.custom_fields.read";
     public const string CustomFieldsManage = "settings.custom_fields.manage";
     public const string CasesRead = "cases.read";
+    public const string ProfileRead = "identity.profile.read";
+    public const string ProfileManage = "identity.profile.manage";
 }
 
 /// <summary>Endpoints do módulo Platform (seção 4.2): operações longas, campos customizados, tabelas auxiliares

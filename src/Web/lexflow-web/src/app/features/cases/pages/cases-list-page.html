@@ -1,0 +1,293 @@
+<section class="page" *transloco="let t">
+  <div class="inline header">
+    <h1>{{ t('cases.title') }}</h1>
+    <a *lfCan="'cases.create'" mat-flat-button routerLink="novo">{{ t('cases.new') }}</a>
+  </div>
+
+  <div class="inline" role="search" [attr.aria-label]="t('cases.filtersLabel')">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.search') }}</mat-label>
+      <input
+        matInput
+        type="search"
+        [ngModel]="filters().q ?? ''"
+        (ngModelChange)="onSearch($event)"
+        [placeholder]="t('cases.searchHint')"
+      />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.fields.status') }}</mat-label>
+      <mat-select [ngModel]="filters().status" (ngModelChange)="setFilter('status', $event)">
+        <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+        @for (s of statuses; track s) {
+          <mat-option [value]="s">{{ t('cases.status.' + s) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.fields.kind') }}</mat-label>
+      <mat-select [ngModel]="filters().kind" (ngModelChange)="setFilter('kind', $event)">
+        <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+        @for (k of kinds; track k) {
+          <mat-option [value]="k">{{ t('cases.kind.' + k) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (store.options(); as options) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('cases.fields.area') }}</mat-label>
+        <mat-select
+          [ngModel]="filters().practiceAreaId"
+          (ngModelChange)="setFilter('practiceAreaId', $event)"
+        >
+          <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+          @for (o of options.practiceAreas; track o.id) {
+            <mat-option [value]="o.id">{{ o.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('cases.fields.branch') }}</mat-label>
+        <mat-select [ngModel]="filters().branchId" (ngModelChange)="setFilter('branchId', $event)">
+          <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+          @for (o of options.branches; track o.id) {
+            <mat-option [value]="o.id">{{ o.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('cases.fields.phase') }}</mat-label>
+        <mat-select [ngModel]="filters().phaseId" (ngModelChange)="setFilter('phaseId', $event)">
+          <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+          @for (o of options.phases; track o.id) {
+            <mat-option [value]="o.id">{{ o.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('cases.fields.responsible') }}</mat-label>
+        <mat-select
+          [ngModel]="filters().responsibleId"
+          (ngModelChange)="setFilter('responsibleId', $event)"
+        >
+          <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+          @for (m of options.members; track m.userId) {
+            <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('cases.fields.team') }}</mat-label>
+        <mat-select [ngModel]="filters().teamId" (ngModelChange)="setFilter('teamId', $event)">
+          <mat-option [value]="null">{{ t('cases.all') }}</mat-option>
+          @for (o of options.teams; track o.id) {
+            <mat-option [value]="o.id">{{ o.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    <button mat-button type="button" (click)="clearFilters()">{{ t('cases.clearFilters') }}</button>
+  </div>
+
+  <div class="inline">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.savedFilters') }}</mat-label>
+      <mat-select [ngModel]="null" (ngModelChange)="applySaved($event)">
+        @for (s of store.saved(); track s.name) {
+          <mat-option [value]="s.name">{{ s.name }}</mat-option>
+        } @empty {
+          <mat-option [value]="null" disabled>{{ t('cases.noSavedFilters') }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.filterName') }}</mat-label>
+      <input matInput [ngModel]="filterName()" (ngModelChange)="filterName.set($event)" />
+    </mat-form-field>
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="!filterName().trim() || store.busy()"
+      (click)="saveFilter()"
+    >
+      {{ t('cases.saveFilter') }}
+    </button>
+    @for (s of store.saved(); track s.name) {
+      <button
+        mat-button
+        type="button"
+        [attr.aria-label]="t('cases.removeFilter', { name: s.name })"
+        (click)="store.removeFilter(s.name)"
+      >
+        {{ s.name }} ✕
+      </button>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('cases.columns') }}</mat-label>
+      <mat-select multiple [ngModel]="store.columns()" (ngModelChange)="store.setColumns($event)">
+        @for (c of allColumns; track c) {
+          <mat-option [value]="c">{{ t('cases.column.' + c) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (store.errorCode(); as code) {
+    <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+  }
+
+  <ng-container *lfCan="'cases.edit'">
+    @if (store.selected().length > 0) {
+      <div class="panel" role="region" [attr.aria-label]="t('cases.batch.title')">
+        <h2>{{ t('cases.batch.title') }} ({{ store.selected().length }})</h2>
+        <div class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('cases.batch.action') }}</mat-label>
+            <mat-select [ngModel]="action()" (ngModelChange)="action.set($event)">
+              @for (a of actions; track a) {
+                <mat-option [value]="a">{{ t('cases.batch.actions.' + a) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (store.options(); as options) {
+            @if (action() === 'redistribute') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.batch.from') }}</mat-label>
+                <mat-select [ngModel]="fromUser()" (ngModelChange)="fromUser.set($event)">
+                  <mat-option [value]="null">{{ t('cases.batch.addOnly') }}</mat-option>
+                  @for (m of options.members; track m.userId) {
+                    <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.batch.to') }}</mat-label>
+                <mat-select [ngModel]="toUser()" (ngModelChange)="toUser.set($event)">
+                  @for (m of options.members; track m.userId) {
+                    <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.batch.role') }}</mat-label>
+                <mat-select [ngModel]="role()" (ngModelChange)="role.set($event)">
+                  @for (r of roles; track r) {
+                    <mat-option [value]="r">{{ t('cases.roles.' + r) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @if (action() === 'changePhase') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('cases.fields.phase') }}</mat-label>
+                <mat-select [ngModel]="phase()" (ngModelChange)="phase.set($event)">
+                  @for (o of options.phases; track o.id) {
+                    <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+          }
+          @if (action() === 'suspend' || action() === 'reactivate') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('cases.batch.note') }}</mat-label>
+              <input matInput [ngModel]="note()" (ngModelChange)="note.set($event)" />
+            </mat-form-field>
+          }
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="!canRunBatch() || store.busy()"
+            (click)="runBatch()"
+          >
+            {{ t('cases.batch.apply') }}
+          </button>
+        </div>
+      </div>
+    }
+  </ng-container>
+
+  @if (store.batchResult(); as result) {
+    <div class="panel" role="status">
+      <p class="status">{{ t('cases.batch.result', { updated: result.updated }) }}</p>
+      @if (result.skipped.length > 0) {
+        <p>{{ t('cases.batch.skipped', { count: result.skipped.length }) }}</p>
+        <ul>
+          @for (s of result.skipped; track s.caseId) {
+            <li>{{ folderOf(s.caseId) }}: {{ t('errors.' + s.code) }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  @if (store.items().length === 0 && !store.loading()) {
+    <p class="empty">{{ t('cases.empty') }}</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th scope="col" *lfCan="'cases.edit'">
+            <mat-checkbox
+              [checked]="store.allSelected()"
+              (change)="store.toggleAll()"
+              [aria-label]="t('cases.selectAll')"
+            ></mat-checkbox>
+          </th>
+          @for (c of allColumns; track c) {
+            @if (has(c)) {
+              <th scope="col">{{ t('cases.column.' + c) }}</th>
+            }
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of store.items(); track c.id) {
+          <tr>
+            <td *lfCan="'cases.edit'">
+              <mat-checkbox
+                [checked]="store.selected().includes(c.id)"
+                (change)="store.toggle(c.id)"
+                [aria-label]="t('cases.select', { folder: c.internalFolder })"
+              ></mat-checkbox>
+            </td>
+            @if (has('folder')) {
+              <td>
+                <a [routerLink]="c.id">{{ c.internalFolder }}</a>
+              </td>
+            }
+            @if (has('cnj')) {
+              <td>{{ formatCnj(c.cnjNumber) || '—' }}</td>
+            }
+            @if (has('kind')) {
+              <td>{{ t('cases.kind.' + c.kind) }}</td>
+            }
+            @if (has('clients')) {
+              <td>{{ c.clients.join(', ') || '—' }}</td>
+            }
+            @if (has('area')) {
+              <td>{{ nameOf('practiceAreas', c.practiceAreaId) }}</td>
+            }
+            @if (has('phase')) {
+              <td>{{ nameOf('phases', c.phaseId) }}</td>
+            }
+            @if (has('status')) {
+              <td>
+                <span class="chip">{{ t('cases.status.' + c.status) }}</span>
+              </td>
+            }
+            @if (has('createdAt')) {
+              <td>{{ c.createdAt.substring(0, 10).split('-').reverse().join('/') }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (store.nextCursor()) {
+    <button mat-button type="button" [disabled]="store.loading()" (click)="store.loadMore()">
+      {{ t('cases.loadMore') }}
+    </button>
+  }
+</section>

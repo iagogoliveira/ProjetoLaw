@@ -58,7 +58,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
   - 5C2 (#27) mergeado: risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
-  - **o próximo é o PR 5E**, no branch `etapa-5e-telas-processos`, que já existe com o commit de progresso: frontend e e2e dos processos (lista com filtros, detalhe com abas, pedidos, risco, acordos, audiências, linha do tempo, importação e lote). Planeje e mostre o plano antes.
+  - **5E1: commitado no branch `etapa-5e-telas-processos`**, aguardando o pedido de push e PR do usuário. Traz `features/cases` (lista com filtros salvos, colunas e lote; assistente de cadastro; detalhe com Resumo, Partes, Hierarquia, Linha do tempo e Sigilo; numeração nas configurações), as preferências de tela por usuário (`/api/v1/me/preferences`), as opções de cadastro (`/api/v1/cases/options`) e a ADR 0030;
+  - **depois do merge do 5E1, o próximo é o PR 5E2:** abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação, com e2e contra o AppHost (o Worker roda os jobs).
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -142,3 +143,6 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
 - **Jobs nos testes de API:** não há Worker. A fábrica troca o `IJobScheduler` por um que guarda os jobs, e o teste os executa com `_factory.RunJobsAsync(orgId)`, que usa o `TenantOverride` do escopo. Serviços como o antivírus são trocados pelo parâmetro `replaceServices` da fábrica, e não pelo `WithWebHostBuilder`, que criaria outro contêiner. O bucket do armazenamento precisa de `IObjectStorageProvisioner.EnsureBucketAsync` no início do teste.
 - **Nomes reservados (CA1716):** `Imports`, `Structure` e outros nomes de palavras-chave do VB não servem para namespace nem para membro de interface. Use `CaseImports`, `OrgStructure` etc.
 - **Caminhos no CI (Linux):** `Path.GetFileName` não trata `\` como separador fora do Windows. Para nomes de arquivo vindos do usuário, corte no último `/` ou `\` (ver `CaseImport.Start`).
+- **Nomes de schema no OpenAPI:** dois records com o mesmo nome em módulos diferentes viram um schema só, e um sobrescreve o outro. Dê nomes únicos aos DTOs de resposta (ex.: `CaseAssignmentResponse`). Para uma correção de descrição que o oasdiff acuse como quebra, registre a exceção em `docs/openapi/oasdiff-ignore.txt`, com a ADR.
+- **Listas para telas de negócio:** as listas de estrutura e de membros exigem permissões de configuração. Telas de negócio usam endpoints próprios de opções (ex.: `GET /api/v1/cases/options`, com `cases.read`).
+- **E2E com Material stepper:** os passos inativos ficam escondidos, e durante a animação dois "Próximo" ficam visíveis. Clique com `.filter({ visible: true }).last()`.

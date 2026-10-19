@@ -152,4 +152,23 @@ public sealed class CaseTimelineAndBatchTests(DependenciesFixture dependencies) 
         OrganizationApi.Code(outsider).ShouldBe("litigation.responsible_invalid");
         tooManyStatus.ShouldBe(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task Whoever_reads_cases_gets_the_form_options_without_settings_permissions()
+    {
+        var office = await OfficeAsync();
+        var reader = await TestOrganizations.AddScopedMemberAsync(dependencies, office.Organization, Guid.CreateVersion7(), DataScope.Own, null, ["cases.read"]);
+        var admin = await TestOrganizations.AddMemberAsync(dependencies, office.Organization, Guid.CreateVersion7(), "settings.structure.manage");
+        await _api.CreateAsync("/api/v1/organization/practice-areas", admin.UserId, office.Organization, new { name = "Trabalhista" });
+
+        var (status, options) = await SendAsync(office, HttpMethod.Get, "/api/v1/cases/options", user: reader.UserId);
+        var (structureStatus, _) = await SendAsync(office, HttpMethod.Get, "/api/v1/organization/practice-areas", user: reader.UserId);
+
+        status.ShouldBe(HttpStatusCode.OK, options.ToString());
+        options.GetProperty("practiceAreas").EnumerateArray().Select(a => a.GetProperty("name").GetString()).ShouldBe(["Trabalhista"]);
+        options.GetProperty("phases")[0].GetProperty("id").GetGuid().ShouldBe(office.Phase);
+        options.GetProperty("closingReasons").GetArrayLength().ShouldBeGreaterThan(0);
+        options.GetProperty("claimTypes").GetArrayLength().ShouldBeGreaterThan(0);
+        structureStatus.ShouldBe(HttpStatusCode.Forbidden);
+    }
 }
