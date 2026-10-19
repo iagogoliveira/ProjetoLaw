@@ -12,5 +12,7 @@ public interface IPublicationsDbContext : IUnitOfWork
     DbSet<Publication> Publications { get; }
     DbSet<PublicationTriage> Triages { get; }
     DbSet<CaseMovement> Movements { get; }
+    DbSet<MovementIntegration> MovementIntegrations { get; }
+    DbSet<MovementSync> MovementSyncs { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

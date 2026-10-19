@@ -316,6 +316,11 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20000)")
                         .HasColumnName("description");
 
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("external_id");
+
                     b.Property<Guid>("LegalCaseId")
                         .HasColumnType("uuid")
                         .HasColumnName("legal_case_id");
@@ -354,7 +359,134 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                     b.HasIndex("OrganizationId", "LegalCaseId", "OccurredAt", "Id")
                         .HasDatabaseName("ix_case_movements_organization_id_legal_case_id_occurred_at_id");
 
+                    b.HasIndex("OrganizationId", "LegalCaseId", "Origin", "ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_case_movements_organization_id_legal_case_id_origin_externa");
+
                     b.ToTable("case_movements", "publications");
+                });
+
+            modelBuilder.Entity("LexFlow.Publications.Domain.MovementIntegration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("ProtectedApiKey")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
+                        .HasColumnName("protected_api_key");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("provider");
+
+                    b.Property<Guid>("Revision")
+                        .HasColumnType("uuid")
+                        .HasColumnName("revision");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_movement_integrations");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_movement_integrations_organization_id");
+
+                    b.ToTable("movement_integrations", "publications");
+                });
+
+            modelBuilder.Entity("LexFlow.Publications.Domain.MovementSync", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedSlot")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_slot");
+
+                    b.Property<Guid>("ConfigurationRevision")
+                        .HasColumnType("uuid")
+                        .HasColumnName("configuration_revision");
+
+                    b.Property<string>("Cursor")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
+                        .HasColumnName("cursor");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("error_code");
+
+                    b.Property<DateTimeOffset?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_attempt_at");
+
+                    b.Property<DateTimeOffset?>("LastSuccessAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_success_at");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("PageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("page_count");
+
+                    b.Property<string>("Tribunal")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("tribunal");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_movement_syncs");
+
+                    b.HasIndex("OrganizationId", "LegalCaseId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_movement_syncs_organization_id_legal_case_id");
+
+                    b.ToTable("movement_syncs", "publications");
                 });
 
             modelBuilder.Entity("LexFlow.Publications.Domain.Publication", b =>

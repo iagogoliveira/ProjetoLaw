@@ -63,6 +63,8 @@ internal sealed class PublicationConfigurations :
         builder.Property(m => m.Id).ValueGeneratedNever();
         builder.Property(m => m.Description).HasMaxLength(20_000);
         builder.Property(m => m.Origin).HasConversion<string>().HasMaxLength(20);
+        builder.Property(m => m.ExternalId).HasMaxLength(128);
+        builder.HasIndex(m => new { m.OrganizationId, m.LegalCaseId, m.Origin, m.ExternalId }).IsUnique();
         builder.HasIndex(m => new { m.OrganizationId, m.LegalCaseId, m.OccurredAt, m.Id });
     }
 }

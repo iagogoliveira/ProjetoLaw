@@ -6,6 +6,8 @@ public interface ICaptureLocks
 {
     Task<bool> TrySourceAsync(Guid sourceId, DateOnly day, CancellationToken cancellationToken);
     Task PublicationAsync(string hash, CancellationToken cancellationToken);
+    Task IntegrationAsync(CancellationToken cancellationToken);
+    Task<bool> TryMovementAsync(Guid caseId, CancellationToken cancellationToken);
 }
 public static class CaptureSchedule
 {

@@ -16,6 +16,7 @@ public sealed class CaseMovement : Entity<Guid>, ITenantOwned, ICaseScoped, IAud
     public DateTimeOffset OccurredAt { get; private set; }
     public DateTimeOffset CollectedAt { get; private set; }
     public MovementOrigin Origin { get; private set; }
+    public string? ExternalId { get; private set; }
     [NotAudited]
     public string Description { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
@@ -41,5 +42,13 @@ public sealed class CaseMovement : Entity<Guid>, ITenantOwned, ICaseScoped, IAud
             OccurredAt = input.OccurredAt.ToUniversalTime(),
             CollectedAt = collectedAt.ToUniversalTime(),
         };
+    }
+
+    public static Result<CaseMovement> Import(Guid caseId, MovementInput input, DateTimeOffset collectedAt, string externalId, MovementOrigin origin = MovementOrigin.DataJud)
+    {
+        if (string.IsNullOrWhiteSpace(externalId) || externalId.Length > 128) { return PublicationErrors.InvalidMovement; }
+        var result = Create(caseId, input, collectedAt, origin);
+        if (result.IsSuccess) { result.Value.ExternalId = externalId; }
+        return result;
     }
 }

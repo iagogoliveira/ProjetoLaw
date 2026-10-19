@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Versão inicial — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) foi mergeado em 2026-10-19 e acrescentou infraestrutura de captura e notificações; suas telas de operação são previstas no 6E. O 6C está em preparação, sem novas telas nesta revisão.
+**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) foi mergeado em 2026-10-19 e acrescentou infraestrutura de captura e notificações. O 6C acrescenta a integração DataJud no backend; as telas de operação dessas integrações são previstas no 6E.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -186,12 +186,16 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | --- | --- |
 | Fontes, captura e notificações de publicações | Base/backend em evolução na Etapa 6; operação visual prevista no 6E |
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
-| DataJud e consultas periódicas de movimentações | Previstas no 6C |
+| DataJud e consultas periódicas de movimentações | Backend do 6C; configuração e acompanhamento visual previstos no 6E |
 | Triagem e fechamento diário da controladoria | Previstos no 6D |
 | Calculadora completa de prazos e agenda unificada | Etapa 7 |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis |
+
+## Andamentos automáticos (backend do 6C)
+
+**Andamentos pelo DataJud:** depois de habilitada a integração do escritório, o sistema consulta processos judiciais ativos em ciclos de seis horas, distribuídos ao longo do dia. A primeira consulta traz o histórico público disponível; as seguintes acrescentam novidades, inclusive atos antigos disponibilizados depois. As datas dos atos são mantidas. Uma falha pode atrasar a atualização; o sistema retoma a captura sem apagar o histórico já salvo. DataJud não substitui a captura de publicações/intimações e não disponibiliza o conteúdo de processos sob sigilo. Nesta versão, a configuração exige apoio técnico e permissão de gerenciar integrações no escritório; ainda não há botão ou formulário para isso nas telas.
 
 ## 14. Manutenção do manual
 

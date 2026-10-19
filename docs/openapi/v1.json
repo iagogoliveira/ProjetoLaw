@@ -9912,6 +9912,85 @@
         }
       }
     },
+    "/api/v1/movement-integration": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "GetMovementIntegration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovementIntegrationResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "ConfigureMovementIntegration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MovementIntegrationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovementIntegrationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/movement-sync": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "GetMovementSync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovementSyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/publication-sources": {
       "get": {
         "tags": [
@@ -14145,11 +14224,54 @@
           }
         }
       },
+      "MovementIntegrationInput": {
+        "required": [
+          "provider"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/MovementProviderKind"
+          },
+          "apiKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clearApiKey": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "MovementIntegrationResponse": {
+        "required": [
+          "provider",
+          "hasApiKey"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/MovementProviderKind"
+          },
+          "hasApiKey": {
+            "type": "boolean"
+          }
+        }
+      },
       "MovementOrigin": {
         "enum": [
           "manual",
           "dataJud",
           "provider"
+        ]
+      },
+      "MovementProviderKind": {
+        "enum": [
+          "disabled",
+          "fake",
+          "dataJud"
         ]
       },
       "MovementResponse": {
@@ -14201,6 +14323,52 @@
             }
           },
           "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "MovementSyncResponse": {
+        "required": [
+          "caseId",
+          "tribunal",
+          "lastAttemptAt",
+          "lastSuccessAt",
+          "hasPendingPage",
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tribunal": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastAttemptAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lastSuccessAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "hasPendingPage": {
+            "type": "boolean"
+          },
+          "errorCode": {
             "type": [
               "null",
               "string"

@@ -25,6 +25,7 @@ public sealed class PublicationsModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         CaptureEndpoints.Map(endpoints);
+        MovementIntegrationEndpoints.Map(endpoints);
         MapSources(endpoints);
         MapPublications(endpoints);
         MapMovements(endpoints);

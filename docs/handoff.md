@@ -10,6 +10,24 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (6C/DataJud implementado e verificado; commit local)
+
+**Branch/estado:** `codex/etapa-6c-datajud-integracoes`; base `a137919`, arrumação pós-merge enviada em `928f0d3`, política de testes preservada no commit local `05076bb`. Código e documentos do 6C consolidados em commit local desta entrega, sem push/PR novo solicitado. Consultar `git log -1` para o hash. ADR 0034 proposta; não marcar a Etapa 6 concluída.
+
+**Decisões novas do usuário:** “Adotar a sugestão” para importar todo o histórico DataJud na primeira consulta e acrescentar somente novos atos nas seguintes, preservando datas e sem duplicar; “Pode reiniciar quando necessário” para o AppHost local. Reiniciar preservando volumes/cadastros; não rodar AppHost.Tests junto com a instância manual. Nenhuma dessas perguntas continua pendente.
+
+**Feito:** adaptador HTTP DataJud com aliases oficiais, consulta CNJ, `search_after`, desempate validado no endpoint oficial com `match_none`/zero registros, timeout, limite de concorrência e resposta. Configuração por escritório com `settings.integrations.manage`, chave protegida por tenant no Data Protection existente e exclusão de auditoria/resposta. Checkpoints por processo/tribunal, páginas transacionais, hash/índice único e lock por processo, retomada/varredura após cursor inválido e jobs distribuídos em seis horas. Contratos de Litigation para casos judiciais ativos. Migration aditiva com RLS, três endpoints e OpenAPI/cliente regenerados. Manual e guia local revisados e incrementados.
+
+**Verificação completa aprovada:** Release/Debug sem warnings/erros; format aprovado após o último ajuste; **794 testes .NET em 18 projetos**, com cobertura e gate de 80% em todos os módulos (Publications Application 99,1%, Domain 96,3%). Inclui 169 testes da API, 16 de integração de Publications, 11 SecurityTests e 14 AppHost.Tests. Dependências .NET/JavaScript sem vulnerabilidades reportadas; cinco modelos EF sem alterações pendentes; lint, 96 Vitest e build Angular aprovados. OpenAPI gerado pelo teste oficial, somente adições de rotas/schemas, cliente regenerado. Duas rodadas consecutivas de Playwright com `--workers=1`, 14 aprovados cada (1,8/1,4 min), acessibilidade preservada; apenas a preparação opcional de carga ficou fora conforme `LOAD_OUTPUT` ausente. Nenhuma asserção relaxada.
+
+**Logs/ocorrências:** `TestResults/6c-final-validation`, `6c-frontend-*.log`, `6c-playwright-report-1` e `-2`. O erro inicial de escopo no teste do dispatcher foi corrigido. O ajuste do hash para ignorar correções dos rótulos foi compilado antes da integração de Publications; builds/formatação finais repetidos, sem repetir checks não afetados. Perfil HTTP do Aspire exigiu `ASPIRE_ALLOW_UNSECURED_TRANSPORT=true`, como no CI; tentativa inicial preservada em `TestResults/6c-apphost-http-initial.log`. Sem alteração de produção. Manual e guia incrementados, diff/UTF-8 e igualdade dos dois agentes conferidos antes do commit.
+
+**Ambiente mantido:** AppHost em execução para exploração, sessão **`47794`**, log `TestResults/6c-apphost.log`; SPA `:4200`, API `:5238/health/ready` e Mailpit `:8025` responderam HTTP 200. Volumes/cadastros preservados. Perfil HTTP e `LexFlow__PublicPermitsPerMinute=10000` usados nesta verificação local; o limite de produção não mudou. Não encerrar como limpeza nem rodar AppHost.Tests em paralelo. Depois de alterar backend, recompilar Debug antes do próximo `--no-build`.
+
+**Próximos passos:** aguardar pedido de push/PR do 6C e enviar código/documentos no mesmo push; acompanhar CI/revisão, sem fazer merge. Depois do merge pelo usuário, atualizar main, aceitar ADR 0034 com número/data, criar o branch do 6D e fazer a arrumação documental conforme o ciclo. O plano 6A a 6E já está aprovado; não pedir aprovação de novo para escolhas já registradas. Triagem/Scheduling/fechamento são do 6D, telas do 6E. **Fornecedor real de publicações continua pendente de escolha/documentação/acesso**; DataJud não substitui intimações. Não iniciar o próximo PR de implementação antes do merge do 6C.
+
+---
+
 ## 2026-10-19 — Codex (testes direcionados durante implementação; gates completos no fechamento)
 
 **Decisão explícita do usuário:** aprovou executar os testes relacionados à mudança durante a implementação e manter a verificação completa no fechamento do PR; pediu registrar no handover e nos dois arquivos de agentes. Alterações feitas no AGENTS.md, CLAUDE.md e neste `docs/handoff.md`, com registro também no progress.
