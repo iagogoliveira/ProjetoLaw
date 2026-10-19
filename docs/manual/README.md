@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Versão inicial — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O PR 6B (#32) acrescenta infraestrutura de captura e notificações; suas telas de operação são previstas no 6E.
+**Versão inicial — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) foi mergeado em 2026-10-19 e acrescentou infraestrutura de captura e notificações; suas telas de operação são previstas no 6E. O 6C está em preparação, sem novas telas nesta revisão.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 

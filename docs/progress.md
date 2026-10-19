@@ -12,7 +12,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A concluído (#31, 2026-10-19); 6B implementado/verificado, PR #32 aberto) | `codex/etapa-6b-captura-alertas` |
+| 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A concluído (#31, 2026-10-19); 6B concluído (#32, 2026-10-19); próximo PR 6C) | `codex/etapa-6c-datajud-integracoes` |
 
 
 ## Manual de utilização e exploração local (2026-10-19)
@@ -21,13 +21,13 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local desta documentação:** rotas, componentes, traduções e fluxos Playwright existentes conferidos; links relativos/UTF-8 e diff documental verificados antes do commit. Docker Desktop respondeu (29.6.2); AppHost iniciado a pedido, com SPA `:4200`, prontidão da API `:5238/health/ready` e Mailpit `:8025` respondendo HTTP 200. Nenhuma alteração de runtime e nenhuma nova suíte completa executada: mantidos os resultados do 6B acima. AppHost permanece em execução para exploração do usuário; não rodar AppHost.Tests em paralelo.
 
-**Estado:** PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) aberto, código/documentos do 6B enviados até `1693fd5`; manual e guia salvos localmente no commit `2849304`, sem novo push. Usuário confirmou em 2026-10-19 que ambos devem ser revisados após cada melhoria, com atualização de AGENTS/CLAUDE e handoff para continuidade pelo Claude. Atualizar os trechos afetados; registrar quando não houver impacto em um dos guias. Próximas revisões podem acrescentar imagens e aprofundar instruções por perfil; não antecipar funcionalidades ainda não entregues.
+**Estado:** PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) mergeado em 2026-10-19. Os commits locais do manual (`2849304` e `fd31ce5`) foram transportados para o branch do 6C como `28e8764` e `9306958`, preservando os arquivos e instruções; serão enviados com a arrumação pós-merge autorizada pelo ciclo. Usuário confirmou em 2026-10-19 que ambos devem ser revisados após cada melhoria, com atualização de AGENTS/CLAUDE e handoff para continuidade pelo Claude. Atualizar os trechos afetados; registrar quando não houver impacto em um dos guias. Próximas revisões podem acrescentar imagens e aprofundar instruções por perfil; não antecipar funcionalidades ainda não entregues.
 
 **Reforço da manutenção (2026-10-19):** somente documentação alterada; regras sincronizadas nos dois arquivos de agentes e nova passagem de bastão registrada. Links locais, UTF-8 e diff verificados antes do commit. A revisão da separação frontend/backend foi feita no código existente (CasesApi, prévia de parcelas e validação do agregado Settlement), sem mudança de arquitetura nem de runtime. Mantidos os testes completos já registrados do 6B.
 
 ---
 
-## Etapa 6 — Publicações e andamentos (plano aprovado; 6A concluído; PR 6B #32 aberto)
+## Etapa 6 — Publicações e andamentos (plano aprovado; 6A concluído; 6B concluído; preparação do 6C)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -47,14 +47,32 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Dependência técnica a resolver em ADR:** a unidade de trabalho atual é por módulo (ADR 0007). A triagem exige atomicidade entre Publications e Scheduling/Litigation; somente publicar um evento no outbox não satisfaz o critério de gravação na mesma transação. A proposta é um coordenador de transação local compartilhada, mantendo acesso entre módulos por Contracts, com teste de rollback conjunto. A proposta foi aprovada em 2026-10-19; o desenho será detalhado na ADR do 6D antes da implementação. O 6A mantém o pipeline atual.
 
-**Última verificação local da Etapa 6:** ver a seção do PR 6B abaixo, com a execução de 2026-10-19. O 6A está concluído pelo merge do #31; o PR 6B #32 foi aberto em 2026-10-19 e aguarda conclusão do CI/revisão e merge pelo usuário.
+**Última verificação local da Etapa 6:** ver a seção do PR 6B abaixo, com a execução de 2026-10-19. 6A (#31) e 6B (#32) concluídos; merge do #32 e CI aprovado confirmados em 2026-10-19. A arrumação pós-merge e a preparação do 6C estão registradas abaixo; nenhuma mudança de runtime nesta arrumação.
 
 **Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
-### PR 6B — captura e alertas (implementado e verificado; PR #32 aberto)
+**Arrumação pós-merge do 6B (2026-10-19):** PR #32 confirmado como `MERGED`, commit `a137919`; todos os checks do CI aprovados, incluindo AppHost/E2E. `main` atualizada por fast-forward e branch `codex/etapa-6c-datajud-integracoes` criado dessa base. Manual e guia preservados por cherry-pick dos dois commits locais, sem conflitos; ADR 0033 aceita; AGENTS/CLAUDE e handoff atualizados. Commit/push desta arrumação seguem o ciclo já autorizado.
+
+**Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
+
+### PR 6C — DataJud e integrações (preparação; implementação não iniciada)
+
+**Branch:** `codex/etapa-6c-datajud-integracoes`, base `a137919`. O escopo geral 6A a 6E já foi aprovado; não pedir nova aprovação das mesmas escolhas.
+
+| Trabalho previsto | Verificação prevista |
+| --- | --- |
+| Adaptador DataJud de metadados/movimentações públicas por Contracts | Documentação oficial, respostas gravadas/anônimas, paginação `search_after`, indisponibilidade e limites de concorrência |
+| Consulta por CNJ de processos ativos a cada seis horas, distribuída ao longo do dia | Relógio controlado, tenant, retomada, idempotência, cursor e reprocessamento |
+| Configuração e credenciais fora do código, alcance e auditoria | Permissões, segurança entre escritórios, RLS, integração e OpenAPI aditivo quando houver endpoints novos |
+| Adaptador de publicações do fornecedor contratado | Dependente de escolha, documentação e acesso ao fornecedor; manter a pendência externa explícita |
+| Manual/guia e ADR do 6C | Revisar ambos os guias após cada melhoria; registrar somente recursos entregues e conferir a verificação completa antes do commit |
+
+**Pendências e próximos passos:** estudar o contrato atual dos provedores e a documentação oficial antes de detalhar a implementação. Fornecedor real continua não definido; fake + DataJud já foram autorizados como início, sem declarar captura real de publicações entregue. Não substituir publicações/intimações por DataJud. Dúvidas de negócio novas exigem pergunta antes de decidir. Triagem/Scheduling/fechamento continuam no 6D; telas no 6E. Nenhum código do 6C foi implementado nesta arrumação.
+
+### PR 6B — captura e alertas (concluído: PR #32 mergeado em 2026-10-19)
 
 **Respostas do usuário (2026-10-19):** “Adotar a sugestão” nas duas perguntas. Aprovados os destinatários/canais e as regras de ativação tardia/resultado vazio descritos abaixo; não aguardam nova confirmação.
 
-**Estado (2026-10-19):** arrumação pós-merge do #31 enviada no commit `4bcc2cd`, branch `codex/etapa-6b-captura-alertas`. Implementação do 6B pronta e verificada localmente; ADR [0033 — Captura, monitoramento e notificações](adr/0033-captura-monitoramento-e-notificacoes.md) proposta para revisão. As duas regras complementares foram perguntadas e aprovadas antes da implementação, sem reabrir o escopo 6B.
+**Estado (2026-10-19):** arrumação pós-merge do #31 enviada no commit `4bcc2cd`, branch `codex/etapa-6b-captura-alertas`. Implementação do 6B aprovada e mergeada no PR #32 em 2026-10-19 (`a137919`), com todos os checks do CI aprovados; ADR [0033 — Captura, monitoramento e notificações](adr/0033-captura-monitoramento-e-notificacoes.md) aceita. As duas regras complementares foram perguntadas e aprovadas antes da implementação, sem reabrir o escopo 6B.
 
 1. **Destinatários/canais aprovados:** alertar por e-mail e in-app os membros ativos com `settings.integrations.manage` ou `publications.triage` em escopo de escritório; novas publicações geram aviso in-app/SignalR para quem tem `publications.read` e alcance do conteúdo, sem e-mail individual por publicação.
 2. **Ativação tardia e retorno vazio aprovados:** capturar imediatamente fontes criadas/reativadas após 05h; depois de 07h, tolerância de até uma hora desde a ativação antes do alerta de ausência de sucesso. Execução concluída com zero publicações conta como sucesso; falha/ausência de execução gera alerta.
@@ -73,7 +91,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Ocorrências na verificação:** a primeira execução completa da API pegou o snapshot anterior, antes da geração oficial; depois de atualizar OpenAPI/cliente, os 164 testes passaram. A primeira execução Playwright com oito workers durante outras verificações teve cinco falhas em controles/esperas, acessibilidade e convite de fluxos existentes; logs/traces/HTML preservados em `TestResults/6b-playwright-initial-failure*`. AppHost.Tests foi interrompido uma vez para não disputar as portas da instância manual e passou isoladamente na repetição. As rodadas finais do navegador usam um worker e uma única instância do AppHost, sem relaxar asserções ou acessibilidade, com `LexFlow__PublicPermitsPerMinute=10000` somente na configuração local de teste já suportada. Relatórios .NET em `TestResults/6b-final-validation`, cobertura em `TestResults/6b-coverage-gate.log`, HTML da primeira rodada final em `TestResults/6b-playwright-report-final-run1` e da última em `src/Web/lexflow-web/playwright-report/index.html` (artefatos locais ignorados).
 
-**Pendências do 6B:** nenhuma de implementação/verificação do escopo aprovado. Implementação no commit `6de6b4f`; envio e abertura do PR autorizados pelo usuário em 2026-10-19 ("Crie o PR"). Código e documentos seguem no mesmo push. Aguardar CI e revisão; o usuário faz o merge. DataJud/fornecedor e consultas de movimentações seguem no 6C; triagem/fechamento no 6D; telas e cliente visual SignalR no 6E. Nenhuma resposta de negócio do 6B continua pendente.
+**Pendências do 6B:** nenhuma de implementação/verificação do escopo aprovado. Implementação no commit `6de6b4f`, enviada com os documentos e mergeada pelo usuário no PR #32 em 2026-10-19; merge `a137919` confirmado. Nenhuma pendência do 6B. A Etapa 6 continua em implementação. DataJud/fornecedor e consultas de movimentações seguem no 6C; triagem/fechamento no 6D; telas e cliente visual SignalR no 6E. Nenhuma resposta de negócio do 6B continua pendente.
 ### PR 6A — base de Publications, fontes e andamentos (concluído: PR #31 mergeado em 2026-10-19)
 
 **Escopo:** primeiro PR do plano aprovado em 2026-10-19; não antecipa os fluxos dos PRs 6B a 6E. ADR [0032 — Módulo Publications: fontes, consultas e andamentos](adr/0032-modulo-publications-fontes-consultas-e-andamentos.md), aceita com o merge do PR #31 em 2026-10-19.

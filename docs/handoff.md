@@ -10,6 +10,22 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (PR #32 mergeado; arrumação no branch do 6C)
+
+**Aviso do usuário:** PR #32 aceito e mergeado. Confirmado no GitHub: `MERGED`, em 2026-10-19, merge `a137919915b0cc0f3eea555500389c7ec4acc08f`; todos os checks aprovados, incluindo AppHost/E2E. Merge feito pelo usuário, não pelo agente.
+
+**Branch/estado:** main atualizada por fast-forward; criado `codex/etapa-6c-datajud-integracoes` dessa base. Os dois commits locais do manual foram preservados por cherry-pick sem conflitos: `2849304` virou `28e8764`; `fd31ce5` virou `9306958`. Não apagar esses documentos nem voltar às instruções anteriores. Esta arrumação documental recebe commit/push no branch do 6C, conforme autorização permanente do ciclo pós-merge; nenhum PR novo solicitado/criado.
+
+**Feito:** 6B marcado como concluído no progress, ADR 0033 aceita (PR #32, 2026-10-19), Onde paramos atualizado e AGENTS/CLAUDE sincronizados. Manual e guia revisados: situação do 6B e base do 6C atualizadas, sem novo fluxo de tela nem comando de inicialização. A regra de revisar ambos após toda melhoria permanece obrigatória para Claude e Codex. Preparação do 6C registrada no progress, seguindo o plano geral já aprovado.
+
+**Verificado:** merge e base conferidos; diff relativo à main somente em documentação; preservação dos arquivos, links/UTF-8 e igualdade dos arquivos de agentes verificadas antes do commit. CI do #32 todo aprovado; mantida a suíte completa registrada do 6B, sem repetir testes de runtime para esta arrumação. SPA `:4200`, prontidão da API `:5238/health/ready` e Mailpit `:8025` responderam HTTP 200 depois da troca de branch. Nenhuma alteração de implementação do 6C nesta entrega.
+
+**Ambiente do usuário:** AppHost mantido em execução na sessão `32406`, log `TestResults/manual-apphost.log`. Não o encerrar como limpeza nem rodar AppHost.Tests em paralelo. Quando nova implementação exigir recompilar Debug/reiniciar o ambiente, considerar que o usuário está explorando as telas e coordenar a interrupção necessária.
+
+**Próximo trabalho — 6C:** estudar contratos/provedores existentes e documentação oficial do DataJud; detalhar o adaptador, consultas de movimentações a cada seis horas distribuídas por processo ativo, cursor/paginação, idempotência, retomada e configurações seguras. O plano 6A a 6E e o início com fake + DataJud já foram aprovados; não pedir novamente aprovação das mesmas decisões. Fornecedor real permanece pendente de escolha, documentação e acesso; DataJud não substitui captura de publicações/intimações. Perguntar apenas dúvidas novas de negócio não cobertas pelas decisões. Triagem/Scheduling/fechamento no 6D; telas no 6E. Implementação nova termina em commit local; push/PR só a pedido, exceto a arrumação pós-merge já autorizada. Nunca fazer merge pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (manutenção obrigatória do manual e guia confirmada)
 
 **Pedido explícito do usuário:** salvar o manual e guia no ambiente local e incrementá-los após cada melhoria, mantendo AGENTS, CLAUDE e o handover atualizados para que o Claude continue corretamente. O handover do projeto é este `docs/handoff.md`; não criar outro arquivo concorrente.

@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6B (#32), em 2026-10-19: os comandos e endereços permanecem os mesmos. O branch de preparação do 6C contém a mesma implementação de aplicação da main nessa base.
 
 ## 1. O que precisa estar disponível
 
