@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (publicação do PR 6D solicitada; revisão e merge pendentes)
+
+**Autorização e estado:** usuário pediu “Crie o PR”. Branch `codex/etapa-6d-triagem-fechamento`; implementação `77acd5e` + `18cbec4`. Esta entrada integra o commit documental preparado para enviar código e documentos juntos, em um único push, e abrir o PR contra `main`. Consultar URL, checks e estado remoto com `gh pr view codex/etapa-6d-triagem-fechamento`. Nenhum merge autorizado ao agente; ADR 0035 permanece proposta até a confirmação do merge pelo usuário.
+
+**Verificação preservada:** 895 testes .NET, cobertura mínima de 80%, builds sem warnings, formatação, dependências, seis modelos EF, lint, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade aprovados, conforme o registro abaixo/progress. Único skip de navegador: preparação opcional de carga sem `LOAD_OUTPUT`. Desde `18cbec4`, apenas documentação de publicação foi alterada; revisar diff/UTF-8/links e igualdade AGENTS/CLAUDE antes do commit, sem repetir suítes de runtime sem mudança. Manual e guia local revisados: nenhum novo passo de uso ou inicialização. Ambiente segue fechado, com volumes preservados.
+
+**Próximos passos:** conferir publicação e checks do PR, aguardar revisão/merge pelo usuário. Depois do merge, seguir o ciclo de arrumação e preparar o 6E do plano aprovado; não antecipar sua implementação neste PR. Nenhuma dúvida complementar de negócio pendente. Fornecedor real ainda depende de escolha/documentação/acesso; calculadora e agenda completas ficam na Etapa 7. A Etapa 6 permanece em andamento.
+
+---
+
 ## 2026-10-19 — Codex (6D implementado e verificado; commit local, aguardando pedido de push/PR)
 
 **Estado:** branch `codex/etapa-6d-triagem-fechamento`, base remota `88f1736`, checkpoint local `77acd5e` e commit local de fechamento com código/documentos (consultar `git log -1`). Nenhum push ou PR desta implementação. ADR 0035 continua **Proposta (para revisão no PR 6D)**; não marcar como aceita antes do merge pelo usuário.
