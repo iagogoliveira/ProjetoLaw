@@ -34,6 +34,7 @@ public sealed class MessagingFixture : IAsyncLifetime
         builder.Services.AddSystemContexts();
         builder.Services.AddLexFlowMessaging(builder.Configuration, typeof(MessagingFixture).Assembly);
         builder.Services.AddModuleDbContext<SampleDbContext>(builder.Configuration, "Sample", "sample");
+        builder.Services.AddModuleDbContext<SecondarySampleDbContext>(builder.Configuration, "SecondarySample", "sample");
         Host = builder.Build();
 
         await using (var scope = Host.Services.CreateAsyncScope())

@@ -39,6 +39,7 @@ public static class PersistenceRegistration
         services.TryAddScoped<AuditableEntitiesInterceptor>();
         services.TryAddScoped<AuditSaveChangesInterceptor>();
         services.TryAddScoped<TenantSessionInterceptor>();
+        services.TryAddScoped<ILocalTransactionCoordinator, LocalTransactionCoordinator>();
 
         services.AddDbContext<TContext>((sp, options) =>
         {

@@ -109,6 +109,51 @@ public sealed class OutboxTests(MessagingFixture fixture) : IClassFixture<Messag
         (await fixture.CountAsync("SELECT count(*) FROM sample.processed_integration_events WHERE event_id = $1", eventId)).ShouldBe(0);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Shared_transaction_releases_events_only_after_commit(bool commit)
+    {
+        var matterId = Guid.CreateVersion7();
+        var eventId = Guid.CreateVersion7();
+        var secondaryEventId = Guid.CreateVersion7();
+        using var ambient = AmbientContext.Begin(_organization, "shared-outbox-test");
+        await using (var scope = fixture.Host.Services.CreateAsyncScope())
+        {
+            var primary = scope.ServiceProvider.GetRequiredService<SampleDbContext>();
+            var secondary = scope.ServiceProvider.GetRequiredService<SecondarySampleDbContext>();
+            var coordinator = scope.ServiceProvider.GetRequiredService<ILocalTransactionCoordinator>();
+            await using var transaction = await coordinator.BeginAsync(["Sample", "SecondarySample"], Ct);
+            primary.Matters.Add(new Matter(matterId, "Transação compartilhada", null));
+            scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>()
+                .Publish(new MatterRegisteredIntegrationEvent(matterId, "Transação compartilhada") { EventId = eventId });
+            await primary.SaveChangesAsync(Ct);
+            secondary.Timeline.Add(new MatterTimelineEntry(Guid.CreateVersion7(), matterId, "Destino"));
+            scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>()
+                .Publish(new MatterRegisteredIntegrationEvent(matterId, "Destino") { EventId = secondaryEventId });
+            await secondary.SaveChangesAsync(Ct);
+
+            await Task.Delay(QuietPeriod, Ct);
+            (await fixture.CountAsync(CountEffects, matterId)).ShouldBe(0);
+            if (commit)
+            {
+                await transaction.CommitAsync(Ct);
+            }
+        }
+
+        if (commit)
+        {
+            await WaitUntilAsync(async () => await fixture.CountAsync(CountEffects, matterId) == 2);
+        }
+
+        await Task.Delay(QuietPeriod, Ct);
+        (await fixture.CountAsync(CountEffects, matterId)).ShouldBe(commit ? 2 : 0);
+        (await fixture.CountAsync("SELECT count(*) FROM sample.matters WHERE id = $1", matterId)).ShouldBe(commit ? 1 : 0);
+        (await fixture.CountAsync("SELECT count(*) FROM sample.timeline WHERE matter_id = $1", matterId)).ShouldBe(commit ? 4 : 0);
+        (await fixture.CountAsync("SELECT count(*) FROM sample.processed_integration_events WHERE event_id = $1", eventId)).ShouldBe(commit ? 1 : 0);
+        (await fixture.CountAsync("SELECT count(*) FROM sample.processed_integration_events WHERE event_id = $1", secondaryEventId)).ShouldBe(commit ? 1 : 0);
+    }
+
     [Fact]
     public async Task Consumer_runs_with_the_tenant_of_the_event()
     {

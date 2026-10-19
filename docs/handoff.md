@@ -10,6 +10,24 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (6D iniciado: base transacional verificada; duas respostas pendentes)
+
+**Pedido:** continuar o 6D. Usuário respondeu **“Adotar a sugestão” somente à pergunta sobre encerrar publicação irrelevante/capturada por engano sem processo**, com justificativa obrigatória e identificação do autor. Prazo/tarefa/audiência exigem processo. Essa aprovação foi persistida no progress e na ADR 0035; não repetir a pergunta.
+
+**Ainda sem resposta:** (1) novas publicações recebidas depois do fechamento no mesmo dia exigirem novo fechamento, preservando o anterior no histórico, ou ficarem para o próximo; (2) criação do destino exigir sua própria permissão (`schedule.deadlines.manage`, `schedule.tasks.manage`, `cases.edit` para audiência), além de `publications.triage`, ou só a de triagem. As sugestões enviadas foram novo fechamento e permissão adicional. A resposta recebida não aprova automaticamente as outras perguntas. Não implementar essas duas escolhas antes das respostas. O plano geral 6A–6E continua aprovado.
+
+**Feito antes do código:** estudo do pipeline, tenant/auditoria/outbox, contratos e modelos; criada [ADR 0035](adr/0035-triagem-transacao-local-e-fechamento.md), status Proposta (para revisão no PR 6D), detalhando a exceção aprovada à ADR 0007. A base não depende das duas decisões de negócio pendentes.
+
+**Implementado:** `ILocalTransactionCommand` declara os módulos participantes, começando pelo dono do comando; `ILocalTransactionCoordinator` scoped em Infrastructure.Common resolve as unidades de trabalho keyed, valida banco/tenant/estado, compartilha conexão e transação PostgreSQL e confirma uma vez. Comandos normais mantêm a unidade de trabalho por módulo; comandos internos reutilizam a transação. Falha, exceção/cancelamento ou descarte sem commit desfazem dados, auditoria e outbox. Contextos secundários recuperam conexões próprias do mesmo data source; trackers são limpos no rollback. Não restaurar o objeto de conexão anterior: o EF o descarta ao substituir conexão possuída. O coordenador rejeita tenant ausente/divergente, transação independente/aninhada e mudanças pendentes. Nenhum pacote novo.
+
+**Verificação parcial:** build Release de toda a solução sem warnings/erros; formatação integral aprovada. 238 testes unitários de building blocks + 46 de integração com PostgreSQL/RabbitMQ reais (ambos com cobertura) + 17 de arquitetura: **301 aprovados, zero falhas/skips**. Inclui 27 novos: 6 de pipeline, 19 de coordenação e 2 de outbox. Publicação dos dois contextos só é consumida após commit; rollback remove os dois lados e auditoria. Inicialmente o teste novo consultou a tabela de auditoria com nome errado; corrigido para `audit.audit_logs` antes da regressão aprovada. Logs/cobertura em `TestResults/6d-base-*`. Não é a verificação final do 6D; gates completos e testes dos fluxos reais entre módulos continuam obrigatórios no fechamento.
+
+**Branch/estado:** `codex/etapa-6d-triagem-fechamento`; base/arrumação enviada `88f1736`. Checkpoint desta base e documentação em commit local (consultar `git log -1`), **sem push nem PR novo**. Nenhuma migration, endpoint, tela ou módulo Scheduling implementado ainda. Manual e guia local revisados: passos de uso/inicialização não foram afetados, sem novos recursos anunciados como disponíveis. AGENTS/CLAUDE sincronizados; aplicação de exploração não iniciada; serviços temporários dos testes encerrados sem mexer nos volumes da aplicação.
+
+**Próximos passos:** incorporar as duas respostas pendentes e continuar os fluxos do 6D: distribuição/vínculo/triagem auditada, Contracts, núcleo mínimo de prazo/tarefa/audiência atômico, permissão e fechamento, migrations/RLS/SecurityTests e contrato aditivo. Testar a atomicidade nos módulos reais, concorrência/reexecução e alcance/sigilo. Atualizar ADR, manuais e gates completos antes do commit final. Calculadora/agenda completas na Etapa 7, telas no 6E e fornecedor real pendente. Código/documentos no mesmo push quando autorizado; nunca fazer merge pelo usuário. Manter ambiente fechado após verificações.
+
+---
+
 ## 2026-10-19 — Codex (PR #33 mergeado; arrumação e preparação do 6D)
 
 **Aviso do usuário:** “Merge efetuado.” Confirmado no GitHub: PR [#33](https://github.com/iagogoliveira/ProjetoLaw/pull/33) `MERGED`, em 2026-10-19, merge `fe1f654f97686b6530152faa06e44e2ae7261146`. Todos os checks do CI aprovados, incluindo backend, frontend, OpenAPI, AppHost/E2E, CodeQL, Gitleaks e Trivy. Merge feito pelo usuário.

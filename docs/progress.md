@@ -12,7 +12,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32 e 6C/DataJud #33 concluídos; preparação do 6D; fornecedor real pendente; telas no 6E) | `codex/etapa-6d-triagem-fechamento` |
+| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32 e 6C/DataJud #33 concluídos; base transacional do 6D verificada; duas respostas de negócio pendentes; fornecedor real pendente; telas no 6E) | `codex/etapa-6d-triagem-fechamento` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -33,7 +33,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 6 — Publicações e andamentos (6A, 6B e 6C/DataJud concluídos; preparação do 6D)
+## Etapa 6 — Publicações e andamentos (6A, 6B e 6C/DataJud concluídos; 6D em implementação)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -53,29 +53,38 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Dependência técnica a resolver em ADR:** a unidade de trabalho atual é por módulo (ADR 0007). A triagem exige atomicidade entre Publications e Scheduling/Litigation; somente publicar um evento no outbox não satisfaz o critério de gravação na mesma transação. A proposta é um coordenador de transação local compartilhada, mantendo acesso entre módulos por Contracts, com teste de rollback conjunto. A proposta foi aprovada em 2026-10-19; o desenho será detalhado na ADR do 6D antes da implementação. O 6A mantém o pipeline atual.
 
-**Última verificação local da Etapa 6:** 6C em 2026-10-19, com 794 testes .NET, cobertura acima de 80% em todos os módulos, builds/formatação, dependências/modelos, 96 Vitest e duas rodadas de 14 e2e contra o AppHost. Resultados completos abaixo. 6A (#31), 6B (#32) e 6C/DataJud (#33) concluídos; merge do #33 e todos os checks do CI confirmados em 2026-10-19. Fornecedor real permanece pendente.
+**Última verificação local da Etapa 6:** checkpoint parcial do 6D em 2026-10-19: build Release sem warnings, formatação e 301 testes afetados (238 unitários, 46 de integração, 17 de arquitetura). Não é o fechamento do 6D. Última verificação completa: 6C, com 794 testes .NET, cobertura acima de 80% em todos os módulos, dependências/modelos, 96 Vitest e duas rodadas de 14 e2e contra o AppHost. Resultados completos abaixo. 6A (#31), 6B (#32) e 6C/DataJud (#33) concluídos; merge do #33 e todos os checks do CI confirmados em 2026-10-19. Fornecedor real permanece pendente.
 
 **Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
 **Arrumação pós-merge do 6B (2026-10-19):** PR #32 confirmado como `MERGED`, commit `a137919`; todos os checks do CI aprovados, incluindo AppHost/E2E. `main` atualizada por fast-forward e branch `codex/etapa-6c-datajud-integracoes` criado dessa base. Manual e guia preservados por cherry-pick dos dois commits locais, sem conflitos; ADR 0033 aceita; AGENTS/CLAUDE e handoff atualizados. Commit/push desta arrumação seguem o ciclo já autorizado.
 
 **Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
 
-### PR 6D — Triagem, distribuição e fechamento diário (preparação)
+### PR 6D — Triagem, distribuição e fechamento diário (em implementação)
 
-**Branch:** `codex/etapa-6d-triagem-fechamento`, criado da main atualizada após o merge `fe1f654` do PR #33. O plano 6A–6E já foi aprovado; não pedir nova aprovação das mesmas escolhas. Implementação do 6D ainda não iniciada nesta arrumação.
+**Branch:** `codex/etapa-6d-triagem-fechamento`, criado da main atualizada após o merge `fe1f654` do PR #33. O plano 6A–6E já foi aprovado; não pedir nova aprovação das mesmas escolhas. Arrumação enviada em `88f1736`; desenvolvimento iniciado a pedido do usuário. Base transacional optante implementada e verificada em checkpoint local, antes dos endpoints e fluxos de negócio. Sem push/PR desta implementação.
 
-| Trabalho aprovado | Verificação prevista |
-| --- | --- |
-| Distribuição, vínculo e triagem rastreável com as permissões existentes | Responsável ativo, alcance/sigilo, isolamento entre escritórios e confirmação humana |
-| Núcleo mínimo de Scheduling e criação de prazo/tarefa/audiência junto da triagem | ADR 0035, transação local compartilhada por Contracts; falha intermediária desfaz os dois lados; concorrência/reexecução sem duplicação |
-| Fechamento diário auditado com `publications.close` | Data de recebimento em America/Sao_Paulo, pendências anteriores, captura esperada incompleta e usuário responsável |
-| Migrations, API e documentação | RLS, integração/SecurityTests, contrato somente com adições, cliente regenerado e revisão dos dois guias |
+**Decisão adicional aprovada em 2026-10-19:** encerrar publicação irrelevante ou capturada por engano sem processo vinculado, com justificativa obrigatória e identificação de quem decidiu. Triagens que criam prazo, tarefa ou audiência exigem processo vinculado. Permissões de acesso e sigilo continuam obrigatórias. Decisão registrada na [ADR 0035](adr/0035-triagem-transacao-local-e-fechamento.md), proposta para o 6D e escrita antes do código.
+
+**Duas perguntas complementares enviadas e ainda sem resposta:** (1) novas publicações após fechamento do mesmo dia exigirem novo fechamento, preservando o anterior no histórico, ou ficarem para o próximo fechamento; (2) criação de destino exigir também `schedule.deadlines.manage`, `schedule.tasks.manage` ou `cases.edit` para audiência, além de `publications.triage`, ou somente a permissão de triagem. As sugestões são, respectivamente, novo fechamento e permissão adicional do destino. Não presumir aprovação. A base transacional genérica independe dessas escolhas; os fluxos afetados aguardam resposta.
+
+| Trabalho aprovado | Estado | Testes e verificação |
+| --- | --- | --- |
+| Coordenador local optante e pipeline da ADR 0035 | Implementado em checkpoint | 6 testes novos do pipeline; 19 novos de PostgreSQL com contextos distintos; 2 novos de outbox com eventos dos dois participantes. Commit/rollback, auditoria, exceção, cancelamento, restauração/reuso, tenant/banco divergente, transação independente e aninhamento |
+| Distribuição, vínculo e triagem rastreável com as permissões existentes | Pendente | Responsável ativo, alcance/sigilo, isolamento entre escritórios, justificativa/autor no encerramento sem processo e confirmação humana |
+| Núcleo mínimo de Scheduling e criação de prazo/tarefa/audiência junto da triagem | Pendente | Usar a base transacional por Contracts; falha intermediária desfaz os dois lados; concorrência/reexecução sem duplicação. Aguardar resposta sobre permissão do destino |
+| Fechamento diário auditado com `publications.close` | Pendente | Recebimento em America/Sao_Paulo, pendências anteriores, captura esperada incompleta e autor. Aguardar resposta sobre novidades após fechamento |
+| Migrations, API e documentação | Parcial | ADR proposta, agentes/progress/handoff atualizados; guias revisados sem mudança nos passos disponíveis. Endpoints, RLS, integrações reais entre módulos, OpenAPI/cliente e gates finais ainda pendentes |
+
+**Última verificação local — checkpoint parcial do 6D, 2026-10-19:** `dotnet build LexFlow.sln -c Release --no-restore` com **0 warnings/0 errors**; `dotnet format LexFlow.sln --verify-no-changes --no-restore` aprovado. **301 testes afetados aprovados**, sem falhas ou skips: 238 de BuildingBlocks.UnitTests, 46 de BuildingBlocks.IntegrationTests (ambos com cobertura Cobertura) e 17 de ArchitectureTests. São 27 testes novos; não representam a suíte completa da solução. Logs/cobertura em `TestResults/6d-base-unit`, `TestResults/6d-base-integration` e `TestResults/6d-base-*.log`. PostgreSQL e RabbitMQ temporários reais, inclusive publicação dos dois contextos somente após commit. A primeira execução apontou nome incorreto da tabela de auditoria no teste novo; corrigido para `audit.audit_logs` e regressão completa dos building blocks aprovada.
+
+**Limites do checkpoint:** nenhum novo endpoint, migration, módulo Scheduling ou tela entregue ainda. Não declarar o 6D concluído nem usar os resultados completos antigos do 6C como aprovação do código atual. Antes de fechar o PR, implementar os fluxos e executar todos os gates obrigatórios, incluindo testes .NET/cobertura de todos os módulos, segurança, dependências/modelos, frontend e Playwright aplicável. Manual e guia local revisados: nenhuma mudança nos fluxos disponíveis, configuração ou inicialização; seus passos permanecem válidos. Ambiente de exploração não iniciado; somente contêineres temporários dos testes.
 
 **Arrumação pós-merge do 6C (2026-10-19):** #33 confirmado como MERGED e CI todo aprovado. Main atualizada por fast-forward; ADR 0034 aceita; agentes, progress e handoff atualizados. Manual/guia revisados para refletir DataJud na main e base do 6D, sem novos comandos ou passos de tela. Commit/push documentais seguem o ciclo autorizado; nenhum PR do 6D criado.
 
 **Última verificação local desta arrumação:** base/merge/CI, diff documental, UTF-8, links e igualdade AGENTS/CLAUDE conferidos antes do commit. Nenhuma mudança de runtime ou nova suíte executada; preservada a verificação completa do 6C abaixo. Ambiente permanece fechado a pedido, com volumes/cadastros preservados; não iniciar para exploração sem solicitação.
 
-**Próximos passos:** estudar o pipeline transacional, os contratos e o modelo de triagem existentes; detalhar a ADR 0035 antes de implementar o 6D. Perguntar somente dúvidas novas de negócio não cobertas pelas decisões registradas. Calculadora/agenda completas continuam na Etapa 7; telas de publicações no 6E; fornecedor real é pendência externa. Implementação nova termina em commit local e push/PR somente a pedido.
+**Próximos passos:** obter as duas respostas complementares já enviadas; implementar distribuição/triagem, Contracts e núcleo mínimo de Scheduling/Litigation sobre o coordenador local, depois fechamento, endpoints/migrations e verificação integral. Atualizar a ADR 0035 com as decisões e o desenho final. Não repetir a pergunta sobre encerramento irrelevante, já aprovada. Calculadora/agenda completas continuam na Etapa 7; telas no 6E; fornecedor real é pendência externa. Checkpoint e implementação final permanecem locais até pedido de push/PR.
 
 ### PR 6C — DataJud e integrações (concluído: PR #33 mergeado em 2026-10-19)
 

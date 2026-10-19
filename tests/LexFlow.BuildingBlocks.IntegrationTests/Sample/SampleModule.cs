@@ -93,6 +93,14 @@ namespace LexFlow.Sample.Application
 
 namespace LexFlow.Sample.Infrastructure
 {
+    public sealed class SecondarySampleDbContext(DbContextOptions<SecondarySampleDbContext> options, ITenantContext tenant)
+        : ModuleDbContextBase(options, tenant)
+    {
+        public DbSet<MatterTimelineEntry> Timeline => Set<MatterTimelineEntry>();
+
+        protected override string Schema => "sample";
+    }
+
     public sealed class SampleDbContext(DbContextOptions<SampleDbContext> options, ITenantContext tenant)
         : ModuleDbContextBase(options, tenant)
     {
