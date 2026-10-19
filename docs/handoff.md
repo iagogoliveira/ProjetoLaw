@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (6D #34 mergeado; arrumação e branch do 6E)
+
+**Estado confirmado:** usuário informou o merge do PR [#34](https://github.com/iagogoliveira/ProjetoLaw/pull/34); GitHub confirmou MERGED em 2026-10-19, merge `75aaa9c`, com todos os checks aprovados (backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E). Implementação `77acd5e` + `18cbec4`, enviada com documentos até `07287bd`. Main atualizada por fast-forward; branch `codex/etapa-6e-telas-publicacoes` criado da nova main. ADR 0035 aceita. Esta entrada integra o commit/push documental pós-merge autorizado pelo ciclo; consultar `git log -1` para o commit. Nenhum PR do 6E aberto.
+
+**Feito e verificado:** progress marca o 6D concluído e o 6E em preparação; AGENTS/CLAUDE sincronizados; manual e guia local atualizados para o backend do 6D disponível na main, sem prometer telas ainda não implementadas. Somente documentação alterada nesta arrumação; diff, UTF-8, links e igualdade dos agentes conferidos antes do commit. Mantidos os gates completos do 6D: 895 testes .NET, cobertura mínima de 80%, builds sem warnings, formatação, dependências, seis modelos EF, lint, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade. Não repetir suítes sem alteração de runtime ou preocupação concreta. Ambiente permanece fechado, com volumes/cadastros preservados.
+
+**Próximo trabalho:** 6E do plano já aprovado: telas de fontes/integrações, fila dividida com atalhos e não vinculadas, vínculo/distribuição/triagem, fechamento/histórico, contador/SignalR e andamentos na linha do tempo. Implementação ainda não iniciada; estudar os contratos e padrões existentes, criar ADR 0036 proposta, tabela de subtarefas/testes e atualizar os dois guias conforme evoluir. Frontend standalone/OnPush/signals, HTTP em `data/`, Transloco pt-BR/en, permissões/escopo/sigilo, Vitest por store e Playwright/WCAG 2.1 AA contra AppHost. Não reabrir as três perguntas já respondidas do 6D. Perguntar apenas dúvidas novas de negócio. Calculadora/agenda completas ficam na Etapa 7; fornecedor real depende de escolha/documentação/acesso. A Etapa 6 continua em andamento. Código novo termina em commit local; push/PR a pedido; merge sempre pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (publicação do PR 6D solicitada; revisão e merge pendentes)
 
 **Autorização e estado:** usuário pediu “Crie o PR”. Branch `codex/etapa-6d-triagem-fechamento`; implementação `77acd5e` + `18cbec4`. Esta entrada integra o commit documental preparado para enviar código e documentos juntos, em um único push, e abrir o PR contra `main`. Consultar URL, checks e estado remoto com `gh pr view codex/etapa-6d-triagem-fechamento`. Nenhum merge autorizado ao agente; ADR 0035 permanece proposta até a confirmação do merge pelo usuário.

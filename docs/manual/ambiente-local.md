@@ -1,8 +1,8 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6C (#33), em 2026-10-19: consultas DataJud disponíveis no backend da main; o branch `codex/etapa-6d-triagem-fechamento` começa dessa base. Comandos e endereços permanecem os mesmos. O ambiente está fechado a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6D (#34), em 2026-10-19: consultas DataJud, triagem e fechamento disponíveis no backend da main; o branch `codex/etapa-6e-telas-publicacoes` começa dessa base para as telas previstas no plano aprovado. Comandos e endereços permanecem os mesmos. O ambiente está fechado a pedido do usuário.
 
-No branch do 6D, triagem, distribuição, prazo/tarefa mínimos e fechamento estão implementados e verificados no backend desse branch, ainda sem merge. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização nem tela nova nesta entrega.
+Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização nem tela nova nesta entrega.
 
 ## 1. O que precisa estar disponível
 

@@ -1,6 +1,6 @@
 # ADR 0035 — Triagem, transação local compartilhada e fechamento diário
 
-- **Status:** Proposta (para revisão no PR 6D)
+- **Status:** Aceita (PR #34 mergeado em 2026-10-19)
 - **Data:** 2026-10-19
 - **Etapa:** 6 (PR 6D)
 
@@ -28,7 +28,7 @@ O plano 6A–6E, aprovado em 2026-10-19, exige salvar a triagem e o prazo, taref
 1. Novas publicações recebidas depois de um fechamento do mesmo dia tornam o dia novamente pendente e exigem novo fechamento. Preservar todos os fechamentos anteriores no histórico, com autor e instante.
 2. Criar o destino exige também `schedule.deadlines.manage`, `schedule.tasks.manage` ou `cases.edit` para audiência, além de `publications.triage`, com autorização de recurso no processo.
 
-Resposta explícita: “Preserve o historico; Exige permissão de destino.” Nenhuma das três perguntas complementares continua pendente. O backend do 6D foi implementado e verificado localmente; resultados consolidados em `docs/progress.md`. A ADR permanece proposta até a revisão e o merge do PR.
+Resposta explícita: “Preserve o historico; Exige permissão de destino.” Nenhuma das três perguntas complementares continua pendente. O backend do 6D foi implementado e verificado localmente; resultados consolidados em `docs/progress.md`. A ADR foi aceita com o merge do PR #34 em 2026-10-19.
 
 ## Fluxos do 6D
 

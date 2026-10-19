@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O branch do 6D acrescenta triagem, distribuição e fechamento pela API, implementados e verificados localmente, ainda sem merge; as telas dessas operações continuam previstas no 6E. Não procure esses formulários no menu atual.
+**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34), mergeado em 2026-10-19, acrescenta triagem, distribuição e fechamento pela API, disponíveis no backend da main; as telas dessas operações continuam previstas no 6E. Não procure esses formulários no menu atual.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -187,7 +187,7 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Fontes, captura e notificações de publicações | Base/backend em evolução na Etapa 6; operação visual prevista no 6E |
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
 | DataJud e consultas periódicas de movimentações | Backend do 6C; configuração e acompanhamento visual previstos no 6E |
-| Triagem, distribuição e fechamento diário da controladoria | Backend implementado e verificado no branch do 6D, sem merge; telas no 6E |
+| Triagem, distribuição e fechamento diário da controladoria | Backend disponível na main desde o 6D (#34); telas no 6E |
 | Calculadora completa de prazos e agenda unificada | Etapa 7 |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
