@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 em revisão; falta o 5E2) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 #29 mergeado; falta o 5E2) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 
 ---
 
@@ -42,7 +42,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | ✅ (5D) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones`: 9.700 processos gravados e o relatório com exatamente as 300 linhas inválidas (6 defeitos × 50), cada uma com o código esperado |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5E1 — telas de processos: lista, assistente e detalhe (em revisão)
+### PR 5E1 — telas de processos: lista, assistente e detalhe (concluído: PR #29 mergeado em 2026-10-19)
 
 **Decisões de negócio (2026-10-18):**
 - Filtros salvos e colunas da lista ficam no servidor, por usuário.
@@ -60,12 +60,12 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.43 | Configurações: aba "Numeração de processos" | `NumberingStore` |
 | 5.44 | Textos pt-BR e en (inclusive os erros `litigation.*`) e WCAG 2.1 AA nas telas novas | `translations.spec.ts`, `expectAccessible` no e2e |
 
-**ADR:** [0030 — Telas de processos, preferências do usuário e opções de cadastro](adr/0030-telas-de-processos-e-preferencias.md) (Proposta, para revisão no PR 5E1).
+**ADR:** [0030 — Telas de processos, preferências do usuário e opções de cadastro](adr/0030-telas-de-processos-e-preferencias.md) (Aceita em 2026-10-19, com o merge do PR #29).
 
 **Última verificação local (PR 5E1):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 707 testes .NET em 15 projetos e 14 do AppHost, 76 Vitest, `npm run lint`, `npm run build`, Playwright contra o AppHost (12 aprovados, inclusive o `cases-flow.spec.ts`; o preparo da carga é pulado), sem pacotes vulneráveis. Cobertura: Litigation.Application 92,3%, Platform.Application 97,2% e Platform.Domain 100%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
 
 **Pendências do PR 5E1:**
-1. O oasdiff do CI vai acusar a correção do `CaseAssignmentResponse`. A exceção é registrada em `docs/openapi/oasdiff-ignore.txt` com a mensagem exata do CI.
+1. Exceção do oasdiff registrada em `docs/openapi/oasdiff-ignore.txt` (21 entradas da correção do `CaseAssignmentResponse`).
 2. O filtro por pessoa (parte) existe na API, mas ainda não tem campo na tela.
 3. Pedidos, risco, acordos, audiências e importação: PR 5E2.
 

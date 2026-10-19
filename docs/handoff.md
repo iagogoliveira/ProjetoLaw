@@ -10,6 +10,20 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Claude Code (arrumação depois do merge do #29)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`, criado a partir da `main`, com este commit de arrumação e push.
+
+**Feito:**
+- PR #29 (5E1) mergeado pelo usuário. Antes do merge, duas correções de CI:
+  - a exceção do oasdiff;
+  - o e2e passou a abrir os mat-select pelo teclado (registrado no `AGENTS.md`).
+- `progress.md`: 5E1 concluído. ADR 0030 aceita. `AGENTS.md` atualizado.
+
+**Próximo:** planejar o PR 5E2 (abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação) e mostrar o plano ao usuário antes de implementar.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5E1 implementado)
 
 **Branch:** `etapa-5e-telas-processos` · **Estado:** commitado; o push e o PR aguardam o pedido do usuário.

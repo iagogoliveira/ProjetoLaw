@@ -58,8 +58,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
   - 5C2 (#27) mergeado: risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
-  - **5E1: commitado no branch `etapa-5e-telas-processos`**, aguardando o pedido de push e PR do usuário. Traz `features/cases` (lista com filtros salvos, colunas e lote; assistente de cadastro; detalhe com Resumo, Partes, Hierarquia, Linha do tempo e Sigilo; numeração nas configurações), as preferências de tela por usuário (`/api/v1/me/preferences`), as opções de cadastro (`/api/v1/cases/options`) e a ADR 0030;
-  - **depois do merge do 5E1, o próximo é o PR 5E2:** abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação, com e2e contra o AppHost (o Worker roda os jobs).
+  - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
+  - **o próximo é o PR 5E2**, no branch `etapa-5e2-telas-valores-importacao`, que já existe com o commit de progresso: abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação, com e2e contra o AppHost (o Worker roda os jobs).
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;

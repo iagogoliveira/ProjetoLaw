@@ -1,6 +1,6 @@
 # ADR 0030 — Telas de processos, preferências do usuário e opções de cadastro
 
-- **Status:** Proposta (para revisão no PR 5E1)
+- **Status:** Aceita (PR #29 mergeado em 2026-10-19)
 - **Data:** 2026-10-18
 - **Etapa:** 5 (PR 5E1)
 
