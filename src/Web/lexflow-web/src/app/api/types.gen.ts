@@ -65,6 +65,10 @@ export type AssignmentResponse = {
  */
 export type AssignmentRole = 'partner' | 'lawyer' | 'team';
 
+export type AssignPublicationInput = {
+    assigneeUserId: null | string;
+};
+
 export type BranchRequest = {
     name: string;
     cnpj: null | string;
@@ -709,10 +713,56 @@ export type CustomFieldValuesResponse = {
     values: JsonObject;
 };
 
+export type DailyCloseInput = {
+    day: string;
+};
+
+export type DailyCloseResponse = {
+    id: string;
+    day: string;
+    revision: number | string;
+    closedBy: string;
+    closedAt: string;
+    publicationCount: number | string;
+};
+
+export type DailyCloseStatusResponse = {
+    day: string;
+    pendingCount: number | string;
+    missingCaptureCount: number | string;
+    publicationCount: number | string;
+    isClosed: boolean;
+    latest: null | DailyCloseResponse;
+    history: Array<DailyCloseResponse>;
+    nextRevision: null | number | string;
+};
+
 /**
  * Escopo de dados de uma atribuição de perfil (seção 7.2).
  */
 export type DataScope = 'own' | 'team' | 'practiceArea' | 'branch' | 'organization';
+
+export type DeadlineResponse = {
+    id: string;
+    caseId: string;
+    publicationId: string;
+    title: string;
+    startOn: string;
+    internalDueOn: string;
+    fatalDueOn: string;
+    assigneeUserId: string;
+    status: WorkItemStatus;
+    confirmedBy: string;
+    confirmedAt: string;
+};
+
+export type DeadlineTriageInput = {
+    title: string;
+    startOn: string;
+    internalDueOn: string;
+    fatalDueOn: string;
+    assigneeUserId: string;
+};
 
 export type EconomicGroupRequest = {
     name: string;
@@ -797,6 +847,16 @@ export type HearingResponse = {
  */
 export type HearingStatus = 'scheduled' | 'held' | 'cancelled';
 
+export type HearingTriageInput = {
+    type: PublicationHearingType;
+    format: PublicationHearingFormat;
+    scheduledAt: string;
+    location: null | string;
+    meetingLink: null | string;
+    lawyerUserId: string;
+    notes: null | string;
+};
+
 export type HearingType = 'conciliation' | 'instruction' | 'combined' | 'judgment' | 'other';
 
 export type HomologateSettlementRequest = {
@@ -880,6 +940,10 @@ export type JsonObject = {
 export type LinkCaseRequest = {
     childCaseId: string;
     kind: RelationKind;
+};
+
+export type LinkPublicationInput = {
+    caseId: string;
 };
 
 export type LookupItemRequest = {
@@ -1455,6 +1519,10 @@ export type ProspectResponse = {
     phone: null | string;
 };
 
+export type PublicationHearingFormat = 'inPerson' | 'virtual' | 'hybrid';
+
+export type PublicationHearingType = 'conciliation' | 'instruction' | 'combined' | 'judgment' | 'other';
+
 export type PublicationResponse = {
     id: string;
     sourceId: string;
@@ -1466,6 +1534,8 @@ export type PublicationResponse = {
     legalCaseId: null | string;
     status: PublicationStatus;
     receivedAt: string;
+    assigneeUserId?: null | string;
+    triage?: null | PublicationTriageResponse;
 };
 
 export type PublicationsPageResponse = {
@@ -1483,6 +1553,39 @@ export type PublicationSummary = {
     legalCaseId: null | string;
     status: PublicationStatus;
     receivedAt: string;
+    assigneeUserId?: null | string;
+};
+
+export type PublicationTriageInput = {
+    classification: TriageClassification;
+    action: TriageAction;
+    confirmed: boolean;
+    reason?: null | string;
+    caseId?: null | string;
+    deadline?: null | DeadlineTriageInput;
+    task?: null | TaskTriageInput;
+    hearing?: null | HearingTriageInput;
+};
+
+export type PublicationTriageResponse = {
+    id: string;
+    classification: TriageClassification;
+    action: TriageAction;
+    reason: null | string;
+    caseId: null | string;
+    triagedBy: string;
+    triagedAt: string;
+    deadlineId: null | string;
+    taskId: null | string;
+    hearingId: null | string;
+};
+
+export type PublicationWorkflowResponse = {
+    id: string;
+    caseId: null | string;
+    assigneeUserId: null | string;
+    status: PublicationStatus;
+    triage: null | PublicationTriageResponse;
 };
 
 export type ReasonRequest = {
@@ -1689,6 +1792,24 @@ export type SubmitSettlementRequest = {
     installments: null | Array<InstallmentInput>;
 };
 
+export type TaskItemResponse = {
+    id: string;
+    caseId: string;
+    publicationId: string;
+    title: string;
+    dueOn: string;
+    assigneeUserId: string;
+    status: WorkItemStatus;
+    confirmedBy: string;
+    confirmedAt: string;
+};
+
+export type TaskTriageInput = {
+    title: string;
+    dueOn: string;
+    assigneeUserId: string;
+};
+
 export type TeamMembersRequest = {
     memberIds: Array<string>;
 };
@@ -1735,6 +1856,10 @@ export type TotpSetupResponse = {
     authenticatorUri: string;
 };
 
+export type TriageAction = 'noAction' | 'discard' | 'deadline' | 'task' | 'hearing';
+
+export type TriageClassification = 'deadlineNotice' | 'routine' | 'hearing' | 'decision' | 'judgment' | 'other';
+
 export type UpdateCustomFieldRequest = {
     label: string;
     helpText: null | string;
@@ -1779,6 +1904,8 @@ export type ValuationInput = {
     estimated: null | number | string;
     awarded: null | number | string;
 };
+
+export type WorkItemStatus = 'pending';
 
 export type UpdateLookupItemData = {
     body: UpdateLookupItemRequest;
@@ -7159,6 +7286,96 @@ export type GetMovementSyncResponses = {
 
 export type GetMovementSyncResponse = GetMovementSyncResponses[keyof GetMovementSyncResponses];
 
+export type LinkPublicationData = {
+    body: LinkPublicationInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publications/{id}/link';
+};
+
+export type LinkPublicationResponses = {
+    /**
+     * OK
+     */
+    200: PublicationWorkflowResponse;
+};
+
+export type LinkPublicationResponse = LinkPublicationResponses[keyof LinkPublicationResponses];
+
+export type AssignPublicationData = {
+    body: AssignPublicationInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publications/{id}/assignment';
+};
+
+export type AssignPublicationResponses = {
+    /**
+     * OK
+     */
+    200: PublicationWorkflowResponse;
+};
+
+export type AssignPublicationResponse = AssignPublicationResponses[keyof AssignPublicationResponses];
+
+export type TriagePublicationData = {
+    body: PublicationTriageInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publications/{id}/triage';
+};
+
+export type TriagePublicationResponses = {
+    /**
+     * OK
+     */
+    200: PublicationWorkflowResponse;
+};
+
+export type TriagePublicationResponse = TriagePublicationResponses[keyof TriagePublicationResponses];
+
+export type GetPublicationsDailyCloseData = {
+    body?: never;
+    path?: never;
+    query: {
+        day: string;
+        beforeRevision?: number | string;
+        limit?: number | string;
+    };
+    url: '/api/v1/publications/daily-close';
+};
+
+export type GetPublicationsDailyCloseResponses = {
+    /**
+     * OK
+     */
+    200: DailyCloseStatusResponse;
+};
+
+export type GetPublicationsDailyCloseResponse = GetPublicationsDailyCloseResponses[keyof GetPublicationsDailyCloseResponses];
+
+export type ClosePublicationsDayData = {
+    body: DailyCloseInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/publications/daily-close';
+};
+
+export type ClosePublicationsDayResponses = {
+    /**
+     * OK
+     */
+    200: DailyCloseResponse;
+};
+
+export type ClosePublicationsDayResponse = ClosePublicationsDayResponses[keyof ClosePublicationsDayResponses];
+
 export type ListCaptureSourcesData = {
     body?: never;
     path?: never;
@@ -7234,6 +7451,7 @@ export type ListPublicationsData = {
         status?: PublicationStatus;
         linked?: boolean;
         caseId?: string;
+        assignee?: string;
         cursor?: string;
         limit?: number | string;
     };
@@ -7305,3 +7523,39 @@ export type CreateCaseMovementResponses = {
 };
 
 export type CreateCaseMovementResponse = CreateCaseMovementResponses[keyof CreateCaseMovementResponses];
+
+export type ListCaseDeadlinesData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/deadlines';
+};
+
+export type ListCaseDeadlinesResponses = {
+    /**
+     * OK
+     */
+    200: Array<DeadlineResponse>;
+};
+
+export type ListCaseDeadlinesResponse = ListCaseDeadlinesResponses[keyof ListCaseDeadlinesResponses];
+
+export type ListCaseTasksData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/tasks';
+};
+
+export type ListCaseTasksResponses = {
+    /**
+     * OK
+     */
+    200: Array<TaskItemResponse>;
+};
+
+export type ListCaseTasksResponse = ListCaseTasksResponses[keyof ListCaseTasksResponses];

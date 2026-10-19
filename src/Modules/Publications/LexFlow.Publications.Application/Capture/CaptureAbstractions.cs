@@ -4,6 +4,7 @@ namespace LexFlow.Publications.Application.Capture;
 
 public interface ICaptureLocks
 {
+    Task ControlAsync(CancellationToken cancellationToken);
     Task<bool> TrySourceAsync(Guid sourceId, DateOnly day, CancellationToken cancellationToken);
     Task PublicationAsync(string hash, CancellationToken cancellationToken);
     Task IntegrationAsync(CancellationToken cancellationToken);

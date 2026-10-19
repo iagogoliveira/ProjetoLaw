@@ -21,6 +21,7 @@ public sealed class CaptureMonitor(IPublicationsDbContext db, ICaptureLocks lock
     {
         var ct = CancellationToken.None;
         await using var transaction = await db.BeginTransactionAsync(ct);
+        await locks.ControlAsync(ct);
         if (!await locks.TrySourceAsync(sourceId, day, ct)) { return; }
         var source = await db.Sources.AsNoTracking().SingleOrDefaultAsync(s => s.Id == sourceId, ct);
         if (source is null || !source.IsActive || day > clock.Today || day < clock.Today.AddDays(-1)

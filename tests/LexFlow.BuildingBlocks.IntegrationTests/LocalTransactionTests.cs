@@ -1,8 +1,10 @@
 using System.Data;
+using System.Data.Common;
 using LexFlow.Application.Abstractions.Data;
 using LexFlow.Sample.Domain;
 using LexFlow.Sample.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -103,6 +105,38 @@ public sealed class LocalTransactionTests : IAsyncDisposable
         }
 
         await AssertRolledBackAsync();
+    }
+
+    [Fact]
+    public async Task Failure_after_physical_commit_preserves_original_error_and_committed_data()
+    {
+        await using var provider = _fixture.BuildProvider(_tenant, new TestUser(), PersistenceFixture.NewClock(), configure: services =>
+            services.ConfigureDbContext<SampleDbContext>((_, options) => options.AddInterceptors(new FailAfterCommit())));
+        await using var scope = provider.CreateAsyncScope();
+        var primary = scope.ServiceProvider.GetRequiredService<SampleDbContext>();
+        var secondary = scope.ServiceProvider.GetRequiredService<SecondarySampleDbContext>();
+        var coordinator = scope.ServiceProvider.GetRequiredService<ILocalTransactionCoordinator>();
+        var error = await Should.ThrowAsync<InvalidOperationException>(async () =>
+        {
+            await using var transaction = await coordinator.BeginAsync(Modules, _ct);
+            primary.Timeline.Add(new MatterTimelineEntry(Guid.CreateVersion7(), _matterId, "primeiro"));
+            await primary.SaveChangesAsync(_ct);
+            secondary.Timeline.Add(new MatterTimelineEntry(Guid.CreateVersion7(), _matterId, "segundo"));
+            await secondary.SaveChangesAsync(_ct);
+            await transaction.CommitAsync(_ct);
+        });
+        error.Message.ShouldBe(FailAfterCommit.Message);
+        (await CountAsync()).ShouldBe(2L);
+        (await AuditCountAsync()).ShouldBe(2L);
+        primary.Database.CurrentTransaction.ShouldBeNull();
+        secondary.Database.CurrentTransaction.ShouldBeNull();
+    }
+
+    private sealed class FailAfterCommit : DbTransactionInterceptor
+    {
+        public const string Message = "falha original depois do commit físico";
+        public override Task TransactionCommittedAsync(DbTransaction transaction, TransactionEndEventData eventData, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException(Message);
     }
 
     [Theory]

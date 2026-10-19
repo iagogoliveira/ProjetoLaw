@@ -14,6 +14,8 @@ using LexFlow.Platform.Infrastructure;
 using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Infrastructure;
 using LexFlow.Publications.Infrastructure.Persistence;
+using LexFlow.Scheduling.Infrastructure;
+using LexFlow.Scheduling.Infrastructure.Persistence;
 
 // Provisiona o ambiente e encerra: aplica as migrations de todos os módulos (seção 6.5) e cria o bucket do
 // armazenamento de objetos, se não existir. No ambiente local roda pelo AppHost, antes da
@@ -30,10 +32,11 @@ builder.Services.AddOrganizationPersistence(builder.Configuration);
 builder.Services.AddCrmPersistence(builder.Configuration);
 builder.Services.AddLitigationPersistence(builder.Configuration);
 builder.Services.AddPublicationsPersistence(builder.Configuration);
+builder.Services.AddSchedulingPersistence(builder.Configuration);
 builder.Services.AddExternalAdapters(builder.Configuration);
 
 // Ordem de aplicação: Platform primeiro (extensões e trilha de auditoria usadas pelos demais módulos).
-builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext), typeof(IdentityModuleDbContext), typeof(OrganizationDbContext), typeof(CrmDbContext), typeof(LitigationDbContext), typeof(PublicationsDbContext)]));
+builder.Services.AddSingleton(new MigrationPlan([typeof(PlatformDbContext), typeof(IdentityModuleDbContext), typeof(OrganizationDbContext), typeof(CrmDbContext), typeof(LitigationDbContext), typeof(PublicationsDbContext), typeof(SchedulingDbContext)]));
 builder.Services.AddHostedService<MigrationRunner>();
 
 using var host = builder.Build();

@@ -21,6 +21,9 @@ using LexFlow.Publications.Application;
 using LexFlow.Publications.Endpoints;
 using LexFlow.Publications.Infrastructure;
 using LexFlow.Publications.Infrastructure.Persistence;
+using LexFlow.Scheduling.Application;
+using LexFlow.Scheduling.Endpoints;
+using LexFlow.Scheduling.Infrastructure;
 using LexFlow.Web.Common;
 using LexFlow.Web.Common.Modules;
 using Scalar.AspNetCore;
@@ -29,7 +32,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Módulos da API (seção 4.2): cada um registra serviços e mapeia os próprios endpoints.
-IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule(), new CrmModule(), new LitigationModule(), new PublicationsModule()];
+IModule[] modules = [new PlatformModule(), new IdentityModule(), new OrganizationModule(), new CrmModule(), new LitigationModule(), new PublicationsModule(), new SchedulingModule()];
 
 builder.AddServiceDefaults();
 builder.Services.AddHealthChecks().AddDependencyHealthChecks(builder.Configuration);
@@ -37,7 +40,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddWebCommon();
 
 // Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
-builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly, LitigationApplication.Assembly, PublicationsApplication.Assembly);
+builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly, LitigationApplication.Assembly, PublicationsApplication.Assembly, SchedulingApplication.Assembly);
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 builder.Services.AddPlatformNotifications();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
@@ -48,6 +51,7 @@ builder.Services.AddCrmInfrastructure(builder.Configuration);
 // Depois do Crm: as partes dos processos substituem o stub do conflito de interesses.
 builder.Services.AddLitigationInfrastructure(builder.Configuration);
 builder.Services.AddPublicationsInfrastructure(builder.Configuration);
+builder.Services.AddSchedulingInfrastructure(builder.Configuration);
 
 // A API só publica eventos (outbox) e agenda jobs; consumidores e servidor de jobs rodam no Worker.
 builder.Services.AddLexFlowMessaging(builder.Configuration);

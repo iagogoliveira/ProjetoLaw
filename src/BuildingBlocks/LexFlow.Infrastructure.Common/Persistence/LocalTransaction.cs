@@ -11,6 +11,7 @@ internal sealed class LocalTransaction(DbContext[] contexts, NpgsqlDataSource da
     private readonly List<DbContext> _enlisted = [];
     private IDbContextTransaction? _owner;
     private bool _completed;
+    private bool _commitAttempted;
     private bool _committed;
     private bool _disposed;
 
@@ -34,6 +35,7 @@ internal sealed class LocalTransaction(DbContext[] contexts, NpgsqlDataSource da
             throw new InvalidOperationException("O escritório não pode mudar durante a transação local.");
         }
 
+        _commitAttempted = true;
         await _owner!.CommitAsync(cancellationToken);
         _completed = true;
         _committed = true;
@@ -57,10 +59,12 @@ internal sealed class LocalTransaction(DbContext[] contexts, NpgsqlDataSource da
         _disposed = true;
         try
         {
-            if (_owner is not null && !_completed)
+            if (_owner is not null && !_completed && !_commitAttempted)
             {
                 await _owner.RollbackAsync(CancellationToken.None);
             }
+            // Após tentativa de commit, o Npgsql descarta com rollback somente se ainda estiver ativo.
+            // Um interceptor pode falhar depois do commit físico; não oculte esse erro com outro rollback.
         }
         finally
         {

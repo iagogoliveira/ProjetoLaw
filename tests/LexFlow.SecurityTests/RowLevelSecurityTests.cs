@@ -5,6 +5,7 @@ using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.Organization.Infrastructure.Persistence;
 using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Infrastructure.Persistence;
+using LexFlow.Scheduling.Infrastructure.Persistence;
 using LexFlow.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +58,7 @@ public sealed class RowLevelSecurityTests(DependenciesFixture dependencies)
             scope.ServiceProvider.GetRequiredService<CrmDbContext>(),
             scope.ServiceProvider.GetRequiredService<LitigationDbContext>(),
             scope.ServiceProvider.GetRequiredService<PublicationsDbContext>(),
+            scope.ServiceProvider.GetRequiredService<SchedulingDbContext>(),
         ];
         var tables = contexts
             .SelectMany(c => c.Model.GetEntityTypes())

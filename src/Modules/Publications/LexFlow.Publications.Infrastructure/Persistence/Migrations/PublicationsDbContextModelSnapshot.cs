@@ -292,6 +292,46 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                     b.ToTable("capture_sources", "publications");
                 });
 
+            modelBuilder.Entity("LexFlow.Publications.Domain.CaptureSourcePeriod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("activated_at");
+
+                    b.Property<DateTimeOffset?>("DeactivatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deactivated_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_capture_source_periods");
+
+                    b.HasIndex("SourceId")
+                        .HasDatabaseName("ix_capture_source_periods_source_id");
+
+                    b.HasIndex("OrganizationId", "SourceId", "ActivatedAt")
+                        .HasDatabaseName("ix_capture_source_periods_organization_id_source_id_activated_");
+
+                    b.ToTable("capture_source_periods", "publications");
+                });
+
             modelBuilder.Entity("LexFlow.Publications.Domain.CaseMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -364,6 +404,59 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_case_movements_organization_id_legal_case_id_origin_externa");
 
                     b.ToTable("case_movements", "publications");
+                });
+
+            modelBuilder.Entity("LexFlow.Publications.Domain.DailyClose", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CaptureFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("capture_fingerprint")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<Guid>("ClosedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("closed_by");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date")
+                        .HasColumnName("day");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("PublicationCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("publication_count");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_daily_closes");
+
+                    b.HasIndex("OrganizationId", "Day", "Revision")
+                        .IsUnique()
+                        .HasDatabaseName("ix_daily_closes_organization_id_day_revision");
+
+                    b.ToTable("daily_closes", "publications");
                 });
 
             modelBuilder.Entity("LexFlow.Publications.Domain.MovementIntegration", b =>
@@ -495,6 +588,10 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("AssigneeUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignee_user_id");
+
                     b.Property<DateOnly>("AvailableOn")
                         .HasColumnType("date")
                         .HasColumnName("available_on");
@@ -601,6 +698,12 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
                     b.Property<string>("Classification")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -615,7 +718,7 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("hearing_id");
 
-                    b.Property<Guid>("LegalCaseId")
+                    b.Property<Guid?>("LegalCaseId")
                         .HasColumnType("uuid")
                         .HasColumnName("legal_case_id");
 
@@ -626,6 +729,11 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("PublicationId")
                         .HasColumnType("uuid")
                         .HasColumnName("publication_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("reason");
 
                     b.Property<Guid?>("TaskId")
                         .HasColumnType("uuid")
@@ -770,6 +878,16 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_capture_runs_capture_sources_source_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Publications.Domain.CaptureSourcePeriod", b =>
+                {
+                    b.HasOne("LexFlow.Publications.Domain.CaptureSource", null)
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_capture_source_periods_sources_source_id");
                 });
 
             modelBuilder.Entity("LexFlow.Publications.Domain.Publication", b =>

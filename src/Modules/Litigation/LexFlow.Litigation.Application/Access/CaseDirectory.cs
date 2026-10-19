@@ -8,6 +8,9 @@ namespace LexFlow.Litigation.Application.Access;
 
 internal sealed class CaseDirectory(ILitigationDbContext db, CaseAccess access) : ICaseDirectory
 {
+    public Task<bool> IsOpenAsync(Guid caseId, CancellationToken cancellationToken) =>
+        db.Cases.AnyAsync(c => c.Id == caseId && c.Status != CaseStatus.Closed, cancellationToken);
+
     public async Task<IReadOnlyList<MonitoredCase>> MonitoredAsync(Guid? after, int limit, CancellationToken cancellationToken) =>
         await db.Cases.AsNoTracking().Where(c => c.Kind == CaseKind.Judicial && c.Status == CaseStatus.Active && c.CnjNumber != null)
             .Where(c => after == null || c.Id.CompareTo(after.Value) > 0).OrderBy(c => c.Id).Take(Math.Clamp(limit, 1, 200))

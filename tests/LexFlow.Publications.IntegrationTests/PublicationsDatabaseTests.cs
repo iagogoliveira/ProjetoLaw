@@ -1,4 +1,6 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Context;
+using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Domain;
 using LexFlow.Publications.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,51 @@ public sealed class PublicationsDatabaseTests(PublicationsDatabaseFixture fixtur
         await db.GetService<IMigrator>().MigrateAsync(Migration.InitialDatabase, cancellationToken: Ct);
         (await db.Database.GetAppliedMigrationsAsync(Ct)).ShouldBeEmpty();
         await db.GetService<IMigrator>().MigrateAsync(cancellationToken: Ct);
+    }
+
+    [Fact]
+    public async Task Upgrade_preserves_legacy_activation_and_deactivation_history_from_audit()
+    {
+        var connection = await fixture.CreateEmptyDatabaseAsync();
+        await using var provider = PublicationsDatabaseFixture.BuildProvider(connection);
+        await using (var setup = provider.CreateAsyncScope())
+        {
+            await setup.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync(Ct);
+            await setup.ServiceProvider.GetRequiredService<PublicationsDbContext>().GetService<IMigrator>()
+                .MigrateAsync("20261019175139_MovementSynchronization", cancellationToken: Ct);
+        }
+        var office = Guid.CreateVersion7();
+        Guid sourceId;
+        using (AmbientContext.Begin(office, "legacy-source"))
+        await using (var seed = provider.CreateAsyncScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<PublicationsDbContext>();
+            var clock = seed.ServiceProvider.GetRequiredService<IClock>();
+            var source = CaptureSource.Create(new(CaptureSourceKind.Name, "Fonte", "Escritório")).Value;
+            source.ActivateAt(clock.UtcNow);
+            sourceId = source.Id;
+            db.Sources.Add(source);
+            await db.SaveChangesAsync(Ct);
+            source.Update(new(CaptureSourceKind.Name, "Fonte", "Escritório", IsActive: false));
+            await db.SaveChangesAsync(Ct);
+            source.Update(new(CaptureSourceKind.Name, "Fonte", "Escritório"));
+            source.ActivateAt(clock.UtcNow);
+            await db.SaveChangesAsync(Ct);
+        }
+        await using (var upgrade = provider.CreateAsyncScope())
+        {
+            await upgrade.ServiceProvider.GetRequiredService<PublicationsDbContext>().Database.MigrateAsync(Ct);
+        }
+        using (AmbientContext.Begin(office, "check-source-history"))
+        await using (var check = provider.CreateAsyncScope())
+        {
+            var db = check.ServiceProvider.GetRequiredService<PublicationsDbContext>();
+            var periods = await db.SourcePeriods.Where(p => p.SourceId == sourceId).OrderBy(p => p.ActivatedAt).ToListAsync(Ct);
+            periods.Count.ShouldBe(2);
+            periods[0].DeactivatedAt.ShouldNotBeNull();
+            periods[1].DeactivatedAt.ShouldBeNull();
+            periods.ShouldAllBe(p => p.OrganizationId == office);
+        }
     }
 
     [Fact]

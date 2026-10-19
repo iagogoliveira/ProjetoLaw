@@ -27,6 +27,7 @@ public sealed partial class Publication : Entity<Guid>, ITenantOwned, ICaseScope
     public Guid? LegalCaseId { get; private set; }
     Guid? ICaseScoped.CaseId => LegalCaseId;
     public PublicationStatus Status { get; private set; }
+    public Guid? AssigneeUserId { get; private set; }
     public DateTimeOffset ReceivedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid CreatedBy { get; private set; }
@@ -74,8 +75,24 @@ public sealed partial class Publication : Entity<Guid>, ITenantOwned, ICaseScope
 
     public Result Link(Guid caseId)
     {
+        if (Status != PublicationStatus.Pending) { return PublicationErrors.AlreadyTriaged; }
         if (caseId == Guid.Empty) { return PublicationErrors.InvalidPublication; }
         LegalCaseId = caseId;
+        return Result.Success;
+    }
+
+    public Result Assign(Guid? userId)
+    {
+        if (Status != PublicationStatus.Pending) { return PublicationErrors.AlreadyTriaged; }
+        if (userId == Guid.Empty) { return PublicationErrors.AssigneeUnavailable; }
+        AssigneeUserId = userId;
+        return Result.Success;
+    }
+
+    public Result CompleteTriage()
+    {
+        if (Status != PublicationStatus.Pending) { return PublicationErrors.AlreadyTriaged; }
+        Status = PublicationStatus.Triaged;
         return Result.Success;
     }
 
