@@ -25,6 +25,10 @@ import { CanDirective } from '../../../core/organization/can.directive';
 import { formatDocument } from '../../../shared/br-format';
 import { CaseDetailStore } from '../data/case-stores';
 import { formatCnj, TIMELINE_GROUPS } from '../data/cases-format';
+import { ClaimsTab } from './tabs/claims-tab';
+import { RiskTab } from './tabs/risk-tab';
+import { SettlementsTab } from './tabs/settlements-tab';
+import { HearingsTab } from './tabs/hearings-tab';
 
 /** Ação de ciclo de vida aberta para confirmação. */
 type PendingAction = 'close' | 'delete' | null;
@@ -39,12 +43,16 @@ const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
 /**
  * Detalhe do processo (5E1): cabeçalho com a situação e as ações (editar, suspender, reativar, encerrar, reabrir,
  * excluir) e as abas Resumo, Partes e responsáveis, Hierarquia, Linha do tempo e Sigilo; Documentos, Prazos e
- * Financeiro ficam reservadas para as etapas deles. Pedidos, risco, acordos e audiências chegam no 5E2.
+ * Financeiro ficam reservadas para as etapas deles. As abas de valores e acompanhamento têm stores próprias.
  */
 @Component({
   selector: 'lf-case-detail-page',
   imports: [
     CanDirective,
+    ClaimsTab,
+    RiskTab,
+    SettlementsTab,
+    HearingsTab,
     FormsModule,
     MatButtonModule,
     MatFormFieldModule,

@@ -35,7 +35,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - §9 a §12: as etapas, cada uma com escopo e critérios de aceite. **A Etapa 5 está na §10.**
    - §13: estratégia de testes e qualidade. §14: modelos de prompt e checklist do agente.
 3. **`docs/spec/requisitos-v3.md`**: os requisitos de negócio. A seção de cada módulo diz o que construir. Para a Etapa 5: **§7 (Contencioso)**, e também §3 (perfis e permissões) e §14 (requisitos não funcionais).
-4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0026. Antes de mexer numa área, leia as ADRs dela. As de base:
+4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0031. Antes de mexer numa área, leia as ADRs dela. As de base:
    - 0001 a 0003: monolito modular, stack e módulos por etapa;
    - 0007: pipeline de casos de uso (validação, autorização, transação);
    - 0010: trilha de auditoria;
@@ -59,7 +59,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5C2 (#27) mergeado: risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
-  - **o próximo é o PR 5E2**, no branch `etapa-5e2-telas-valores-importacao`, que já existe com o commit de progresso. **O plano foi aprovado em 2026-10-19 e a implementação ainda não começou.** O plano detalhado (abas de Pedidos e valores, Risco, Acordos e Audiências; tela de importação; e2e; onde pôr o código) está na primeira entrada de `docs/handoff.md`. Implemente direto, sem reapresentar o plano.
+  - **5E2 implementado e verificado localmente em 2026-10-19**, no branch `etapa-5e2-telas-valores-importacao`: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e ADR 0031 proposta. Inclui a correção da contagem final de inválidas na importação. Código e documentos ficam no mesmo commit local; **push e PR aguardam pedido do usuário**. O merge do 5E2 conclui a Etapa 5; só então marque a etapa como concluída e a ADR como aceita, faça a arrumação e planeje a Etapa 6 antes de implementar.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -135,6 +135,7 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
   - `using` fora de ordem: rode `dotnet format`.
 - **Token de acesso:** é criptografado (JWE) e não dá para ler. O OpenIddict confere o emissor pelo host da requisição.
 - **Testes de integração:** dependem do Docker Desktop rodando. Se tudo falhar em 0 ms, o Docker parou.
+- **AppHost com `--no-build`:** a CLI do Aspire executa API e Worker em Debug. Depois de mudar o backend, compile também em Debug antes de usar `--no-build`, mesmo que o build Release esteja atualizado. Aguarde o SPA responder HTTP 200 em `:4200` antes do Playwright.
 - **API do BCB:** `api.bcb.gov.br` recusa as requisições da máquina de desenvolvimento. Para dados de SELIC e TR, use o Ipeadata. A Calculadora do Cidadão (`www3.bcb.gov.br/CALCIDADAO`) funciona e serve para conferir cálculos.
 - **Rotas aninhadas:** num `MapGroup`, `MapGet("/")` ou `MapGet("")` gera rota com barra no fim (`/claims/`). Use o caminho completo no grupo (`/{id:guid}/claims`).
 - **Erros de validação:** o FluentValidation responde `validation.failed`, com o código de cada campo em `errors`. Só os erros dos handlers vêm no `code` principal.
@@ -146,4 +147,5 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
 - **Nomes de schema no OpenAPI:** dois records com o mesmo nome em módulos diferentes viram um schema só, e um sobrescreve o outro. Dê nomes únicos aos DTOs de resposta (ex.: `CaseAssignmentResponse`). Para uma correção de descrição que o oasdiff acuse como quebra, registre a exceção em `docs/openapi/oasdiff-ignore.txt`, com a ADR.
 - **Listas para telas de negócio:** as listas de estrutura e de membros exigem permissões de configuração. Telas de negócio usam endpoints próprios de opções (ex.: `GET /api/v1/cases/options`, com `cases.read`).
 - **E2E com Material stepper:** os passos inativos ficam escondidos, e durante a animação dois "Próximo" ficam visíveis. Clique com `.filter({ visible: true }).last()`.
+  - Ao avançar passos consecutivos, aguarde o conteúdo do passo anterior ficar escondido (id de `aria-controls` do cabeçalho expandido) antes do próximo clique. Sem isso, o teste pode clicar outra vez no botão que está saindo.
 - **E2E com mat-select vazio:** o rótulo flutuante fica por cima da caixa e intercepta o clique (no CI, de forma permanente). Abra pelo teclado: `getByRole('combobox', { name })`, `focus()` e `press('Enter')`.

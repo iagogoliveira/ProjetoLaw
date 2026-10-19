@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as sdk from '../../../api/sdk.gen';
+import type * as contract from '../../../api/types.gen';
 import type {
   CaseBatchCommand,
   CaseBatchResult,
@@ -53,6 +54,170 @@ export const NO_FILTERS: CaseFilters = {
 /** Único ponto das telas de processos que fala HTTP (seção 5.2), sobre o cliente gerado do OpenAPI. */
 @Injectable({ providedIn: 'root' })
 export class CasesApi {
+  person(id: string): Promise<ApiResult<PersonResponse>> {
+    return toResult(sdk.getPerson({ path: { id } }));
+  }
+  claims(id: string, updateTo: string | null): Promise<ApiResult<contract.CaseClaimsResponse>> {
+    return toResult(
+      sdk.listCaseClaims({ path: { id }, query: { updateTo: updateTo ?? undefined } }),
+    );
+  }
+
+  saveClaim(
+    id: string,
+    claimId: string | null,
+    body: contract.ClaimInput,
+  ): Promise<ApiResult<contract.ClaimResponse>> {
+    return toResult(
+      claimId
+        ? sdk.updateCaseClaim({ path: { id, claimId }, body })
+        : sdk.createCaseClaim({ path: { id }, body }),
+    );
+  }
+
+  deleteClaim(id: string, claimId: string): Promise<ApiResult<unknown>> {
+    return toResult(sdk.deleteCaseClaim({ path: { id, claimId } }));
+  }
+
+  claimHistory(
+    id: string,
+    claimId: string,
+  ): Promise<ApiResult<contract.ClaimValueChangeResponse[]>> {
+    return toResult(sdk.getCaseClaimHistory({ path: { id, claimId } }));
+  }
+
+  risk(id: string): Promise<ApiResult<contract.CaseRiskResponse>> {
+    return toResult(sdk.getCaseRisk({ path: { id } }));
+  }
+
+  riskHistory(id: string): Promise<ApiResult<contract.RiskAssessmentResponse[]>> {
+    return toResult(sdk.getCaseRiskHistory({ path: { id } }));
+  }
+
+  assessRisk(
+    id: string,
+    body: contract.RiskInput,
+  ): Promise<ApiResult<contract.RiskAssessmentResponse>> {
+    return toResult(sdk.assessCaseRisk({ path: { id }, body }));
+  }
+
+  settlements(id: string): Promise<ApiResult<contract.SettlementResponse[]>> {
+    return toResult(sdk.listCaseSettlements({ path: { id } }));
+  }
+
+  startSettlement(
+    id: string,
+    body: contract.StartSettlementRequest,
+  ): Promise<ApiResult<contract.SettlementResponse>> {
+    return toResult(sdk.startCaseSettlement({ path: { id }, body }));
+  }
+
+  offer(
+    id: string,
+    settlementId: string,
+    body: contract.OfferInput,
+  ): Promise<ApiResult<contract.SettlementResponse>> {
+    return toResult(sdk.addSettlementOffer({ path: { id, settlementId }, body }));
+  }
+
+  submitSettlement(
+    id: string,
+    settlementId: string,
+    body: contract.SubmitSettlementRequest,
+  ): Promise<ApiResult<contract.SettlementResponse>> {
+    return toResult(sdk.submitSettlement({ path: { id, settlementId }, body }));
+  }
+
+  settlementStep(
+    id: string,
+    settlementId: string,
+    step: 'approve' | 'return' | 'reject' | 'cancel' | 'homologate',
+    value: string,
+  ): Promise<ApiResult<contract.SettlementResponse>> {
+    const path = { id, settlementId };
+    switch (step) {
+      case 'approve':
+        return toResult(sdk.approveSettlement({ path }));
+      case 'homologate':
+        return toResult(sdk.homologateSettlement({ path, body: { homologatedOn: value } }));
+      case 'return':
+        return toResult(sdk.returnSettlement({ path, body: { reason: value } }));
+      case 'reject':
+        return toResult(sdk.rejectSettlement({ path, body: { reason: value } }));
+      case 'cancel':
+        return toResult(sdk.cancelSettlement({ path, body: { reason: value } }));
+    }
+  }
+
+  payInstallment(
+    id: string,
+    settlementId: string,
+    installmentId: string,
+    body: contract.PayInstallmentRequest,
+  ): Promise<ApiResult<contract.SettlementResponse>> {
+    return toResult(
+      sdk.paySettlementInstallment({ path: { id, settlementId, installmentId }, body }),
+    );
+  }
+
+  hearings(id: string): Promise<ApiResult<contract.HearingResponse[]>> {
+    return toResult(sdk.listCaseHearings({ path: { id } }));
+  }
+
+  saveHearing(
+    id: string,
+    hearingId: string | null,
+    body: contract.HearingInput,
+  ): Promise<ApiResult<contract.HearingResponse>> {
+    return toResult(
+      hearingId
+        ? sdk.updateCaseHearing({ path: { id, hearingId }, body })
+        : sdk.scheduleCaseHearing({ path: { id }, body }),
+    );
+  }
+
+  rescheduleHearing(
+    id: string,
+    hearingId: string,
+    body: contract.RescheduleHearingRequest,
+  ): Promise<ApiResult<contract.HearingResponse>> {
+    return toResult(sdk.rescheduleCaseHearing({ path: { id, hearingId }, body }));
+  }
+
+  endHearing(
+    id: string,
+    hearingId: string,
+    step: 'hold' | 'cancel',
+    text: string,
+  ): Promise<ApiResult<contract.HearingResponse>> {
+    const options = { path: { id, hearingId }, body: { text } };
+    return toResult(
+      step === 'hold' ? sdk.holdCaseHearing(options) : sdk.cancelCaseHearing(options),
+    );
+  }
+
+  importTemplate(): Promise<ApiResult<Blob>> {
+    return toResult(sdk.getCaseImportTemplate({ ...({ responseType: 'blob' } as object) }));
+  }
+
+  startImport(file: File): Promise<ApiResult<contract.CaseImportStarted>> {
+    return toResult(sdk.startCaseImport({ body: { file } }));
+  }
+
+  importStatus(importId: string): Promise<ApiResult<contract.CaseImportResponse>> {
+    return toResult(sdk.getCaseImport({ path: { importId } }));
+  }
+
+  confirmImport(importId: string): Promise<ApiResult<contract.CaseImportStarted>> {
+    return toResult(sdk.confirmCaseImport({ path: { importId } }));
+  }
+
+  importErrors(importId: string): Promise<ApiResult<Blob>> {
+    return toResult(
+      sdk.getCaseImportErrors({ path: { importId }, ...({ responseType: 'blob' } as object) }),
+    );
+  }
+
   list(filters: CaseFilters, cursor: string | null): Promise<ApiResult<CasesPageResponse>> {
     const v = (value: string | null) => value ?? undefined;
     return toResult(

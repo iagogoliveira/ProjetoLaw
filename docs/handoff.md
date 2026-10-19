@@ -10,6 +10,33 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (5E2 implementado e verificado)
+
+**Branch:** `etapa-5e2-telas-valores-importacao`. **Estado:** código e documentos neste commit local; sem push, sem PR e sem merge. O plano aprovado foi implementado diretamente, sem nova decisão de negócio.
+
+**Feito:**
+- Abas Pedidos e valores, Risco, Acordos e Audiências, em componentes próprios com carregamento ao abrir, forms reativos, OnPush, SignalStores e permissões. Chamadas concentradas no `CasesApi`.
+- Pedidos com correção por data, totais e histórico; risco por processo/pedido e histórico; fluxo completo dos acordos com gerador de parcelas (centavos na última, vencimentos ancorados no primeiro dia escolhido), aprovação, homologação e baixa manual; audiências por formato, pessoas e membros, redesignação com histórico e realização/cancelamento.
+- `/processos/importar`: modelo, envio, consulta periódica, prévia, confirmação, andamento, resultado e relatório XLSX como Blob. A URL permite retomar após recarregar e a consulta para ao sair da tela.
+- O e2e revelou uma falha anterior no `CaseImportJobs.ImportAsync`: a contagem final consultava o banco antes de salvar os erros da revalidação e zerava as inválidas. Corrigido para contar os erros em memória e os persistidos na retomada. O teste de integração das 10 mil linhas agora também confere os totais finais 10.000 / 9.700 / 300.
+- Proteção contra consulta de histórico durante a gravação do pedido, com regressão no Vitest. Datas de audiência usam o fuso legal, inclusive as regras históricas de horário de verão.
+- Textos pt-BR/en, testes das cinco stores e dos auxiliares, e2e novos e relatório Playwright ligado também localmente, com trace/screenshot nas falhas.
+- ADR 0031 proposta, `progress.md` atualizado e `AGENTS.md`/`CLAUDE.md` sincronizados integralmente (o `CLAUDE.md` anterior tinha só um resumo das regras).
+
+**Verificado:** builds Release e Debug sem warnings; `dotnet format --verify-no-changes`; 721 testes .NET em 16 projetos (incluindo 14 do AppHost), com cobertura e gate de 80% aprovados; Litigation.Application 92,4% e Domain 97,9%; sem pacotes vulneráveis nem mudanças de modelo pendentes nos quatro módulos; lint, build Angular e 96 Vitest aprovados. **Playwright completo contra o AppHost: 14 aprovados em duas execuções consecutivas**, com WCAG 2.1 AA nas abas novas e na importação. Só o preparo da carga é pulado. Nenhum pacote, migration ou contrato novo.
+
+**Armadilhas confirmadas nesta sessão:**
+- A CLI do Aspire executou API/Worker em Debug mesmo ao chamar `dotnet run ... -c Release --no-build`. Depois de mudar o backend, compile Debug antes de usar `--no-build` e aguarde HTTP 200 em `:4200` antes dos e2e.
+- Para avançar passos consecutivos, além de `.filter({ visible: true }).last()`, espere o conteúdo do passo anterior ficar escondido. O auxiliar `e2e/support/cases.ts` usa o `aria-controls` do cabeçalho expandido para isso.
+- Use relatórios de cobertura de uma mesma versão dos fontes para o gate; a rodada final isolada está em `TestResults/5e2-final-validation`. O relatório de telas mais recente está em `src/Web/lexflow-web/playwright-report/index.html`.
+
+**Próximos passos combinados com o usuário:**
+1. Aguardar o pedido de push/PR. Código e documentos no mesmo push, pois o CI cancela o run anterior a cada push. Nunca fazer merge.
+2. Quando o usuário avisar do merge, atualizar a `main`, concluir o 5E2 e a Etapa 5 no progresso, aceitar a ADR 0031 e criar o branch da Etapa 6; atualizar `AGENTS.md`, `CLAUDE.md` e esta passagem; fazer commit e push da arrumação.
+3. Só então planejar a Etapa 6 (publicações e andamentos, seção 10 da `implementacao.md`), apresentar o plano e as dúvidas de negócio, e esperar aprovação antes de implementar. Sem pendência de código ou verificação no 5E2.
+
+---
+
 ## 2026-10-19 — Claude Code (plano do 5E2 aprovado; passagem para o Codex)
 
 **Branch:** `etapa-5e2-telas-valores-importacao` (já criado e enviado, com a arrumação do #29). **Nenhum código do 5E2 foi escrito.** O usuário aprovou o plano e pediu para outro agente (Codex) continuar daqui.

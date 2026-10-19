@@ -156,6 +156,7 @@ public sealed class CaseImportTests(DependenciesFixture dependencies) : IAsyncLi
         validated.GetProperty("preview").GetArrayLength().ShouldBe(20);
         confirmStatus.ShouldBe(HttpStatusCode.Accepted);
         done.GetProperty("status").GetString().ShouldBe("completed", done.ToString());
+        (done.GetProperty("totalRows").GetInt32(), done.GetProperty("validRows").GetInt32(), done.GetProperty("invalidRows").GetInt32()).ShouldBe((10_000, 9_700, 300));
         done.GetProperty("importedRows").GetInt32().ShouldBe(9_700);
         job.GetProperty("status").GetString().ShouldBe("succeeded");
         (await CaseCountAsync(office.Organization)).ShouldBe(9_700);

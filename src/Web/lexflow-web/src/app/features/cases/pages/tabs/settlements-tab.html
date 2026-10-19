@@ -1,0 +1,346 @@
+<section class="page tab" *transloco="let t">
+  <h2>{{ t('cases.tabs.settlements') }}</h2>
+  <lf-value-errors [errorCode]="store.errorCode()" [fields]="store.fieldErrors()" />
+  <ng-container *lfCan="'cases.edit'">
+    @if (!closed()) {
+      <button mat-flat-button type="button" [disabled]="store.busy()" (click)="creating.set(true)">
+        {{ t('cases.settlements.new') }}
+      </button>
+      @if (creating()) {
+        <form class="panel" [formGroup]="startForm" (ngSubmit)="start()">
+          <h3>{{ t('cases.settlements.new') }}</h3>
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.settlements.direction') }}</mat-label
+            ><mat-select formControlName="direction">
+              @for (d of ['clientPays', 'clientReceives']; track d) {
+                <mat-option [value]="d">{{ t('cases.settlements.directions.' + d) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.settlements.notes') }}</mat-label
+            ><textarea matInput formControlName="notes"></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-flat-button type="submit" [disabled]="store.busy()">
+              {{ t('cases.settlements.start') }}</button
+            ><button mat-button type="button" (click)="creating.set(false)">
+              {{ t('cases.cancel') }}
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </ng-container>
+  @for (s of store.items(); track s.id) {
+    <article class="panel">
+      <h3>
+        {{ t('cases.settlements.directions.' + s.direction) }} ·
+        {{ t('cases.settlements.statuses.' + s.status) }}
+      </h3>
+      <p>{{ s.notes }}</p>
+      @if (s.reason) {
+        <p>{{ t('cases.settlements.reason') }}: {{ s.reason }}</p>
+      }
+      <dl>
+        <dt>{{ t('cases.values.requested') }}</dt>
+        <dd>{{ amount(s.requestedAmount) }}</dd>
+        <dt>{{ t('cases.settlements.agreed') }}</dt>
+        <dd>{{ amount(s.agreedAmount ?? s.offers.at(-1)?.amount ?? null) }}</dd>
+        <dt>
+          {{
+            t(
+              s.direction === 'clientPays'
+                ? 'cases.settlements.savings'
+                : 'cases.settlements.discount'
+            )
+          }}
+        </dt>
+        <dd>{{ amount(s.difference) }} ({{ s.differencePercent ?? '—' }}%)</dd>
+      </dl>
+      @if (s.homologatedOn) {
+        <p>{{ t('cases.settlements.homologatedOn') }}: {{ date(s.homologatedOn) }}</p>
+      }
+      <table>
+        <caption>
+          {{
+            t('cases.settlements.rounds')
+          }}
+        </caption>
+        <thead>
+          <tr>
+            @for (k of ['round', 'party', 'offerAmount', 'offeredOn', 'terms']; track k) {
+              <th>{{ t('cases.settlements.' + k) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of s.offers; track o.round) {
+            <tr>
+              <td>{{ o.round }}</td>
+              <td>{{ t('cases.settlements.parties.' + o.party) }}</td>
+              <td>{{ amount(o.amount) }}</td>
+              <td>{{ date(o.offeredOn) }}</td>
+              <td>{{ o.terms }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <table>
+        <caption>
+          {{
+            t('cases.settlements.installments')
+          }}
+        </caption>
+        <thead>
+          <tr>
+            @for (k of ['number', 'dueOn', 'amount', 'paidOn', 'paidAmount', 'state']; track k) {
+              <th>{{ t('cases.settlements.' + k) }}</th>
+            }
+            <th>{{ t('cases.settlements.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of s.installments; track i.id) {
+            <tr>
+              <td>{{ i.number }}</td>
+              <td>{{ date(i.dueOn) }}</td>
+              <td>{{ amount(i.amount) }}</td>
+              <td>{{ date(i.paidOn) }}</td>
+              <td>{{ amount(i.paidAmount) }}</td>
+              <td [class.error]="i.isOverdue">
+                {{
+                  t(
+                    i.paidOn
+                      ? 'cases.settlements.paid'
+                      : i.isOverdue
+                        ? 'cases.settlements.overdue'
+                        : 'cases.settlements.pending'
+                  )
+                }}
+              </td>
+              <td>
+                <ng-container *lfCan="'cases.edit'">
+                  @if (s.status === 'homologated' && !i.paidOn) {
+                    <button
+                      mat-button
+                      type="button"
+                      [disabled]="store.busy()"
+                      (click)="open(s, 'pay', i)"
+                    >
+                      {{ t('cases.settlements.pay') }} {{ i.number }}
+                    </button>
+                  }
+                </ng-container>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="actions">
+        <ng-container *lfCan="'cases.edit'">
+          @if (!closed() && s.status === 'negotiating') {
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="open(s, 'offer')"
+            >
+              {{ t('cases.settlements.offer') }}</button
+            ><button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="open(s, 'submit')"
+            >
+              {{ t('cases.settlements.submit') }}
+            </button>
+          }
+          @if (s.status === 'awaitingApproval' || s.status === 'approved') {
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="open(s, 'return')"
+            >
+              {{ t('cases.settlements.return') }}
+            </button>
+          }
+          @if (s.status === 'approved') {
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="open(s, 'homologate')"
+            >
+              {{ t('cases.settlements.homologate') }}
+            </button>
+          }
+          @if (['negotiating', 'awaitingApproval', 'approved'].includes(s.status)) {
+            <button mat-button type="button" [disabled]="store.busy()" (click)="open(s, 'reject')">
+              {{ t('cases.settlements.reject') }}</button
+            ><button mat-button type="button" [disabled]="store.busy()" (click)="open(s, 'cancel')">
+              {{ t('cases.settlements.cancel') }}
+            </button>
+          }
+        </ng-container>
+        <ng-container *lfCan="'cases.settlements.approve'">
+          @if (s.status === 'awaitingApproval') {
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="open(s, 'approve')"
+            >
+              {{ t('cases.settlements.approve') }}
+            </button>
+          }
+        </ng-container>
+      </div>
+    </article>
+  } @empty {
+    <p>{{ t('cases.settlements.empty') }}</p>
+  }
+  @if (pending(); as p) {
+    <div class="panel" role="region" [attr.aria-label]="t('cases.settlements.' + p.action)">
+      <h3>{{ t('cases.settlements.' + p.action) }}</h3>
+      <ng-container *lfCan="'cases.edit'">
+        @if (p.action === 'offer' && !closed()) {
+          <form [formGroup]="offerForm" (ngSubmit)="offer()">
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.settlements.party') }}</mat-label
+              ><mat-select formControlName="party"
+                ><mat-option value="office">{{ t('cases.settlements.parties.office') }}</mat-option
+                ><mat-option value="counterparty">{{
+                  t('cases.settlements.parties.counterparty')
+                }}</mat-option></mat-select
+              ></mat-form-field
+            >
+            <div class="inline">
+              <mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.offerAmount') }}</mat-label
+                ><input matInput inputmode="decimal" formControlName="amount" /><mat-error>{{
+                  t('cases.values.invalidAmount')
+                }}</mat-error></mat-form-field
+              ><mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.offeredOn') }}</mat-label
+                ><input matInput type="date" formControlName="offeredOn"
+              /></mat-form-field>
+            </div>
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.settlements.terms') }}</mat-label
+              ><textarea matInput formControlName="terms"></textarea></mat-form-field
+            ><button mat-flat-button type="submit" [disabled]="store.busy() || offerForm.invalid">
+              {{ t('cases.settlements.saveOffer') }}
+            </button>
+          </form>
+        }
+        @if (p.action === 'submit' && !closed()) {
+          <form [formGroup]="termsForm" (ngSubmit)="submit()">
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.settlements.agreed') }}</mat-label
+              ><input matInput inputmode="decimal" formControlName="amount" /><mat-error>{{
+                t('cases.values.invalidAmount')
+              }}</mat-error></mat-form-field
+            >
+            <div class="inline">
+              <mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.count') }}</mat-label
+                ><input
+                  matInput
+                  type="number"
+                  min="1"
+                  max="360"
+                  formControlName="count" /></mat-form-field
+              ><mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.firstDue') }}</mat-label
+                ><input matInput type="date" formControlName="firstDue" /></mat-form-field
+              ><mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.interval') }}</mat-label
+                ><input matInput type="number" min="1" max="120" formControlName="interval"
+              /></mat-form-field>
+            </div>
+            <p class="hint">{{ t('cases.settlements.roundingHint') }}</p>
+            <table>
+              <caption>
+                {{
+                  t('cases.settlements.generated')
+                }}
+              </caption>
+              <thead>
+                <tr>
+                  <th>{{ t('cases.settlements.number') }}</th>
+                  <th>{{ t('cases.settlements.dueOn') }}</th>
+                  <th>{{ t('cases.settlements.amount') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (i of installments(); track $index) {
+                  <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ date(i.dueOn) }}</td>
+                    <td>{{ amount(i.amount) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <button
+              mat-flat-button
+              type="submit"
+              [disabled]="store.busy() || termsForm.invalid || !installments().length"
+            >
+              {{ t('cases.settlements.confirmSubmit') }}
+            </button>
+          </form>
+        }
+        @if (p.action === 'pay') {
+          <form [formGroup]="payForm" (ngSubmit)="pay()">
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.settlements.paidOn') }}</mat-label
+              ><input matInput type="date" formControlName="paidOn" /></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.settlements.paidAmount') }}</mat-label
+              ><input matInput inputmode="decimal" formControlName="paidAmount" /><mat-error>{{
+                t('cases.values.invalidAmount')
+              }}</mat-error></mat-form-field
+            ><button mat-flat-button type="submit" [disabled]="store.busy() || payForm.invalid">
+              {{ t('cases.settlements.confirmPay') }}
+            </button>
+          </form>
+        }
+        @if (['return', 'reject', 'cancel', 'homologate'].includes(p.action)) {
+          <form [formGroup]="transitionForm" (ngSubmit)="transition()">
+            @if (p.action === 'homologate') {
+              <mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.homologatedOn') }}</mat-label
+                ><input matInput type="date" formControlName="date"
+              /></mat-form-field>
+            } @else {
+              <mat-form-field appearance="outline"
+                ><mat-label>{{ t('cases.settlements.reason') }}</mat-label
+                ><textarea matInput formControlName="reason"></textarea>
+              </mat-form-field>
+            }
+            <button
+              mat-flat-button
+              type="submit"
+              [disabled]="store.busy() || transitionForm.invalid"
+            >
+              {{ t('cases.settlements.confirm') }}
+            </button>
+          </form>
+        }
+      </ng-container>
+      <ng-container *lfCan="'cases.settlements.approve'">
+        @if (p.action === 'approve') {
+          <p>{{ t('cases.settlements.approveHint') }}</p>
+          <button mat-flat-button type="button" [disabled]="store.busy()" (click)="transition()">
+            {{ t('cases.settlements.confirmApproval') }}
+          </button>
+        }
+      </ng-container>
+      <button mat-button type="button" [disabled]="store.busy()" (click)="pending.set(null)">
+        {{ t('cases.cancel') }}
+      </button>
+    </div>
+  }
+</section>

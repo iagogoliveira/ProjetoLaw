@@ -1,0 +1,244 @@
+<section class="page tab" *transloco="let t">
+  <h2>{{ t('cases.tabs.claims') }}</h2>
+  <lf-value-errors [errorCode]="store.errorCode()" [fields]="store.fieldErrors()" />
+  <div class="inline">
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('cases.values.updateTo') }}</mat-label
+      ><input matInput type="date" [formControl]="updateTo"
+    /></mat-form-field>
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="updateTo.invalid || store.loading() || store.busy()"
+      (click)="reload()"
+    >
+      {{ t('cases.values.update') }}
+    </button>
+    <ng-container *lfCan="'cases.edit'">
+      @if (!closed()) {
+        <button mat-flat-button type="button" [disabled]="store.busy()" (click)="edit(null)">
+          {{ t('cases.values.newClaim') }}
+        </button>
+      }
+    </ng-container>
+  </div>
+  @for (claim of store.data()?.items ?? []; track claim.id) {
+    <article class="panel">
+      <h3>{{ claimName(claim.claimTypeId) }}</h3>
+      <p>{{ claim.description }}</p>
+      @if (claim.correction; as c) {
+        <p>
+          {{ t('cases.values.indexes.' + c.index) }} · {{ date(c.correctFrom) }} ·
+          {{ c.monthlyInterestPercent ?? 0 }}% {{ t('cases.values.perMonth') }}
+        </p>
+      }
+      @if (claim.correctionError; as code) {
+        <p class="error" role="alert">{{ t('errors.' + code) }}</p>
+      }
+      <table>
+        <caption>
+          {{
+            t('cases.values.valuations')
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th>{{ t('cases.fields.instance') }}</th>
+            @for (kind of ['requested', 'estimated', 'awarded']; track kind) {
+              <th>{{ t('cases.values.' + kind) }}</th>
+              <th>{{ t('cases.values.updated') }} {{ t('cases.values.' + kind) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of claim.valuations; track v.instance) {
+            <tr>
+              <td>{{ t('cases.instance.' + v.instance) }}</td>
+              <td>{{ amount(v.requested) }}</td>
+              <td>{{ amount(v.updatedRequested) }}</td>
+              <td>{{ amount(v.estimated) }}</td>
+              <td>{{ amount(v.updatedEstimated) }}</td>
+              <td>{{ amount(v.awarded) }}</td>
+              <td>{{ amount(v.updatedAwarded) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="actions">
+        <button
+          mat-button
+          type="button"
+          [disabled]="store.busy()"
+          (click)="store.showHistory(claim.id)"
+        >
+          {{ t('cases.values.history') }}
+        </button>
+        <ng-container *lfCan="'cases.edit'">
+          @if (!closed()) {
+            <button mat-button type="button" [disabled]="store.busy()" (click)="edit(claim)">
+              {{ t('cases.values.editClaim') }}
+            </button>
+            <button
+              mat-button
+              type="button"
+              [disabled]="store.busy()"
+              (click)="deleting.set(claim.id)"
+            >
+              {{ t('cases.values.deleteClaim') }}
+            </button>
+          }
+        </ng-container>
+      </div>
+      @if (store.historyClaimId() === claim.id) {
+        <table>
+          <caption>
+            {{
+              t('cases.values.history')
+            }}
+          </caption>
+          <thead>
+            <tr>
+              @for (key of ['when', 'who', 'instance', 'kind', 'old', 'new']; track key) {
+                <th>{{ t('cases.values.' + key) }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of store.history(); track $index) {
+              <tr>
+                <td>{{ date(h.changedAt) }}</td>
+                <td>{{ memberName(h.changedBy) }}</td>
+                <td>{{ t('cases.instance.' + h.instance) }}</td>
+                <td>{{ t('cases.values.' + h.kind) }}</td>
+                <td>{{ amount(h.oldAmount) }}</td>
+                <td>{{ amount(h.newAmount) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (!store.history().length) {
+          <p>{{ t('cases.values.emptyHistory') }}</p>
+        }
+      }
+    </article>
+  } @empty {
+    <p>{{ t('cases.values.emptyClaims') }}</p>
+  }
+  @if (store.data()?.totals?.length) {
+    <table>
+      <caption>
+        {{
+          t('cases.values.totals')
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th>{{ t('cases.fields.instance') }}</th>
+          @for (key of ['requested', 'estimated', 'awarded']; track key) {
+            <th>{{ t('cases.values.' + key) }}</th>
+            <th>{{ t('cases.values.updated') }} {{ t('cases.values.' + key) }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of store.data()!.totals; track v.instance) {
+          <tr>
+            <td>{{ t('cases.instance.' + v.instance) }}</td>
+            <td>{{ amount(v.requested) }}</td>
+            <td>{{ amount(v.updatedRequested) }}</td>
+            <td>{{ amount(v.estimated) }}</td>
+            <td>{{ amount(v.updatedEstimated) }}</td>
+            <td>{{ amount(v.awarded) }}</td>
+            <td>{{ amount(v.updatedAwarded) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  <ng-container *lfCan="'cases.edit'">
+    @if (!closed() && deleting()) {
+      <div class="panel" role="region" [attr.aria-label]="t('cases.values.deleteClaim')">
+        <p>{{ t('cases.values.confirmDelete') }}</p>
+        <div class="actions">
+          <button mat-flat-button type="button" [disabled]="store.busy()" (click)="remove()">
+            {{ t('cases.values.confirmDeleteButton') }}</button
+          ><button mat-button type="button" (click)="deleting.set(null)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </div>
+    }
+    @if (!closed() && editing() !== undefined) {
+      <form class="panel" [formGroup]="form" (ngSubmit)="save()">
+        <h3>{{ t(editing() ? 'cases.values.editClaim' : 'cases.values.newClaim') }}</h3>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.values.claimType') }}</mat-label
+          ><mat-select formControlName="claimTypeId">
+            @for (o of options()?.claimTypes ?? []; track o.id) {
+              <mat-option [value]="o.id">{{ o.name }}</mat-option>
+            }</mat-select
+          ><mat-error>{{ t('cases.values.required') }}</mat-error></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.fields.description') }}</mat-label
+          ><textarea matInput formControlName="description"></textarea>
+        </mat-form-field>
+        <div class="inline">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.values.index') }}</mat-label
+            ><mat-select formControlName="index"
+              ><mat-option [value]="null">{{ t('cases.values.noCorrection') }}</mat-option>
+              @for (i of indexes; track i) {
+                <mat-option [value]="i">{{ t('cases.values.indexes.' + i) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          @if (form.controls.index.value) {
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.values.correctFrom') }}</mat-label
+              ><input matInput type="date" formControlName="correctFrom" required
+            /></mat-form-field>
+          }
+        </div>
+        @if (form.controls.index.value && form.controls.index.value !== 'selic') {
+          <div class="inline">
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.values.interestFrom') }}</mat-label
+              ><input matInput type="date" formControlName="interestFrom" /></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>{{ t('cases.values.interestRate') }}</mat-label
+              ><input matInput inputmode="decimal" formControlName="monthlyInterestPercent"
+            /></mat-form-field>
+          </div>
+        }
+        @if (form.controls.index.value === 'selic') {
+          <p>{{ t('cases.values.selicHint') }}</p>
+        }
+        <div formArrayName="valuations">
+          @for (row of form.controls.valuations.controls; track $index; let i = $index) {
+            <fieldset [formGroupName]="i">
+              <legend>{{ t('cases.instance.' + row.controls.instance.value) }}</legend>
+              <div class="inline">
+                @for (kind of ['requested', 'estimated', 'awarded']; track kind) {
+                  <mat-form-field appearance="outline"
+                    ><mat-label>{{ t('cases.values.' + kind) }}</mat-label
+                    ><input matInput inputmode="decimal" [formControlName]="kind" /><mat-error>{{
+                      t('cases.values.invalidAmount')
+                    }}</mat-error></mat-form-field
+                  >
+                }
+              </div>
+            </fieldset>
+          }
+        </div>
+        <div class="actions">
+          <button mat-flat-button type="submit" [disabled]="store.busy() || form.invalid">
+            {{ t('cases.values.saveClaim') }}</button
+          ><button mat-button type="button" (click)="editing.set(undefined)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </form>
+    }
+  </ng-container>
+</section>

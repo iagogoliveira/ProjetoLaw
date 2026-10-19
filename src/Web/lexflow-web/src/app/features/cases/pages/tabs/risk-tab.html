@@ -1,0 +1,107 @@
+<section class="page tab" *transloco="let t">
+  <h2>{{ t('cases.tabs.risk') }}</h2>
+  <lf-value-errors [errorCode]="store.errorCode()" [fields]="store.fieldErrors()" />
+  @if (store.data(); as risk) {
+    <dl>
+      <dt>{{ t('cases.risk.provision') }}</dt>
+      <dd>{{ amount(risk.provision) }}</dd>
+      <dt>{{ t('cases.risk.contingentLiability') }}</dt>
+      <dd>{{ amount(risk.contingentLiability) }}</dd>
+    </dl>
+    <p class="hint">{{ t('cases.risk.totalsHint') }}</p>
+    <table>
+      <caption>
+        {{
+          t('cases.risk.current')
+        }}
+      </caption>
+      <thead>
+        <tr>
+          @for (
+            key of ['scope', 'probability', 'estimatedLoss', 'accounting', 'rationale'];
+            track key
+          ) {
+            <th>{{ t('cases.risk.' + key) }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of risk.case ? [risk.case, ...risk.claims] : risk.claims; track r.id) {
+          <tr>
+            <td>{{ r.claimId ? claimName(r.claimId) : t('cases.risk.wholeCase') }}</td>
+            <td>{{ t('cases.risk.probabilities.' + r.probability) }}</td>
+            <td>{{ amount(r.estimatedLoss) }}</td>
+            <td>{{ t('cases.risk.accountings.' + r.accounting) }}</td>
+            <td>{{ r.rationale }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  <ng-container *lfCan="'cases.risk.assess'">
+    @if (!closed()) {
+      <form class="panel" [formGroup]="form" (ngSubmit)="save()">
+        <h3>{{ t('cases.risk.assess') }}</h3>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.risk.scope') }}</mat-label
+          ><mat-select formControlName="claimId"
+            ><mat-option [value]="null">{{ t('cases.risk.wholeCase') }}</mat-option>
+            @for (c of store.claims(); track c.id) {
+              <mat-option [value]="c.id">{{ claimName(c.id) }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <div class="inline">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.risk.probability') }}</mat-label
+            ><mat-select formControlName="probability">
+              @for (p of probabilities; track p) {
+                <mat-option [value]="p">{{ t('cases.risk.probabilities.' + p) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.risk.estimatedLoss') }}</mat-label
+            ><input matInput inputmode="decimal" formControlName="estimatedLoss" /><mat-error>{{
+              t('cases.values.invalidAmount')
+            }}</mat-error></mat-form-field
+          >
+        </div>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.risk.rationale') }}</mat-label
+          ><textarea matInput formControlName="rationale"></textarea>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="store.busy() || form.invalid">
+          {{ t('cases.risk.save') }}
+        </button>
+      </form>
+    }
+  </ng-container>
+  <table>
+    <caption>
+      {{
+        t('cases.risk.history')
+      }}
+    </caption>
+    <thead>
+      <tr>
+        <th>{{ t('cases.values.when') }}</th>
+        <th>{{ t('cases.values.who') }}</th>
+        @for (key of ['scope', 'probability', 'estimatedLoss', 'rationale']; track key) {
+          <th>{{ t('cases.risk.' + key) }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of store.history(); track r.id) {
+        <tr>
+          <td>{{ date(r.assessedAt) }}</td>
+          <td>{{ memberName(r.assessedBy) }}</td>
+          <td>{{ r.claimId ? claimName(r.claimId) : t('cases.risk.wholeCase') }}</td>
+          <td>{{ t('cases.risk.probabilities.' + r.probability) }}</td>
+          <td>{{ amount(r.estimatedLoss) }}</td>
+          <td>{{ r.rationale }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

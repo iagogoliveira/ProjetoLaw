@@ -8,11 +8,14 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
-  reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : 'list',
+  reporter: process.env['CI']
+    ? [['github'], ['html', { open: 'never' }]]
+    : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL,
     locale: 'pt-BR',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   // Sem E2E_BASE_URL (ex.: rodando contra o AppHost), sobe o dev server do Angular.

@@ -1,0 +1,219 @@
+<section class="page tab" *transloco="let t">
+  <h2>{{ t('cases.tabs.hearings') }}</h2>
+  <p class="hint">{{ t('cases.hearings.timeZone') }}</p>
+  <lf-value-errors [errorCode]="store.errorCode()" [fields]="store.fieldErrors()" />
+  <ng-container *lfCan="'cases.edit'">
+    @if (!closed()) {
+      <button mat-flat-button type="button" [disabled]="store.busy()" (click)="edit(null)">
+        {{ t('cases.hearings.new') }}
+      </button>
+    }
+  </ng-container>
+  @for (h of store.items(); track h.id) {
+    <article class="panel">
+      <h3>{{ t('cases.hearings.types.' + h.type) }} · {{ dateTime(h.scheduledAt) }}</h3>
+      <p>
+        {{ t('cases.hearings.statuses.' + h.status) }} ·
+        {{ t('cases.hearings.formats.' + h.format) }}
+      </p>
+      <dl>
+        <dt>{{ t('cases.hearings.location') }}</dt>
+        <dd>{{ h.location || '—' }}</dd>
+        <dt>{{ t('cases.hearings.meetingLink') }}</dt>
+        <dd>{{ h.meetingLink || '—' }}</dd>
+        <dt>{{ t('cases.hearings.lawyer') }}</dt>
+        <dd>{{ memberName(h.lawyerUserId) }}</dd>
+        <dt>{{ t('cases.hearings.representative') }}</dt>
+        <dd>{{ h.representative || '—' }}</dd>
+        <dt>{{ t('cases.hearings.witnesses') }}</dt>
+        <dd>
+          @for (id of h.witnessPersonIds; track id) {
+            <span class="chip">{{
+              store.witnessNames()[id] ?? t('cases.hearings.removedPerson')
+            }}</span>
+          }
+        </dd>
+        <dt>{{ t('cases.hearings.notes') }}</dt>
+        <dd>{{ h.notes }}</dd>
+        <dt>{{ t('cases.hearings.outcome') }}</dt>
+        <dd>{{ h.outcome }}</dd>
+      </dl>
+      @if (h.reschedules.length) {
+        <table>
+          <caption>
+            {{
+              t('cases.hearings.history')
+            }}
+          </caption>
+          <thead>
+            <tr>
+              @for (k of ['previous', 'newDate', 'reason', 'who', 'when']; track k) {
+                <th>{{ t('cases.hearings.' + k) }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of h.reschedules; track $index) {
+              <tr>
+                <td>{{ dateTime(r.previousDate) }}</td>
+                <td>{{ dateTime(r.newDate) }}</td>
+                <td>{{ r.reason }}</td>
+                <td>{{ memberName(r.changedBy) }}</td>
+                <td>{{ dateTime(r.changedAt) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+      <div class="actions" *lfCan="'cases.edit'">
+        @if (h.status === 'scheduled' && !closed()) {
+          <button mat-button type="button" [disabled]="store.busy()" (click)="edit(h)">
+            {{ t('cases.hearings.edit') }}</button
+          ><button
+            mat-button
+            type="button"
+            [disabled]="store.busy()"
+            (click)="open(h, 'reschedule')"
+          >
+            {{ t('cases.hearings.reschedule') }}
+          </button>
+          <button mat-button type="button" [disabled]="store.busy()" (click)="open(h, 'hold')">
+            {{ t('cases.hearings.hold') }}</button
+          ><button mat-button type="button" [disabled]="store.busy()" (click)="open(h, 'cancel')">
+            {{ t('cases.hearings.cancel') }}
+          </button>
+        }
+      </div>
+    </article>
+  } @empty {
+    <p>{{ t('cases.hearings.empty') }}</p>
+  }
+  <ng-container *lfCan="'cases.edit'">
+    @if (!closed() && editing() !== undefined) {
+      <form class="panel" [formGroup]="form" (ngSubmit)="save()">
+        <h3>{{ t(editing() ? 'cases.hearings.edit' : 'cases.hearings.new') }}</h3>
+        <div class="inline">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.hearings.type') }}</mat-label
+            ><mat-select formControlName="type">
+              @for (v of types; track v) {
+                <mat-option [value]="v">{{ t('cases.hearings.types.' + v) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.hearings.format') }}</mat-label
+            ><mat-select formControlName="format">
+              @for (v of formats; track v) {
+                <mat-option [value]="v">{{ t('cases.hearings.formats.' + v) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        </div>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.hearings.scheduledAt') }}</mat-label
+          ><input matInput type="datetime-local" formControlName="scheduledAt" /><mat-hint>{{
+            t('cases.hearings.dateHint')
+          }}</mat-hint></mat-form-field
+        >
+        @if (form.controls.format.value !== 'virtual') {
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.hearings.location') }}</mat-label
+            ><input matInput formControlName="location" required /><mat-error>{{
+              t('cases.values.required')
+            }}</mat-error></mat-form-field
+          >
+        }
+        @if (form.controls.format.value !== 'inPerson') {
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.hearings.meetingLink') }}</mat-label
+            ><input matInput type="url" formControlName="meetingLink" required /><mat-error>{{
+              t('cases.hearings.invalidLink')
+            }}</mat-error></mat-form-field
+          >
+        }
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.hearings.lawyer') }}</mat-label
+          ><mat-select formControlName="lawyerUserId"
+            ><mat-option [value]="null">{{ t('cases.hearings.noLawyer') }}</mat-option>
+            @for (m of options()?.members ?? []; track m.userId) {
+              <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.hearings.representative') }}</mat-label
+          ><input matInput formControlName="representative"
+        /></mat-form-field>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.hearings.searchPeople') }}</mat-label
+          ><input matInput type="search" [formControl]="search"
+        /></mat-form-field>
+        @for (person of store.people(); track person.id) {
+          <div class="inline">
+            <span>{{ person.name }}</span
+            ><button
+              mat-button
+              type="button"
+              (click)="form.controls.representative.setValue(person.name)"
+            >
+              {{ t('cases.hearings.useRepresentative') }}</button
+            ><button
+              mat-button
+              type="button"
+              [disabled]="form.controls.witnessPersonIds.value.includes(person.id)"
+              (click)="witness(person.id, true)"
+            >
+              {{ t('cases.hearings.addWitness') }}
+            </button>
+          </div>
+        }
+        <fieldset>
+          <legend>{{ t('cases.hearings.witnesses') }}</legend>
+          @for (id of form.controls.witnessPersonIds.value; track id) {
+            <div class="inline">
+              <span>{{ store.witnessNames()[id] ?? t('cases.hearings.removedPerson') }}</span
+              ><button mat-button type="button" (click)="witness(id, false)">
+                {{ t('cases.hearings.removeWitness') }}
+              </button>
+            </div>
+          }
+        </fieldset>
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('cases.hearings.notes') }}</mat-label
+          ><textarea matInput formControlName="notes"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-flat-button type="submit" [disabled]="store.busy() || form.invalid">
+            {{ t('cases.hearings.save') }}</button
+          ><button mat-button type="button" (click)="editing.set(undefined)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </form>
+    }
+    @if (pending(); as p) {
+      <form class="panel" [formGroup]="actionForm" (ngSubmit)="act()">
+        <h3>{{ t('cases.hearings.' + p.action) }}</h3>
+        @if (p.action === 'reschedule') {
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('cases.hearings.newDate') }}</mat-label
+            ><input matInput type="datetime-local" formControlName="newDate" required
+          /></mat-form-field>
+        }
+        <mat-form-field appearance="outline"
+          ><mat-label>{{
+            t(p.action === 'hold' ? 'cases.hearings.outcome' : 'cases.hearings.reason')
+          }}</mat-label
+          ><textarea matInput formControlName="text"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-flat-button type="submit" [disabled]="store.busy() || actionForm.invalid">
+            {{ t('cases.hearings.confirm') }}</button
+          ><button mat-button type="button" (click)="pending.set(null)">
+            {{ t('cases.cancel') }}
+          </button>
+        </div>
+      </form>
+    }
+  </ng-container>
+</section>
