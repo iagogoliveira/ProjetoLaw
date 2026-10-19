@@ -195,6 +195,6 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 
 ## 14. Manutenção do manual
 
-Este é um documento em evolução, não a descrição de funcionalidades futuras como se já estivessem entregues. A cada entrega que alterar uma tela ou fluxo de uso, atualizar as instruções correspondentes, os pré-requisitos de acesso e a tabela de disponibilidade. Os nomes das ações devem ser conferidos na interface e nos testes de navegador.
+Este é um documento em evolução, não a descrição de funcionalidades futuras como se já estivessem entregues. Após cada melhoria, revisar este manual e o guia de ambiente local. Atualizar as instruções de uso afetadas, os pré-requisitos de acesso e a tabela de disponibilidade; atualizar também o guia quando mudar a forma de iniciar, executar ou conferir o sistema. Se a melhoria não afetar um dos documentos, registrar essa ausência de impacto na verificação da entrega. Os nomes das ações devem ser conferidos na interface e nos testes de navegador.
 
 Nesta edição, as instruções foram conferidas nas rotas, componentes, traduções e fluxos Playwright existentes. Capturas de tela comentadas e aprofundamento por perfil ficam para as próximas revisões do manual; esta edição não inclui imagens.

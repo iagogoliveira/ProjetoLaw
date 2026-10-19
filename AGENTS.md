@@ -19,7 +19,7 @@ Este arquivo tem as mesmas regras do `CLAUDE.md`, mais o que é preciso para con
 - Todo dado de escritório implementa `ITenantOwned`. Dado ligado a processo implementa `ICaseScoped`.
 - Handlers retornam `Result<T>`. Erros têm código estável (`modulo.erro`).
 - Frontend: componentes standalone, OnPush e signals; sem HTTP fora de `data/`; textos via Transloco (pt-BR e en com as mesmas chaves).
-- Manual de utilização: ao alterar uma tela ou fluxo de uso, atualize `docs/manual/README.md`; instruções de inicialização ficam em `docs/manual/ambiente-local.md`. Descreva o que está entregue e identifique funcionalidades futuras.
+- Manual de utilização: após cada melhoria, revisar **os dois** arquivos `docs/manual/README.md` e `docs/manual/ambiente-local.md`, atualizando as instruções afetadas de uso e execução local no mesmo trabalho. Quando não houver impacto em um deles, registrar isso na verificação da entrega, sem inventar passos. Descrever apenas o que está entregue e identificar funcionalidades futuras. Antes de encerrar, atualizar também o progress e o handoff para orientar o próximo agente.
 - Comandos obrigatórios: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`.
 - Antes de concluir: rode tudo acima e atualize `docs/progress.md`.
 - Dúvida de negócio ou ação irreversível: pare e pergunte.
@@ -73,7 +73,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Manual e demonstração (2026-10-19):** usuário pediu manual progressivo e exploração das telas. Primeira edição em `docs/manual/`, com guia local e roteiro de demonstração; complemento em commit local, sem novo push. AppHost iniciado para o usuário em `http://localhost:4200`, Mailpit em `:8025`; HTTP 200 confirmado. Evitar AppHost.Tests enquanto a instância manual estiver em uso.
+- **Manual e demonstração (2026-10-19):** usuário pediu manual progressivo e exploração das telas. Primeira edição em `docs/manual/`, com guia local e roteiro de demonstração; arquivos salvos localmente no commit `2849304`, sem novo push. Usuário reforçou a manutenção conjunta do manual e do guia após cada melhoria; essa obrigação vale para Codex e Claude. AppHost iniciado para o usuário em `http://localhost:4200`, Mailpit em `:8025`; HTTP 200 confirmado. Evitar AppHost.Tests enquanto a instância manual estiver em uso.
 - **Próximo trabalho:** aguardar CI/revisão e merge do PR #32 pelo usuário; enviar o complemento documental quando solicitado. Após o merge, atualizar main, aceitar ADR 0033 com o número/data do PR e preparar o branch do 6C, preservando o manual. As respostas de negócio do 6B já estão aprovadas; não perguntar novamente.
 
 ## Ciclo de trabalho (um PR por vez)

@@ -21,7 +21,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local desta documentação:** rotas, componentes, traduções e fluxos Playwright existentes conferidos; links relativos/UTF-8 e diff documental verificados antes do commit. Docker Desktop respondeu (29.6.2); AppHost iniciado a pedido, com SPA `:4200`, prontidão da API `:5238/health/ready` e Mailpit `:8025` respondendo HTTP 200. Nenhuma alteração de runtime e nenhuma nova suíte completa executada: mantidos os resultados do 6B acima. AppHost permanece em execução para exploração do usuário; não rodar AppHost.Tests em paralelo.
 
-**Estado:** PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) aberto, código/documentos do 6B enviados até `1693fd5`; este complemento do manual ficará em commit documental local, sem novo push durante o CI. Atualizar o manual a cada mudança de tela/fluxo. Próximas revisões podem acrescentar imagens e aprofundar instruções por perfil; não antecipar funcionalidades ainda não entregues.
+**Estado:** PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) aberto, código/documentos do 6B enviados até `1693fd5`; manual e guia salvos localmente no commit `2849304`, sem novo push. Usuário confirmou em 2026-10-19 que ambos devem ser revisados após cada melhoria, com atualização de AGENTS/CLAUDE e handoff para continuidade pelo Claude. Atualizar os trechos afetados; registrar quando não houver impacto em um dos guias. Próximas revisões podem acrescentar imagens e aprofundar instruções por perfil; não antecipar funcionalidades ainda não entregues.
+
+**Reforço da manutenção (2026-10-19):** somente documentação alterada; regras sincronizadas nos dois arquivos de agentes e nova passagem de bastão registrada. Links locais, UTF-8 e diff verificados antes do commit. A revisão da separação frontend/backend foi feita no código existente (CasesApi, prévia de parcelas e validação do agregado Settlement), sem mudança de arquitetura nem de runtime. Mantidos os testes completos já registrados do 6B.
 
 ---
 

@@ -10,6 +10,24 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (manutenção obrigatória do manual e guia confirmada)
+
+**Pedido explícito do usuário:** salvar o manual e guia no ambiente local e incrementá-los após cada melhoria, mantendo AGENTS, CLAUDE e o handover atualizados para que o Claude continue corretamente. O handover do projeto é este `docs/handoff.md`; não criar outro arquivo concorrente.
+
+**Estado:** os dois arquivos já foram salvos no repositório no commit local `2849304`: `docs/manual/README.md` e `docs/manual/ambiente-local.md`. Este reforço fica em novo commit documental local, sem push/PR adicional. PR #32 permanece aguardando revisão/merge do usuário; não há autorização de merge.
+
+**Regra para Codex e Claude:** em toda melhoria, revisar **ambos** os documentos; atualizar o manual quanto a telas, ações, permissões e disponibilidade, e o guia quanto a inicialização, dependências, endereços e operação local. Se um deles não for afetado, registrar isso na verificação da entrega em vez de criar instruções artificiais. Atualizar progress e acrescentar entrada neste handoff ao encerrar; AGENTS/CLAUDE permanecem sincronizados. Somente documentar recursos já entregues e marcar claramente os futuros. O manual inicial não tem imagens; podem ser acrescentadas quando os fluxos forem aprofundados.
+
+**Dúvida de arquitetura respondida com código conferido:** o frontend Angular consome contratos HTTP por classes em `data/` e não acessa banco/entidades .NET. As regras definitivas de domínio, permissões e isolamento são aplicadas no backend. Existem validações de formulário e lógica de apresentação no navegador, incluindo a geração da prévia de parcelas; trocar o frontend exige reproduzir essas interações, autenticação e acessibilidade, além de manter o contrato da API. Mudança visual no Angular é localizada; reescrever em outro framework é possível, mas é trabalho maior. Nenhuma reescrita ou mudança de stack foi solicitada/aprovada; a stack continua fixa.
+
+**Verificação:** alterações apenas documentais; conferidos arquivos salvos, links relativos/UTF-8, igualdade AGENTS/CLAUDE e diff antes do commit. Sem alteração de runtime e sem repetir a suíte completa do 6B. O guia de ambiente não teve seus comandos alterados nesta melhoria, pois não houve mudança operacional.
+
+**Ambiente:** AppHost foi deixado para exploração do usuário na sessão `32406` (log `TestResults/manual-apphost.log`), conforme a entrada anterior. Não o encerrar como limpeza nem iniciar AppHost.Tests em paralelo enquanto ele estiver em uso.
+
+**Próximo passo:** continuar documentando cada melhoria com essa regra; aguardar revisão/merge do #32 e pedido para enviar os complementos documentais locais. Depois do merge, seguir o ciclo de arrumação e preparação do 6C, preservando todos os documentos. Nunca fazer merge pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (manual inicial e AppHost disponível para exploração)
 
 **Pedido do usuário:** quer visualizar a aplicação e começar um manual de utilização que evolua com as entregas. Implementado como documentação no repositório; o conector de documentos não está disponível nesta sessão. Não houve pedido de novo push/PR ou merge.
