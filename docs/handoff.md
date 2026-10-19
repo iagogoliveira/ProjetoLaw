@@ -10,6 +10,102 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (envio/PR do 6C autorizados; ambiente local encerrado)
+
+**Pedido explícito do usuário:** “Não é preciso manter a aplicação rodando [...] quando eu pedir novamente você abre. pode abrir o PR”. Autoriza push do código/documentação e criação do PR 6C para main; não autoriza merge. A preferência substitui as entradas anteriores que pediam manter a instância manual aberta.
+
+**Ambiente:** AppHost da sessão `47794` encerrado. Os sete contêineres desta instância foram identificados pelos labels do Aspire e parados explicitamente; frontend, API e Mailpit sem portas de escuta. Nenhum volume removido; cadastros preservados. Manter o ambiente fechado após verificações e reabrir para exploração manual somente a pedido. Regra registrada no AGENTS/CLAUDE e no guia local; manual de uso revisado, sem alteração dos fluxos de tela.
+
+**Branch/estado de publicação:** `codex/etapa-6c-datajud-integracoes`; implementação `dd3bc20`, política de testes `05076bb` e arrumação pós-merge `928f0d3`. Main remota conferida em `a137919`; nenhum PR anterior encontrado para este branch. Este registro documental acompanha o código no mesmo push. Após o envio, criar o PR e confirmar seu número/endereço no GitHub pelo head do branch; anexá-lo à conversa. Não fazer outro push apenas para registrar o número e cancelar o CI recém-iniciado.
+
+**Verificação:** nenhuma mudança de runtime nesta publicação; mantidos os 794 testes .NET, cobertura acima de 80%, 96 Vitest, builds/formatação/dependências/modelos e duas rodadas de 14 Playwright registrados abaixo. Conferir diff documental, UTF-8 e igualdade AGENTS/CLAUDE antes do commit. Não repetir a suíte sem nova mudança/falha/preocupação concreta.
+
+**Próximos passos:** concluir push/PR autorizado e acompanhar CI/revisão; merge somente pelo usuário. ADR 0034 permanece proposta. Após aviso de merge, fazer a arrumação e seguir o 6D já aprovado. Fornecedor real continua pendente; a Etapa 6 não está concluída.
+
+---
+
+## 2026-10-19 — Codex (6C/DataJud implementado e verificado; commit local)
+
+**Branch/estado:** `codex/etapa-6c-datajud-integracoes`; base `a137919`, arrumação pós-merge enviada em `928f0d3`, política de testes preservada no commit local `05076bb`. Código e documentos do 6C consolidados em commit local desta entrega, sem push/PR novo solicitado. Consultar `git log -1` para o hash. ADR 0034 proposta; não marcar a Etapa 6 concluída.
+
+**Decisões novas do usuário:** “Adotar a sugestão” para importar todo o histórico DataJud na primeira consulta e acrescentar somente novos atos nas seguintes, preservando datas e sem duplicar; “Pode reiniciar quando necessário” para o AppHost local. Reiniciar preservando volumes/cadastros; não rodar AppHost.Tests junto com a instância manual. Nenhuma dessas perguntas continua pendente.
+
+**Feito:** adaptador HTTP DataJud com aliases oficiais, consulta CNJ, `search_after`, desempate validado no endpoint oficial com `match_none`/zero registros, timeout, limite de concorrência e resposta. Configuração por escritório com `settings.integrations.manage`, chave protegida por tenant no Data Protection existente e exclusão de auditoria/resposta. Checkpoints por processo/tribunal, páginas transacionais, hash/índice único e lock por processo, retomada/varredura após cursor inválido e jobs distribuídos em seis horas. Contratos de Litigation para casos judiciais ativos. Migration aditiva com RLS, três endpoints e OpenAPI/cliente regenerados. Manual e guia local revisados e incrementados.
+
+**Verificação completa aprovada:** Release/Debug sem warnings/erros; format aprovado após o último ajuste; **794 testes .NET em 18 projetos**, com cobertura e gate de 80% em todos os módulos (Publications Application 99,1%, Domain 96,3%). Inclui 169 testes da API, 16 de integração de Publications, 11 SecurityTests e 14 AppHost.Tests. Dependências .NET/JavaScript sem vulnerabilidades reportadas; cinco modelos EF sem alterações pendentes; lint, 96 Vitest e build Angular aprovados. OpenAPI gerado pelo teste oficial, somente adições de rotas/schemas, cliente regenerado. Duas rodadas consecutivas de Playwright com `--workers=1`, 14 aprovados cada (1,8/1,4 min), acessibilidade preservada; apenas a preparação opcional de carga ficou fora conforme `LOAD_OUTPUT` ausente. Nenhuma asserção relaxada.
+
+**Logs/ocorrências:** `TestResults/6c-final-validation`, `6c-frontend-*.log`, `6c-playwright-report-1` e `-2`. O erro inicial de escopo no teste do dispatcher foi corrigido. O ajuste do hash para ignorar correções dos rótulos foi compilado antes da integração de Publications; builds/formatação finais repetidos, sem repetir checks não afetados. Perfil HTTP do Aspire exigiu `ASPIRE_ALLOW_UNSECURED_TRANSPORT=true`, como no CI; tentativa inicial preservada em `TestResults/6c-apphost-http-initial.log`. Sem alteração de produção. Manual e guia incrementados, diff/UTF-8 e igualdade dos dois agentes conferidos antes do commit.
+
+**Ambiente mantido:** AppHost em execução para exploração, sessão **`47794`**, log `TestResults/6c-apphost.log`; SPA `:4200`, API `:5238/health/ready` e Mailpit `:8025` responderam HTTP 200. Volumes/cadastros preservados. Perfil HTTP e `LexFlow__PublicPermitsPerMinute=10000` usados nesta verificação local; o limite de produção não mudou. Não encerrar como limpeza nem rodar AppHost.Tests em paralelo. Depois de alterar backend, recompilar Debug antes do próximo `--no-build`.
+
+**Próximos passos:** aguardar pedido de push/PR do 6C e enviar código/documentos no mesmo push; acompanhar CI/revisão, sem fazer merge. Depois do merge pelo usuário, atualizar main, aceitar ADR 0034 com número/data, criar o branch do 6D e fazer a arrumação documental conforme o ciclo. O plano 6A a 6E já está aprovado; não pedir aprovação de novo para escolhas já registradas. Triagem/Scheduling/fechamento são do 6D, telas do 6E. **Fornecedor real de publicações continua pendente de escolha/documentação/acesso**; DataJud não substitui intimações. Não iniciar o próximo PR de implementação antes do merge do 6C.
+
+---
+
+## 2026-10-19 — Codex (testes direcionados durante implementação; gates completos no fechamento)
+
+**Decisão explícita do usuário:** aprovou executar os testes relacionados à mudança durante a implementação e manter a verificação completa no fechamento do PR; pediu registrar no handover e nos dois arquivos de agentes. Alterações feitas no AGENTS.md, CLAUDE.md e neste `docs/handoff.md`, com registro também no progress.
+
+**Regra para Claude e Codex:** durante o desenvolvimento, executar os unitários afetados e, conforme o impacto, integração, segurança e/ou e2e. Ampliar a suíte quando houver falha, alteração transversal ou dúvida de regressão. Não rodar toda a verificação a cada pequeno ajuste. No fechamento do PR de implementação, cumprir a seção Verificação completa sem reduzir nenhum gate: build Release sem warnings, format, todos os testes .NET/cobertura/gate de 80%, SecurityTests, vulnerabilidades/modelos, lint/Vitest/build e Playwright/AppHost quando aplicável. Testes direcionados não autorizam declarar a verificação completa.
+
+**Repetição:** depois de passar, não repetir sem nova mudança, falha ou preocupação concreta. Alterações posteriores exigem repetir os checks afetados e consolidar o estado final. Registrar o que foi executado e seus resultados/limitações no progress; manter os mesmos critérios de acessibilidade e segurança.
+
+**Estado/verificação:** branch `codex/etapa-6c-datajud-integracoes`; arrumação pós-merge do #32 enviada em `928f0d3`, com manual/guia preservados. Este registro é novo commit documental local, sem push solicitado e sem implementação do 6C. AGENTS/CLAUDE sincronizados; UTF-8, conteúdo e diff conferidos antes do commit. Nenhuma mudança de runtime e nenhuma nova suíte completa executada para esta atualização das instruções. Manual e guia revisados, sem impacto nos fluxos do usuário ou na inicialização; não foi necessário alterar seus passos.
+
+**Próximo passo:** seguir a preparação do 6C já registrada, usando esta política de testes. Preservar a instância do AppHost deixada para exploração do usuário e não iniciar AppHost.Tests em paralelo. Implementação nova termina em commit local; push/PR só a pedido. Nunca fazer merge pelo usuário.
+
+---
+
+## 2026-10-19 — Codex (PR #32 mergeado; arrumação no branch do 6C)
+
+**Aviso do usuário:** PR #32 aceito e mergeado. Confirmado no GitHub: `MERGED`, em 2026-10-19, merge `a137919915b0cc0f3eea555500389c7ec4acc08f`; todos os checks aprovados, incluindo AppHost/E2E. Merge feito pelo usuário, não pelo agente.
+
+**Branch/estado:** main atualizada por fast-forward; criado `codex/etapa-6c-datajud-integracoes` dessa base. Os dois commits locais do manual foram preservados por cherry-pick sem conflitos: `2849304` virou `28e8764`; `fd31ce5` virou `9306958`. Não apagar esses documentos nem voltar às instruções anteriores. Esta arrumação documental recebe commit/push no branch do 6C, conforme autorização permanente do ciclo pós-merge; nenhum PR novo solicitado/criado.
+
+**Feito:** 6B marcado como concluído no progress, ADR 0033 aceita (PR #32, 2026-10-19), Onde paramos atualizado e AGENTS/CLAUDE sincronizados. Manual e guia revisados: situação do 6B e base do 6C atualizadas, sem novo fluxo de tela nem comando de inicialização. A regra de revisar ambos após toda melhoria permanece obrigatória para Claude e Codex. Preparação do 6C registrada no progress, seguindo o plano geral já aprovado.
+
+**Verificado:** merge e base conferidos; diff relativo à main somente em documentação; preservação dos arquivos, links/UTF-8 e igualdade dos arquivos de agentes verificadas antes do commit. CI do #32 todo aprovado; mantida a suíte completa registrada do 6B, sem repetir testes de runtime para esta arrumação. SPA `:4200`, prontidão da API `:5238/health/ready` e Mailpit `:8025` responderam HTTP 200 depois da troca de branch. Nenhuma alteração de implementação do 6C nesta entrega.
+
+**Ambiente do usuário:** AppHost mantido em execução na sessão `32406`, log `TestResults/manual-apphost.log`. Não o encerrar como limpeza nem rodar AppHost.Tests em paralelo. Quando nova implementação exigir recompilar Debug/reiniciar o ambiente, considerar que o usuário está explorando as telas e coordenar a interrupção necessária.
+
+**Próximo trabalho — 6C:** estudar contratos/provedores existentes e documentação oficial do DataJud; detalhar o adaptador, consultas de movimentações a cada seis horas distribuídas por processo ativo, cursor/paginação, idempotência, retomada e configurações seguras. O plano 6A a 6E e o início com fake + DataJud já foram aprovados; não pedir novamente aprovação das mesmas decisões. Fornecedor real permanece pendente de escolha, documentação e acesso; DataJud não substitui captura de publicações/intimações. Perguntar apenas dúvidas novas de negócio não cobertas pelas decisões. Triagem/Scheduling/fechamento no 6D; telas no 6E. Implementação nova termina em commit local; push/PR só a pedido, exceto a arrumação pós-merge já autorizada. Nunca fazer merge pelo usuário.
+
+---
+
+## 2026-10-19 — Codex (manutenção obrigatória do manual e guia confirmada)
+
+**Pedido explícito do usuário:** salvar o manual e guia no ambiente local e incrementá-los após cada melhoria, mantendo AGENTS, CLAUDE e o handover atualizados para que o Claude continue corretamente. O handover do projeto é este `docs/handoff.md`; não criar outro arquivo concorrente.
+
+**Estado:** os dois arquivos já foram salvos no repositório no commit local `2849304`: `docs/manual/README.md` e `docs/manual/ambiente-local.md`. Este reforço fica em novo commit documental local, sem push/PR adicional. PR #32 permanece aguardando revisão/merge do usuário; não há autorização de merge.
+
+**Regra para Codex e Claude:** em toda melhoria, revisar **ambos** os documentos; atualizar o manual quanto a telas, ações, permissões e disponibilidade, e o guia quanto a inicialização, dependências, endereços e operação local. Se um deles não for afetado, registrar isso na verificação da entrega em vez de criar instruções artificiais. Atualizar progress e acrescentar entrada neste handoff ao encerrar; AGENTS/CLAUDE permanecem sincronizados. Somente documentar recursos já entregues e marcar claramente os futuros. O manual inicial não tem imagens; podem ser acrescentadas quando os fluxos forem aprofundados.
+
+**Dúvida de arquitetura respondida com código conferido:** o frontend Angular consome contratos HTTP por classes em `data/` e não acessa banco/entidades .NET. As regras definitivas de domínio, permissões e isolamento são aplicadas no backend. Existem validações de formulário e lógica de apresentação no navegador, incluindo a geração da prévia de parcelas; trocar o frontend exige reproduzir essas interações, autenticação e acessibilidade, além de manter o contrato da API. Mudança visual no Angular é localizada; reescrever em outro framework é possível, mas é trabalho maior. Nenhuma reescrita ou mudança de stack foi solicitada/aprovada; a stack continua fixa.
+
+**Verificação:** alterações apenas documentais; conferidos arquivos salvos, links relativos/UTF-8, igualdade AGENTS/CLAUDE e diff antes do commit. Sem alteração de runtime e sem repetir a suíte completa do 6B. O guia de ambiente não teve seus comandos alterados nesta melhoria, pois não houve mudança operacional.
+
+**Ambiente:** AppHost foi deixado para exploração do usuário na sessão `32406` (log `TestResults/manual-apphost.log`), conforme a entrada anterior. Não o encerrar como limpeza nem iniciar AppHost.Tests em paralelo enquanto ele estiver em uso.
+
+**Próximo passo:** continuar documentando cada melhoria com essa regra; aguardar revisão/merge do #32 e pedido para enviar os complementos documentais locais. Depois do merge, seguir o ciclo de arrumação e preparação do 6C, preservando todos os documentos. Nunca fazer merge pelo usuário.
+
+---
+
+## 2026-10-19 — Codex (manual inicial e AppHost disponível para exploração)
+
+**Pedido do usuário:** quer visualizar a aplicação e começar um manual de utilização que evolua com as entregas. Implementado como documentação no repositório; o conector de documentos não está disponível nesta sessão. Não houve pedido de novo push/PR ou merge.
+
+**Branch/estado:** `codex/etapa-6b-captura-alertas`; PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) aberto, código e documentos do 6B enviados até `1693fd5`. Manual/guia e atualização de continuidade ficam em commit documental local desta entrada, sem push, para não cancelar o CI em execução. ADR 0033 continua proposta. Nenhum código de runtime alterado.
+
+**Feito:** `docs/manual/README.md` cobre primeiro acesso, Mailpit, conta, permissões, configurações, pessoas/conflitos, processos, valores, risco, acordos, audiências, importação e propostas. Inclui roteiro de experimentação e lista de funcionalidades ainda sem tela. `docs/manual/ambiente-local.md` explica iniciar/parar/reabrir pelo PowerShell, endereços, persistência e problemas comuns. Primeira edição sem imagens; próximas entregas devem atualizar os fluxos correspondentes. Regra adicionada ao AGENTS/CLAUDE sincronizados.
+
+**Verificado:** Docker 29.6.2; `dotnet run --project src/Aspire/LexFlow.AppHost --no-build` iniciado com Debug já compilado e sem alterações de backend desde a verificação do 6B. SPA `http://localhost:4200`, API `http://localhost:5238/health/ready` e Mailpit `http://localhost:8025` responderam HTTP 200. Rotas/componentes/traduções/e2e foram consultados para o manual; links, texto e diff documental conferidos antes do commit. Suíte completa não repetida para documentação; resultados do 6B preservados.
+
+**Ambiente em uso:** AppHost permanece executando para o usuário, sessão de execução `32406`, log local `TestResults/manual-apphost.log`. Não encerrar como rotina de limpeza enquanto o usuário explora as telas; não executar AppHost.Tests em paralelo. O usuário cria sua conta pela interface e confirma e-mails pelo Mailpit; nenhuma credencial de demonstração foi criada para ele.
+
+**Próximo passo:** permitir a exploração manual, receber observações e ampliar o manual conforme as telas evoluírem. Enviar o complemento documental somente quando solicitado. Aguardar CI/revisão/merge do #32; depois seguir o ciclo de arrumação e o 6C. Não fazer merge pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (envio e abertura do PR 6B autorizados)
 
 **Branch:** `codex/etapa-6b-captura-alertas`. **Decisão do usuário:** “Crie o PR”. Isso autoriza o push do código/documentação e a abertura do PR para `main`; não autoriza merge. Implementação pronta no commit `6de6b4f`, após `d46b774` (perguntas) e `4bcc2cd` (arrumação pós-merge do #31).

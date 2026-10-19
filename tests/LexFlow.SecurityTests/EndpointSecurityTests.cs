@@ -167,6 +167,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
             ["GET /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/movement-sync"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { occurredAt = "2026-10-19T12:00:00Z", description = "Sentença" }),
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["PUT /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { parties }),

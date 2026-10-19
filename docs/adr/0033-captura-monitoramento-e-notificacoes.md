@@ -1,6 +1,6 @@
 # ADR 0033 — Captura, monitoramento e notificações
 
-- **Status:** Proposta (para revisão no PR 6B)
+- **Status:** Aceita (PR #32 mergeado em 2026-10-19)
 - **Data:** 2026-10-19
 - **Etapa:** 6 (PR 6B)
 

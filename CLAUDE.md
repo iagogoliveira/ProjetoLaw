@@ -19,8 +19,11 @@ Este arquivo tem as mesmas regras do `CLAUDE.md`, mais o que é preciso para con
 - Todo dado de escritório implementa `ITenantOwned`. Dado ligado a processo implementa `ICaseScoped`.
 - Handlers retornam `Result<T>`. Erros têm código estável (`modulo.erro`).
 - Frontend: componentes standalone, OnPush e signals; sem HTTP fora de `data/`; textos via Transloco (pt-BR e en com as mesmas chaves).
-- Comandos obrigatórios: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`.
-- Antes de concluir: rode tudo acima e atualize `docs/progress.md`.
+- Manual de utilização: após cada melhoria, revisar **os dois** arquivos `docs/manual/README.md` e `docs/manual/ambiente-local.md`, atualizando as instruções afetadas de uso e execução local no mesmo trabalho. Quando não houver impacto em um deles, registrar isso na verificação da entrega, sem inventar passos. Descrever apenas o que está entregue e identificar funcionalidades futuras. Antes de encerrar, atualizar também o progress e o handoff para orientar o próximo agente.
+- Ambiente local (preferência do usuário em 2026-10-19): deixar a aplicação fechada após as verificações, preservando os volumes/cadastros. Reabrir para exploração manual somente quando o usuário pedir; não manter o AppHost ou seus serviços Docker ligados como cortesia.
+- Durante a implementação: execute os testes relacionados à mudança (unitários e, conforme o impacto, integração, segurança ou e2e). Amplie a execução se houver falha, mudança transversal ou dúvida de regressão. Não repita a suíte completa a cada ajuste.
+- Comandos obrigatórios no fechamento do PR de implementação: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`, com os demais gates da seção "Verificação completa".
+- Antes de concluir o PR: complete a verificação integral e registre os resultados em `docs/progress.md`. Testes direcionados durante o desenvolvimento não substituem os gates de fechamento.
 - Dúvida de negócio ou ação irreversível: pare e pergunte.
 - Documentação, commits, PRs e mensagens ao usuário em português do Brasil. Código, nomes e testes em inglês, como já está.
 
@@ -35,7 +38,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - §9 a §12: as etapas, cada uma com escopo e critérios de aceite. **A Etapa 5 está na §10.**
    - §13: estratégia de testes e qualidade. §14: modelos de prompt e checklist do agente.
 3. **`docs/spec/requisitos-v3.md`**: os requisitos de negócio. A seção de cada módulo diz o que construir. Para a Etapa 5: **§7 (Contencioso)**, e também §3 (perfis e permissões) e §14 (requisitos não funcionais).
-4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0033 (0032 aceita no PR #31; 0033 proposta no 6B). Antes de mexer numa área, leia as ADRs dela. As de base:
+4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0034 (0032 aceita no PR #31; 0033 aceita no PR #32; 0034 proposta no 6C). Antes de mexer numa área, leia as ADRs dela. As de base:
    - 0001 a 0003: monolito modular, stack e módulos por etapa;
    - 0007: pipeline de casos de uso (validação, autorização, transação);
    - 0010: trilha de auditoria;
@@ -45,6 +48,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - 0025 e 0026: módulo Litigation, numeração, escopo de dados e casos sigilosos.
 5. **`docs/openapi/v1.json`**: o contrato da API, gerado pelos testes (não edite à mão).
 6. **`tests/LexFlow.LoadTests/README.md`**: como rodar o teste de carga.
+7. **`docs/manual/README.md`** e **`docs/manual/ambiente-local.md`**: manual de utilização e guia de inicialização; atualizar quando mudar o uso das telas.
 
 Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, vale a decisão registrada, que é mais recente. Em caso de dúvida, pergunte.
 
@@ -60,7 +64,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
   - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
-- **Etapa 6 (publicações e andamentos):** plano 6A a 6E aprovado em 2026-10-19. **6A (#31) aprovado e mergeado pelo usuário em 2026-10-19**, ADR 0032 aceita. **6B implementado no branch `codex/etapa-6b-captura-alertas`**, da main `f2e01a9`: provedores fake, deduplicação concorrente, janela/retentativas/ativação tardia, monitor independente, alerta persistido/métrica e notificações mínimas in-app/e-mail/SignalR com alcance revalidado. ADR 0033 proposta; verificação completa aprovada (771 testes .NET, gate de cobertura, 96 Vitest e Playwright 14/14 em duas rodadas), registrada no progress e handoff. Regras complementares de destinatários/canais e tolerância/zero publicações aprovadas em 2026-10-19. Implementação no commit `6de6b4f`; envio e abertura do PR autorizados pelo usuário em 2026-10-19. Enviar código e documentos juntos; aguardar CI e revisão. Triagem/fechamento e telas seguem em 6D/6E; fornecedor real pendente no 6C.
+- **Etapa 6 (publicações e andamentos):** plano 6A a 6E aprovado em 2026-10-19. **6A (#31) e 6B (#32) concluídos**, aprovados e mergeados pelo usuário em 2026-10-19; ADRs 0032 e 0033 aceitas. O 6B entregou captura fake, deduplicação concorrente, retentativas, monitor/alertas/métrica e notificações in-app/e-mail/SignalR. Branch atual `codex/etapa-6c-datajud-integracoes`, criado da main atualizada (`a137919`). **6C/DataJud implementado e verificado localmente**, com código/documentos em commit local, sem push/PR novo solicitado; fornecedor real de publicações ainda pendente. Conferir resultados/estado no progress/handoff, sem pedir novamente aprovação das escolhas já feitas. Dúvida de negócio nova exige pergunta. Triagem/fechamento no 6D e telas no 6E; Etapa 6 ainda em andamento.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -71,12 +75,14 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Próximo trabalho:** publicar o 6B e abrir PR para main, conforme pedido do usuário em 2026-10-19; acompanhar CI/revisão e aguardar o merge pelo usuário. Após o merge, atualizar main, aceitar ADR 0033 com o número/data do PR e preparar o branch do 6C, com arrumação documental em commit/push conforme o ciclo. As respostas de negócio do 6B já estão aprovadas; não perguntar novamente.
+- **Manual e demonstração (2026-10-19):** manual e guia preservados e incrementados no 6C. Revisar ambos após toda melhoria e manter a continuidade para Claude e Codex. **Preferência mais recente:** aplicação encerrada a pedido do usuário, incluindo os sete serviços Docker desta instância, sem remover volumes/cadastros. Reabrir para exploração manual somente a pedido; não manter serviços ligados após as verificações.
+- **6C verificado (2026-10-19):** implementação no commit `dd3bc20`; 794 testes .NET, cobertura acima de 80%, builds/formatação/dependências/modelos, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade. ADR 0034 proposta; resultados no progress. **Push/PR autorizados pelo usuário**, com código e documentos no mesmo envio; confirmar o PR pelo branch `codex/etapa-6c-datajud-integracoes`. AppHost da sessão `47794` e seus contêineres encerrados a pedido; volumes preservados.
+- **Próximo trabalho:** concluir a publicação autorizada do 6C e acompanhar CI/revisão; aguardar merge pelo usuário. Depois, fazer a arrumação documental/main/ADR 0034 e preparar o branch do 6D conforme o ciclo. Fornecedor real permanece pendente até contratação/documentação/acesso. Triagem/fechamento ficam no 6D e telas no 6E, após o merge do 6C. Nunca fazer merge pelo usuário.
 
 ## Ciclo de trabalho (um PR por vez)
 
 1. Planeje, mostre o plano e espere a aprovação. Dúvida de negócio vira pergunta antes de implementar.
-2. Implemente no branch combinado, com a verificação completa (abaixo).
+2. Implemente no branch combinado, executando os testes relacionados à mudança durante o desenvolvimento. No fechamento do PR, rode a verificação completa (abaixo).
 3. Registre no `docs/progress.md`:
    - a seção do PR, com tabela de subtarefas e os testes de cada uma;
    - as decisões de negócio;
@@ -94,6 +100,10 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 6. **Sempre que terminar ou interromper um trabalho**, acrescente uma entrada no topo de `docs/handoff.md`: o que fez, o estado (commit, push, PR), o que falta e as decisões novas do usuário. Se o "Onde paramos" mudou, atualize-o aqui também. O `CLAUDE.md` e o `AGENTS.md` têm as mesmas regras: mudou uma, mude a outra.
 
 ## Verificação completa
+
+**Política aprovada pelo usuário em 2026-10-19 (vale para Codex e Claude):** durante a implementação, priorizar os testes afetados para obter retorno rápido. No fechamento do PR de implementação, executar todos os comandos e gates abaixo, incluindo cobertura, segurança e Playwright contra o AppHost quando aplicável. Não reduzir cobertura, omitir verificações obrigatórias nem relaxar asserções para economizar processamento.
+
+Depois que as verificações passarem, não repetir sem nova mudança, falha ou preocupação concreta que justifique. Se uma alteração posterior invalidar resultados anteriores, repetir as verificações afetadas e consolidar o estado final antes de concluir. Registrar no progress quais testes foram executados, seus resultados, eventuais limitações e pendências; não declarar a verificação completa com base apenas em testes direcionados.
 
 ```bash
 dotnet build LexFlow.sln -c Release          # TreatWarningsAsErrors: 0 warnings

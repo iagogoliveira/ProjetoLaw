@@ -9,6 +9,18 @@ namespace LexFlow.Publications.Infrastructure.Capture;
 
 internal sealed class PostgresCaptureLocks(PublicationsDbContext db) : ICaptureLocks
 {
+    public async Task IntegrationAsync(CancellationToken cancellationToken)
+    {
+        EnsureTransaction();
+        var key = Key("movement-integration");
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock({key})", cancellationToken);
+    }
+    public async Task<bool> TryMovementAsync(Guid caseId, CancellationToken cancellationToken)
+    {
+        EnsureTransaction();
+        var key = Key("movement:" + caseId.ToString("N"));
+        return await db.Database.SqlQuery<bool>($"SELECT pg_try_advisory_xact_lock({key}) AS \"Value\"").SingleAsync(cancellationToken);
+    }
     public async Task<bool> TrySourceAsync(Guid sourceId, DateOnly day, CancellationToken cancellationToken)
     {
         EnsureTransaction();

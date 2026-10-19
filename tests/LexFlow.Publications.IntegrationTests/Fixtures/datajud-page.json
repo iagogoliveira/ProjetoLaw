@@ -1,0 +1,29 @@
+{
+  "took": 8,
+  "timed_out": false,
+  "_shards": { "total": 1, "successful": 1, "failed": 0 },
+  "hits": {
+    "total": { "value": 1, "relation": "eq" },
+    "hits": [{
+      "_id": "TJSP_1_G1_22380589820258268434",
+      "_source": {
+        "id": "TJSP_1_G1_22380589820258268434",
+        "numeroProcesso": "22380589820258268434",
+        "tribunal": "TJSP",
+        "grau": "G1",
+        "nivelSigilo": 0,
+        "@timestamp": "2026-10-19T10:00:00.000Z",
+        "movimentos": [
+          { "codigo": 26, "nome": "Distribuição", "dataHora": "2020-01-02T14:00:00.000Z",
+            "complementosTabelados": [
+              { "codigo": 2, "valor": 1, "nome": "competência exclusiva", "descricao": "tipo_de_distribuicao_redistribuicao" },
+              { "codigo": 3, "valor": 2, "nome": "eletrônica", "descricao": "forma" }
+            ]
+          },
+          { "codigo": 60, "nome": "Expedição", "dataHora": "2025-10-18T14:00:00.000Z" }
+        ]
+      },
+      "sort": [1792404000000, "TJSP_1_G1_22380589820258268434"]
+    }]
+  }
+}

@@ -995,7 +995,20 @@ export type MovementInput = {
     description: string;
 };
 
+export type MovementIntegrationInput = {
+    provider: MovementProviderKind;
+    apiKey?: null | string;
+    clearApiKey?: boolean;
+};
+
+export type MovementIntegrationResponse = {
+    provider: MovementProviderKind;
+    hasApiKey: boolean;
+};
+
 export type MovementOrigin = 'manual' | 'dataJud' | 'provider';
+
+export type MovementProviderKind = 'disabled' | 'fake' | 'dataJud';
 
 export type MovementResponse = {
     id: string;
@@ -1009,6 +1022,15 @@ export type MovementResponse = {
 export type MovementsPageResponse = {
     items: Array<MovementResponse>;
     nextCursor: null | string;
+};
+
+export type MovementSyncResponse = {
+    caseId: string;
+    tribunal: null | string;
+    lastAttemptAt: null | string;
+    lastSuccessAt: null | string;
+    hasPendingPage: boolean;
+    errorCode: null | string;
 };
 
 export type MoveOpportunityRequest = {
@@ -7086,6 +7108,56 @@ export type ListCaptureAlertsResponses = {
 };
 
 export type ListCaptureAlertsResponse = ListCaptureAlertsResponses[keyof ListCaptureAlertsResponses];
+
+export type GetMovementIntegrationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/movement-integration';
+};
+
+export type GetMovementIntegrationResponses = {
+    /**
+     * OK
+     */
+    200: MovementIntegrationResponse;
+};
+
+export type GetMovementIntegrationResponse = GetMovementIntegrationResponses[keyof GetMovementIntegrationResponses];
+
+export type ConfigureMovementIntegrationData = {
+    body: MovementIntegrationInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/movement-integration';
+};
+
+export type ConfigureMovementIntegrationResponses = {
+    /**
+     * OK
+     */
+    200: MovementIntegrationResponse;
+};
+
+export type ConfigureMovementIntegrationResponse = ConfigureMovementIntegrationResponses[keyof ConfigureMovementIntegrationResponses];
+
+export type GetMovementSyncData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/movement-sync';
+};
+
+export type GetMovementSyncResponses = {
+    /**
+     * OK
+     */
+    200: MovementSyncResponse;
+};
+
+export type GetMovementSyncResponse = GetMovementSyncResponses[keyof GetMovementSyncResponses];
 
 export type ListCaptureSourcesData = {
     body?: never;

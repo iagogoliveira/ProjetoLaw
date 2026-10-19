@@ -19,6 +19,8 @@ public sealed class PublicationsDbContext(DbContextOptions<PublicationsDbContext
     public DbSet<Publication> Publications => Set<Publication>();
     public DbSet<PublicationTriage> Triages => Set<PublicationTriage>();
     public DbSet<CaseMovement> Movements => Set<CaseMovement>();
+    public DbSet<MovementIntegration> MovementIntegrations => Set<MovementIntegration>();
+    public DbSet<MovementSync> MovementSyncs => Set<MovementSync>();
 }
 
 internal sealed class DesignTimeFactory : IDesignTimeDbContextFactory<PublicationsDbContext>
