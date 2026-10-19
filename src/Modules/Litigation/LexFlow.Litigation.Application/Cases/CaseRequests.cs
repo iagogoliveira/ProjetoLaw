@@ -325,11 +325,9 @@ internal sealed class UpdateCaseValidator : AbstractValidator<UpdateCaseCommand>
 internal sealed class CreateCaseHandler(
     ILitigationDbContext db,
     CaseRules rules,
-    ICaseCounter counter,
-    IOrganizationDirectory organization,
+    CaseFolders folders,
     CaseResponseBuilder responses,
-    IIdGenerator ids,
-    IClock clock) : ICommandHandler<CreateCaseCommand, CaseResponse>
+    IIdGenerator ids) : ICommandHandler<CreateCaseCommand, CaseResponse>
 {
     public async Task<Result<CaseResponse>> Handle(CreateCaseCommand command, CancellationToken cancellationToken)
     {
@@ -339,7 +337,7 @@ internal sealed class CreateCaseHandler(
             return checkedInput.Error;
         }
 
-        var folder = await FolderAsync(command.Case.PracticeAreaId, cancellationToken);
+        var folder = await folders.NextAsync(command.Case.PracticeAreaId, null, cancellationToken);
         var legalCase = LegalCase.Create(ids.NewId(), command.Kind, folder, checkedInput.Value.Details);
         if (legalCase.IsFailure)
         {
@@ -351,14 +349,24 @@ internal sealed class CreateCaseHandler(
         await db.SaveChangesAsync(cancellationToken);
         return await responses.BuildAsync(legalCase.Value, cancellationToken);
     }
+}
 
-    private async Task<string> FolderAsync(Guid? areaId, CancellationToken cancellationToken)
+/// <summary>
+/// A próxima pasta interna pela numeração do escritório: a sigla da área, o ano do cadastro e o próximo número do
+/// contador da área naquele ano. O formato é lido uma vez por instância (a importação gera milhares de pastas).
+/// </summary>
+internal sealed class CaseFolders(ILitigationDbContext db, ICaseCounter counter, IOrganizationDirectory organization, IClock clock)
+{
+    private CaseNumbering? _numbering;
+
+    /// <summary>Com <paramref name="areaName"/> já conhecido, não consulta a estrutura do escritório.</summary>
+    public async Task<string> NextAsync(Guid? areaId, string? areaName, CancellationToken cancellationToken)
     {
-        var numbering = await db.Numberings.AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? CaseNumbering.Default(Guid.Empty);
-        var areaName = areaId is { } area ? (await organization.GetAsync(OrgUnitKind.PracticeArea, [area], cancellationToken)).SingleOrDefault()?.Name : null;
+        _numbering ??= await db.Numberings.AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? CaseNumbering.Default(Guid.Empty);
+        areaName ??= areaId is { } area ? (await organization.GetAsync(OrgUnitKind.PracticeArea, [area], cancellationToken)).SingleOrDefault()?.Name : null;
         var year = clock.Today.Year;
         var sequence = await counter.NextAsync(areaId, year, cancellationToken);
-        return numbering.Render(numbering.CodeOf(areaId, areaName), year, sequence);
+        return _numbering.Render(_numbering.CodeOf(areaId, areaName), year, sequence);
     }
 }
 

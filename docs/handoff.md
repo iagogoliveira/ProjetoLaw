@@ -10,6 +10,58 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (PR 5D implementado)
+
+**Branch:** `etapa-5d-timeline-importacao` · **Estado:** PR aberto (`gh pr list --head etapa-5d-timeline-importacao`), aguardando o CI e o merge do usuário.
+
+**Feito:**
+- **Linha do tempo:** `GET /cases/{id}/timeline`, com o contrato `ITimelineContributor` e a contribuição do Litigation.
+- **Histórico de situação:** `case_status_changes`, só com inserções.
+- **Lote:** `POST /cases/batch`.
+- **Importação:** envio, validação em job, pré-visualização, confirmação, gravação retomável, relatório e modelo. O critério 2 está atendido.
+- **Contratos novos:** `IJobTracker`, `ILookupItems`, `IOrganizationDirectory.ListAsync`/`MemberUserIdsAsync` e `IPeopleRegistry`.
+- **Pacote:** ClosedXML 0.105.1, com a SixLabors.Fonts presa na 1.0.1. Registrado nas ADRs 0029 e 0002.
+- **Testes de API:** `RecordingJobScheduler` e `RunJobsAsync` na fábrica, para executar os jobs.
+
+**Próximo agente:**
+1. Confirme com o usuário se o PR do 5D foi mergeado (`gh pr list --head etapa-5d-timeline-importacao --state all`). Não faça o merge você mesmo.
+2. Depois do merge, faça a arrumação:
+   - `progress.md` e ADR 0029 como aceita;
+   - crie o branch `etapa-5e-telas-processos`;
+   - atualize o `AGENTS.md` e escreva uma entrada aqui;
+   - faça commit e push.
+3. Planeje o 5E (frontend e e2e dos processos).
+
+---
+
+## 2026-10-18 — Claude Code (arrumação depois do merge do #27)
+
+**Branch:** `etapa-5d-timeline-importacao`, criado a partir da `main` (3a87168), com este commit de arrumação e push.
+
+**Feito:**
+- PR #27 (5C2) mergeado pelo usuário;
+- `progress.md`: 5C2 marcado como concluído e a linha de status atualizada;
+- ADR 0028 marcada como aceita;
+- "Onde paramos" do `AGENTS.md` atualizado.
+
+**Combinado com o usuário:**
+- Docs e código no mesmo push sempre que der: o CI cancela o run anterior a cada push novo no PR (`cancel-in-progress`). O "X" de cancelado não é falha de teste.
+
+**Plano do 5D mostrado ao usuário** (aguardando aprovação):
+- linha do tempo, com `ITimelineContributor` e `case_status_changes`;
+- importação XLSX/CSV: upload, validação em job, pré-visualização, confirmação, gravação em lotes e relatório XLSX;
+- operações em lote: responsável, fase e situação, em até 1.000 processos;
+- ClosedXML 0.105.1 com a SixLabors.Fonts fixada em 1.0.1 (Apache-2.0); a 2.x tem licença comercial;
+- ADR 0029.
+
+**Decisões do usuário sobre a importação (2026-10-18):**
+- Cliente ou parte contrária fora do cadastro: cadastrar automaticamente. Se o CPF/CNPJ já existe, usar a pessoa existente.
+- Pasta interna: coluna opcional que mantém a numeração legada (única no escritório); vazia, usa a numeração do escritório.
+- CNJ que já existe no escritório: a linha vai para o relatório (`litigation.cnj_taken`) e o processo existente não muda.
+- Linhas inválidas: importa as válidas depois da confirmação e entrega o relatório das inválidas.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5C2 implementado)
 
 **Branch:** `etapa-5c2-risco-acordos` · **PR:** [#27](https://github.com/iagogoliveira/ProjetoLaw/pull/27), aberto e aguardando o CI e o merge do usuário.

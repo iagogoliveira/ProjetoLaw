@@ -111,6 +111,154 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LexFlow.Litigation.Domain.CaseImports.CaseImport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("error_code");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<Guid?>("ImportJobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_job_id");
+
+                    b.Property<int>("ImportedRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("imported_rows");
+
+                    b.Property<int>("InvalidRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("invalid_rows");
+
+                    b.Property<int>("LastImportedRow")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_imported_row");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Preview")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("preview");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TotalRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_rows");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("ValidationJobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("validation_job_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_case_imports");
+
+                    b.HasIndex("OrganizationId", "CreatedAt")
+                        .HasDatabaseName("ix_case_imports_organization_id_created_at");
+
+                    b.ToTable("case_imports", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.CaseImports.CaseImportError", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Column")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("column");
+
+                    b.Property<Guid>("ImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_id");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("message");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("Row")
+                        .HasColumnType("integer")
+                        .HasColumnName("row");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("value");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_case_import_errors");
+
+                    b.HasIndex("ImportId", "Row")
+                        .HasDatabaseName("ix_case_import_errors_import_id_row");
+
+                    b.ToTable("case_import_errors", "litigation");
+                });
+
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseAssignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -323,6 +471,60 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_case_restrictions_legal_case_id");
 
                     b.ToTable("case_restrictions", "litigation");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseStatusChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("changed_at");
+
+                    b.Property<Guid>("ChangedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("changed_by");
+
+                    b.Property<string>("From")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("from");
+
+                    b.Property<Guid>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("To")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("to");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_case_status_changes");
+
+                    b.HasIndex("LegalCaseId")
+                        .HasDatabaseName("ix_case_status_changes_legal_case_id");
+
+                    b.ToTable("case_status_changes", "litigation");
                 });
 
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.LegalCase", b =>
@@ -1337,6 +1539,16 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LexFlow.Litigation.Domain.CaseImports.CaseImportError", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.CaseImports.CaseImport", null)
+                        .WithMany()
+                        .HasForeignKey("ImportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_case_import_errors_case_imports_import_id");
+                });
+
             modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseAssignment", b =>
                 {
                     b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
@@ -1382,6 +1594,16 @@ namespace LexFlow.Litigation.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_case_restrictions_cases_legal_case_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Litigation.Domain.Cases.CaseStatusChange", b =>
+                {
+                    b.HasOne("LexFlow.Litigation.Domain.Cases.LegalCase", null)
+                        .WithMany()
+                        .HasForeignKey("LegalCaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_case_status_changes_cases_legal_case_id");
                 });
 
             modelBuilder.Entity("LexFlow.Litigation.Domain.Claims.Claim", b =>

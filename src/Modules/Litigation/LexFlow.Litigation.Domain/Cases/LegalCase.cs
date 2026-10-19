@@ -381,6 +381,54 @@ public sealed class LegalCase : AggregateRoot<Guid>, ITenantOwned, IAuditable, I
         return Result.Success;
     }
 
+    /// <summary>
+    /// Redistribuição (operação em lote): <paramref name="toUserId"/> passa a ser responsável no papel informado. Com
+    /// <paramref name="fromUserId"/>, ele substitui esse responsável; sem, é incluído. Quem já é responsável no papel
+    /// não se repete.
+    /// </summary>
+    public Result Redistribute(Guid? fromUserId, Guid toUserId, AssignmentRole role)
+    {
+        if (Status == CaseStatus.Closed)
+        {
+            return LitigationErrors.CaseClosed;
+        }
+
+        if (role == AssignmentRole.Team)
+        {
+            return LitigationErrors.AssignmentInvalid;
+        }
+
+        if (fromUserId is { } from)
+        {
+            var replaced = _assignments.Where(a => a.UserId == from).ToList();
+            if (replaced.Count == 0)
+            {
+                return LitigationErrors.ResponsibleNotAssigned;
+            }
+
+            _assignments.RemoveAll(a => a.UserId == from);
+        }
+
+        if (!_assignments.Exists(a => a.UserId == toUserId && a.Role == role))
+        {
+            _assignments.Add(new CaseAssignment(Id, new AssignmentInput(role, toUserId, null)));
+        }
+
+        return Result.Success;
+    }
+
+    /// <summary>Muda a fase (operação em lote); nula tira a fase.</summary>
+    public Result ChangePhase(Guid? phaseId)
+    {
+        if (Status == CaseStatus.Closed)
+        {
+            return LitigationErrors.CaseClosed;
+        }
+
+        PhaseId = phaseId;
+        return Result.Success;
+    }
+
     /// <summary>Fusão de cadastros no Crm: a pessoa unificada passa a ser a mantida (sem repetir a mesma pessoa).</summary>
     public void ReplacePerson(Guid mergedPersonId, Guid keptPersonId)
     {

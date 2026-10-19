@@ -5,6 +5,7 @@
     <ProjectReference Include="..\LexFlow.Litigation.Contracts\LexFlow.Litigation.Contracts.csproj" />
     <!-- Contratos dos módulos de que os processos dependem: pessoas (partes), tribunais, estrutura e tabelas auxiliares. -->
     <ProjectReference Include="..\..\Crm\LexFlow.Crm.Contracts\LexFlow.Crm.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\LexFlow.Identity.Contracts\LexFlow.Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\Platform\LexFlow.Platform.Contracts\LexFlow.Platform.Contracts.csproj" />
     <ProjectReference Include="..\..\Organization\LexFlow.Organization.Contracts\LexFlow.Organization.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\LexFlow.Application.Abstractions\LexFlow.Application.Abstractions.csproj" />

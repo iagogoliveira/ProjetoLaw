@@ -56,6 +56,8 @@ Versões centralizadas em `Directory.Packages.props` (CPM), com o SDK fixado em 
 | Scriban | 7.5.1 | BSD-2-Clause | Templates dos e-mails transacionais (ADR 0013) |
 | OpenIddict.Server.AspNetCore, Validation.AspNetCore, Validation.ServerIntegration, EntityFrameworkCore | 7.7.2 | Apache-2.0 | Servidor OIDC e validação de tokens (ADR 0014) |
 | StackExchange.Redis | 2.13.17 | MIT | Cache de permissões e pertenças (ADR 0018); antes vinha só transitivo, na 2.7.4, pelo health check |
+| ClosedXML | 0.105.1 | MIT | Planilhas da importação de processos (ADR 0029); transitivas ClosedXML.Parser, ExcelNumberFormat e RBush.Signed: MIT |
+| SixLabors.Fonts (pin transitivo) | 1.0.1 | Apache-2.0 | Dependência do ClosedXML, presa antes da 2.0, que passou para a Six Labors Split License (comercial acima de um porte de empresa) |
 
 ### Frontend (npm)
 

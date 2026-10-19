@@ -78,11 +78,81 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+/**
+ * Ações em lote sobre processos selecionados (Etapa 5, tarefa 7).
+ */
+export type CaseBatchAction = 'redistribute' | 'changePhase' | 'suspend' | 'reactivate';
+
+export type CaseBatchCommand = {
+    caseIds: Array<string>;
+    action: CaseBatchAction;
+    fromUserId: null | string;
+    toUserId: null | string;
+    role: null | AssignmentRole;
+    phaseId: null | string;
+    note: null | string;
+};
+
+export type CaseBatchResult = {
+    updated: number | string;
+    skipped: Array<CaseBatchSkip>;
+};
+
+/**
+ * Um processo que ficou de fora do lote e por quê (código estável).
+ */
+export type CaseBatchSkip = {
+    caseId: string;
+    code: string;
+};
+
 export type CaseClaimsResponse = {
     updatedTo: null | string;
     items: Array<ClaimResponse>;
     totals: Array<ClaimTotalsResponse>;
 };
+
+export type CaseImportErrorResponse = {
+    row: number | string;
+    column: string;
+    value: null | string;
+    code: string;
+    message: string;
+};
+
+/**
+ * Estado da importação: os totais, a pré-visualização (as primeiras linhas válidas) e os primeiros erros; o relatório
+ * completo das linhas inválidas é baixado à parte.
+ */
+export type CaseImportResponse = {
+    id: string;
+    fileName: string;
+    status: CaseImportStatus;
+    totalRows: number | string;
+    validRows: number | string;
+    invalidRows: number | string;
+    importedRows: number | string;
+    preview: Array<ImportPreviewRow>;
+    errors: Array<CaseImportErrorResponse>;
+    errorCode: null | string;
+    validationJobId: string;
+    importJobId: null | string;
+    createdAt: string;
+    completedAt: null | string;
+};
+
+/**
+ * A importação recebida e o job que a processa (`GET /api/v1/jobs/{jobId}`).
+ */
+export type CaseImportStarted = {
+    importId: string;
+    jobId: string;
+};
+
+/**
+ * Andamento da importação de processos.
+ */
+export type CaseImportStatus = 'validating' | 'ready' | 'importing' | 'completed' | 'failed';
 
 /**
  * Processo ou caso enviado pela tela (criação e edição).
@@ -647,6 +717,18 @@ export type HearingType = 'conciliation' | 'instruction' | 'combined' | 'judgmen
 
 export type HomologateSettlementRequest = {
     homologatedOn: string;
+};
+
+/**
+ * Uma linha da pré-visualização.
+ */
+export type ImportPreviewRow = {
+    row: number | string;
+    kind: CaseKind;
+    cnj: null | string;
+    folder: null | string;
+    client: string;
+    opponent: null | string;
 };
 
 export type InstallmentInput = {
@@ -1437,6 +1519,26 @@ export type TeamResponse = {
     practiceAreaId: null | string;
     branchId: null | string;
     memberIds: Array<string>;
+};
+
+/**
+ * Um acontecimento na linha do tempo do processo. string TimelineEntry.Kind é um código estável (`modulo.evento`, ex.:
+ * `litigation.hearing_rescheduled`) que a tela traduz; IReadOnlyDictionary&lt;string, string?&gt; TimelineEntry.Data traz os valores para o texto.
+ * string TimelineEntry.Id é único e estável entre as consultas (ex.: `hearing:{id}:rescheduled:{n}`), para a paginação.
+ */
+export type TimelineEntry = {
+    id: string;
+    at: string;
+    kind: string;
+    data: {
+        [key: string]: string;
+    };
+    referenceId: null | string;
+};
+
+export type TimelinePageResponse = {
+    items: Array<TimelineEntry>;
+    nextCursor: null | string;
 };
 
 /**
@@ -6435,3 +6537,224 @@ export type CancelCaseHearingResponses = {
 };
 
 export type CancelCaseHearingResponse = CancelCaseHearingResponses[keyof CancelCaseHearingResponses];
+
+export type GetCaseTimelineData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: {
+        cursor?: string;
+        limit?: number | string;
+        kind?: Array<string>;
+    };
+    url: '/api/v1/cases/{id}/timeline';
+};
+
+export type GetCaseTimelineErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseTimelineError = GetCaseTimelineErrors[keyof GetCaseTimelineErrors];
+
+export type GetCaseTimelineResponses = {
+    /**
+     * OK
+     */
+    200: TimelinePageResponse;
+};
+
+export type GetCaseTimelineResponse = GetCaseTimelineResponses[keyof GetCaseTimelineResponses];
+
+export type RunCaseBatchData = {
+    body: CaseBatchCommand;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/batch';
+};
+
+export type RunCaseBatchErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type RunCaseBatchError = RunCaseBatchErrors[keyof RunCaseBatchErrors];
+
+export type RunCaseBatchResponses = {
+    /**
+     * OK
+     */
+    200: CaseBatchResult;
+};
+
+export type RunCaseBatchResponse = RunCaseBatchResponses[keyof RunCaseBatchResponses];
+
+export type StartCaseImportData = {
+    body: {
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/imports';
+};
+
+export type StartCaseImportErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type StartCaseImportError = StartCaseImportErrors[keyof StartCaseImportErrors];
+
+export type StartCaseImportResponses = {
+    /**
+     * Accepted
+     */
+    202: CaseImportStarted;
+};
+
+export type StartCaseImportResponse = StartCaseImportResponses[keyof StartCaseImportResponses];
+
+export type GetCaseImportTemplateData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/cases/imports/template';
+};
+
+export type GetCaseImportTemplateErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetCaseImportTemplateError = GetCaseImportTemplateErrors[keyof GetCaseImportTemplateErrors];
+
+export type GetCaseImportTemplateResponses = {
+    /**
+     * OK
+     */
+    200: Stream;
+};
+
+export type GetCaseImportTemplateResponse = GetCaseImportTemplateResponses[keyof GetCaseImportTemplateResponses];
+
+export type GetCaseImportData = {
+    body?: never;
+    path: {
+        importId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/imports/{importId}';
+};
+
+export type GetCaseImportErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseImportError = GetCaseImportErrors[keyof GetCaseImportErrors];
+
+export type GetCaseImportResponses = {
+    /**
+     * OK
+     */
+    200: CaseImportResponse;
+};
+
+export type GetCaseImportResponse = GetCaseImportResponses[keyof GetCaseImportResponses];
+
+export type ConfirmCaseImportData = {
+    body?: never;
+    path: {
+        importId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/imports/{importId}/confirm';
+};
+
+export type ConfirmCaseImportErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type ConfirmCaseImportError = ConfirmCaseImportErrors[keyof ConfirmCaseImportErrors];
+
+export type ConfirmCaseImportResponses = {
+    /**
+     * Accepted
+     */
+    202: CaseImportStarted;
+};
+
+export type ConfirmCaseImportResponse = ConfirmCaseImportResponses[keyof ConfirmCaseImportResponses];
+
+export type GetCaseImportErrorsData = {
+    body?: never;
+    path: {
+        importId: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/imports/{importId}/errors';
+};
+
+export type GetCaseImportErrorsErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetCaseImportErrorsError = GetCaseImportErrorsErrors[keyof GetCaseImportErrorsErrors];
+
+export type GetCaseImportErrorsResponses = {
+    /**
+     * OK
+     */
+    200: Stream;
+};
+
+export type GetCaseImportErrorsResponse = GetCaseImportErrorsResponses[keyof GetCaseImportErrorsResponses];

@@ -1,5 +1,9 @@
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using LexFlow.Application.Abstractions;
+using LexFlow.Application.Abstractions.Integrations;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Infrastructure.Common.Context;
 using LexFlow.SharedKernel.Messaging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -15,11 +19,34 @@ namespace LexFlow.Api.IntegrationTests;
 /// Desliga transportes e persistência do Wolverine (que conectam ao subir) nos testes que derrubam dependências de propósito.
 /// </param>
 /// <param name="testAuthentication">Esquema de teste por cabeçalho (padrão) ou só a validação real de tokens OIDC.</param>
-public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settings, bool isolateMessaging = false, bool testAuthentication = true)
+/// <param name="replaceServices">Troca serviços da API (ex.: o antivírus), no mesmo contêiner usado por <see cref="RunJobsAsync"/>.</param>
+public sealed class LexFlowApiFactory(
+    IReadOnlyDictionary<string, string> settings,
+    bool isolateMessaging = false,
+    bool testAuthentication = true,
+    Action<IServiceCollection>? replaceServices = null)
     : WebApplicationFactory<Program>
 {
     /// <summary>Eventos de integração publicados pela API desta fábrica.</summary>
     public ConcurrentQueue<IntegrationEvent> PublishedEvents { get; } = new();
+
+    /// <summary>Jobs enfileirados pela API desta fábrica (não há Worker nos testes): rode com <see cref="RunJobsAsync"/>.</summary>
+    public RecordingJobScheduler Jobs { get; } = new();
+
+    /// <summary>Executa os jobs enfileirados (e os que eles enfileirarem), cada um no escritório informado.</summary>
+    public async Task RunJobsAsync(Guid organizationId)
+    {
+        while (Jobs.TryDequeue(out var job))
+        {
+            using var ambient = AmbientContext.Begin(organizationId, "test-jobs");
+            await using var scope = Services.CreateAsyncScope();
+
+            // Na API o escritório vem da requisição; o Worker o restaura do job. Aqui, pelo override do escopo.
+            using var tenant = scope.ServiceProvider.GetRequiredService<TenantOverride>().BeginForNewOrganization(organizationId);
+            var target = scope.ServiceProvider.GetRequiredService(job.Parameters[0].Type);
+            await (Task)job.Compile().DynamicInvoke(target)!;
+        }
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -49,6 +76,8 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
         {
             services.AddSingleton(PublishedEvents);
             services.Decorate<IIntegrationEventPublisher, RecordingPublisher>();
+            services.AddSingleton<IJobScheduler>(Jobs);
+            replaceServices?.Invoke(services);
         });
 
         if (isolateMessaging)
@@ -60,6 +89,26 @@ public sealed class LexFlowApiFactory(IReadOnlyDictionary<string, string> settin
             });
         }
     }
+}
+
+/// <summary>Guarda os jobs pedidos, para o teste executá-los quando quiser.</summary>
+public sealed class RecordingJobScheduler : IJobScheduler
+{
+    private readonly ConcurrentQueue<LambdaExpression> _queue = new();
+
+    public string Enqueue<TJob>(Expression<Func<TJob, Task>> job)
+    {
+        _queue.Enqueue(job);
+        return Guid.CreateVersion7().ToString("N");
+    }
+
+    public string Schedule<TJob>(Expression<Func<TJob, Task>> job, TimeSpan delay) => Enqueue(job);
+
+    public void AddOrUpdateRecurring<TJob>(string recurringJobId, Expression<Func<TJob, Task>> job, string cronExpression)
+    {
+    }
+
+    internal bool TryDequeue(out LambdaExpression job) => _queue.TryDequeue(out job!);
 }
 
 /// <summary>Repassa ao publicador real e guarda uma cópia do evento.</summary>

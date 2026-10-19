@@ -77,3 +77,15 @@ public interface ILookupItemValidator
 {
     Task<bool> IsActiveItemAsync(string systemTable, Guid itemId, CancellationToken cancellationToken);
 }
+
+/// <summary>Um item ativo de uma tabela auxiliar do sistema: o id e o nome.</summary>
+public sealed record LookupItemInfo(Guid Id, string Name);
+
+/// <summary>
+/// Os itens ativos de uma tabela auxiliar do sistema da organização ativa, para quem precisa achar o item pelo nome
+/// (ex.: a importação de processos). Implementado pelo Platform.
+/// </summary>
+public interface ILookupItems
+{
+    Task<IReadOnlyList<LookupItemInfo>> ActiveItemsAsync(string systemTable, CancellationToken cancellationToken);
+}

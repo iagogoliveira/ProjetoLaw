@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25 e 5C1 #26 mergeados; 5C2 em revisão; faltam 5D e 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26 e 5C2 #27 mergeados; 5D em revisão; falta o 5E) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao` |
 
 ---
 
@@ -39,10 +39,37 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Critério | Status | Evidência |
 | --- | --- | --- |
 | Lista com 100 mil processos no tenant responde em < 1,5 s (p95) com filtro por área e responsável | ✅ (5B, local) | `tests/LexFlow.LoadTests/run-cases-list.sh` (k6): p95 de 91 ms com área e responsável e de 89 ms com área, com 10 usuários simultâneos e nenhuma falha |
-| Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | Pendente (5D) | |
+| Importação de 10 mil linhas com 3% inválidas conclui e gera relatório exato das inválidas | ✅ (5D) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones`: 9.700 processos gravados e o relatório com exatamente as 300 linhas inválidas (6 defeitos × 50), cada uma com o código esperado |
 | Correção monetária confere com 10 casos calculados manualmente | ✅ (5C1) | `MonetaryIndexTests.Correction_matches_the_hand_calculated_cases` (10 casos da ADR 0027; os 6 de IPCA-E e INPC conferidos também na Calculadora do Cidadão do BCB) |
 
-### PR 5C2 — risco, acordos e audiências (em revisão)
+### PR 5D — linha do tempo, importação e operações em lote (em revisão)
+
+**Decisões de negócio (2026-10-18):**
+- Cliente ou parte contrária fora do cadastro é cadastrado automaticamente; se o CPF/CNPJ já existe, usa-se a pessoa existente.
+- A planilha pode trazer a pasta interna do sistema antigo (única no escritório); sem ela, vale a numeração do escritório.
+- CNJ que já existe no escritório vai para o relatório, e o processo existente não muda.
+- Importam-se as linhas válidas depois da confirmação, e as inválidas ficam no relatório.
+
+| # | Subtarefa | Testes |
+| --- | --- | --- |
+| 5.29 | Linha do tempo: `ITimelineContributor` (Litigation.Contracts), junção ordenada com cursor e filtro por tipo; o Litigation contribui com cadastro, situação, pedidos, risco, acordos e audiências | `CaseTimelineAndBatchTests.The_timeline_gathers_what_happened_newest_first_with_pages_and_filters`, `TimelineAndImportTests.The_timeline_position_orders_newest_first_and_breaks_ties_by_id` |
+| 5.30 | Histórico de situação (`case_status_changes`, só inserções) no encerramento, na reabertura, na suspensão, na reativação e no lote | `A_status_change_is_recorded_only_when_the_status_changes`, `LitigationDatabaseTests.The_application_cannot_rewrite_the_append_only_histories` |
+| 5.31 | Operações em lote: redistribuir o responsável, mudar a fase, suspender e reativar até 1.000 processos ao alcance; os demais voltam com o motivo | `A_batch_updates_the_reachable_open_cases_and_reports_the_rest`, `Redistribution_replaces_or_adds_the_responsible_and_phase_changes_on_open_cases` |
+| 5.32 | Importação XLSX/CSV: envio com antivírus e conferência do cabeçalho, validação em job, pré-visualização, confirmação, gravação em lotes retomável, relatório XLSX e modelo | `CaseImportTests` (3 casos), `An_import_is_confirmed_once_and_only_with_valid_rows`, `An_import_error_keeps_the_cell_and_the_stable_code` |
+| 5.33 | Contratos: `IJobTracker` (Platform), `ILookupItems` (Platform), `IOrganizationDirectory.ListAsync` e `MemberUserIdsAsync` (Organization), `IPeopleRegistry` (Crm) | `CaseImportTests.Ten_thousand_rows_with_three_percent_invalid_import_the_rest_and_report_exactly_the_invalid_ones` |
+| 5.34 | ClosedXML 0.105.1 (MIT), com a SixLabors.Fonts presa na 1.0.1 (Apache-2.0) | ADR 0029 e ADR 0002 |
+| 5.35 | RLS nas 3 tabelas novas, casos entre organizações nas 4 rotas novas com id, OpenAPI (7 caminhos novos, só adições) e cliente TypeScript | `EndpointSecurityTests`, `Every_tenant_table_has_forced_row_level_security_with_the_tenant_policy`, `OpenApiContractTests` |
+
+**ADR:** [0029 — Linha do tempo, importação de processos e operações em lote](adr/0029-linha-do-tempo-importacao-e-lote.md) (Proposta, para revisão no PR 5D).
+
+**Última verificação local (PR 5D):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 704 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Litigation.Application 92,2%, Litigation.Domain 97,9%, Platform.Application 97,2% e Crm.Application 94,4%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Pacote novo: ClosedXML 0.105.1 (ADR 0029).
+
+**Pendências do PR 5D:**
+1. Os processos e as pessoas importados ficam com o autor do sistema (o job roda sem usuário); quem enviou fica na importação.
+2. Prazos, documentos e financeiro entram na linha do tempo nas etapas deles.
+3. Telas da importação, da linha do tempo e do lote: PR 5E.
+
+### PR 5C2 — risco, acordos e audiências (concluído: PR #27 mergeado em 2026-10-18)
 
 **Decisões de negócio (2026-10-18):**
 - A negociação do acordo é livre; os termos finais (valor e parcelas) vão à aprovação interna antes de serem assinados e homologados.
@@ -60,7 +87,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 5.27 | Audiências: tipo, formato com local ou link, advogado (membro), preposto, testemunhas (pessoas do Crm); redesignação com histórico só de inserções; realizada ou cancelada não muda | `A_hearing_needs_the_place_its_format_asks_for`, `Rescheduling_keeps_the_same_hearing_with_the_previous_dates`, `A_held_or_cancelled_hearing_does_not_change`, `A_rescheduled_hearing_keeps_its_history_until_it_is_held` |
 | 5.28 | RLS nas 6 tabelas novas, risco e redesignações sem `UPDATE`/`DELETE` para a aplicação, alcance do processo nas 19 operações, casos entre organizações, OpenAPI (17 caminhos novos, só adições) e cliente TypeScript | `Risk_settlements_and_hearings_follow_the_reach_of_the_case`, `LitigationDatabaseTests.The_application_cannot_rewrite_the_append_only_histories` (6 casos), `EndpointSecurityTests`, `OpenApiContractTests` |
 
-**ADR:** [0028 — Risco, acordos e audiências do processo](adr/0028-risco-acordos-e-audiencias.md) (Proposta, para revisão no PR 5C2).
+**ADR:** [0028 — Risco, acordos e audiências do processo](adr/0028-risco-acordos-e-audiencias.md) (Aceita em 2026-10-18, com o merge do PR #27).
 
 **Última verificação local (PR 5C2):** `dotnet build` Release (0 warnings), `dotnet format --verify-no-changes`, 689 testes .NET em 15 projetos e 14 do AppHost, 66 Vitest, `npm run lint`, `npm run build`, Playwright contra o `ng serve` (4 aprovados; os que exigem o AppHost são pulados, sem mudança de tela), sem pacotes vulneráveis. Cobertura: Litigation.Application 93,6% e Litigation.Domain 97,6%. Sem mudança de modelo pendente nas migrations do Platform, Organization, Crm e Litigation. Nenhum pacote novo.
 

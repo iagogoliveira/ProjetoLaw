@@ -70,6 +70,11 @@
     <PackageVersion Include="AWSSDK.S3" Version="4.0.104.4" />
     <!-- ADR 0024: modelos DOCX de proposta (MIT; dependências DocumentFormat.OpenXml.Framework e System.IO.Packaging, MIT). -->
     <PackageVersion Include="DocumentFormat.OpenXml" Version="3.5.1" />
+    <!-- ADR 0029: importação de processos (XLSX). ClosedXML é MIT; dependências ClosedXML.Parser, ExcelNumberFormat e
+         RBush.Signed, MIT. A SixLabors.Fonts fica presa na 1.0.1 (Apache-2.0): da 2.0 em diante a licença é a
+         Six Labors Split License, comercial acima de um porte de empresa. -->
+    <PackageVersion Include="ClosedXML" Version="0.105.1" />
+    <PackageVersion Include="SixLabors.Fonts" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup Label="Pinagem transitiva (correções de segurança)">
     <!-- GHSA-qhrr-8q5h-9q3h: dependência transitiva do Aspire.Hosting 13.6.1 -->

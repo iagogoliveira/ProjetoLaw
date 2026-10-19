@@ -8,6 +8,8 @@ using LexFlow.Identity.Domain.Sessions;
 using LexFlow.Identity.Domain.Users;
 using LexFlow.Identity.Infrastructure.Persistence;
 using LexFlow.Infrastructure.Common.Context;
+using LexFlow.Litigation.Domain.CaseImports;
+using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.Organization.Contracts.Permissions;
 using LexFlow.Platform.Domain.Jobs;
 using LexFlow.Platform.Infrastructure.Persistence;
@@ -143,7 +145,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         return cases;
     }
 
-    /// <summary>Processos e casos (Etapa 5, PRs 5A a 5C2). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
+    /// <summary>Processos e casos (Etapa 5, PRs 5A a 5D). Os corpos passam na validação; o 404 vem do caso de outra organização.</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCaseRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
     {
         var parties = new[] { new { personId = Guid.CreateVersion7(), pole = "active", isClient = true } };
@@ -188,6 +190,10 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/reschedule"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { newDate = "2026-12-01T10:00:00Z" }),
             ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/hold"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { text = "x" }),
             ["POST /api/v1/cases/{id:guid}/hearings/{hearingId:guid}/cancel"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { text = "x" }),
+            ["GET /api/v1/cases/{id:guid}/timeline"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/imports/{importId:guid}"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
+            ["POST /api/v1/cases/imports/{importId:guid}/confirm"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
+            ["GET /api/v1/cases/imports/{importId:guid}/errors"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
         };
         foreach (var (route, create) in routes)
         {
@@ -195,6 +201,21 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         }
 
         return cases;
+    }
+
+    /// <summary>Importação já validada (pronta para confirmar) da organização do dono, gravada direto no banco.</summary>
+    private async Task<Guid> ImportOfAsync(SeededMember owner)
+    {
+        var id = Guid.CreateVersion7();
+        using var ambient = AmbientContext.Begin(owner.OrganizationId, "security-tests");
+        await using var provider = dependencies.PlatformServices();
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<LitigationDbContext>();
+        var import = CaseImport.Start(id, "processos.csv", Guid.CreateVersion7());
+        import.Validated(1, 0, "[]");
+        db.CaseImports.Add(import);
+        await db.SaveChangesAsync(Ct);
+        return id;
     }
 
     /// <summary>Caso extrajudicial (sem CNJ) da organização do dono, com uma pessoa dela como cliente.</summary>

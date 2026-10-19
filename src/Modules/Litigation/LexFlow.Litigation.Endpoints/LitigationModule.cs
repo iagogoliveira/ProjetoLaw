@@ -105,6 +105,7 @@ public sealed class LitigationModule : IModule
         MapRestrictions(endpoints);
         ClaimEndpoints.Map(endpoints);
         FollowUpEndpoints.Map(endpoints);
+        CaseImportEndpoints.Map(endpoints);
     }
 
     private static void MapQueries(IEndpointRouteBuilder endpoints)

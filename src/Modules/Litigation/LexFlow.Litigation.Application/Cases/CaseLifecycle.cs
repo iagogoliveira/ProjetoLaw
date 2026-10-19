@@ -24,7 +24,7 @@ internal sealed class CloseCaseValidator : AbstractValidator<CloseCaseCommand>
     }
 }
 
-internal sealed class CloseCaseHandler(ILitigationDbContext db, ILookupItemValidator lookups, CaseResponseBuilder responses) : ICommandHandler<CloseCaseCommand, CaseResponse>
+internal sealed class CloseCaseHandler(ILitigationDbContext db, ILookupItemValidator lookups, CaseResponseBuilder responses, CaseWrites writes) : ICommandHandler<CloseCaseCommand, CaseResponse>
 {
     public async Task<Result<CaseResponse>> Handle(CloseCaseCommand command, CancellationToken cancellationToken)
     {
@@ -39,11 +39,14 @@ internal sealed class CloseCaseHandler(ILitigationDbContext db, ILookupItemValid
             return LitigationErrors.ClosingReasonNotFound;
         }
 
+        var before = legalCase.Status;
         var closed = legalCase.Close(command.Closing);
         if (closed.IsFailure)
         {
             return closed.Error;
         }
+
+        writes.RecordStatus(legalCase.Id, before, legalCase.Status, command.Closing.Note);
 
         await db.SaveChangesAsync(cancellationToken);
         return await responses.BuildAsync(legalCase, cancellationToken);
@@ -53,7 +56,7 @@ internal sealed class CloseCaseHandler(ILitigationDbContext db, ILookupItemValid
 /// <summary>Reabre, suspende ou reativa o caso.</summary>
 public sealed record ChangeCaseStatusCommand(Guid Id, CaseStatus? Status, bool Reopen) : ICommand<CaseResponse>;
 
-internal sealed class ChangeCaseStatusHandler(ILitigationDbContext db, CaseResponseBuilder responses) : ICommandHandler<ChangeCaseStatusCommand, CaseResponse>
+internal sealed class ChangeCaseStatusHandler(ILitigationDbContext db, CaseResponseBuilder responses, CaseWrites writes) : ICommandHandler<ChangeCaseStatusCommand, CaseResponse>
 {
     public async Task<Result<CaseResponse>> Handle(ChangeCaseStatusCommand command, CancellationToken cancellationToken)
     {
@@ -63,11 +66,14 @@ internal sealed class ChangeCaseStatusHandler(ILitigationDbContext db, CaseRespo
             return LitigationErrors.CaseNotFound;
         }
 
+        var before = legalCase.Status;
         var changed = command.Reopen ? legalCase.Reopen() : legalCase.SetStatus(command.Status ?? CaseStatus.Active);
         if (changed.IsFailure)
         {
             return changed.Error;
         }
+
+        writes.RecordStatus(legalCase.Id, before, legalCase.Status, null);
 
         await db.SaveChangesAsync(cancellationToken);
         return await responses.BuildAsync(legalCase, cancellationToken);

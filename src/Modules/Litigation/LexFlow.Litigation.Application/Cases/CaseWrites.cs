@@ -31,4 +31,13 @@ internal sealed class CaseWrites(ILitigationDbContext db, ICurrentUser user, ICl
     }
 
     public Task<bool> ExistsAsync(Guid caseId, CancellationToken cancellationToken) => db.Cases.AnyAsync(c => c.Id == caseId, cancellationToken);
+
+    /// <summary>Registra a mudança de situação (para a linha do tempo), se houve; grava junto com o processo.</summary>
+    public void RecordStatus(Guid caseId, CaseStatus from, CaseStatus to, string? note)
+    {
+        if (CaseStatusChange.Between(caseId, from, to, note, UserId, Now) is { } change)
+        {
+            db.StatusChanges.Add(change);
+        }
+    }
 }

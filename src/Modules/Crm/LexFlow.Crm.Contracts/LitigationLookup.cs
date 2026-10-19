@@ -34,3 +34,25 @@ public interface IPeopleDirectory
     /// <summary>Ids das pessoas com o nome normalizado (<c>SearchText</c>) ou o documento (só dígitos) informados.</summary>
     Task<IReadOnlyList<Guid>> FindAsync(string searchName, string? document, CancellationToken cancellationToken);
 }
+
+/// <summary>Papel com que a pessoa entra pela importação de processos.</summary>
+public enum PersonSeedRole
+{
+    Client,
+    Opponent,
+}
+
+/// <summary>Pessoa citada numa linha importada: o nome e, se houver, o CPF ou CNPJ (com ou sem pontuação).</summary>
+public sealed record PersonSeed(string Name, string? Document, PersonSeedRole Role);
+
+/// <summary>
+/// Acha ou cadastra as pessoas citadas numa importação de processos (decisão de 2026-10-18). Com documento, usa a pessoa
+/// que já o tem; sem documento, a que tem exatamente o mesmo nome e nenhum documento; senão, cadastra (CPF: pessoa
+/// física; CNPJ ou sem documento: jurídica). Garante o papel (cliente ou parte contrária). Grava na hora.
+/// Implementado pelo Crm.
+/// </summary>
+public interface IPeopleRegistry
+{
+    /// <summary>Os ids das pessoas, na mesma ordem das sementes.</summary>
+    Task<IReadOnlyList<Guid>> EnsureAsync(IReadOnlyList<PersonSeed> seeds, CancellationToken cancellationToken);
+}

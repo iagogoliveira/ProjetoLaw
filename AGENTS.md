@@ -56,8 +56,9 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 - **Etapa 5 (processos e casos):**
   - 5A (#24) e 5B (#25) mergeados;
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
-  - **5C2 (#27): aberto**, aguardando o CI e o merge do usuário, no branch `etapa-5c2-risco-acordos`. Traz risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
-  - **o próximo é o PR 5D:** linha do tempo (`ITimelineContributor`), importação XLSX/CSV com ClosedXML (critério 2: 10 mil linhas com 3% inválidas e relatório exato; checar a licença e registrar ADR) e operações em lote (redistribuir responsável, alterar fase e situação). Planeje e mostre o plano antes.
+  - 5C2 (#27) mergeado: risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
+  - **5D: PR aberto** no branch `etapa-5d-timeline-importacao`, aguardando o CI e o merge do usuário. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
+  - **depois do merge do 5D, o próximo é o PR 5E:** frontend e e2e dos processos (lista com filtros, detalhe com abas, pedidos, risco, acordos, audiências, linha do tempo, importação e lote). Planeje e mostre o plano antes.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -67,7 +68,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - a SELIC não leva juros extras e se acumula por soma;
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
-- **Depois do 5D:** 5E, com o frontend e os e2e dos processos (lista, detalhe com abas, pedidos, risco, acordos, audiências, importação).
+- **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
+- **Depois do 5E:** a Etapa 6 (publicações e andamentos), na ordem da `implementacao.md`.
 
 ## Ciclo de trabalho (um PR por vez)
 
@@ -137,3 +139,6 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
 - **Erros de validação:** o FluentValidation responde `validation.failed`, com o código de cada campo em `errors`. Só os erros dos handlers vêm no `code` principal.
 - **`DateTimeOffset` no PostgreSQL:** o Npgsql só grava em UTC (`timestamptz`). Normalize com `ToUniversalTime()` no domínio quando a data vem do usuário com fuso.
 - **Eventos nos testes:** o `PublishedEvents` da fábrica guarda o evento antes de o publicador preencher `OrganizationId` e `EventId`; não confira esses campos ali.
+- **Jobs nos testes de API:** não há Worker. A fábrica troca o `IJobScheduler` por um que guarda os jobs, e o teste os executa com `_factory.RunJobsAsync(orgId)`, que usa o `TenantOverride` do escopo. Serviços como o antivírus são trocados pelo parâmetro `replaceServices` da fábrica, e não pelo `WithWebHostBuilder`, que criaria outro contêiner. O bucket do armazenamento precisa de `IObjectStorageProvisioner.EnsureBucketAsync` no início do teste.
+- **Nomes reservados (CA1716):** `Imports`, `Structure` e outros nomes de palavras-chave do VB não servem para namespace nem para membro de interface. Use `CaseImports`, `OrgStructure` etc.
+- **Caminhos no CI (Linux):** `Path.GetFileName` não trata `\` como separador fora do Windows. Para nomes de arquivo vindos do usuário, corte no último `/` ou `\` (ver `CaseImport.Start`).

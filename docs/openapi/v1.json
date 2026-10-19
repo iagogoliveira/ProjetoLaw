@@ -9219,6 +9219,405 @@
           }
         }
       }
+    },
+    "/api/v1/cases/{id}/timeline": {
+      "get": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Linha do tempo do processo: os acontecimentos de todos os módulos, do mais recente ao mais antigo",
+        "operationId": "GetCaseTimeline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimelinePageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/batch": {
+      "post": {
+        "tags": [
+          "Cases"
+        ],
+        "summary": "Redistribui o responsável, muda a fase, suspende ou reativa até 1.000 processos; os fora de alcance ou encerrados ficam de fora, com o motivo",
+        "operationId": "RunCaseBatch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseBatchCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseBatchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/imports": {
+      "post": {
+        "tags": [
+          "CaseImports"
+        ],
+        "summary": "Envia uma planilha XLSX ou CSV (até 10 MB e 20 mil linhas); a validação roda em segundo plano",
+        "operationId": "StartCaseImport",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseImportStarted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/imports/template": {
+      "get": {
+        "tags": [
+          "CaseImports"
+        ],
+        "summary": "A planilha modelo, com as colunas e uma linha de exemplo",
+        "operationId": "GetCaseImportTemplate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/imports/{importId}": {
+      "get": {
+        "tags": [
+          "CaseImports"
+        ],
+        "summary": "Andamento da importação: totais, pré-visualização e os primeiros erros",
+        "operationId": "GetCaseImport",
+        "parameters": [
+          {
+            "name": "importId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseImportResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/imports/{importId}/confirm": {
+      "post": {
+        "tags": [
+          "CaseImports"
+        ],
+        "summary": "Confirma a pré-visualização: grava as linhas válidas em segundo plano",
+        "operationId": "ConfirmCaseImport",
+        "parameters": [
+          {
+            "name": "importId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseImportStarted"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/imports/{importId}/errors": {
+      "get": {
+        "tags": [
+          "CaseImports"
+        ],
+        "summary": "Relatório das linhas inválidas (XLSX: linha, coluna, valor, código e mensagem)",
+        "operationId": "GetCaseImportErrors",
+        "parameters": [
+          {
+            "name": "importId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9477,6 +9876,116 @@
           }
         }
       },
+      "CaseBatchAction": {
+        "enum": [
+          "redistribute",
+          "changePhase",
+          "suspend",
+          "reactivate"
+        ],
+        "description": "Ações em lote sobre processos selecionados (Etapa 5, tarefa 7)."
+      },
+      "CaseBatchCommand": {
+        "required": [
+          "caseIds",
+          "action",
+          "fromUserId",
+          "toUserId",
+          "role",
+          "phaseId",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "caseIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "action": {
+            "$ref": "#/components/schemas/CaseBatchAction"
+          },
+          "fromUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "toUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "role": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AssignmentRole"
+              }
+            ]
+          },
+          "phaseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CaseBatchResult": {
+        "required": [
+          "updated",
+          "skipped"
+        ],
+        "type": "object",
+        "properties": {
+          "updated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseBatchSkip"
+            }
+          }
+        }
+      },
+      "CaseBatchSkip": {
+        "required": [
+          "caseId",
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "description": "Um processo que ficou de fora do lote e por quê (código estável)."
+      },
       "CaseClaimsResponse": {
         "required": [
           "updatedTo",
@@ -9505,6 +10014,173 @@
             }
           }
         }
+      },
+      "CaseImportErrorResponse": {
+        "required": [
+          "row",
+          "column",
+          "value",
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "row": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "column": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "CaseImportResponse": {
+        "required": [
+          "id",
+          "fileName",
+          "status",
+          "totalRows",
+          "validRows",
+          "invalidRows",
+          "importedRows",
+          "preview",
+          "errors",
+          "errorCode",
+          "validationJobId",
+          "importJobId",
+          "createdAt",
+          "completedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseImportStatus"
+          },
+          "totalRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "validRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "invalidRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "importedRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "preview": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportPreviewRow"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseImportErrorResponse"
+            }
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "validationJobId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "importJobId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        },
+        "description": "Estado da importação: os totais, a pré-visualização (as primeiras linhas válidas) e os primeiros erros; o relatório\ncompleto das linhas inválidas é baixado à parte."
+      },
+      "CaseImportStarted": {
+        "required": [
+          "importId",
+          "jobId"
+        ],
+        "type": "object",
+        "properties": {
+          "importId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "jobId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "description": "A importação recebida e o job que a processa (`GET /api/v1/jobs/{jobId}`)."
+      },
+      "CaseImportStatus": {
+        "enum": [
+          "validating",
+          "ready",
+          "importing",
+          "completed",
+          "failed"
+        ],
+        "description": "Andamento da importação de processos."
       },
       "CaseInput": {
         "required": [
@@ -11879,6 +12555,52 @@
             "format": "date"
           }
         }
+      },
+      "ImportPreviewRow": {
+        "required": [
+          "row",
+          "kind",
+          "cnj",
+          "folder",
+          "client",
+          "opponent"
+        ],
+        "type": "object",
+        "properties": {
+          "row": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CaseKind"
+          },
+          "cnj": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "folder": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "client": {
+            "type": "string"
+          },
+          "opponent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Uma linha da pré-visualização."
       },
       "InstallmentInput": {
         "required": [
@@ -14973,6 +15695,63 @@
           }
         }
       },
+      "TimelineEntry": {
+        "required": [
+          "id",
+          "at",
+          "kind",
+          "data",
+          "referenceId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "referenceId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        },
+        "description": "Um acontecimento na linha do tempo do processo. string TimelineEntry.Kind é um código estável (`modulo.evento`, ex.:\n`litigation.hearing_rescheduled`) que a tela traduz; IReadOnlyDictionary&lt;string, string?&gt; TimelineEntry.Data traz os valores para o texto.\nstring TimelineEntry.Id é único e estável entre as consultas (ex.: `hearing:{id}:rescheduled:{n}`), para a paginação."
+      },
+      "TimelinePageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineEntry"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "TotpSetupResponse": {
         "required": [
           "sharedKey",
@@ -15227,6 +16006,9 @@
     },
     {
       "name": "Cases"
+    },
+    {
+      "name": "CaseImports"
     }
   ]
 }
