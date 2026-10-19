@@ -39,6 +39,14 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Última verificação local (arrumação pós-merge, 2026-10-19):** merge do PR #30 confirmado no GitHub (`33ec6bb`); `main` atualizada por fast-forward e branch da Etapa 6 criado a partir dela. Somente documentação alterada; mantém-se a verificação completa do 5E2 registrada abaixo e o CI aprovado informado pelo usuário. Nenhum teste de runtime reexecutado para esta arrumação documental.
 
 **Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
+### PR 6B — captura e alertas (escopo aprovado; regras complementares aguardando resposta)
+
+**Estado (2026-10-19):** arrumação pós-merge do #31 enviada no commit `4bcc2cd`, branch `codex/etapa-6b-captura-alertas`. Nenhum código do 6B implementado. A leitura do RF-05/RF-10 e do plano mostrou duas regras de negócio ainda não definidas; foram perguntadas ao usuário antes de decidir, sem reabrir a aprovação do escopo 6B.
+
+1. **Destinatários/canais:** proposta de alertar por e-mail e in-app os membros ativos com `settings.integrations.manage` ou `publications.triage` em escopo de escritório; novas publicações geram aviso in-app/SignalR para quem tem `publications.read` e alcance do conteúdo, sem e-mail individual por publicação. Aguardar confirmação ou alternativa.
+2. **Ativação tardia e retorno vazio:** proposta de capturar imediatamente fontes criadas/reativadas após 05h; depois de 07h, tolerância de até uma hora desde a ativação antes do alerta de ausência de sucesso. Execução concluída com zero publicações conta como sucesso; falha/ausência de execução gera alerta. Aguardar confirmação ou alternativa.
+
+**Última verificação local desta preparação:** estado `MERGED` e base `f2e01a9` confirmados, diretório limpo antes da arrumação, diff documental sem erro e AGENTS/CLAUDE sincronizados. Não houve mudança de runtime; preservados os resultados completos do 6A. Após as respostas, formalizar ADR 0033 proposta e implementar/testar o 6B. Commit local da implementação; envio/PR somente a pedido.
 ### PR 6A — base de Publications, fontes e andamentos (concluído: PR #31 mergeado em 2026-10-19)
 
 **Escopo:** primeiro PR do plano aprovado em 2026-10-19; não antecipa os fluxos dos PRs 6B a 6E. ADR [0032 — Módulo Publications: fontes, consultas e andamentos](adr/0032-modulo-publications-fontes-consultas-e-andamentos.md), aceita com o merge do PR #31 em 2026-10-19.

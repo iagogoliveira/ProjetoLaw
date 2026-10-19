@@ -71,7 +71,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Próximo trabalho:** implementar e verificar o 6B conforme o plano aprovado; commit local ao concluir. Push e PR da implementação só a pedido. A arrumação documental pós-merge tem commit/push autorizado pelo ciclo de trabalho. Não fazer merge pelo usuário.
+- **Próximo trabalho:** aguardar as duas respostas complementares de negócio do 6B registradas no topo do handoff (destinatários/canais e ativação tardia/retorno vazio), então implementar e verificar o escopo já aprovado; commit local ao concluir. Push e PR da implementação só a pedido. A arrumação documental pós-merge tem commit/push autorizado pelo ciclo de trabalho. Não fazer merge pelo usuário.
 
 ## Ciclo de trabalho (um PR por vez)
 

@@ -10,6 +10,19 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (arrumação do #31 enviada; duas regras complementares antes do 6B)
+
+**Branch:** `codex/etapa-6b-captura-alertas`. **Estado:** arrumação pós-merge enviada no commit `4bcc2cd`, a partir de `main`/merge `f2e01a9`. 6A #31 concluído, ADR 0032 aceita. Nenhum código ou PR do 6B criado. Este registro das perguntas fica em commit documental local, para acompanhar o próximo envio autorizado.
+
+**Feito/verificado:** confirmado merge do #31 e main atualizada; branch do 6B criado; progresso/AGENTS/CLAUDE/handoff atualizados, diff documental conferido e AGENTS/CLAUDE idênticos. Lidos novamente RF-05/RF-10, seção da captura e contratos locais de jobs/estrutura. Não repetida a suíte de runtime porque só houve documentação; mantidos os resultados completos do 6A.
+
+**Aguardar respostas do usuário antes de implementar as regras:**
+1. Alertas de captura ausente por e-mail/in-app para membros ativos com `settings.integrations.manage` ou `publications.triage` em escopo de escritório? Novas publicações só por in-app/SignalR, para quem tem `publications.read` e alcance do conteúdo, sem e-mail individual? Essa é a proposta, ainda não aprovada especificamente.
+2. Fontes criadas/reativadas após 05h capturam imediatamente? Depois de 07h, tolerância de até uma hora desde a ativação antes do alerta? Execução concluída com zero publicações conta como sucesso, ao contrário de falha ou ausência de execução? Essa é a proposta, ainda não aprovada especificamente.
+
+**Motivo:** o plano 6B e os canais foram aprovados, mas os destinatários e essas situações de captura não estavam definidos no plano, especificação ou ADRs. Segue a regra do projeto de perguntar antes de decidir dúvida de negócio; não pedir nova aprovação do plano inteiro. Não presumir resposta pelo silêncio. Com as respostas, registrar decisões, formalizar ADR 0033 proposta e implementar/verificar o 6B; commit local, sem push/PR até pedido. Nunca fazer merge.
+
+---
 ## 2026-10-19 — Codex (6A #31 mergeado; arrumação e início do 6B aprovado)
 
 **Branch:** `codex/etapa-6b-captura-alertas`, criado da `main` atualizada no merge `f2e01a9` do PR #31. **Estado:** o usuário informou merge e aprovação; confirmado `MERGED` no GitHub em 2026-10-19. Arrumação documental em commit/push neste branch, conforme o ciclo já autorizado. Nenhum PR do 6B aberto.
