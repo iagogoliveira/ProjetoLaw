@@ -4,6 +4,7 @@ using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Notifications;
 using LexFlow.Platform.Domain.Preferences;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ namespace LexFlow.Platform.Application.Abstractions;
 /// <summary>Acesso aos dados do módulo pelos handlers (implementado pelo <c>PlatformDbContext</c> na Infrastructure).</summary>
 public interface IPlatformDbContext
 {
+    DbSet<Notification> Notifications { get; }
+    DbSet<NotificationReceipt> NotificationReceipts { get; }
     DbSet<Job> Jobs { get; }
 
     DbSet<IdempotencyKey> IdempotencyKeys { get; }

@@ -1,5 +1,7 @@
 using FluentValidation;
+using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Publications.Contracts;
 using LexFlow.Publications.Domain;
 using LexFlow.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
@@ -37,25 +39,38 @@ internal sealed class GetCaptureSourceHandler(IPublicationsDbContext db) : IQuer
         return source is null ? PublicationErrors.SourceNotFound : CaptureSourceResponse.Of(source);
     }
 }
-internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db) : ICommandHandler<CreateCaptureSourceCommand, CaptureSourceResponse>
+internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events) : ICommandHandler<CreateCaptureSourceCommand, CaptureSourceResponse>
 {
     public async Task<Result<CaptureSourceResponse>> Handle(CreateCaptureSourceCommand command, CancellationToken cancellationToken)
     {
         var result = CaptureSource.Create(command.Input);
         if (result.IsFailure) { return result.Error; }
+        if (result.Value.IsActive)
+        {
+            result.Value.ActivateAt(clock.UtcNow);
+            events.Publish(new SourceActivatedIntegrationEvent(result.Value.Id));
+        }
         db.Sources.Add(result.Value);
         await db.SaveChangesAsync(cancellationToken);
         return CaptureSourceResponse.Of(result.Value);
     }
 }
-internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db) : ICommandHandler<UpdateCaptureSourceCommand, CaptureSourceResponse>
+internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events) : ICommandHandler<UpdateCaptureSourceCommand, CaptureSourceResponse>
 {
     public async Task<Result<CaptureSourceResponse>> Handle(UpdateCaptureSourceCommand command, CancellationToken cancellationToken)
     {
         var source = await db.Sources.SingleOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
         if (source is null) { return PublicationErrors.SourceNotFound; }
+        var wasActive = source.IsActive;
+        var oldKind = source.Kind;
+        var oldValue = source.Value;
         var result = source.Update(command.Input);
         if (result.IsFailure) { return result.Error; }
+        if (source.IsActive && (!wasActive || oldKind != source.Kind || !string.Equals(oldValue, source.Value, StringComparison.Ordinal)))
+        {
+            source.ActivateAt(clock.UtcNow);
+            events.Publish(new SourceActivatedIntegrationEvent(source.Id));
+        }
         await db.SaveChangesAsync(cancellationToken);
         return CaptureSourceResponse.Of(source);
     }

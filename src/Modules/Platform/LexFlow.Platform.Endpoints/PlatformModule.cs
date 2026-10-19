@@ -28,6 +28,7 @@ public sealed class PlatformModule : IModule
 {
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSignalR();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -43,6 +44,7 @@ public sealed class PlatformModule : IModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        NotificationEndpoints.Map(endpoints);
         CustomFieldEndpoints.Map(endpoints);
         MonetaryIndexEndpoints.Map(endpoints);
     }

@@ -39,6 +39,7 @@ builder.Services.AddWebCommon();
 // Módulos: Application (handlers e validadores) + Infrastructure (DbContext, adaptadores).
 builder.Services.AddApplication(PlatformApplication.Assembly, IdentityApplication.Assembly, OrganizationApplication.Assembly, CrmApplication.Assembly, LitigationApplication.Assembly, PublicationsApplication.Assembly);
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
+builder.Services.AddPlatformNotifications();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServer(builder.Environment);
 builder.Services.AddOrganizationInfrastructure(builder.Configuration);

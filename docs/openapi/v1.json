@@ -385,6 +385,80 @@
         }
       }
     },
+    "/api/v1/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Notificações visíveis do usuário no escritório ativo",
+        "operationId": "ListNotifications",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationsPageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Marca a notificação como lida somente para o usuário atual",
+        "operationId": "ReadNotification",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/v1/custom-fields": {
       "get": {
         "tags": [
@@ -9760,6 +9834,84 @@
         }
       }
     },
+    "/api/v1/publication-sources/{id}/capture": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Execuções e alerta da fonte no dia; exige integração ou triagem no escopo do escritório",
+        "operationId": "GetCaptureState",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureStateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/capture-alerts": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Alertas de captura do dia; exige integração ou triagem no escopo do escritório",
+        "operationId": "ListCaptureAlerts",
+        "parameters": [
+          {
+            "name": "day",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CaptureAlertResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/publication-sources": {
       "get": {
         "tags": [
@@ -10321,6 +10473,102 @@
           }
         }
       },
+      "CaptureAlertResponse": {
+        "required": [
+          "id",
+          "sourceId",
+          "day",
+          "raisedAt",
+          "resolvedAt",
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "raisedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolvedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "errorCode": {
+            "type": "string"
+          }
+        }
+      },
+      "CaptureRunResponse": {
+        "required": [
+          "id",
+          "day",
+          "status",
+          "startedAt",
+          "finishedAt",
+          "count",
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaptureRunStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CaptureRunStatus": {
+        "enum": [
+          "running",
+          "succeeded",
+          "failed"
+        ]
+      },
       "CaptureSourceInput": {
         "required": [
           "kind",
@@ -10376,6 +10624,46 @@
           },
           "isActive": {
             "type": "boolean"
+          }
+        }
+      },
+      "CaptureStateResponse": {
+        "required": [
+          "sourceId",
+          "day",
+          "dueBy",
+          "runs",
+          "alert"
+        ],
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "dueBy": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaptureRunResponse"
+            }
+          },
+          "alert": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CaptureAlertResponse"
+              }
+            ]
           }
         }
       },
@@ -13965,6 +14253,61 @@
         },
         "description": "Acesso do usuário: organizações das quais é membro, a ativa (a da requisição) e as permissões nela, para o SPA\nesconder o que não cabe (a UI só esconde; quem bloqueia é o servidor)."
       },
+      "NotificationResponse": {
+        "required": [
+          "id",
+          "kind",
+          "resourceId",
+          "createdAt",
+          "readAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "NotificationsPageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationResponse"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "NumberingRequest": {
         "required": [
           "format",
@@ -16849,6 +17192,9 @@
     },
     {
       "name": "Jobs"
+    },
+    {
+      "name": "Notifications"
     },
     {
       "name": "CustomFields"

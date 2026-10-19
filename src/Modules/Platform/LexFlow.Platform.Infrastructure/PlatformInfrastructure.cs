@@ -6,12 +6,14 @@ using LexFlow.Platform.Application.Courts;
 using LexFlow.Platform.Application.CustomFields;
 using LexFlow.Platform.Application.Indexes;
 using LexFlow.Platform.Application.Jobs;
+using LexFlow.Platform.Application.Notifications;
 using LexFlow.Platform.Contracts.Courts;
 using LexFlow.Platform.Contracts.CustomFields;
 using LexFlow.Platform.Contracts.Indexes;
 using LexFlow.Platform.Contracts.Jobs;
 using LexFlow.Platform.Infrastructure.Idempotency;
 using LexFlow.Platform.Infrastructure.Indexes;
+using LexFlow.Platform.Infrastructure.Notifications;
 using LexFlow.Platform.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +23,13 @@ namespace LexFlow.Platform.Infrastructure;
 
 public static class PlatformInfrastructure
 {
+    public static IServiceCollection AddPlatformNotifications(this IServiceCollection services)
+    {
+        services.AddScoped<NotificationAccess>();
+        services.AddScoped<INotificationReadLock, NotificationReadLock>();
+        return services;
+    }
+
     public static IServiceCollection AddPlatformInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddModuleDbContext<PlatformDbContext>(configuration, PlatformDbContext.ModuleName, PlatformDbContext.SchemaName);

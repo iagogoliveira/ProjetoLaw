@@ -11,16 +11,17 @@ public sealed class CaptureRun : Entity<Guid>, ITenantOwned
     public Guid OrganizationId { get; private set; }
     public Guid SourceId { get; private set; }
     public DateOnly Day { get; private set; }
+    public DateTimeOffset? SourceActivatedAt { get; private set; }
     public CaptureRunStatus Status { get; private set; }
     public DateTimeOffset StartedAt { get; private set; }
     public DateTimeOffset? FinishedAt { get; private set; }
     public int Count { get; private set; }
     public string? ErrorCode { get; private set; }
 
-    public static Result<CaptureRun> Start(Guid sourceId, DateOnly day, DateTimeOffset now)
+    public static Result<CaptureRun> Start(Guid sourceId, DateOnly day, DateTimeOffset now, DateTimeOffset? sourceActivatedAt = null)
     {
         if (sourceId == Guid.Empty || day == default) { return PublicationErrors.InvalidRun; }
-        return new CaptureRun { Id = Guid.CreateVersion7(), SourceId = sourceId, Day = day, StartedAt = now.ToUniversalTime() };
+        return new CaptureRun { Id = Guid.CreateVersion7(), SourceId = sourceId, SourceActivatedAt = sourceActivatedAt?.ToUniversalTime(), Day = day, StartedAt = now.ToUniversalTime() };
     }
 
     public Result Finish(int count, string? errorCode, DateTimeOffset now)

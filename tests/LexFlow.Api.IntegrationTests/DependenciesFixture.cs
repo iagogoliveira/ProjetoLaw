@@ -91,6 +91,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
 
         // Índices monetários: fonte falsa, sem internet (o seed real vem da migration).
         ["Platform:MonetaryIndexes:Source"] = "Fake",
+        ["Publications:Provider"] = "Fake",
     };
 
     public async ValueTask InitializeAsync()

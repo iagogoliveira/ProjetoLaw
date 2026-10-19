@@ -7,6 +7,7 @@ using LexFlow.Platform.Domain.CustomFields;
 using LexFlow.Platform.Domain.Idempotency;
 using LexFlow.Platform.Domain.Indexes;
 using LexFlow.Platform.Domain.Jobs;
+using LexFlow.Platform.Domain.Notifications;
 using LexFlow.Platform.Domain.Preferences;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public const string SchemaName = "platform";
     public const string ModuleName = "Platform";
 
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationReceipt> NotificationReceipts => Set<NotificationReceipt>();
     public DbSet<Job> Jobs => Set<Job>();
 
     public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();

@@ -16,6 +16,8 @@ public sealed class CaptureSource : Entity<Guid>, ITenantOwned, IAuditable
     public string Label { get; private set; } = string.Empty;
     public string Value { get; private set; } = string.Empty;
     public bool IsActive { get; private set; }
+    public DateTimeOffset? ActivatedAt { get; private set; }
+    public void ActivateAt(DateTimeOffset now) => ActivatedAt = now.ToUniversalTime();
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
