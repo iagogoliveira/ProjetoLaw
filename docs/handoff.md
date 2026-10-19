@@ -10,6 +10,22 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (manual inicial e AppHost disponível para exploração)
+
+**Pedido do usuário:** quer visualizar a aplicação e começar um manual de utilização que evolua com as entregas. Implementado como documentação no repositório; o conector de documentos não está disponível nesta sessão. Não houve pedido de novo push/PR ou merge.
+
+**Branch/estado:** `codex/etapa-6b-captura-alertas`; PR [#32](https://github.com/iagogoliveira/ProjetoLaw/pull/32) aberto, código e documentos do 6B enviados até `1693fd5`. Manual/guia e atualização de continuidade ficam em commit documental local desta entrada, sem push, para não cancelar o CI em execução. ADR 0033 continua proposta. Nenhum código de runtime alterado.
+
+**Feito:** `docs/manual/README.md` cobre primeiro acesso, Mailpit, conta, permissões, configurações, pessoas/conflitos, processos, valores, risco, acordos, audiências, importação e propostas. Inclui roteiro de experimentação e lista de funcionalidades ainda sem tela. `docs/manual/ambiente-local.md` explica iniciar/parar/reabrir pelo PowerShell, endereços, persistência e problemas comuns. Primeira edição sem imagens; próximas entregas devem atualizar os fluxos correspondentes. Regra adicionada ao AGENTS/CLAUDE sincronizados.
+
+**Verificado:** Docker 29.6.2; `dotnet run --project src/Aspire/LexFlow.AppHost --no-build` iniciado com Debug já compilado e sem alterações de backend desde a verificação do 6B. SPA `http://localhost:4200`, API `http://localhost:5238/health/ready` e Mailpit `http://localhost:8025` responderam HTTP 200. Rotas/componentes/traduções/e2e foram consultados para o manual; links, texto e diff documental conferidos antes do commit. Suíte completa não repetida para documentação; resultados do 6B preservados.
+
+**Ambiente em uso:** AppHost permanece executando para o usuário, sessão de execução `32406`, log local `TestResults/manual-apphost.log`. Não encerrar como rotina de limpeza enquanto o usuário explora as telas; não executar AppHost.Tests em paralelo. O usuário cria sua conta pela interface e confirma e-mails pelo Mailpit; nenhuma credencial de demonstração foi criada para ele.
+
+**Próximo passo:** permitir a exploração manual, receber observações e ampliar o manual conforme as telas evoluírem. Enviar o complemento documental somente quando solicitado. Aguardar CI/revisão/merge do #32; depois seguir o ciclo de arrumação e o 6C. Não fazer merge pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (envio e abertura do PR 6B autorizados)
 
 **Branch:** `codex/etapa-6b-captura-alertas`. **Decisão do usuário:** “Crie o PR”. Isso autoriza o push do código/documentação e a abertura do PR para `main`; não autoriza merge. Implementação pronta no commit `6de6b4f`, após `d46b774` (perguntas) e `4bcc2cd` (arrumação pós-merge do #31).

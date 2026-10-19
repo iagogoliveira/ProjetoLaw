@@ -19,6 +19,7 @@ Este arquivo tem as mesmas regras do `CLAUDE.md`, mais o que é preciso para con
 - Todo dado de escritório implementa `ITenantOwned`. Dado ligado a processo implementa `ICaseScoped`.
 - Handlers retornam `Result<T>`. Erros têm código estável (`modulo.erro`).
 - Frontend: componentes standalone, OnPush e signals; sem HTTP fora de `data/`; textos via Transloco (pt-BR e en com as mesmas chaves).
+- Manual de utilização: ao alterar uma tela ou fluxo de uso, atualize `docs/manual/README.md`; instruções de inicialização ficam em `docs/manual/ambiente-local.md`. Descreva o que está entregue e identifique funcionalidades futuras.
 - Comandos obrigatórios: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`.
 - Antes de concluir: rode tudo acima e atualize `docs/progress.md`.
 - Dúvida de negócio ou ação irreversível: pare e pergunte.
@@ -45,6 +46,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - 0025 e 0026: módulo Litigation, numeração, escopo de dados e casos sigilosos.
 5. **`docs/openapi/v1.json`**: o contrato da API, gerado pelos testes (não edite à mão).
 6. **`tests/LexFlow.LoadTests/README.md`**: como rodar o teste de carga.
+7. **`docs/manual/README.md`** e **`docs/manual/ambiente-local.md`**: manual de utilização e guia de inicialização; atualizar quando mudar o uso das telas.
 
 Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, vale a decisão registrada, que é mais recente. Em caso de dúvida, pergunte.
 
@@ -60,7 +62,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
   - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
-- **Etapa 6 (publicações e andamentos):** plano 6A a 6E aprovado em 2026-10-19. **6A (#31) aprovado e mergeado pelo usuário em 2026-10-19**, ADR 0032 aceita. **6B implementado no branch `codex/etapa-6b-captura-alertas`**, da main `f2e01a9`: provedores fake, deduplicação concorrente, janela/retentativas/ativação tardia, monitor independente, alerta persistido/métrica e notificações mínimas in-app/e-mail/SignalR com alcance revalidado. ADR 0033 proposta; verificação completa aprovada (771 testes .NET, gate de cobertura, 96 Vitest e Playwright 14/14 em duas rodadas), registrada no progress e handoff. Regras complementares de destinatários/canais e tolerância/zero publicações aprovadas em 2026-10-19. Implementação no commit `6de6b4f`; envio e abertura do PR autorizados pelo usuário em 2026-10-19. Enviar código e documentos juntos; aguardar CI e revisão. Triagem/fechamento e telas seguem em 6D/6E; fornecedor real pendente no 6C.
+- **Etapa 6 (publicações e andamentos):** plano 6A a 6E aprovado em 2026-10-19. **6A (#31) aprovado e mergeado pelo usuário em 2026-10-19**, ADR 0032 aceita. **6B implementado no branch `codex/etapa-6b-captura-alertas`**, da main `f2e01a9`: provedores fake, deduplicação concorrente, janela/retentativas/ativação tardia, monitor independente, alerta persistido/métrica e notificações mínimas in-app/e-mail/SignalR com alcance revalidado. ADR 0033 proposta; verificação completa aprovada (771 testes .NET, gate de cobertura, 96 Vitest e Playwright 14/14 em duas rodadas), registrada no progress e handoff. Regras complementares de destinatários/canais e tolerância/zero publicações aprovadas em 2026-10-19. Implementação no commit `6de6b4f`; PR #32 aberto em 2026-10-19, com código e documentos enviados até `1693fd5`; aguardar CI/revisão e merge pelo usuário. Triagem/fechamento e telas seguem em 6D/6E; fornecedor real pendente no 6C.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -71,7 +73,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Próximo trabalho:** publicar o 6B e abrir PR para main, conforme pedido do usuário em 2026-10-19; acompanhar CI/revisão e aguardar o merge pelo usuário. Após o merge, atualizar main, aceitar ADR 0033 com o número/data do PR e preparar o branch do 6C, com arrumação documental em commit/push conforme o ciclo. As respostas de negócio do 6B já estão aprovadas; não perguntar novamente.
+- **Manual e demonstração (2026-10-19):** usuário pediu manual progressivo e exploração das telas. Primeira edição em `docs/manual/`, com guia local e roteiro de demonstração; complemento em commit local, sem novo push. AppHost iniciado para o usuário em `http://localhost:4200`, Mailpit em `:8025`; HTTP 200 confirmado. Evitar AppHost.Tests enquanto a instância manual estiver em uso.
+- **Próximo trabalho:** aguardar CI/revisão e merge do PR #32 pelo usuário; enviar o complemento documental quando solicitado. Após o merge, atualizar main, aceitar ADR 0033 com o número/data do PR e preparar o branch do 6C, preservando o manual. As respostas de negócio do 6B já estão aprovadas; não perguntar novamente.
 
 ## Ciclo de trabalho (um PR por vez)
 
