@@ -10,6 +10,20 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (testes direcionados durante implementação; gates completos no fechamento)
+
+**Decisão explícita do usuário:** aprovou executar os testes relacionados à mudança durante a implementação e manter a verificação completa no fechamento do PR; pediu registrar no handover e nos dois arquivos de agentes. Alterações feitas no AGENTS.md, CLAUDE.md e neste `docs/handoff.md`, com registro também no progress.
+
+**Regra para Claude e Codex:** durante o desenvolvimento, executar os unitários afetados e, conforme o impacto, integração, segurança e/ou e2e. Ampliar a suíte quando houver falha, alteração transversal ou dúvida de regressão. Não rodar toda a verificação a cada pequeno ajuste. No fechamento do PR de implementação, cumprir a seção Verificação completa sem reduzir nenhum gate: build Release sem warnings, format, todos os testes .NET/cobertura/gate de 80%, SecurityTests, vulnerabilidades/modelos, lint/Vitest/build e Playwright/AppHost quando aplicável. Testes direcionados não autorizam declarar a verificação completa.
+
+**Repetição:** depois de passar, não repetir sem nova mudança, falha ou preocupação concreta. Alterações posteriores exigem repetir os checks afetados e consolidar o estado final. Registrar o que foi executado e seus resultados/limitações no progress; manter os mesmos critérios de acessibilidade e segurança.
+
+**Estado/verificação:** branch `codex/etapa-6c-datajud-integracoes`; arrumação pós-merge do #32 enviada em `928f0d3`, com manual/guia preservados. Este registro é novo commit documental local, sem push solicitado e sem implementação do 6C. AGENTS/CLAUDE sincronizados; UTF-8, conteúdo e diff conferidos antes do commit. Nenhuma mudança de runtime e nenhuma nova suíte completa executada para esta atualização das instruções. Manual e guia revisados, sem impacto nos fluxos do usuário ou na inicialização; não foi necessário alterar seus passos.
+
+**Próximo passo:** seguir a preparação do 6C já registrada, usando esta política de testes. Preservar a instância do AppHost deixada para exploração do usuário e não iniciar AppHost.Tests em paralelo. Implementação nova termina em commit local; push/PR só a pedido. Nunca fazer merge pelo usuário.
+
+---
+
 ## 2026-10-19 — Codex (PR #32 mergeado; arrumação no branch do 6C)
 
 **Aviso do usuário:** PR #32 aceito e mergeado. Confirmado no GitHub: `MERGED`, em 2026-10-19, merge `a137919915b0cc0f3eea555500389c7ec4acc08f`; todos os checks aprovados, incluindo AppHost/E2E. Merge feito pelo usuário, não pelo agente.

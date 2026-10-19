@@ -20,8 +20,9 @@ Este arquivo tem as mesmas regras do `CLAUDE.md`, mais o que é preciso para con
 - Handlers retornam `Result<T>`. Erros têm código estável (`modulo.erro`).
 - Frontend: componentes standalone, OnPush e signals; sem HTTP fora de `data/`; textos via Transloco (pt-BR e en com as mesmas chaves).
 - Manual de utilização: após cada melhoria, revisar **os dois** arquivos `docs/manual/README.md` e `docs/manual/ambiente-local.md`, atualizando as instruções afetadas de uso e execução local no mesmo trabalho. Quando não houver impacto em um deles, registrar isso na verificação da entrega, sem inventar passos. Descrever apenas o que está entregue e identificar funcionalidades futuras. Antes de encerrar, atualizar também o progress e o handoff para orientar o próximo agente.
-- Comandos obrigatórios: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`.
-- Antes de concluir: rode tudo acima e atualize `docs/progress.md`.
+- Durante a implementação: execute os testes relacionados à mudança (unitários e, conforme o impacto, integração, segurança ou e2e). Amplie a execução se houver falha, mudança transversal ou dúvida de regressão. Não repita a suíte completa a cada ajuste.
+- Comandos obrigatórios no fechamento do PR de implementação: `dotnet build`, `dotnet test`, `dotnet format`, `npm run lint`, `npm test`, `npx playwright test`, com os demais gates da seção "Verificação completa".
+- Antes de concluir o PR: complete a verificação integral e registre os resultados em `docs/progress.md`. Testes direcionados durante o desenvolvimento não substituem os gates de fechamento.
 - Dúvida de negócio ou ação irreversível: pare e pergunte.
 - Documentação, commits, PRs e mensagens ao usuário em português do Brasil. Código, nomes e testes em inglês, como já está.
 
@@ -79,7 +80,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 ## Ciclo de trabalho (um PR por vez)
 
 1. Planeje, mostre o plano e espere a aprovação. Dúvida de negócio vira pergunta antes de implementar.
-2. Implemente no branch combinado, com a verificação completa (abaixo).
+2. Implemente no branch combinado, executando os testes relacionados à mudança durante o desenvolvimento. No fechamento do PR, rode a verificação completa (abaixo).
 3. Registre no `docs/progress.md`:
    - a seção do PR, com tabela de subtarefas e os testes de cada uma;
    - as decisões de negócio;
@@ -97,6 +98,10 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 6. **Sempre que terminar ou interromper um trabalho**, acrescente uma entrada no topo de `docs/handoff.md`: o que fez, o estado (commit, push, PR), o que falta e as decisões novas do usuário. Se o "Onde paramos" mudou, atualize-o aqui também. O `CLAUDE.md` e o `AGENTS.md` têm as mesmas regras: mudou uma, mude a outra.
 
 ## Verificação completa
+
+**Política aprovada pelo usuário em 2026-10-19 (vale para Codex e Claude):** durante a implementação, priorizar os testes afetados para obter retorno rápido. No fechamento do PR de implementação, executar todos os comandos e gates abaixo, incluindo cobertura, segurança e Playwright contra o AppHost quando aplicável. Não reduzir cobertura, omitir verificações obrigatórias nem relaxar asserções para economizar processamento.
+
+Depois que as verificações passarem, não repetir sem nova mudança, falha ou preocupação concreta que justifique. Se uma alteração posterior invalidar resultados anteriores, repetir as verificações afetadas e consolidar o estado final antes de concluir. Registrar no progress quais testes foram executados, seus resultados, eventuais limitações e pendências; não declarar a verificação completa com base apenas em testes direcionados.
 
 ```bash
 dotnet build LexFlow.sln -c Release          # TreatWarningsAsErrors: 0 warnings

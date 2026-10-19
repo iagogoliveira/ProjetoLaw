@@ -15,6 +15,12 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 6 — Publicações e andamentos | **Em implementação** (plano 6A a 6E aprovado em 2026-10-19; 6A concluído (#31, 2026-10-19); 6B concluído (#32, 2026-10-19); próximo PR 6C) | `codex/etapa-6c-datajud-integracoes` |
 
 
+## Política de execução de testes (aprovada em 2026-10-19)
+
+**Decisão do usuário:** executar testes relacionados à mudança durante a implementação e manter a verificação completa obrigatória no fechamento do PR. Ampliação durante o desenvolvimento quando houver falha, impacto transversal ou preocupação de regressão; nenhuma redução dos gates finais de build, formatação, cobertura, segurança, dependências, modelos, frontend e e2e aplicáveis. Não repetir verificações já aprovadas sem nova mudança, falha ou dúvida concreta. Alterações posteriores exigem rever os resultados afetados.
+
+**Registro/verificação:** regra adicionada de forma idêntica ao AGENTS/CLAUDE e à primeira entrada do handoff, para os dois agentes seguirem o mesmo ciclo. Somente documentação alterada; conteúdo, UTF-8, diff e sincronização conferidos antes do commit. Manual e guia de ambiente revisados: sem impacto no uso do sistema nem nos comandos de inicialização, portanto sem mudança nos seus passos. Não executada nova suíte de runtime para este registro administrativo; mantidos os resultados do 6B. Commit local, sem novo push solicitado; 6C permanece em preparação.
+
 ## Manual de utilização e exploração local (2026-10-19)
 
 **Pedido do usuário:** começar um manual que acompanhe o desenvolvimento e permitir explorar as telas já disponíveis. Criados [Manual de utilização](manual/README.md) e [Ambiente local](manual/ambiente-local.md), com primeiro acesso/Mailpit, conta, permissões, configurações, pessoas/conflitos, processos, valores, risco, acordos, audiências, importação, funil e roteiro de demonstração. Funcionalidades futuras estão identificadas; não há capturas de tela nesta primeira edição.
