@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../LexFlow.Publications.Application/LexFlow.Publications.Application.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/LexFlow.Web.Common/LexFlow.Web.Common.csproj" />
+  </ItemGroup>
+</Project>

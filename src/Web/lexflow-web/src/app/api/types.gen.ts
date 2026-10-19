@@ -78,6 +78,23 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+export type CaptureSourceInput = {
+    kind: CaptureSourceKind;
+    label: string;
+    value: string;
+    isActive?: boolean;
+};
+
+export type CaptureSourceKind = 'oab' | 'name' | 'cnpj';
+
+export type CaptureSourceResponse = {
+    id: string;
+    kind: CaptureSourceKind;
+    label: string;
+    value: string;
+    isActive: boolean;
+};
+
 export type CaseAssignmentResponse = {
     role: AssignmentRole;
     userId: null | string;
@@ -944,6 +961,27 @@ export type MonetaryIndexResponse = {
     source: string;
 };
 
+export type MovementInput = {
+    occurredAt: string;
+    description: string;
+};
+
+export type MovementOrigin = 'manual' | 'dataJud' | 'provider';
+
+export type MovementResponse = {
+    id: string;
+    legalCaseId: string;
+    occurredAt: string;
+    collectedAt: string;
+    origin: MovementOrigin;
+    description: string;
+};
+
+export type MovementsPageResponse = {
+    items: Array<MovementResponse>;
+    nextCursor: null | string;
+};
+
 export type MoveOpportunityRequest = {
     stage: OpportunityStage;
 };
@@ -1351,6 +1389,36 @@ export type ProspectResponse = {
     document: null | string;
     email: null | string;
     phone: null | string;
+};
+
+export type PublicationResponse = {
+    id: string;
+    sourceId: string;
+    journal: string;
+    availableOn: string;
+    publishedOn: string;
+    text: string;
+    extractedCnj: null | string;
+    legalCaseId: null | string;
+    status: PublicationStatus;
+    receivedAt: string;
+};
+
+export type PublicationsPageResponse = {
+    items: Array<PublicationSummary>;
+    nextCursor: null | string;
+};
+
+export type PublicationStatus = 'pending' | 'triaged';
+
+export type PublicationSummary = {
+    id: string;
+    journal: string;
+    publishedOn: string;
+    extractedCnj: null | string;
+    legalCaseId: null | string;
+    status: PublicationStatus;
+    receivedAt: string;
 };
 
 export type ReasonRequest = {
@@ -6901,3 +6969,150 @@ export type GetCaseImportErrorsResponses = {
 };
 
 export type GetCaseImportErrorsResponse = GetCaseImportErrorsResponses[keyof GetCaseImportErrorsResponses];
+
+export type ListCaptureSourcesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/publication-sources';
+};
+
+export type ListCaptureSourcesResponses = {
+    /**
+     * OK
+     */
+    200: Array<CaptureSourceResponse>;
+};
+
+export type ListCaptureSourcesResponse = ListCaptureSourcesResponses[keyof ListCaptureSourcesResponses];
+
+export type CreateCaptureSourceData = {
+    body: CaptureSourceInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/publication-sources';
+};
+
+export type CreateCaptureSourceResponses = {
+    /**
+     * Created
+     */
+    201: CaptureSourceResponse;
+};
+
+export type CreateCaptureSourceResponse = CreateCaptureSourceResponses[keyof CreateCaptureSourceResponses];
+
+export type GetCaptureSourceData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publication-sources/{id}';
+};
+
+export type GetCaptureSourceResponses = {
+    /**
+     * OK
+     */
+    200: CaptureSourceResponse;
+};
+
+export type GetCaptureSourceResponse = GetCaptureSourceResponses[keyof GetCaptureSourceResponses];
+
+export type UpdateCaptureSourceData = {
+    body: CaptureSourceInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publication-sources/{id}';
+};
+
+export type UpdateCaptureSourceResponses = {
+    /**
+     * OK
+     */
+    200: CaptureSourceResponse;
+};
+
+export type UpdateCaptureSourceResponse = UpdateCaptureSourceResponses[keyof UpdateCaptureSourceResponses];
+
+export type ListPublicationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: PublicationStatus;
+        linked?: boolean;
+        caseId?: string;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/publications';
+};
+
+export type ListPublicationsResponses = {
+    /**
+     * OK
+     */
+    200: PublicationsPageResponse;
+};
+
+export type ListPublicationsResponse = ListPublicationsResponses[keyof ListPublicationsResponses];
+
+export type GetPublicationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publications/{id}';
+};
+
+export type GetPublicationResponses = {
+    /**
+     * OK
+     */
+    200: PublicationResponse;
+};
+
+export type GetPublicationResponse = GetPublicationResponses[keyof GetPublicationResponses];
+
+export type ListCaseMovementsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: {
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/cases/{id}/movements';
+};
+
+export type ListCaseMovementsResponses = {
+    /**
+     * OK
+     */
+    200: MovementsPageResponse;
+};
+
+export type ListCaseMovementsResponse = ListCaseMovementsResponses[keyof ListCaseMovementsResponses];
+
+export type CreateCaseMovementData = {
+    body: MovementInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/movements';
+};
+
+export type CreateCaseMovementResponses = {
+    /**
+     * Created
+     */
+    201: MovementResponse;
+};
+
+export type CreateCaseMovementResponse = CreateCaseMovementResponses[keyof CreateCaseMovementResponses];

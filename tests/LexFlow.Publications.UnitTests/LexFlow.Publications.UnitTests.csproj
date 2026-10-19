@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><ProjectReference Include="../../src/Modules/Publications/LexFlow.Publications.Application/LexFlow.Publications.Application.csproj" /></ItemGroup>
+</Project>

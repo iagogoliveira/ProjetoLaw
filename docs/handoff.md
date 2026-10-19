@@ -10,6 +10,24 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (plano da Etapa 6 aprovado; PR 6A implementado e verificado localmente)
+
+**Branch:** `codex/etapa-6-publicacoes-andamentos`. **Estado:** último commit enviado `beee338` (arrumação pós-merge do #30); 6A implementado e verificado, em commit local desta entrega, sem novo push e sem PR aberto. O usuário aprovou o plano e as recomendações com “Ok, gostei das sugestões, pode seguir.” Não pedir novamente aprovação das mesmas escolhas.
+
+**Decisões aprovadas:** iniciar com fake + DataJud, mantendo fornecedor real de publicações como pendência explícita; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local PostgreSQL compartilhada (ADR específica no 6D); fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova `publications.close`; escritório individual pode acumular permissões sem segunda aprovação. Fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores, e captura esperada ausente impede conclusão integral. A data da publicação continua separada.
+
+**Escopo do 6A:** cinco projetos Publications, fontes OAB/nome/CNPJ, estrutura de captura/publicação/triagem/andamento, RLS, consultas paginadas, entrada interna de publicação com extração/validação do CNJ, vínculo por Contracts, andamento manual com autorização do processo e contribuição na timeline. ADR 0032 proposta. Nenhum provedor externo, job de captura, triagem, fechamento ou tela de fila antecipado.
+
+**Segurança:** o novo `ICaseDirectory` usa o `CaseAccess` do Litigation com a permissão do caso de uso; não há acesso a outro DbContext. A fila sem vínculo exige escopo de escritório e oculta também publicações que mencionam CNJs inacessíveis, inclusive ambíguas, para preservar o sigilo antes de haver vínculo.
+
+**Verificação concluída:** Docker Desktop rodando; builds Release/Debug sem warnings, format sem alterações; **751 testes .NET em 18 projetos**, incluindo os 9 novos de API e os 14 do AppHost; cobertura >=80% em todas as camadas (Publications.Application 100%, Domain 95,4%); NuGet sem vulneráveis; cinco contextos sem mudança de modelo pendente. OpenAPI gerado pelo teste oficial, diff apenas aditivo, cliente TypeScript regenerado. Lint, 96 Vitest e build Angular aprovados. Duas rodadas finais consecutivas de Playwright: **14 aprovados em cada (37,6 s e 29,2 s)**, com relatório HTML e WCAG; apenas preparo opcional de carga pulado. Artefatos ignorados em `TestResults/6a-*` e `src/Web/lexflow-web/playwright-report`.
+
+**Armadilha confirmada:** a repetição imediata das suítes com limite local padrão (120/min por IP) gerou 429 na confirmação de e-mail; traces preservados em `TestResults/6a-playwright-rate-limit-failure`, rodada interrompida. Reiniciar o AppHost com `LexFlow__PublicPermitsPerMinute=10000` (configuração existente, só E2E) permitiu as duas rodadas finais. Não foi mudado limite de produção nem mascarado erro no teste; orientação incluída em AGENTS/CLAUDE. O AppHost da verificação final ficou em execução.
+
+**Próximo:** aguardar o pedido do usuário para enviar o commit local do 6A e abrir o PR. Não fazer push nem abrir PR sem pedido. Depois do merge do 6A pelo usuário, seguir o ciclo pós-merge e o 6B; não implementar 6B no mesmo PR.
+
+---
+
 ## 2026-10-19 — Codex (PR #30 mergeado; arrumação e plano proposto da Etapa 6)
 
 **Branch:** `codex/etapa-6-publicacoes-andamentos`, criado da `main` atualizada no merge `33ec6bb` do PR #30. **Estado:** esta arrumação documental segue em commit/push neste branch, como já autorizado pelo ciclo pós-merge. Nenhum código da Etapa 6 foi implementado e nenhum PR da Etapa 6 foi aberto.

@@ -35,7 +35,7 @@ Leia nesta ordem antes de planejar qualquer PR:
    - §9 a §12: as etapas, cada uma com escopo e critérios de aceite. **A Etapa 5 está na §10.**
    - §13: estratégia de testes e qualidade. §14: modelos de prompt e checklist do agente.
 3. **`docs/spec/requisitos-v3.md`**: os requisitos de negócio. A seção de cada módulo diz o que construir. Para a Etapa 5: **§7 (Contencioso)**, e também §3 (perfis e permissões) e §14 (requisitos não funcionais).
-4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0031. Antes de mexer numa área, leia as ADRs dela. As de base:
+4. **`docs/adr/`**: as decisões de arquitetura, uma por PR, de 0001 a 0032 (0032 proposta no PR 6A). Antes de mexer numa área, leia as ADRs dela. As de base:
    - 0001 a 0003: monolito modular, stack e módulos por etapa;
    - 0007: pipeline de casos de uso (validação, autorização, transação);
    - 0010: trilha de auditoria;
@@ -60,7 +60,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
   - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
-- **Etapa 6 (publicações e andamentos):** branch `codex/etapa-6-publicacoes-andamentos`, criado da `main` atualizada após o merge do #30. Somente arrumação documental e planejamento; **implementação ainda não iniciada e plano ainda não aprovado**. A primeira entrada do `docs/handoff.md` traz a proposta dos PRs 6A a 6E e as dúvidas de fornecedor, dependência de Scheduling, atomicidade e fechamento diário. Aguarde as respostas e a aprovação do usuário antes de implementar.
+- **Etapa 6 (publicações e andamentos):** branch `codex/etapa-6-publicacoes-andamentos`. Plano 6A a 6E aprovado em 2026-10-19, junto das quatro recomendações registradas no progresso. PR 6A implementado e verificado localmente (751 testes .NET, gate de 80%, frontend e duas rodadas Playwright aprovados; sem push/PR): módulo Publications, fontes, consultas, andamentos manuais, contratos de acesso e timeline; ADR 0032 proposta. Captura/alertas, integrações, triagem/fechamento e telas seguem nos próximos PRs. Um PR por vez; push e abertura de PR só a pedido.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -71,7 +71,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Próximo trabalho:** aprovar o plano da Etapa 6 (publicações e andamentos), na ordem da `implementacao.md`, sem presumir respostas para as dúvidas registradas.
+- **Próximo trabalho:** aguardar o pedido do usuário para enviar o commit local e abrir o PR 6A; depois do merge, fazer a arrumação e seguir o 6B (um PR por vez). Decisões aprovadas: fake + DataJud com fornecedor real pendente; núcleo mínimo de Scheduling e transação local compartilhada no 6D; fechamento com `publications.close`, por recebimento em America/Sao_Paulo, incluindo pendências antigas e captura esperada ausente. Sem nova aprovação do mesmo plano.
 
 ## Ciclo de trabalho (um PR por vez)
 
@@ -104,7 +104,7 @@ for p in tests/*.UnitTests tests/LexFlow.ArchitectureTests tests/*.IntegrationTe
 done
 python scripts/coverage_gate.py TestResults --minimum 80   # Domain e Application de cada módulo com pelo menos 80%
 dotnet list LexFlow.sln package --vulnerable --include-transitive
-dotnet ef migrations has-pending-model-changes -p src/Modules/<M>/LexFlow.<M>.Infrastructure -s src/Host/LexFlow.Api -c <M>DbContext   # Platform, Organization, Crm, Litigation
+dotnet ef migrations has-pending-model-changes -p src/Modules/<M>/LexFlow.<M>.Infrastructure -s src/Host/LexFlow.Api -c <M>DbContext   # Platform, Organization, Crm, Litigation, Publications
 cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwright test
 ```
 
@@ -136,6 +136,7 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
   - `using` fora de ordem: rode `dotnet format`.
 - **Token de acesso:** é criptografado (JWE) e não dá para ler. O OpenIddict confere o emissor pelo host da requisição.
 - **Testes de integração:** dependem do Docker Desktop rodando. Se tudo falhar em 0 ms, o Docker parou.
+- **E2E em duas rodadas consecutivas:** o limite local de 120 requisições públicas/minuto pode gerar HTTP 429 em `/conta/confirmar-email` quando as duas suítes usam o mesmo IP. Para essa verificação, defina `LexFlow__PublicPermitsPerMinute=10000` no ambiente do AppHost antes de iniciá-lo (configuração de teste já suportada). Preserve o limite de produção; não trate 429 como falha de seletor nem altere o teste para ignorá-lo.
 - **AppHost com `--no-build`:** a CLI do Aspire executa API e Worker em Debug. Depois de mudar o backend, compile também em Debug antes de usar `--no-build`, mesmo que o build Release esteja atualizado. Aguarde o SPA responder HTTP 200 em `:4200` antes do Playwright.
 - **API do BCB:** `api.bcb.gov.br` recusa as requisições da máquina de desenvolvimento. Para dados de SELIC e TR, use o Ipeadata. A Calculadora do Cidadão (`www3.bcb.gov.br/CALCIDADAO`) funciona e serve para conferir cálculos.
 - **Rotas aninhadas:** num `MapGroup`, `MapGet("/")` ou `MapGet("")` gera rota com barra no fim (`/claims/`). Use o caminho completo no grupo (`/{id:guid}/claims`).

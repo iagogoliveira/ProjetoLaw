@@ -13,6 +13,8 @@ using LexFlow.Litigation.Infrastructure.Persistence;
 using LexFlow.Organization.Contracts.Permissions;
 using LexFlow.Platform.Domain.Jobs;
 using LexFlow.Platform.Infrastructure.Persistence;
+using LexFlow.Publications.Domain;
+using LexFlow.Publications.Infrastructure.Persistence;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -153,6 +155,11 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         var hearing = new { type = "conciliation", format = "virtual", scheduledAt = "2026-12-01T10:00:00Z", meetingLink = "https://meet.example.com/x" };
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
+            ["GET /api/v1/publication-sources/{id:guid}"] = async owner => new CrossTenantCase(await SourceOfAsync(owner)),
+            ["PUT /api/v1/publication-sources/{id:guid}"] = async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }),
+            ["GET /api/v1/publications/{id:guid}"] = async owner => new CrossTenantCase(await PublicationOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { occurredAt = "2026-10-19T12:00:00Z", description = "Sentença" }),
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["PUT /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { parties }),
             ["DELETE /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
@@ -204,6 +211,23 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     }
 
     /// <summary>Importação já validada (pronta para confirmar) da organização do dono, gravada direto no banco.</summary>
+    private Task<Guid> SourceOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/publication-sources", new { kind = "name", label = "Maria", value = "Maria" });
+
+    private async Task<Guid> PublicationOfAsync(SeededMember owner)
+    {
+        var source = await SourceOfAsync(owner);
+        using var ambient = AmbientContext.Begin(owner.OrganizationId, "security-tests");
+        await using var provider = dependencies.PlatformServices();
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<PublicationsDbContext>();
+        var day = new DateOnly(2026, 10, 19);
+        var publication = Publication.Receive(new(source, "DJE", day, day, "Texto " + Guid.CreateVersion7()), new DateTimeOffset(2026, 10, 19, 12, 0, 0, TimeSpan.Zero)).Value;
+        db.Publications.Add(publication);
+        await db.SaveChangesAsync(Ct);
+        return publication.Id;
+    }
+
     private async Task<Guid> ImportOfAsync(SeededMember owner)
     {
         var id = Guid.CreateVersion7();

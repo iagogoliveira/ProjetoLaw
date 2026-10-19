@@ -21,4 +21,8 @@
     <PackageReference Include="Scalar.AspNetCore" />
   </ItemGroup>
 
+<ItemGroup>
+<ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Infrastructure/LexFlow.Publications.Infrastructure.csproj" />
+<ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Endpoints/LexFlow.Publications.Endpoints.csproj" />
+</ItemGroup>
 </Project>
