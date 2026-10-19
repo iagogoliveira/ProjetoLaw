@@ -11,7 +11,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 2 — Identidade e autenticação | **Concluída** (PRs #7, #8, #9 e #10 mergeados) | `etapa-2a-identity-accounts`, `etapa-2b-oidc-login`, `etapa-2b2-mfa-me`, `etapa-2c-frontend-e2e` |
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
-| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 #29 mergeado; falta o 5E2) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
+| 5 — Processos e casos (contencioso) | **Em andamento** (5A #24, 5B #25, 5C1 #26, 5C2 #27 e 5D #28 mergeados; os 3 critérios de aceite atendidos; 5E1 #29 mergeado; 5E2 com plano aprovado em 2026-10-19, ainda não iniciado) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 
 ---
 
@@ -32,7 +32,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
   - **5C1:** índices monetários, correção e pedidos com valores por instância (critério 3);
   - **5C2:** risco (CPC 25), acordos com parcelas e audiências.
 - **5D — linha do tempo, importação XLSX/CSV e operações em lote.**
-- **5E — frontend e e2e.**
+- **5E — frontend e e2e.** Dividido em 2026-10-18:
+  - **5E1** (#29): lista, assistente, detalhe básico, linha do tempo, sigilo e numeração;
+  - **5E2** (plano aprovado em 2026-10-19): abas de Pedidos e valores, Risco, Acordos e Audiências, e a tela de importação. O plano detalhado está em `docs/handoff.md`.
 
 **Critérios de aceite da Etapa 5:**
 

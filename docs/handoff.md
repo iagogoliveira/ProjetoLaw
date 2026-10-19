@@ -10,6 +10,58 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Claude Code (plano do 5E2 aprovado; passagem para o Codex)
+
+**Branch:** `etapa-5e2-telas-valores-importacao` (já criado e enviado, com a arrumação do #29). **Nenhum código do 5E2 foi escrito.** O usuário aprovou o plano e pediu para outro agente (Codex) continuar daqui.
+
+**Plano do PR 5E2 (aprovado pelo usuário em 2026-10-19; implementação ainda não começou).** Só frontend: as APIs existem desde o 5C1 ao 5D, e não há permissão nova.
+- **Aba "Pedidos e valores"** no detalhe do processo (`features/cases/pages/case-detail-page.*`):
+  - lista dos pedidos (objeto da tabela "Objetos/pedidos" via `options.claimTypes`, descrição, forma de correção, valores por instância);
+  - cadastrar, editar e excluir (`cases.edit`; rotas `/api/v1/cases/{id}/claims`);
+  - campo "Atualizar até" (padrão: hoje) → `GET /cases/{id}/claims?updateTo=`: valores corrigidos, totais por instância e o aviso `correctionError` por pedido;
+  - histórico de cada pedido (`GET /cases/{id}/claims/{claimId}/history`).
+- **Aba "Risco":**
+  - risco atual (`GET /cases/{id}/risk`) com provisão e passivo contingente;
+  - formulário de avaliação só com `*lfCan="'cases.risk.assess'"` (`POST /cases/{id}/risk-assessments`), por processo ou por pedido;
+  - histórico (`GET /cases/{id}/risk/history`).
+- **Aba "Acordos":**
+  - lista (`GET /cases/{id}/settlements`) com situação, valor pedido × acordado (`difference`/`differencePercent`: economia quando o cliente paga, deságio quando recebe), rodadas e parcelas (`isOverdue` em destaque);
+  - ações conforme a situação: nova rodada (`offers`), enviar termos (`submit`), aprovar (`approve`, só com `cases.settlements.approve`), devolver (`return`), homologar (`homologate`), recusar (`reject`), cancelar (`cancel`), baixa (`installments/{installmentId}/pay`);
+  - **gerador de parcelas** na tela: número, primeiro vencimento e intervalo mensal, com a última parcela ajustando os centavos para a soma bater com o valor acordado (o servidor recusa com `litigation.settlement_installments_mismatch`).
+- **Aba "Audiências":**
+  - lista (`GET /cases/{id}/hearings`) por data, com o histórico de redesignações;
+  - agendar e editar: o formato pede local (presencial), link (virtual) ou os dois (híbrida); advogado de `options.members`, preposto e testemunhas (busca de pessoas como no assistente);
+  - redesignar com motivo (`reschedule`), realizar com resultado ou ata (`hold`), cancelar (`cancel`).
+- **Tela de importação** `/processos/importar` (`cases.create`, link na lista):
+  1. modelo (`GET /cases/imports/template`) e envio (`POST /cases/imports`, multipart campo `file`, resposta 202 com `importId`/`jobId`);
+  2. acompanhamento por consulta periódica de `GET /cases/imports/{id}` (ou `GET /api/v1/jobs/{jobId}`) até sair de `validating`/`importing`;
+  3. pré-visualização com totais, `preview` e os primeiros `errors`;
+  4. confirmação (`POST /cases/imports/{id}/confirm`);
+  5. andamento e resultado;
+  6. relatório das inválidas (`GET /cases/imports/{id}/errors`, XLSX; baixar como Blob, ver `features/funnel/data/save-file.ts` e o spread `{ responseType: 'blob' } as object` usado no `FunnelApi`).
+- **Onde pôr o código:**
+  - chamadas novas no `CasesApi` (único ponto de HTTP);
+  - stores novas em `features/cases/data` (ex.: `claims-store.ts`, `settlements-store.ts`, `hearings-store.ts`, `import-store.ts`), com testes Vitest no padrão de `cases-stores.spec.ts`;
+  - se o detalhe crescer demais, extrair cada aba em componente próprio em `features/cases/pages/tabs/`.
+- **Textos:** pt-BR e en no `core/i18n/*.json`, com as mesmas chaves. Os erros `litigation.*` e `platform.*` já estão traduzidos.
+- **E2E** (`e2e/cases-values-flow.spec.ts` e `e2e/case-import-flow.spec.ts`), contra o AppHost, onde o Worker roda os jobs de verdade:
+  - importação de CSV com linhas válidas e inválidas até a gravação e o relatório;
+  - acordo da proposta à homologação e baixa de parcela;
+  - audiência redesignada e realizada;
+  - pedido com valor atualizado e histórico;
+  - `expectAccessible` em cada aba;
+  - abrir mat-select pelo teclado e clicar no "Próximo" visível com `.last()` (armadilhas no `AGENTS.md`);
+  - rode os e2e com o relatório ligado: no 5E1, a primeira execução logo depois de subir o AppHost falhou uma vez num `toBeVisible` sem detalhe capturado.
+- **Ao concluir:**
+  - ADR 0031;
+  - seção do 5E2 no `progress.md`: o 5E2 fecha a Etapa 5, então marque a etapa como concluída depois do merge;
+  - `AGENTS.md`, entrada aqui, verificação completa e commit;
+  - push e PR só quando o usuário pedir.
+
+**Próximo agente:** leia o `AGENTS.md` (regras e armadilhas) e implemente o 5E2 conforme o plano acima, no branch `etapa-5e2-telas-valores-importacao`. Não é preciso mostrar o plano de novo, porque já foi aprovado; dúvidas de negócio que surgirem vão para o usuário.
+
+---
+
 ## 2026-10-19 — Claude Code (arrumação depois do merge do #29)
 
 **Branch:** `etapa-5e2-telas-valores-importacao`, criado a partir da `main`, com este commit de arrumação e push.
