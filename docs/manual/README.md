@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) foi mergeado em 2026-10-19 e acrescentou infraestrutura de captura e notificações. O 6C acrescenta a integração DataJud no backend; as telas de operação dessas integrações são previstas no 6E.
+**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. As telas de operação dessas integrações são previstas no 6E; triagem e fechamento continuam previstos no 6D.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 

@@ -10,6 +10,22 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (PR #33 mergeado; arrumação e preparação do 6D)
+
+**Aviso do usuário:** “Merge efetuado.” Confirmado no GitHub: PR [#33](https://github.com/iagogoliveira/ProjetoLaw/pull/33) `MERGED`, em 2026-10-19, merge `fe1f654f97686b6530152faa06e44e2ae7261146`. Todos os checks do CI aprovados, incluindo backend, frontend, OpenAPI, AppHost/E2E, CodeQL, Gitleaks e Trivy. Merge feito pelo usuário.
+
+**Branch/estado:** main atualizada por fast-forward; criado `codex/etapa-6d-triagem-fechamento` da base `fe1f654`. Diretório limpo antes da arrumação; os commits do 6C e do manual já estão na main. Esta arrumação documental recebe commit/push nesse novo branch conforme o ciclo pós-merge autorizado; nenhum PR do 6D solicitado/criado, nenhuma implementação nova nesta entrega.
+
+**Feito:** 6C/DataJud marcado concluído no progress com #33/data; ADR 0034 aceita; AGENTS/CLAUDE sincronizados. Manual e guia revisados: disponibilidade do DataJud na main e base do 6D atualizadas, sem novos passos de tela ou comandos de inicialização. Preferência de manter ambiente fechado preservada; nenhum AppHost/contêiner iniciado para esta arrumação.
+
+**Verificação:** merge/base/CI, diff somente documental, UTF-8, links locais e igualdade AGENTS/CLAUDE conferidos antes do commit. Mantidos os resultados completos do 6C: 794 testes .NET, cobertura acima de 80%, 96 Vitest e duas rodadas de 14 Playwright. Sem repetir testes de runtime para atualização documental. A Etapa 6 continua em andamento e o fornecedor real permanece pendente.
+
+**Próximo trabalho — 6D já aprovado:** detalhar a ADR 0035 antes da implementação para transação local compartilhada entre Publications e Scheduling/Litigation, mantendo comunicação por Contracts. Implementar distribuição/vínculo/triagem com permissões e alcance do conteúdo, confirmação humana, núcleo mínimo de prazo/tarefa/audiência e fechamento diário auditado com `publications.close`. Data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão quando faltar captura esperada, conforme decisões registradas. Testar rollback conjunto, concorrência/reexecução, responsável/permissão/escopo, RLS/SecurityTests e contrato aditivo. Calculadora completa e agenda da Etapa 7, IA da Etapa 11 e telas do 6E não entram automaticamente no 6D.
+
+**Regras para continuidade:** não pedir novamente aprovação do plano 6A–6E ou das decisões já respondidas; dúvida de negócio nova exige pergunta antes de decidir. Testes direcionados na implementação e gates completos no fechamento; revisar ambos os guias após melhorias. Código novo termina em commit local, push/PR somente a pedido; nunca fazer merge pelo usuário. Ambiente de exploração permanece fechado até novo pedido.
+
+---
+
 ## 2026-10-19 — Codex (envio/PR do 6C autorizados; ambiente local encerrado)
 
 **Pedido explícito do usuário:** “Não é preciso manter a aplicação rodando [...] quando eu pedir novamente você abre. pode abrir o PR”. Autoriza push do código/documentação e criação do PR 6C para main; não autoriza merge. A preferência substitui as entradas anteriores que pediam manter a instância manual aberta.

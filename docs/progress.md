@@ -12,7 +12,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (6A #31 e 6B #32 concluídos; 6C/DataJud verificado, envio/PR autorizados; aguardando CI/revisão; fornecedor real pendente; 6D/6E seguem depois do merge) | `codex/etapa-6c-datajud-integracoes` |
+| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32 e 6C/DataJud #33 concluídos; preparação do 6D; fornecedor real pendente; telas no 6E) | `codex/etapa-6d-triagem-fechamento` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -33,7 +33,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 6 — Publicações e andamentos (6A e 6B concluídos; 6C/DataJud verificado localmente)
+## Etapa 6 — Publicações e andamentos (6A, 6B e 6C/DataJud concluídos; preparação do 6D)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -53,18 +53,35 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Dependência técnica a resolver em ADR:** a unidade de trabalho atual é por módulo (ADR 0007). A triagem exige atomicidade entre Publications e Scheduling/Litigation; somente publicar um evento no outbox não satisfaz o critério de gravação na mesma transação. A proposta é um coordenador de transação local compartilhada, mantendo acesso entre módulos por Contracts, com teste de rollback conjunto. A proposta foi aprovada em 2026-10-19; o desenho será detalhado na ADR do 6D antes da implementação. O 6A mantém o pipeline atual.
 
-**Última verificação local da Etapa 6:** 6C em 2026-10-19, com 794 testes .NET, cobertura acima de 80% em todos os módulos, builds/formatação, dependências/modelos, 96 Vitest e duas rodadas de 14 e2e contra o AppHost. Resultados completos abaixo. 6A (#31) e 6B (#32) continuam concluídos; o 6C ainda aguarda envio/revisão/merge e o fornecedor real permanece pendente.
+**Última verificação local da Etapa 6:** 6C em 2026-10-19, com 794 testes .NET, cobertura acima de 80% em todos os módulos, builds/formatação, dependências/modelos, 96 Vitest e duas rodadas de 14 e2e contra o AppHost. Resultados completos abaixo. 6A (#31), 6B (#32) e 6C/DataJud (#33) concluídos; merge do #33 e todos os checks do CI confirmados em 2026-10-19. Fornecedor real permanece pendente.
 
 **Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
 **Arrumação pós-merge do 6B (2026-10-19):** PR #32 confirmado como `MERGED`, commit `a137919`; todos os checks do CI aprovados, incluindo AppHost/E2E. `main` atualizada por fast-forward e branch `codex/etapa-6c-datajud-integracoes` criado dessa base. Manual e guia preservados por cherry-pick dos dois commits locais, sem conflitos; ADR 0033 aceita; AGENTS/CLAUDE e handoff atualizados. Commit/push desta arrumação seguem o ciclo já autorizado.
 
 **Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
 
-### PR 6C — DataJud e integrações (verificado; envio/PR autorizados)
+### PR 6D — Triagem, distribuição e fechamento diário (preparação)
+
+**Branch:** `codex/etapa-6d-triagem-fechamento`, criado da main atualizada após o merge `fe1f654` do PR #33. O plano 6A–6E já foi aprovado; não pedir nova aprovação das mesmas escolhas. Implementação do 6D ainda não iniciada nesta arrumação.
+
+| Trabalho aprovado | Verificação prevista |
+| --- | --- |
+| Distribuição, vínculo e triagem rastreável com as permissões existentes | Responsável ativo, alcance/sigilo, isolamento entre escritórios e confirmação humana |
+| Núcleo mínimo de Scheduling e criação de prazo/tarefa/audiência junto da triagem | ADR 0035, transação local compartilhada por Contracts; falha intermediária desfaz os dois lados; concorrência/reexecução sem duplicação |
+| Fechamento diário auditado com `publications.close` | Data de recebimento em America/Sao_Paulo, pendências anteriores, captura esperada incompleta e usuário responsável |
+| Migrations, API e documentação | RLS, integração/SecurityTests, contrato somente com adições, cliente regenerado e revisão dos dois guias |
+
+**Arrumação pós-merge do 6C (2026-10-19):** #33 confirmado como MERGED e CI todo aprovado. Main atualizada por fast-forward; ADR 0034 aceita; agentes, progress e handoff atualizados. Manual/guia revisados para refletir DataJud na main e base do 6D, sem novos comandos ou passos de tela. Commit/push documentais seguem o ciclo autorizado; nenhum PR do 6D criado.
+
+**Última verificação local desta arrumação:** base/merge/CI, diff documental, UTF-8, links e igualdade AGENTS/CLAUDE conferidos antes do commit. Nenhuma mudança de runtime ou nova suíte executada; preservada a verificação completa do 6C abaixo. Ambiente permanece fechado a pedido, com volumes/cadastros preservados; não iniciar para exploração sem solicitação.
+
+**Próximos passos:** estudar o pipeline transacional, os contratos e o modelo de triagem existentes; detalhar a ADR 0035 antes de implementar o 6D. Perguntar somente dúvidas novas de negócio não cobertas pelas decisões registradas. Calculadora/agenda completas continuam na Etapa 7; telas de publicações no 6E; fornecedor real é pendência externa. Implementação nova termina em commit local e push/PR somente a pedido.
+
+### PR 6C — DataJud e integrações (concluído: PR #33 mergeado em 2026-10-19)
 
 **Branch:** `codex/etapa-6c-datajud-integracoes`, base `a137919`. O escopo geral 6A a 6E já foi aprovado; não pedir nova aprovação das mesmas escolhas.
 
-**Publicação autorizada em 2026-10-19:** usuário pediu abrir o PR. Implementação `dd3bc20` e documentos serão enviados juntos no mesmo push; confirmar número/endereço do PR pelo head deste branch. Main remota continua em `a137919`, sem PR anterior para o branch na conferência prévia. ADR 0034 segue proposta; merge exclusivamente pelo usuário.
+**Estado (2026-10-19):** implementação `dd3bc20` e documentos enviados juntos até `afc320b`; PR [#33](https://github.com/iagogoliveira/ProjetoLaw/pull/33) aprovado e mergeado pelo usuário, merge `fe1f654`. Todos os checks do CI aprovados, incluindo AppHost/E2E e análises de segurança. ADR [0034 — DataJud](adr/0034-datajud-movimentacoes.md) aceita. Main atualizada e continuidade no branch do 6D.
 
 **Preferência de ambiente atualizada:** aplicação e os sete serviços Docker desta instância encerrados a pedido, sem remoção de volumes/cadastros. Deixar fechada após verificações; reabrir para exploração manual somente quando o usuário pedir. AGENTS/CLAUDE e guia local atualizados. Manual revisado, sem mudança nos fluxos de uso.
 
@@ -72,7 +89,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Decisões adicionais aprovadas pelo usuário em 2026-10-19:** na primeira consulta DataJud, importar todo o histórico público disponível, preservando as datas dos andamentos. Nas seguintes, acrescentar apenas novidades, sem duplicar; reler documentos permite encontrar atos históricos incluídos tardiamente. O usuário autorizou reiniciar o AppHost quando necessário para a verificação do 6C, preservando os cadastros.
 
-**Implementado:** adaptador HTTP DataJud sem SDK/pacote novo; aliases oficiais, timeout, limite de concorrência, paginação com desempate e validação de respostas completas/públicas. Configuração por escritório e chave protegida pelo Data Protection existente, sem retorno do segredo. Checkpoints e páginas em transação, índice único/lock por processo, jobs a cada seis horas distribuídas e retomada de página em falha. Contratos de Litigation para processos judiciais ativos; três endpoints de configuração/monitoramento, migration aditiva com RLS e ADR 0034 proposta. Os rótulos da TPU não entram na identidade técnica do ato; uma correção de rótulo não gera outro andamento. Fornecedor real permanece pendente.
+**Implementado:** adaptador HTTP DataJud sem SDK/pacote novo; aliases oficiais, timeout, limite de concorrência, paginação com desempate e validação de respostas completas/públicas. Configuração por escritório e chave protegida pelo Data Protection existente, sem retorno do segredo. Checkpoints e páginas em transação, índice único/lock por processo, jobs a cada seis horas distribuídas e retomada de página em falha. Contratos de Litigation para processos judiciais ativos; três endpoints de configuração/monitoramento, migration aditiva com RLS e ADR 0034 aceita no PR #33. Os rótulos da TPU não entram na identidade técnica do ato; uma correção de rótulo não gera outro andamento. Fornecedor real permanece pendente.
 
 **Última verificação local — 2026-10-19:** builds Release e Debug com **0 warnings/0 errors**; `dotnet format --verify-no-changes` aprovado, inclusive após o ajuste de identidade dos atos. **794 testes .NET aprovados em 18 projetos**, sem falhas ou skips: 449 unitários, 17 de arquitetura, 303 de integração (169 da API e 16 de Publications), 11 SecurityTests e 14 AppHost.Tests. Todos com cobertura; gate de 80% aprovado em cada Domain/Application: Publications Application **99,1%**, Domain **96,3%**, Litigation Application **92,5%**. Pacotes .NET sem vulnerabilidades reportadas; cinco modelos EF (Platform, Organization, Crm, Litigation, Publications) sem mudanças pendentes. `npm run lint`, **96 Vitest**, `npm run build` e `npm audit --audit-level=high` aprovados (zero vulnerabilidades JavaScript). OpenAPI gerado pelo teste oficial; cliente TypeScript regenerado; comparação estrutural com a main confirmou somente adições, sem alteração de rotas/schemas existentes.
 
@@ -88,9 +105,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | Configuração do escritório, chave protegida, permissão e auditoria | Implementada | API: criar/preservar/substituir/remover chave, sem eco/auditoria; proteção entre tenants; proibição de escopo próprio e leitura sem permissão |
 | Migration com RLS, endpoints, OpenAPI e cliente gerado | Implementada e verificada | Migrations aplicam/revertem/reaplicam sem diferença de modelo; OpenAPI aditivo; 11 SecurityTests e cinco modelos EF aprovados |
 | Adaptador do fornecedor real de publicações | Pendência externa | Aguardando escolha, documentação e acesso; início com fake + DataJud autorizado pelo usuário |
-| ADR 0034 e atualização dos dois guias | Atualizados e revisados | ADR proposta; manual informa disponibilidade/sem telas e histórico; guia descreve configuração, chave e operação local; AGENTS/CLAUDE sincronizados |
+| ADR 0034 e atualização dos dois guias | Atualizados e revisados | ADR aceita no #33; manual informa disponibilidade/sem telas e histórico; guia descreve configuração, chave e operação local; AGENTS/CLAUDE sincronizados |
 
-**Estado e pendências:** implementação consolidada em `dd3bc20`, com push/PR autorizados pelo usuário nesta publicação e documentos no mesmo envio. O escopo DataJud/configuração está implementado e verificado; nenhuma pendência local de testes. **Fornecedor real continua pendente de escolha, documentação e acesso**; fake + DataJud foram autorizados como início e não representam captura real de intimações. A Etapa 6 permanece em andamento. Concluir a publicação autorizada, acompanhar CI/revisão e aguardar merge pelo usuário; depois seguir o ciclo documental e o 6D (triagem/Scheduling/fechamento), deixando telas para o 6E. Nenhuma nova decisão de negócio ficou sem resposta nesta entrega.
+**Estado e pendências:** 6C/DataJud concluído no PR #33, mergeado em 2026-10-19; nenhuma pendência local de implementação/verificação desse escopo. **Fornecedor real continua pendente de escolha, documentação e acesso**; fake + DataJud foram autorizados como início e não representam captura real de intimações. A Etapa 6 permanece em andamento. Arrumação pós-merge registrada no branch do 6D, que segue com triagem/Scheduling/fechamento; telas no 6E. Nenhuma decisão de negócio do 6C ficou sem resposta.
 
 ### PR 6B — captura e alertas (concluído: PR #32 mergeado em 2026-10-19)
 

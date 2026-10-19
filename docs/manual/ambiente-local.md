@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no 6C, em 2026-10-19: os comandos e endereços permanecem os mesmos; o branch `codex/etapa-6c-datajud-integracoes` acrescenta consultas DataJud no backend.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6C (#33), em 2026-10-19: consultas DataJud disponíveis no backend da main; o branch `codex/etapa-6d-triagem-fechamento` começa dessa base. Comandos e endereços permanecem os mesmos. O ambiente está fechado a pedido do usuário.
 
 ## 1. O que precisa estar disponível
 
