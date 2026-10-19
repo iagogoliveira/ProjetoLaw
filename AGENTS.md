@@ -52,14 +52,15 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 
 - **Leia primeiro a última entrada de `docs/handoff.md`**: é ali que cada agente (Claude Code ou Codex) deixa o que fez, o que ficou combinado com o usuário e o que o próximo deve fazer.
 - O estado oficial de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio ficam na seção de cada etapa, com data.
-- **Etapas 0 a 4: concluídas.**
-- **Etapa 5 (processos e casos):**
+- **Etapas 0 a 5: concluídas.**
+- **Etapa 5 (processos e casos), encerrada em 2026-10-19:**
   - 5A (#24) e 5B (#25) mergeados;
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
   - 5C2 (#27) mergeado: risco (CPC 25), acordos com rodadas, aprovação, homologação e parcelas, audiências com redesignação, a permissão `cases.risk.assess` e a ADR 0028;
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
-  - **5E2 implementado e verificado localmente em 2026-10-19**, no branch `etapa-5e2-telas-valores-importacao`: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e ADR 0031 proposta. Inclui a correção da contagem final de inválidas na importação. Código e documentos ficam no mesmo commit local; **push e PR aguardam pedido do usuário**. O merge do 5E2 conclui a Etapa 5; só então marque a etapa como concluída e a ADR como aceita, faça a arrumação e planeje a Etapa 6 antes de implementar.
+  - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
+- **Etapa 6 (publicações e andamentos):** branch `codex/etapa-6-publicacoes-andamentos`, criado da `main` atualizada após o merge do #30. Somente arrumação documental e planejamento; **implementação ainda não iniciada e plano ainda não aprovado**. A primeira entrada do `docs/handoff.md` traz a proposta dos PRs 6A a 6E e as dúvidas de fornecedor, dependência de Scheduling, atomicidade e fechamento diário. Aguarde as respostas e a aprovação do usuário antes de implementar.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -70,7 +71,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Depois do 5E:** a Etapa 6 (publicações e andamentos), na ordem da `implementacao.md`.
+- **Próximo trabalho:** aprovar o plano da Etapa 6 (publicações e andamentos), na ordem da `implementacao.md`, sem presumir respostas para as dúvidas registradas.
 
 ## Ciclo de trabalho (um PR por vez)
 
