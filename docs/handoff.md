@@ -10,6 +10,22 @@ Como funciona:
 
 ---
 
+## 2026-10-18 — Claude Code (arrumação depois do merge do #28)
+
+**Branch:** `etapa-5e-telas-processos`, criado a partir da `main`, com este commit de arrumação e push.
+
+**Feito:**
+- PR #28 (5D) mergeado pelo usuário. Antes do merge, uma correção de CI: `Path.GetFileName` no Linux (registrado no `AGENTS.md`).
+- `progress.md`: 5D concluído, e os 3 critérios da Etapa 5 atendidos.
+- ADR 0029 marcada como aceita.
+- "Onde paramos" do `AGENTS.md` atualizado.
+
+**Pendência anotada:** o upload dos modelos de proposta (Crm) também usa `Path.GetFileName`. Um nome com caminho do Windows ficaria inteiro num servidor Linux. Isso pede um PR pequeno, se o usuário quiser.
+
+**Próximo:** planejar o PR 5E (telas e e2e dos processos) e mostrar o plano ao usuário antes de implementar.
+
+---
+
 ## 2026-10-18 — Claude Code (PR 5D implementado)
 
 **Branch:** `etapa-5d-timeline-importacao` · **Estado:** PR aberto (`gh pr list --head etapa-5d-timeline-importacao`), aguardando o CI e o merge do usuário.
