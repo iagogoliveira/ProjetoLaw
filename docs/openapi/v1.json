@@ -9991,6 +9991,212 @@
         }
       }
     },
+    "/api/v1/publications/{id}/link": {
+      "put": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "LinkPublication",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkPublicationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationWorkflowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}/assignment": {
+      "put": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "AssignPublication",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignPublicationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationWorkflowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}/triage": {
+      "post": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "TriagePublication",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationTriageInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationWorkflowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/daily-close": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "GetPublicationsDailyClose",
+        "parameters": [
+          {
+            "name": "day",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "beforeRevision",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyCloseStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "ClosePublicationsDay",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyCloseInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyCloseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/publication-sources": {
       "get": {
         "tags": [
@@ -10135,6 +10341,14 @@
           },
           {
             "name": "caseId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "assignee",
             "in": "query",
             "schema": {
               "type": "string",
@@ -10288,6 +10502,74 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MovementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/deadlines": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ListCaseDeadlines",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeadlineResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{id}/tasks": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ListCaseTasks",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskItemResponse"
+                  }
                 }
               }
             }
@@ -10496,6 +10778,21 @@
           "team"
         ],
         "description": "Papel de um responsável pelo caso."
+      },
+      "AssignPublicationInput": {
+        "required": [
+          "assigneeUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "assigneeUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
       },
       "BranchRequest": {
         "required": [
@@ -13209,6 +13506,134 @@
           }
         }
       },
+      "DailyCloseInput": {
+        "required": [
+          "day"
+        ],
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "DailyCloseResponse": {
+        "required": [
+          "id",
+          "day",
+          "revision",
+          "closedBy",
+          "closedAt",
+          "publicationCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "revision": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "closedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publicationCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "DailyCloseStatusResponse": {
+        "required": [
+          "day",
+          "pendingCount",
+          "missingCaptureCount",
+          "publicationCount",
+          "isClosed",
+          "latest",
+          "history",
+          "nextRevision"
+        ],
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "pendingCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "missingCaptureCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "publicationCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "latest": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DailyCloseResponse"
+              }
+            ]
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyCloseResponse"
+            }
+          },
+          "nextRevision": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "DataScope": {
         "enum": [
           "own",
@@ -13218,6 +13643,97 @@
           "organization"
         ],
         "description": "Escopo de dados de uma atribuição de perfil (seção 7.2)."
+      },
+      "DeadlineResponse": {
+        "required": [
+          "id",
+          "caseId",
+          "publicationId",
+          "title",
+          "startOn",
+          "internalDueOn",
+          "fatalDueOn",
+          "assigneeUserId",
+          "status",
+          "confirmedBy",
+          "confirmedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "internalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "fatalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkItemStatus"
+          },
+          "confirmedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DeadlineTriageInput": {
+        "required": [
+          "title",
+          "startOn",
+          "internalDueOn",
+          "fatalDueOn",
+          "assigneeUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "startOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "internalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "fatalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "EconomicGroupRequest": {
         "required": [
@@ -13534,6 +14050,52 @@
         ],
         "description": "Uma audiência redesignada continua agendada; as datas anteriores ficam no histórico."
       },
+      "HearingTriageInput": {
+        "required": [
+          "type",
+          "format",
+          "scheduledAt",
+          "location",
+          "meetingLink",
+          "lawyerUserId",
+          "notes"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/PublicationHearingType"
+          },
+          "format": {
+            "$ref": "#/components/schemas/PublicationHearingFormat"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "meetingLink": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lawyerUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "HearingType": {
         "enum": [
           "conciliation",
@@ -13803,6 +14365,18 @@
           },
           "kind": {
             "$ref": "#/components/schemas/RelationKind"
+          }
+        }
+      },
+      "LinkPublicationInput": {
+        "required": [
+          "caseId"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -16084,6 +16658,22 @@
           }
         }
       },
+      "PublicationHearingFormat": {
+        "enum": [
+          "inPerson",
+          "virtual",
+          "hybrid"
+        ]
+      },
+      "PublicationHearingType": {
+        "enum": [
+          "conciliation",
+          "instruction",
+          "combined",
+          "judgment",
+          "other"
+        ]
+      },
       "PublicationResponse": {
         "required": [
           "id",
@@ -16140,6 +16730,23 @@
           "receivedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "assigneeUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "triage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicationTriageResponse"
+              }
+            ]
           }
         }
       },
@@ -16212,6 +16819,187 @@
           "receivedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "assigneeUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicationTriageInput": {
+        "required": [
+          "classification",
+          "action",
+          "confirmed"
+        ],
+        "type": "object",
+        "properties": {
+          "classification": {
+            "$ref": "#/components/schemas/TriageClassification"
+          },
+          "action": {
+            "$ref": "#/components/schemas/TriageAction"
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "deadline": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DeadlineTriageInput"
+              }
+            ]
+          },
+          "task": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TaskTriageInput"
+              }
+            ]
+          },
+          "hearing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HearingTriageInput"
+              }
+            ]
+          }
+        }
+      },
+      "PublicationTriageResponse": {
+        "required": [
+          "id",
+          "classification",
+          "action",
+          "reason",
+          "caseId",
+          "triagedBy",
+          "triagedAt",
+          "deadlineId",
+          "taskId",
+          "hearingId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classification": {
+            "$ref": "#/components/schemas/TriageClassification"
+          },
+          "action": {
+            "$ref": "#/components/schemas/TriageAction"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "triagedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "triagedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadlineId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "hearingId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicationWorkflowResponse": {
+        "required": [
+          "id",
+          "caseId",
+          "assigneeUserId",
+          "status",
+          "triage"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "assigneeUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PublicationStatus"
+          },
+          "triage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicationTriageResponse"
+              }
+            ]
           }
         }
       },
@@ -17003,6 +17791,77 @@
           }
         }
       },
+      "TaskItemResponse": {
+        "required": [
+          "id",
+          "caseId",
+          "publicationId",
+          "title",
+          "dueOn",
+          "assigneeUserId",
+          "status",
+          "confirmedBy",
+          "confirmedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkItemStatus"
+          },
+          "confirmedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TaskTriageInput": {
+        "required": [
+          "title",
+          "dueOn",
+          "assigneeUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "TeamMembersRequest": {
         "required": [
           "memberIds"
@@ -17157,6 +18016,25 @@
           }
         },
         "description": "Chave para o aplicativo autenticador: digitada à mão ou lida pelo QR code gerado a partir do `otpauth://`."
+      },
+      "TriageAction": {
+        "enum": [
+          "noAction",
+          "discard",
+          "deadline",
+          "task",
+          "hearing"
+        ]
+      },
+      "TriageClassification": {
+        "enum": [
+          "deadlineNotice",
+          "routine",
+          "hearing",
+          "decision",
+          "judgment",
+          "other"
+        ]
       },
       "UpdateCustomFieldRequest": {
         "required": [
@@ -17342,6 +18220,11 @@
           }
         },
         "description": "Valores do pedido numa instância: pedido, estimado (expectativa do escritório) e de condenação."
+      },
+      "WorkItemStatus": {
+        "enum": [
+          "pending"
+        ]
       }
     }
   },
@@ -17405,6 +18288,9 @@
     },
     {
       "name": "Publications"
+    },
+    {
+      "name": "Scheduling"
     }
   ]
 }

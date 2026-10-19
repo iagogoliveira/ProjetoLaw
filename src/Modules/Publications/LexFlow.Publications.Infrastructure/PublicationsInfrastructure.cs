@@ -3,7 +3,9 @@ using LexFlow.Litigation.Contracts;
 using LexFlow.Platform.Contracts.Notifications;
 using LexFlow.Publications.Application;
 using LexFlow.Publications.Application.Capture;
+using LexFlow.Publications.Application.Closing;
 using LexFlow.Publications.Application.Movements;
+using LexFlow.Publications.Application.Triage;
 using LexFlow.Publications.Contracts;
 using LexFlow.Publications.Infrastructure.Capture;
 using LexFlow.Publications.Infrastructure.Movements;
@@ -27,6 +29,10 @@ public static class PublicationsInfrastructure
     {
         services.AddPublicationsPersistence(configuration);
         services.AddScoped<PublicationAccess>();
+        services.AddScoped<PublicationWorkflowAccess>();
+        services.AddScoped<PublicationTriageTargets>();
+        services.AddScoped<DailyCloseAccess>();
+        services.AddScoped<DailyCloseState>();
         services.AddScoped<ICaptureLocks, PostgresCaptureLocks>();
         services.AddScoped<CaptureSourceJob>();
         services.AddScoped<CaptureMonitor>();

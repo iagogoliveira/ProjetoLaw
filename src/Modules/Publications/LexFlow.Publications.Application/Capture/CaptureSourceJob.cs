@@ -27,6 +27,7 @@ public sealed class CaptureSourceJob(IPublicationsDbContext db, ICaptureLocks lo
         var run = CaptureRun.Start(sourceId, day, clock.UtcNow, activation).Value;
         db.Runs.Add(run);
         var result = await FetchAsync(source, day, cancellationToken);
+        await locks.ControlAsync(cancellationToken);
         var (count, error) = result.IsFailure ? (0, result.Error.Code) : await StoreAsync(sourceId, result.Value, cancellationToken);
         run.Finish(count, error, clock.UtcNow);
         if (error is null)

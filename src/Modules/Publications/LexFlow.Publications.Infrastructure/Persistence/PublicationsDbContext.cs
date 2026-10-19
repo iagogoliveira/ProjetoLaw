@@ -13,6 +13,8 @@ public sealed class PublicationsDbContext(DbContextOptions<PublicationsDbContext
     public const string SchemaName = "publications";
     public const string ModuleName = "Publications";
     protected override string Schema => SchemaName;
+    public DbSet<DailyClose> DailyCloses => Set<DailyClose>();
+    public DbSet<CaptureSourcePeriod> SourcePeriods => Set<CaptureSourcePeriod>();
     public DbSet<CaptureSource> Sources => Set<CaptureSource>();
     public DbSet<CaptureAlert> Alerts => Set<CaptureAlert>();
     public DbSet<CaptureRun> Runs => Set<CaptureRun>();

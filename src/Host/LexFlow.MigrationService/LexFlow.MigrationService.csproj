@@ -12,4 +12,7 @@
 <ItemGroup>
 <ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Infrastructure/LexFlow.Publications.Infrastructure.csproj" />
 </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Modules/Scheduling/LexFlow.Scheduling.Infrastructure/LexFlow.Scheduling.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

@@ -16,6 +16,7 @@ internal sealed class ReceivePublicationHandler(IPublicationsDbContext db, ICase
 {
     public async Task<Result<Guid>> Handle(ReceivePublicationCommand command, CancellationToken cancellationToken)
     {
+        await locks.ControlAsync(cancellationToken);
         var received = Publication.Receive(command.Input, clock.UtcNow);
         if (received.IsFailure) { return received.Error; }
         var publication = received.Value;

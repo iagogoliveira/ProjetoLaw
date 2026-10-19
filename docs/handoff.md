@@ -10,6 +10,78 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (publicação do PR 6D solicitada; revisão e merge pendentes)
+
+**Autorização e estado:** usuário pediu “Crie o PR”. Branch `codex/etapa-6d-triagem-fechamento`; implementação `77acd5e` + `18cbec4`. Esta entrada integra o commit documental preparado para enviar código e documentos juntos, em um único push, e abrir o PR contra `main`. Consultar URL, checks e estado remoto com `gh pr view codex/etapa-6d-triagem-fechamento`. Nenhum merge autorizado ao agente; ADR 0035 permanece proposta até a confirmação do merge pelo usuário.
+
+**Verificação preservada:** 895 testes .NET, cobertura mínima de 80%, builds sem warnings, formatação, dependências, seis modelos EF, lint, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade aprovados, conforme o registro abaixo/progress. Único skip de navegador: preparação opcional de carga sem `LOAD_OUTPUT`. Desde `18cbec4`, apenas documentação de publicação foi alterada; revisar diff/UTF-8/links e igualdade AGENTS/CLAUDE antes do commit, sem repetir suítes de runtime sem mudança. Manual e guia local revisados: nenhum novo passo de uso ou inicialização. Ambiente segue fechado, com volumes preservados.
+
+**Próximos passos:** conferir publicação e checks do PR, aguardar revisão/merge pelo usuário. Depois do merge, seguir o ciclo de arrumação e preparar o 6E do plano aprovado; não antecipar sua implementação neste PR. Nenhuma dúvida complementar de negócio pendente. Fornecedor real ainda depende de escolha/documentação/acesso; calculadora e agenda completas ficam na Etapa 7. A Etapa 6 permanece em andamento.
+
+---
+
+## 2026-10-19 — Codex (6D implementado e verificado; commit local, aguardando pedido de push/PR)
+
+**Estado:** branch `codex/etapa-6d-triagem-fechamento`, base remota `88f1736`, checkpoint local `77acd5e` e commit local de fechamento com código/documentos (consultar `git log -1`). Nenhum push ou PR desta implementação. ADR 0035 continua **Proposta (para revisão no PR 6D)**; não marcar como aceita antes do merge pelo usuário.
+
+**Entregue:** vínculo, distribuição e triagem auditada; encerramento irrelevante/engano sem processo, com justificativa e autor; núcleo mínimo de Scheduling; criação de prazo/tarefa/audiência junto da triagem em uma transação PostgreSQL; fechamento diário e histórico paginado. Permissões, acesso a processos sigilosos, RLS e auditoria mantidos. Novas publicações exigem novo fechamento sem alterar os anteriores; cada destino exige também sua permissão (`schedule.deadlines.manage`, `schedule.tasks.manage`, `cases.edit` para audiência). Todas as três perguntas complementares foram respondidas pelo usuário; não perguntar novamente.
+
+**Verificação completa aprovada:** builds Release/Debug sem warnings, formatação, **895 testes .NET em 20 projetos**, sem falhas/skips, e gate de 80% em todas as camadas. Consolidado: 493 unitários, 360 de integração, 17 de arquitetura, 11 SecurityTests e 14 AppHost.Tests. Ajustes finais de descarte após commit físico e auditoria de negativas repetidos: 47 building blocks, 200 da API e 11 de segurança aprovados. Dependências .NET/JavaScript sem vulnerabilidades reportadas; seis modelos EF sem pendência; lint, **96 Vitest** e build Angular aprovados. OpenAPI oficial e cliente regenerados, somente adições (7 rotas, 18 schemas). Nenhum pacote novo. Logs/cobertura em `TestResults/6d-final-validation`, `6d-post-commit-validation` e `6d-final-*-after-review.log`.
+
+**Navegador e ambiente:** duas rodadas consecutivas Playwright contra o AppHost, com um worker, **14 aprovados por rodada** (1,7 e 1,4 min), acessibilidade ativa e relatórios `TestResults/6d-playwright-report-1` e `-2`. Único skip: preparação opcional de carga sem `LOAD_OUTPUT`, conforme o teste existente. AppHost.Tests executado antes da instância manual. AppHost, SPA/API e os sete serviços Docker encerrados; portas 4200/5238/8025 sem listeners. Volumes `lexflow-storage-data` e `lexflow.apphost-10d2fc16f8-postgres-data` preservados. Deixar fechado, reabrir para exploração somente a pedido.
+
+**Documentação e próximos passos:** progress com tabela/resultados/pendências, ADR 0035 e os dois guias atualizados; AGENTS/CLAUDE idênticos, UTF-8 e diff revisados antes do commit. Manual/guia descrevem operação técnica do backend no branch do 6D, sem anunciar formulários do 6E como disponíveis. Aguardar pedido de push/PR e enviar código e documentos juntos. Após confirmação do merge pelo usuário, atualizar main, aceitar ADR e preparar o 6E conforme o ciclo. Telas permanecem no 6E; calculadora/agenda completas, na Etapa 7; fornecedor real de publicações depende de escolha/documentação/acesso. A Etapa 6 continua em andamento.
+
+---
+
+## 2026-10-19 — Codex (6D: decisões aprovadas, implementação e verificação integral em andamento)
+
+**Respostas do usuário:** “Preserve o historico; Exige permissão de destino.” Aprovados novo fechamento quando houver novidades, preservando todos os registros anteriores, e permissão do destino além de `publications.triage` (`schedule.deadlines.manage`, `schedule.tasks.manage`, `cases.edit` para audiência). A pergunta de encerramento irrelevante sem processo já tinha sido aprovada. Nenhuma dessas três perguntas continua pendente; não perguntar novamente.
+
+**Estado atual:** branch `codex/etapa-6d-triagem-fechamento`; checkpoint transacional local `77acd5e`, base remota `88f1736`. Código completo do 6D no diretório de trabalho, ainda sem commit final, push ou PR novo. ADR 0035 proposta atualizada antes dos fluxos; cinco projetos de Scheduling e dois de testes adicionados; migrations novas de Publications, Scheduling e permissão de Organization. Endpoints de vínculo/distribuição/triagem, leitura de prazos/tarefas e fechamento/histórico implementados, com RLS e casos entre tenants nos SecurityTests. Manual e guia local incrementados, sem anunciar telas do 6E como entregues.
+
+**Verificações já aprovadas:** 20 projetos .NET da rodada integral, 893 testes com cobertura, incluindo 199 da API, 11 SecurityTests e 14 AppHost.Tests; gate de 80% aprovado em todos os módulos. Lint, 96 Vitest, build Angular, dependências .NET/JavaScript sem vulnerabilidades reportadas e seis modelos EF sem pendência. OpenAPI oficial gerado, cliente TypeScript regenerado, comparação com main somente aditiva (7 rotas, 18 schemas). Builds Release/Debug sem warnings e formatação aprovados antes dos ajustes finais abaixo. Logs em `TestResults/6d-*`, rodada integral em `TestResults/6d-final-validation`.
+
+**Ajustes finais e verificações ainda necessárias:** revisão detectou erro mascarado quando interceptor falha após o commit físico; teste novo reproduziu, descarte corrigido e integração dos building blocks repetida com **47 aprovados**, com cobertura em `TestResults/6d-post-commit-validation`. Falha antes do commit continua desfazendo ambos os lados; após commit físico, preservar o erro original e consultar o estado. Reuso do autorizador de leitura também foi adicionado aos fluxos de escrita para preservar a auditoria de negativas de caso sigiloso; teste novo correspondente. Recompilado em Release/Debug sem warnings. Repetir a API (agora 200 testes), SecurityTests e formatação afetados; substituir a cobertura antiga da API antes do gate final para não misturar versões desse arquivo. Demais resultados aprovados continuam válidos. Conferir os números finais pela evidência, não apenas por este registro parcial.
+
+**O que falta para fechar:** concluir repetições afetadas e cobertura final; Playwright contra AppHost, preferencialmente duas rodadas com um worker e relatórios separados; encerrar AppHost e serviços próprios preservando volumes; revisar diff/UTF-8, igualdade AGENTS/CLAUDE e os dois guias; atualizar estado/última verificação no progress e este handoff com resultados finais; commit local com código e documentos. Não fazer push/PR até pedido. AppHost.Tests já terminou; nenhuma instância manual está aberta neste momento. Fornecedor real permanece pendente; Etapa 6 continua em andamento; telas no 6E, calculadora/agenda na Etapa 7.
+
+---
+
+## 2026-10-19 — Codex (6D iniciado: base transacional verificada; duas respostas pendentes)
+
+**Pedido:** continuar o 6D. Usuário respondeu **“Adotar a sugestão” somente à pergunta sobre encerrar publicação irrelevante/capturada por engano sem processo**, com justificativa obrigatória e identificação do autor. Prazo/tarefa/audiência exigem processo. Essa aprovação foi persistida no progress e na ADR 0035; não repetir a pergunta.
+
+**Ainda sem resposta:** (1) novas publicações recebidas depois do fechamento no mesmo dia exigirem novo fechamento, preservando o anterior no histórico, ou ficarem para o próximo; (2) criação do destino exigir sua própria permissão (`schedule.deadlines.manage`, `schedule.tasks.manage`, `cases.edit` para audiência), além de `publications.triage`, ou só a de triagem. As sugestões enviadas foram novo fechamento e permissão adicional. A resposta recebida não aprova automaticamente as outras perguntas. Não implementar essas duas escolhas antes das respostas. O plano geral 6A–6E continua aprovado.
+
+**Feito antes do código:** estudo do pipeline, tenant/auditoria/outbox, contratos e modelos; criada [ADR 0035](adr/0035-triagem-transacao-local-e-fechamento.md), status Proposta (para revisão no PR 6D), detalhando a exceção aprovada à ADR 0007. A base não depende das duas decisões de negócio pendentes.
+
+**Implementado:** `ILocalTransactionCommand` declara os módulos participantes, começando pelo dono do comando; `ILocalTransactionCoordinator` scoped em Infrastructure.Common resolve as unidades de trabalho keyed, valida banco/tenant/estado, compartilha conexão e transação PostgreSQL e confirma uma vez. Comandos normais mantêm a unidade de trabalho por módulo; comandos internos reutilizam a transação. Falha, exceção/cancelamento ou descarte sem commit desfazem dados, auditoria e outbox. Contextos secundários recuperam conexões próprias do mesmo data source; trackers são limpos no rollback. Não restaurar o objeto de conexão anterior: o EF o descarta ao substituir conexão possuída. O coordenador rejeita tenant ausente/divergente, transação independente/aninhada e mudanças pendentes. Nenhum pacote novo.
+
+**Verificação parcial:** build Release de toda a solução sem warnings/erros; formatação integral aprovada. 238 testes unitários de building blocks + 46 de integração com PostgreSQL/RabbitMQ reais (ambos com cobertura) + 17 de arquitetura: **301 aprovados, zero falhas/skips**. Inclui 27 novos: 6 de pipeline, 19 de coordenação e 2 de outbox. Publicação dos dois contextos só é consumida após commit; rollback remove os dois lados e auditoria. Inicialmente o teste novo consultou a tabela de auditoria com nome errado; corrigido para `audit.audit_logs` antes da regressão aprovada. Logs/cobertura em `TestResults/6d-base-*`. Não é a verificação final do 6D; gates completos e testes dos fluxos reais entre módulos continuam obrigatórios no fechamento.
+
+**Branch/estado:** `codex/etapa-6d-triagem-fechamento`; base/arrumação enviada `88f1736`. Checkpoint desta base e documentação em commit local (consultar `git log -1`), **sem push nem PR novo**. Nenhuma migration, endpoint, tela ou módulo Scheduling implementado ainda. Manual e guia local revisados: passos de uso/inicialização não foram afetados, sem novos recursos anunciados como disponíveis. AGENTS/CLAUDE sincronizados; aplicação de exploração não iniciada; serviços temporários dos testes encerrados sem mexer nos volumes da aplicação.
+
+**Próximos passos:** incorporar as duas respostas pendentes e continuar os fluxos do 6D: distribuição/vínculo/triagem auditada, Contracts, núcleo mínimo de prazo/tarefa/audiência atômico, permissão e fechamento, migrations/RLS/SecurityTests e contrato aditivo. Testar a atomicidade nos módulos reais, concorrência/reexecução e alcance/sigilo. Atualizar ADR, manuais e gates completos antes do commit final. Calculadora/agenda completas na Etapa 7, telas no 6E e fornecedor real pendente. Código/documentos no mesmo push quando autorizado; nunca fazer merge pelo usuário. Manter ambiente fechado após verificações.
+
+---
+
+## 2026-10-19 — Codex (PR #33 mergeado; arrumação e preparação do 6D)
+
+**Aviso do usuário:** “Merge efetuado.” Confirmado no GitHub: PR [#33](https://github.com/iagogoliveira/ProjetoLaw/pull/33) `MERGED`, em 2026-10-19, merge `fe1f654f97686b6530152faa06e44e2ae7261146`. Todos os checks do CI aprovados, incluindo backend, frontend, OpenAPI, AppHost/E2E, CodeQL, Gitleaks e Trivy. Merge feito pelo usuário.
+
+**Branch/estado:** main atualizada por fast-forward; criado `codex/etapa-6d-triagem-fechamento` da base `fe1f654`. Diretório limpo antes da arrumação; os commits do 6C e do manual já estão na main. Esta arrumação documental recebe commit/push nesse novo branch conforme o ciclo pós-merge autorizado; nenhum PR do 6D solicitado/criado, nenhuma implementação nova nesta entrega.
+
+**Feito:** 6C/DataJud marcado concluído no progress com #33/data; ADR 0034 aceita; AGENTS/CLAUDE sincronizados. Manual e guia revisados: disponibilidade do DataJud na main e base do 6D atualizadas, sem novos passos de tela ou comandos de inicialização. Preferência de manter ambiente fechado preservada; nenhum AppHost/contêiner iniciado para esta arrumação.
+
+**Verificação:** merge/base/CI, diff somente documental, UTF-8, links locais e igualdade AGENTS/CLAUDE conferidos antes do commit. Mantidos os resultados completos do 6C: 794 testes .NET, cobertura acima de 80%, 96 Vitest e duas rodadas de 14 Playwright. Sem repetir testes de runtime para atualização documental. A Etapa 6 continua em andamento e o fornecedor real permanece pendente.
+
+**Próximo trabalho — 6D já aprovado:** detalhar a ADR 0035 antes da implementação para transação local compartilhada entre Publications e Scheduling/Litigation, mantendo comunicação por Contracts. Implementar distribuição/vínculo/triagem com permissões e alcance do conteúdo, confirmação humana, núcleo mínimo de prazo/tarefa/audiência e fechamento diário auditado com `publications.close`. Data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão quando faltar captura esperada, conforme decisões registradas. Testar rollback conjunto, concorrência/reexecução, responsável/permissão/escopo, RLS/SecurityTests e contrato aditivo. Calculadora completa e agenda da Etapa 7, IA da Etapa 11 e telas do 6E não entram automaticamente no 6D.
+
+**Regras para continuidade:** não pedir novamente aprovação do plano 6A–6E ou das decisões já respondidas; dúvida de negócio nova exige pergunta antes de decidir. Testes direcionados na implementação e gates completos no fechamento; revisar ambos os guias após melhorias. Código novo termina em commit local, push/PR somente a pedido; nunca fazer merge pelo usuário. Ambiente de exploração permanece fechado até novo pedido.
+
+---
+
 ## 2026-10-19 — Codex (envio/PR do 6C autorizados; ambiente local encerrado)
 
 **Pedido explícito do usuário:** “Não é preciso manter a aplicação rodando [...] quando eu pedir novamente você abre. pode abrir o PR”. Autoriza push do código/documentação e criação do PR 6C para main; não autoriza merge. A preferência substitui as entradas anteriores que pediam manter a instância manual aberta.

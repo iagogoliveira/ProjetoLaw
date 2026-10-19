@@ -121,6 +121,10 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         cases.Add("POST /api/v1/notifications/{id:guid}/read", async owner => new CrossTenantCase(await NotificationOfAsync(owner)));
         cases.Add("PUT /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }));
         cases.Add("GET /api/v1/publications/{id:guid}", async owner => new CrossTenantCase(await PublicationOfAsync(owner)));
+        cases.Add("PUT /api/v1/publications/{id:guid}/link", async owner => new CrossTenantCase(await PublicationOfAsync(owner), new { caseId = Guid.CreateVersion7() }));
+        cases.Add("PUT /api/v1/publications/{id:guid}/assignment", async owner => new CrossTenantCase(await PublicationOfAsync(owner), new { assigneeUserId = owner.UserId }));
+        cases.Add("POST /api/v1/publications/{id:guid}/triage", async owner => new CrossTenantCase(await PublicationOfAsync(owner),
+            new { classification = "other", action = "discard", confirmed = true, reason = "Homônimo" }));
         return cases;
     }
 
@@ -167,6 +171,8 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
             ["GET /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/deadlines"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["GET /api/v1/cases/{id:guid}/tasks"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["GET /api/v1/cases/{id:guid}/movement-sync"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { occurredAt = "2026-10-19T12:00:00Z", description = "Sentença" }),
             ["GET /api/v1/cases/{id:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),

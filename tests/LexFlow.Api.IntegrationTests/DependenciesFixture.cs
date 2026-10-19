@@ -20,6 +20,8 @@ using LexFlow.Platform.Infrastructure.CustomFields;
 using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Infrastructure;
 using LexFlow.Publications.Infrastructure.Persistence;
+using LexFlow.Scheduling.Infrastructure;
+using LexFlow.Scheduling.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,6 +110,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
             await scope.ServiceProvider.GetRequiredService<CrmDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<LitigationDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<PublicationsDbContext>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<SchedulingDbContext>().Database.MigrateAsync();
             await using (var connection = new Npgsql.NpgsqlConnection(AdminConnectionString))
             {
                 await connection.OpenAsync();
@@ -140,6 +143,7 @@ public sealed class DependenciesFixture : IAsyncLifetime
         services.AddCrmPersistence(configuration);
         services.AddLitigationPersistence(configuration);
         services.AddPublicationsPersistence(configuration);
+        services.AddSchedulingPersistence(configuration);
         return services.BuildServiceProvider();
     }
 

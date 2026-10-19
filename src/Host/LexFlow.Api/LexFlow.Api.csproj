@@ -25,4 +25,8 @@
 <ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Infrastructure/LexFlow.Publications.Infrastructure.csproj" />
 <ProjectReference Include="../../Modules/Publications/LexFlow.Publications.Endpoints/LexFlow.Publications.Endpoints.csproj" />
 </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Modules/Scheduling/LexFlow.Scheduling.Infrastructure/LexFlow.Scheduling.Infrastructure.csproj" />
+    <ProjectReference Include="../../Modules/Scheduling/LexFlow.Scheduling.Endpoints/LexFlow.Scheduling.Endpoints.csproj" />
+  </ItemGroup>
 </Project>

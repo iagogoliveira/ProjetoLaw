@@ -53,7 +53,8 @@ public sealed class PersistenceFixture : IAsyncLifetime
     /// <summary>Relógio próprio de cada teste (testes rodam em paralelo e não podem mover o relógio uns dos outros).</summary>
     public static FakeTimeProvider NewClock() => new(new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.Zero));
 
-    public ServiceProvider BuildProvider(TestTenant tenant, TestUser user, FakeTimeProvider time, TestRequest? request = null)
+    public ServiceProvider BuildProvider(TestTenant tenant, TestUser user, FakeTimeProvider time, TestRequest? request = null,
+        Action<IServiceCollection>? configure = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>(StringComparer.Ordinal)
@@ -70,7 +71,9 @@ public sealed class PersistenceFixture : IAsyncLifetime
         services.AddSingleton<IRequestContext>(request ?? new TestRequest());
         services.AddApplication(typeof(PersistenceFixture).Assembly);
         services.AddModuleDbContext<SampleDbContext>(configuration, "Sample", "sample");
+        services.AddModuleDbContext<SecondarySampleDbContext>(configuration, "SecondarySample", "sample");
         services.TryAddSingleton<IConfiguration>(configuration);
+        configure?.Invoke(services);
         return services.BuildServiceProvider(validateScopes: true);
     }
 

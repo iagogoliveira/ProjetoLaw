@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="../LexFlow.Publications.Domain/LexFlow.Publications.Domain.csproj" />
     <ProjectReference Include="../LexFlow.Publications.Contracts/LexFlow.Publications.Contracts.csproj" />
+    <ProjectReference Include="../../Scheduling/LexFlow.Scheduling.Contracts/LexFlow.Scheduling.Contracts.csproj" />
     <ProjectReference Include="../../Litigation/LexFlow.Litigation.Contracts/LexFlow.Litigation.Contracts.csproj" />
     <ProjectReference Include="../../Platform/LexFlow.Platform.Contracts/LexFlow.Platform.Contracts.csproj" />
     <ProjectReference Include="../../Organization/LexFlow.Organization.Contracts/LexFlow.Organization.Contracts.csproj" />

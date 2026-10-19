@@ -1,6 +1,8 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no 6C, em 2026-10-19: os comandos e endereços permanecem os mesmos; o branch `codex/etapa-6c-datajud-integracoes` acrescenta consultas DataJud no backend.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6C (#33), em 2026-10-19: consultas DataJud disponíveis no backend da main; o branch `codex/etapa-6d-triagem-fechamento` começa dessa base. Comandos e endereços permanecem os mesmos. O ambiente está fechado a pedido do usuário.
+
+No branch do 6D, triagem, distribuição, prazo/tarefa mínimos e fechamento estão implementados e verificados no backend desse branch, ainda sem merge. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização nem tela nova nesta entrega.
 
 ## 1. O que precisa estar disponível
 
@@ -42,7 +44,7 @@ Para o primeiro acesso, siga a seção inicial do manual. Não há credencial co
 
 No terminal que está executando o AppHost, pressione **Ctrl+C** e aguarde o encerramento. Para voltar, execute o mesmo comando de inicialização.
 
-**Preferência registrada em 2026-10-19:** deixar a aplicação fechada após as verificações e reabri-la para exploração manual somente a pedido do usuário. O AppHost e seus serviços Docker foram encerrados após a verificação do 6C. Se algum contêiner dessa instância permanecer ligado após encerrar o AppHost, parar apenas os serviços identificados como pertencentes a ela, sem remover volumes.
+**Preferência registrada em 2026-10-19:** deixar a aplicação fechada após as verificações e reabri-la para exploração manual somente a pedido do usuário. O AppHost e seus serviços Docker foram encerrados após a verificação do 6D, com os volumes preservados. Se algum contêiner dessa instância permanecer ligado após encerrar o AppHost, parar apenas os serviços identificados como pertencentes a ela, sem remover volumes.
 
 O ambiente padrão usa volumes persistentes para banco e armazenamento. Parar e iniciar normalmente preserva os cadastros locais. Remover os volumes Docker pode apagar esses dados; isso não faz parte do procedimento normal de encerramento.
 
@@ -79,3 +81,30 @@ As movimentações automáticas ficam desabilitadas por padrão, inclusive para 
 A chave pública vigente é obtida na [wiki oficial do CNJ](https://datajud-wiki.cnj.jus.br/api-publica/acesso/). Cadastre-a pela API; não a coloque no código, manual, logs ou captura de tela. A proteção usa o key ring persistido já compartilhado por API e Worker. Preserve esse key ring e o banco ao reiniciar. Se a chave for recusada ou não puder ser aberta, substitua-a pela configuração autenticada; salvar a configuração inicia uma nova revisão, mantendo os andamentos anteriores e permitindo reprocessar sem duplicação.
 
 O Worker verifica os processos elegíveis a cada cinco minutos; cada processo tem uma janela de seis horas. Páginas pendentes ou falhas são tentadas novamente após cinco minutos. A consulta usa apenas endpoints oficiais e tem limite de concorrência/tempo/tamanho de resposta. Cursor inválido reinicia a varredura na tentativa seguinte. O fake identifica seus movimentos como origem de provedor simulado; não confundir com retorno do CNJ. Não é necessário cadastrar uma chave para continuar explorando as telas atuais.
+
+## 8. Triagem e fechamento (6D, operação técnica)
+
+Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas de publicações estão previstas no 6E.
+
+| Operação | Endpoint | Permissão |
+| --- | --- | --- |
+| Filtrar fila pelo responsável | `GET /api/v1/publications?assignee=<userId>&status=pending` | `publications.read` |
+| Consultar atribuição e decisão registrada | `GET /api/v1/publications/{id}` | `publications.read` |
+| Vincular processo | `PUT /api/v1/publications/{id}/link`, com `caseId` | `publications.triage` |
+| Atribuir ou remover responsável | `PUT /api/v1/publications/{id}/assignment`, com `assigneeUserId` ou `null` | `publications.distribute` |
+| Confirmar a triagem | `POST /api/v1/publications/{id}/triage` | `publications.triage` e permissão do destino |
+| Consultar prazos/tarefas do processo | `GET /api/v1/cases/{id}/deadlines` ou `/tasks` | `schedule.deadlines.read` ou `schedule.tasks.read` |
+| Consultar situação e histórico do fechamento | `GET /api/v1/publications/daily-close?day=2026-10-19` | `publications.close`, escopo de escritório |
+| Assinar o fechamento | `POST /api/v1/publications/daily-close`, com `day` | `publications.close`, escopo de escritório |
+
+A triagem recebe `classification` (`deadlineNotice`, `routine`, `hearing`, `decision`, `judgment`, `other`), `action` (`noAction`, `discard`, `deadline`, `task`, `hearing`), `confirmed: true` e, quando necessário, `caseId`. `discard` exige classificação `other` e `reason`, aceitando ausência de processo. As outras ações exigem processo. Envie somente o objeto correspondente ao destino escolhido:
+
+- `deadline`: `title`, `startOn`, `internalDueOn`, `fatalDueOn` e `assigneeUserId`. As datas são `YYYY-MM-DD`, em ordem início ≤ interna ≤ fatal. Exige `schedule.deadlines.manage`.
+- `task`: `title`, `dueOn` e `assigneeUserId`. Exige `schedule.tasks.manage`.
+- `hearing`: `type`, `format`, `scheduledAt`, `location`, `meetingLink`, `lawyerUserId` e `notes`, conforme o schema. A data/hora inclui fuso; local/link seguem o formato presencial/virtual/híbrido. Exige `cases.edit`.
+
+Os responsáveis precisam estar ativos e ter acesso de leitura ao processo/destino. Triagem repetida retorna conflito; não é necessário reenviar depois de um resultado confirmado. Em falha, conferir a publicação antes de tentar novamente; os testes verificam rollback conjunto da triagem, destino e auditoria.
+
+O histórico do fechamento aceita `limit` (1–200) e `beforeRevision`; quando houver outra página, use `nextRevision` como próximo `beforeRevision`. `latest` aponta para a última assinatura, enquanto `isClosed` informa se ela ainda cobre o estado atual. Novidades exigem nova assinatura, preservando as anteriores. O fechamento considera pendências anteriores e captura incompleta; usuário sem alcance de todo o conteúdo não recebe as contagens do escritório.
+
+A permissão nova de fechamento é incluída nos perfis padrão Administrador, Sócio e Controladoria, inclusive em escritórios existentes. Perfis personalizados precisam de atribuição explícita. A Controladoria não recebe `cases.edit` automaticamente para criar audiências; conceda essa permissão somente conforme a política do escritório. Não há calculadora ou agenda completa antecipada da Etapa 7. Ao terminar a verificação local, encerre o AppHost e os serviços desta instância, preservando os volumes, conforme a preferência do usuário.

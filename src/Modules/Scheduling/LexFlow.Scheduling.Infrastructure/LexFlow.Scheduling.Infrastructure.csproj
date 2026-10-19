@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../LexFlow.Scheduling.Application/LexFlow.Scheduling.Application.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/LexFlow.Infrastructure.Common/LexFlow.Infrastructure.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /><PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" /></ItemGroup>
+</Project>

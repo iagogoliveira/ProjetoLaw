@@ -1,6 +1,7 @@
 using FluentValidation;
 using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
+using LexFlow.Publications.Application.Capture;
 using LexFlow.Publications.Contracts;
 using LexFlow.Publications.Domain;
 using LexFlow.SharedKernel.Results;
@@ -39,15 +40,17 @@ internal sealed class GetCaptureSourceHandler(IPublicationsDbContext db) : IQuer
         return source is null ? PublicationErrors.SourceNotFound : CaptureSourceResponse.Of(source);
     }
 }
-internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events) : ICommandHandler<CreateCaptureSourceCommand, CaptureSourceResponse>
+internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events, ICaptureLocks locks) : ICommandHandler<CreateCaptureSourceCommand, CaptureSourceResponse>
 {
     public async Task<Result<CaptureSourceResponse>> Handle(CreateCaptureSourceCommand command, CancellationToken cancellationToken)
     {
+        await locks.ControlAsync(cancellationToken);
         var result = CaptureSource.Create(command.Input);
         if (result.IsFailure) { return result.Error; }
         if (result.Value.IsActive)
         {
             result.Value.ActivateAt(clock.UtcNow);
+            db.SourcePeriods.Add(CaptureSourcePeriod.Start(result.Value.Id, clock.UtcNow));
             events.Publish(new SourceActivatedIntegrationEvent(result.Value.Id));
         }
         db.Sources.Add(result.Value);
@@ -55,10 +58,11 @@ internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db, IClo
         return CaptureSourceResponse.Of(result.Value);
     }
 }
-internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events) : ICommandHandler<UpdateCaptureSourceCommand, CaptureSourceResponse>
+internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db, IClock clock, IIntegrationEventPublisher events, ICaptureLocks locks) : ICommandHandler<UpdateCaptureSourceCommand, CaptureSourceResponse>
 {
     public async Task<Result<CaptureSourceResponse>> Handle(UpdateCaptureSourceCommand command, CancellationToken cancellationToken)
     {
+        await locks.ControlAsync(cancellationToken);
         var source = await db.Sources.SingleOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
         if (source is null) { return PublicationErrors.SourceNotFound; }
         var wasActive = source.IsActive;
@@ -66,9 +70,16 @@ internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db, IClo
         var oldValue = source.Value;
         var result = source.Update(command.Input);
         if (result.IsFailure) { return result.Error; }
-        if (source.IsActive && (!wasActive || oldKind != source.Kind || !string.Equals(oldValue, source.Value, StringComparison.Ordinal)))
+        var newActivation = !wasActive || oldKind != source.Kind || !string.Equals(oldValue, source.Value, StringComparison.Ordinal);
+        if (wasActive && (!source.IsActive || newActivation))
+        {
+            foreach (var period in await db.SourcePeriods.Where(p => p.SourceId == source.Id && p.DeactivatedAt == null).ToListAsync(cancellationToken))
+            { period.End(clock.UtcNow); }
+        }
+        if (source.IsActive && newActivation)
         {
             source.ActivateAt(clock.UtcNow);
+            db.SourcePeriods.Add(CaptureSourcePeriod.Start(source.Id, clock.UtcNow));
             events.Publish(new SourceActivatedIntegrationEvent(source.Id));
         }
         await db.SaveChangesAsync(cancellationToken);

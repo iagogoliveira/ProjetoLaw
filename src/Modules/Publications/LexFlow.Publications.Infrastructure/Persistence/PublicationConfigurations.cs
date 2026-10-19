@@ -52,6 +52,8 @@ internal sealed class PublicationConfigurations :
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Id).ValueGeneratedNever();
         builder.Property(t => t.Classification).HasConversion<string>().HasMaxLength(30);
+        builder.Property(t => t.Action).HasConversion<string>().HasMaxLength(20);
+        builder.Property(t => t.Reason).HasMaxLength(4000);
         builder.HasOne<Publication>().WithMany().HasForeignKey(t => t.PublicationId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(t => new { t.OrganizationId, t.PublicationId }).IsUnique();
     }

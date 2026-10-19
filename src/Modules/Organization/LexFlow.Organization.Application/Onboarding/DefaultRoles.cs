@@ -61,7 +61,7 @@ public static class DefaultRoles
         new(Controller, "Controladoria jurídica", "Triagem de publicações, cadastro de prazos, distribuição e conferência de cumprimento.",
             DataScope.Organization,
             [
-                "cases.read", "publications.read", "publications.triage", "publications.distribute",
+                "cases.read", "publications.read", "publications.triage", "publications.distribute", "publications.close",
                 "schedule.deadlines.read", "schedule.deadlines.manage", "schedule.deadlines.verify",
                 "schedule.events.read", "schedule.events.manage", "schedule.tasks.read", "schedule.tasks.manage",
                 "workflow.read", "documents.read", "reports.read", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,

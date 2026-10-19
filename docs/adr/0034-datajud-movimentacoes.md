@@ -1,6 +1,6 @@
 # ADR 0034 — DataJud, histórico de andamentos e checkpoints de captura
 
-**Status:** Proposta (para revisão no PR 6C)
+**Status:** Aceita (PR #33 mergeado em 2026-10-19)
 
 **Data:** 2026-10-19
 

@@ -94,6 +94,7 @@ public static partial class PermissionCatalog
 
         new("publications.read", Groups.Publications, "Ver publicações e intimações"),
         new("publications.triage", Groups.Publications, "Triar publicações"),
+        new("publications.close", Groups.Publications, "Fechar a conferência diária de publicações"),
         new("publications.distribute", Groups.Publications, "Distribuir publicações e prazos"),
 
         new("schedule.deadlines.read", Groups.Schedule, "Ver prazos"),

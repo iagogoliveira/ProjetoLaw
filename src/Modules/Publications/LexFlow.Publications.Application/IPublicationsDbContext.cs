@@ -6,6 +6,8 @@ namespace LexFlow.Publications.Application;
 
 public interface IPublicationsDbContext : IUnitOfWork
 {
+    DbSet<DailyClose> DailyCloses { get; }
+    DbSet<CaptureSourcePeriod> SourcePeriods { get; }
     DbSet<CaptureSource> Sources { get; }
     DbSet<CaptureAlert> Alerts { get; }
     DbSet<CaptureRun> Runs { get; }

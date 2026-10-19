@@ -26,6 +26,7 @@ public sealed class PublicationsModule : IModule
     {
         CaptureEndpoints.Map(endpoints);
         MovementIntegrationEndpoints.Map(endpoints);
+        PublicationWorkflowEndpoints.Map(endpoints);
         MapSources(endpoints);
         MapPublications(endpoints);
         MapMovements(endpoints);
@@ -51,14 +52,14 @@ public sealed class PublicationsModule : IModule
     private static void MapPublications(IEndpointRouteBuilder endpoints)
     {
         var publications = endpoints.MapGroup("/api/v1").WithTags("Publications");
-        publications.MapGet("/publications", async (string? status, bool? linked, Guid? caseId, string? cursor, int? limit,
+        publications.MapGet("/publications", async (string? status, bool? linked, Guid? caseId, Guid? assignee, string? cursor, int? limit,
             IQueryHandler<ListPublicationsQuery, PublicationsPage> handler, CancellationToken ct) =>
         {
             var parsedStatus = EnumQuery.Parse<PublicationStatus>(status, Error.Validation("publications.filter_invalid", "Filtro inválido."));
             if (parsedStatus.IsFailure) { return parsedStatus.Error.ToProblem(); }
             var position = cursor is null ? Result.Ok<PublicationPosition?>(null) : CursorCodec.Decode<PublicationPosition>(cursor).Map<PublicationPosition?>(p => p);
             if (position.IsFailure) { return position.Error.ToProblem(); }
-            return (await handler.Handle(new ListPublicationsQuery(parsedStatus.Value, linked, caseId, position.Value, limit ?? 50), ct))
+            return (await handler.Handle(new ListPublicationsQuery(parsedStatus.Value, linked, caseId, position.Value, limit ?? 50, assignee), ct))
                 .ToHttpResult(p => TypedResults.Ok(new PublicationsPageResponse(p.Items, p.Next is null ? null : CursorCodec.Encode(p.Next))));
         }).RequirePermission("publications.read").WithName("ListPublications").Produces<PublicationsPageResponse>().DocumentEnumQuery<PublicationStatus>("status");
 
