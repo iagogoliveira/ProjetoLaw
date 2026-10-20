@@ -1,3 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><ProjectReference Include="../../src/Modules/Scheduling/LexFlow.Scheduling.Application/LexFlow.Scheduling.Application.csproj" /></ItemGroup>
+  <ItemGroup><PackageReference Include="FsCheck" /></ItemGroup>
 </Project>

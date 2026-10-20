@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6D (#34), em 2026-10-19: consultas DataJud, triagem e fechamento disponíveis no backend da main; o branch `codex/etapa-6e-telas-publicacoes` começa dessa base para as telas previstas no plano aprovado. No branch do 6E, as telas estão implementadas e verificadas localmente, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado na publicação do PR #36 (7A), em 2026-10-20; as telas do 6E (#35) estão disponíveis na main e foram verificadas localmente e no CI. O checkout local está na branch `etapa-7-prazos-agenda`, com o backend do 7A em revisão no PR #36, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -72,7 +72,7 @@ Os dados gravados são dados do ambiente local, e as ações feitas na interface
 
 ## 7. Integração de andamentos (6C, operação técnica)
 
-As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está disponível no branch do 6E; a operação técnica equivalente usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
+As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está disponível na main desde o 6E (#35); a operação técnica equivalente usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
 
 - `GET /api/v1/movement-integration`: consulta o provedor e indica se há chave cadastrada, sem devolvê-la.
 - `PUT /api/v1/movement-integration`: informa `provider` (`disabled`, `fake` ou `dataJud`), `apiKey` opcional e `clearApiKey` opcional. Ao omitir a chave, mantém a anterior; para substituí-la, envia uma nova. Para removê-la, usa `clearApiKey: true` com o provedor desabilitado ou fake. Não envia remoção e substituição juntas. DataJud exige chave.
@@ -84,7 +84,7 @@ O Worker verifica os processos elegíveis a cada cinco minutos; cada processo te
 
 ## 8. Triagem e fechamento (6D, operação técnica)
 
-Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas correspondentes estão no branch do 6E; o [manual](README.md) descreve o uso verificado localmente no branch, ainda sem merge.
+Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas correspondentes estão na main desde o 6E (#35); o [manual](README.md) descreve o uso verificado localmente e no PR #35 mergeado.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |
@@ -126,3 +126,40 @@ Com AppHost iniciado e conta administradora no escritório de teste:
 6. Ao terminar, encerre AppHost e os serviços desta instância, sem remover volumes. Não deixe tokens ou chaves em arquivos de teste; o campo da chave é limpo após envio e o valor existente nunca é retornado.
 
 O frontend usa LongPolling no hub existente, com Bearer e escritório em cabeçalhos. Se a conexão cair, a consulta REST permanece disponível e a reconexão recupera os avisos persistidos. Nenhum novo serviço, porta ou comando de inicialização foi acrescentado no 6E. Consultas de opções/contagens e a tentativa manual são adições do backend. A migration aditiva `CaptureRunSourcePeriod`, aplicada pelo MigrationService, corrige o vínculo de execuções com a ativação correspondente sem reescrever datas ou fechamentos anteriores. Históricos antigos de períodos encerrados sem correspondência inequívoca exigem avaliação técnica, sem presumir uma captura válida.
+
+## 10. Calculadora de prazos e calendário (7A, operação técnica)
+
+Ainda não há tela; a calculadora entra na interface no 7E. Use a API autenticada no escritório ativo, como na seção 8. A calculadora só sugere: nada é gravado.
+
+| Operação | Endpoint | Permissão |
+| --- | --- | --- |
+| Calcular a sugestão de prazo com a memória de cálculo | `POST /api/v1/deadlines/calculate` | `schedule.deadlines.manage` e, com processo, acesso a ele |
+| Listar os dias sem expediente do escritório | `GET /api/v1/schedule/calendar-entries` | `schedule.deadlines.read` |
+| Cadastrar, alterar ou excluir um dia sem expediente | `POST /api/v1/schedule/calendar-entries`, `PUT` ou `DELETE /api/v1/schedule/calendar-entries/{id}` | `schedule.calendar.manage` |
+
+O cálculo recebe:
+- `startKind`: `publication`, `djenAvailability`, `portalIntimation` ou `eventDate`;
+- `triggerDate`;
+- `consultedOn`, só para o portal;
+- `days` (1 a 365);
+- `mode`: `businessDays` ou `calendarDays`;
+- `doubled`;
+- `internalLeadDays` (0 a 30);
+- opcionalmente `caseId`, `courtId`, `stateCode` e `municipality`.
+
+A resposta traz:
+- o termo inicial, o primeiro dia contado, o vencimento e a data interna;
+- o local usado (tribunal, UF, comarca e Justiça Federal);
+- as linhas da memória, com o motivo de cada dia pulado.
+
+A UF só é presumida para tribunais de uma única UF. Num TRF ou num TRT de várias UFs, informe `stateCode`.
+
+O seed da plataforma traz:
+- os feriados nacionais;
+- o recesso de 20/12 a 20/01;
+- os dias da Justiça Federal;
+- os feriados estaduais confirmados.
+
+A lista completa e os que ficaram de fora estão em [revisão jurídica do 7A](../revisao/prazos-7a.md). Feriados municipais, forenses próprios e indisponibilidades são cadastrados pelo escritório. A permissão nova `schedule.calendar.manage` vai para os perfis padrão Administrador, Sócio e Controladoria jurídica, inclusive nos escritórios existentes.
+
+As migrations `ForensicCalendar` (Platform), `OfficeCalendar` (Scheduling) e `ScheduleCalendarPermission` (Organization) são aplicadas pelo MigrationService, sem novo serviço, porta ou comando de inicialização.

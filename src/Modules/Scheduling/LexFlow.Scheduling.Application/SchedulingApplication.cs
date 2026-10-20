@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions.Data;
 using LexFlow.Scheduling.Domain;
+using LexFlow.Scheduling.Domain.Calendar;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Scheduling.Application;
@@ -13,5 +14,6 @@ public interface ISchedulingDbContext : IUnitOfWork
 {
     DbSet<Deadline> Deadlines { get; }
     DbSet<TaskItem> Tasks { get; }
+    DbSet<CalendarEntry> CalendarEntries { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

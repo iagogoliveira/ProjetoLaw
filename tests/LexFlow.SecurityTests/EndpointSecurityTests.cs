@@ -121,6 +121,8 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         cases.Add("POST /api/v1/publication-sources/{id:guid}/capture", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { day = "2026-10-19" }));
         cases.Add("POST /api/v1/notifications/{id:guid}/read", async owner => new CrossTenantCase(await NotificationOfAsync(owner)));
         cases.Add("PUT /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }));
+        cases.Add("PUT /api/v1/schedule/calendar-entries/{id:guid}", async owner => new CrossTenantCase(await CalendarEntryOfAsync(owner), CalendarEntryBody("Tomado")));
+        cases.Add("DELETE /api/v1/schedule/calendar-entries/{id:guid}", async owner => new CrossTenantCase(await CalendarEntryOfAsync(owner)));
         cases.Add("GET /api/v1/publications/{id:guid}", async owner => new CrossTenantCase(await PublicationOfAsync(owner)));
         cases.Add("PUT /api/v1/publications/{id:guid}/link", async owner => new CrossTenantCase(await PublicationOfAsync(owner), new { caseId = Guid.CreateVersion7() }));
         cases.Add("PUT /api/v1/publications/{id:guid}/assignment", async owner => new CrossTenantCase(await PublicationOfAsync(owner), new { assigneeUserId = owner.UserId }));
@@ -229,6 +231,19 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     /// <summary>Importação já validada (pronta para confirmar) da organização do dono, gravada direto no banco.</summary>
     private Task<Guid> SourceOfAsync(SeededMember owner) =>
         PostAsOwnerAsync(owner, "/api/v1/publication-sources", new { kind = "name", label = "Maria", value = "Maria" });
+
+    private static object CalendarEntryBody(string name) => new
+    {
+        name,
+        kind = "holiday",
+        scope = "office",
+        startsOn = "2026-10-28",
+        endsOn = "2026-10-28",
+        recursYearly = false,
+    };
+
+    private Task<Guid> CalendarEntryOfAsync(SeededMember owner) =>
+        PostAsOwnerAsync(owner, "/api/v1/schedule/calendar-entries", CalendarEntryBody($"Dia {Guid.CreateVersion7():N}"));
 
     private async Task<Guid> PublicationOfAsync(SeededMember owner)
     {

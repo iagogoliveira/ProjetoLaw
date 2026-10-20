@@ -12,7 +12,8 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32, 6C/DataJud #33 e 6D #34 concluídos; 6E no PR #35, aguardando CI/revisão; fornecedor real pendente) | `codex/etapa-6e-telas-publicacoes` |
+| 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (plano 7A a 7G aprovado em 2026-10-20; 7A implementado e verificado no PR #36, aguardando revisão e merge) | `etapa-7-prazos-agenda` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -33,7 +34,88 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 6 — Publicações e andamentos (6A a 6D concluídos; 6E no PR #35)
+## Etapa 7 — Prazos, agenda e tarefas (plano aprovado em 2026-10-20; 7A em implementação)
+
+**RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
+
+**Aprovação do usuário (2026-10-20):** "Ok. gostei das sugestões. siga". O plano 7A a 7G e as propostas das oito dúvidas abaixo foram aprovados como estão; nenhuma resposta foi alterada. Um PR por vez, começando pelo 7A; push e PR só a pedido.
+
+**Ponto de partida (núcleo do 6D, ADR 0035):** o Scheduling já tem `Deadline` e `TaskItem` com status único `Pending`, criados apenas pela triagem por `ISchedulingIntake`, dentro da transação compartilhada. Há duas consultas por processo (`GET /cases/{id}/deadlines` e `/tasks`). As permissões `schedule.deadlines.read/manage/verify`, `schedule.events.read/manage` e `schedule.tasks.read/manage` já estão no catálogo e nos perfis padrão; `verify` e `events.*` ainda sem uso. O Platform tem `Holiday` só com feriados nacionais (data fixa ou relativa à Páscoa). Não existem calculadora, agenda, cumprimento nem telas de prazos.
+
+**Proposta de sequência (um PR por vez):**
+
+| PR | Escopo proposto | Evidências previstas |
+| --- | --- | --- |
+| 7A | Calendário forense e calculadora: `Holiday` com abrangência (nacional, estadual, municipal, por tribunal) e suspensões com intervalo (recesso de 20/12 a 20/01 e indisponibilidades); feriados complementares do escritório; `IDeadlineCalculator` puro, com a memória de cálculo; `POST /api/v1/deadlines/calculate`, que só sugere e não grava | Suíte de no mínimo 60 casos e testes de propriedade (FsCheck, com ADR de licença); RLS dos feriados do escritório; SecurityTests |
+| 7B | Ciclo do prazo: cadastro manual com regra e sugestão; status pendente, em andamento, cumprido e perdido; evidência obrigatória; justificativa obrigatória e alerta à coordenação no prazo perdido; dupla conferência por `RequireDeadlineReview` com `schedule.deadlines.verify`; alerta, sem recálculo, em prazos confirmados afetados por mudança de feriado; linha do tempo; métrica `lexflow_deadlines_missed_total` | Domínio, API, auditoria, escopo e sigilo; os critérios 2 e 3 da etapa |
+| 7C | Agenda e tarefas: `CalendarEvent` (compromissos); `TaskItem` completo, com prioridade, checklist, subtarefas e comentários; agenda unificada de prazos, audiências (por contrato com Litigation), eventos e tarefas, por usuário, equipe e escritório; redistribuição em lote | API com escopo e sigilo; paginação; SecurityTests |
+| 7D | Controladoria e notificações: painel do RF-26 (publicações não tratadas, prazos sem responsável ou sem evidência, casos parados há X dias) e indicadores; preferências de notificação por usuário e regras obrigatórias da organização; resumo diário às 07:30 (America/Sao_Paulo) | Consultas com dados reais em PostgreSQL; job com relógio controlado; e-mail no Mailpit |
+| 7E | Telas de prazos: painel com semáforo, calculadora com memória, cadastro, cumprimento e conferência; o formulário da triagem passa a usar a sugestão da calculadora | Vitest, Playwright contra o AppHost e WCAG 2.1 AA; o fluxo e2e 3 da §13.2 (triagem → prazo → cumprido com evidência → fechamento) |
+| 7F | Telas de agenda, tarefas e controladoria: agenda (dia, semana e mês, por pessoa e equipe), tarefas em lista e kanban (CDK drag-and-drop) e painel da controladoria | Vitest, Playwright e WCAG |
+| 7G | Sincronização com Google Calendar e Microsoft 365: `ICalendarSyncProvider` com fake; agenda bidirecional e prazos só de saída | Contratos com respostas gravadas; adaptadores reais dependem do registro das aplicações OAuth (pendência externa, como o fornecedor de publicações) |
+
+**Decisões aprovadas em 2026-10-20 (eram as dúvidas da proposta):**
+
+1. **Os 60 casos conferidos por advogado (critério 1):** quem confere? Proposta: o agente redige os casos com o fundamento legal de cada um e um advogado do escritório revisa; o critério só é marcado depois dessa revisão.
+2. **Feriados mantidos pela plataforma:** proposta de seed com os nacionais; o recesso (art. 220 do CPC); os da Justiça Federal (Lei 5.010/1966, art. 62); e os estaduais das 27 UFs. Feriados municipais, os forenses próprios de cada TJ ou comarca e as indisponibilidades de sistema seriam cadastrados pelo escritório. A plataforma ampliaria o seed conforme a demanda.
+3. **Início da contagem e regras:** proposta de padrão para o DJEN: disponibilização no dia D, publicação no primeiro dia útil seguinte e contagem a partir do dia útil seguinte à publicação (Lei 11.419/2006, art. 4º, e CPC, art. 224). Os demais tipos de início seguem o art. 231 do CPC e ficam selecionáveis. Dias úteis ou corridos e prazo em dobro são escolhas explícitas em cada prazo, sem dedução automática pela matéria.
+4. **Dupla conferência:** o conferente precisa ser outra pessoa. No escritório com um único membro ativo, a autoconferência seria permitida, como na decisão do 4E para propostas.
+5. **Evidência de cumprimento:** o GED é da Etapa 9. Proposta: por enquanto, texto do protocolo obrigatório, e a referência a documento do GED entra na Etapa 9.
+6. **"Notifica coordenação" no prazo perdido:** proposta de destinatários: o responsável, o conferente e os membros com `schedule.deadlines.verify` e alcance ao processo.
+7. **Sincronização Google/Microsoft:** depende de registrar as aplicações OAuth (credenciais externas). Proposta: deixar para o último PR (7G), com o fake, e manter os adaptadores reais como pendência externa.
+8. **Bibliotecas:** FullCalendar na versão padrão (MIT), sem as visões premium por recurso, que são pagas; a visão por pessoa ou equipe seria feita por filtro. Dapper (Apache 2.0) para as consultas da controladoria, como pede a spec. FsCheck (BSD-3) para os testes de propriedade. Cada uma com sua ADR.
+
+### PR 7A — Calendário forense e calculadora de prazos (PR #36 aberto em 2026-10-20)
+
+**Branch:** `etapa-7-prazos-agenda`. **ADR:** [0037](adr/0037-calendario-forense-e-calculadora-de-prazos.md), proposta. **Revisão jurídica:** [docs/revisao/prazos-7a.md](revisao/prazos-7a.md), com os 72 casos e o seed estadual, pendente de advogado.
+
+| Subtarefa | Quem fez | Testes |
+| --- | --- | --- |
+| `Holiday` com abrangência (nacional, estadual, Justiça Federal), tipo (feriado ou suspensão) e duração; `IHolidayDirectory`; seed com o recesso do CPC, a Justiça Federal e 31 feriados estaduais de 20 UFs; migration `ForensicCalendar` | Orquestrador | Unitários do Platform (duração atravessando o ano, Semana Santa, validação da abrangência); `MigrationTests` do seed |
+| Pesquisa dos feriados estaduais e do art. 62 da Lei 5.010/1966 com fontes e confiança | Subagente de pesquisa (Sonnet) | Conferida pelo orquestrador; só os de confiança alta ou média entraram (ADR 0037, item 2) |
+| `IDeadlineCalculator` puro com a memória de cálculo: DJEN, portal, art. 231, dias úteis e corridos, dobra, suspensão, prorrogação e data interna | Orquestrador | 72 casos (referência independente em Python) e três propriedades FsCheck (100 amostras cada, rodadas 3 vezes) |
+| `POST /api/v1/deadlines/calculate`: local do processo (`ICaseDirectory.LocationAsync`), UF presumida só em tribunal de uma UF, calendário da plataforma mais o do escritório | Orquestrador | 6 testes de API com o seed real (TJSP, TRF1, municipal, recesso, erros, permissões) |
+| `CalendarEntry` do escritório (domínio, tabela com RLS, migration `OfficeCalendar`), permissão `schedule.calendar.manage` com a migration `ScheduleCalendarPermission` | Orquestrador | Unitários do domínio; RLS; SecurityTests |
+| CRUD `/api/v1/schedule/calendar-entries` (Application, Endpoints, testes de domínio, de API e CrossTenantCases) | Implementador (Sonnet), revisado pelo orquestrador | `CalendarEntryTests`, 6 testes de API e 11 SecurityTests |
+| OpenAPI (só adições: 5 operações e os schemas) e cliente TypeScript regenerados | Orquestrador | `OpenApiContractTests` |
+| ADR 0037, documento de revisão jurídica, manual e guia local | Orquestrador | — |
+
+**Incidentes:**
+- Os subagentes criados nesta sessão (`implementador`, `verificador`) ainda não eram reconhecidos como tipo próprio. Foram usados pelo `general-purpose`, com o modelo definido e a instrução de seguir o arquivo do subagente.
+- Uma propriedade FsCheck estava errada (exigia vencimento estritamente posterior com N+1 dias corridos) e foi corrigida no teste; a calculadora não mudou.
+- Um teste de API criava dois processos com o mesmo CNJ; foi corrigido com um segundo número válido.
+
+**Última verificação local, 2026-10-20 (pelo `verificador`; logs conferidos por amostra pelo orquestrador):**
+- **Build e formatação:** build Release com **0 warnings e 0 erros**; `dotnet format --verify-no-changes` aprovado.
+- **Testes .NET:** **1.026 testes em 20 projetos, todos aprovados**, sem falhas nem ignorados. Os principais:
+  - API: 222;
+  - Scheduling.Unit: 116;
+  - Platform: 50 unitários e 54 de integração;
+  - SecurityTests: 11;
+  - AppHost.Tests: 14.
+- **Cobertura:** gate de 80% aprovado em todos os módulos. Scheduling.Domain 98,3%, Scheduling.Application 99,2%, Platform.Domain 100% e Platform.Application 97,4%.
+- **Dependências e modelos:** nenhum pacote vulnerável; seis modelos EF sem mudança pendente.
+- **Frontend:** lint, **133 Vitest** e build Angular aprovados. O cliente TypeScript foi regenerado, só com adições.
+- **Playwright:** o comando padrão rodou 4 testes e pulou 13, que exigem o AppHost. O 7A não mexe em telas, então a rodada contra o AppHost não foi feita localmente. Fica para o job AppHost/E2E do CI, e a migration nova não foi aplicada no banco local de exploração.
+- **Logs:** `TestResults/7a-final-validation`.
+- **Docker Desktop:** continua ligado; nenhum AppHost ficou no ar.
+
+**Pendências do 7A:**
+- revisão jurídica dos 72 casos e do seed estadual (`docs/revisao/prazos-7a.md`); o critério 1 da etapa só é marcado depois dela;
+- conferir no Planalto a redação do art. 62 da Lei 5.010/1966 e do art. 220 do CPC;
+- revisão/CI e merge do PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) pelo usuário.
+
+**Publicação autorizada em 2026-10-20:** usuário pediu a criação do PR do 7A. Implementação `49043b2` enviada na branch `etapa-7-prazos-agenda`; PR #36 aberto contra `main`. ADR 0037 permanece proposta e o critério jurídico continua pendente. Após o merge pelo usuário, seguir a arrumação pós-merge e o 7B.
+
+**Verificação da publicação:** verificador Luna conferiu os logs existentes, sem executar novamente as suítes; o orquestrador conferiu por amostra build, cobertura, API, Vitest e Playwright. Mantidos os resultados e limitações da última verificação local acima. Alterações desta publicação somente documentais; diff e sincronização AGENTS/CLAUDE conferidos. Ambos os manuais revisados: disponibilidade do PR e contexto do checkout atualizados, sem novos passos de uso ou inicialização. Nenhuma aplicação iniciada.
+
+**Divisão no Codex aprovada nesta sessão:** Sol como orquestrador e Luna para tarefas leves e delimitadas; tarefas que exijam mais capacidade podem usar Sol. Preferir contexto mínimo, relatórios curtos e conferência pelo orquestrador.
+
+**Divisão de trabalho prevista:** o orquestrador (Opus) cuida do domínio, da calculadora, dos casos de prazo, das migrations e do contrato. O `implementador` (Sonnet) faz stores, specs e traduções com especificação fechada. O `verificador` (Haiku) roda os gates. O `Explore` faz o mapeamento; no planejamento, foi ele que levantou o estado do Scheduling.
+
+---
+
+## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -53,16 +135,18 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Dependência técnica resolvida no 6D:** a unidade de trabalho permanece por módulo (ADR 0007), com coordenador optante de transação local compartilhada para a triagem entre Publications e Scheduling/Litigation, mantendo comunicação por Contracts. A [ADR 0035](adr/0035-triagem-transacao-local-e-fechamento.md), aceita no PR #34, formaliza o desenho aprovado em 2026-10-19; testes reais verificam commit/rollback de destino, triagem, auditoria e outbox. Os demais comandos mantêm o pipeline por módulo.
 
-**Última verificação local da Etapa 6 — 2026-10-19:** 6E com builds Release/Debug sem warnings, formatação, **906 testes .NET** em 20 projetos e gate de cobertura de 80% aprovados. Dependências sem vulnerabilidades reportadas; seis modelos EF sem pendência; lint, **133 Vitest**, build Angular e **duas rodadas consecutivas de 16 e2e contra o AppHost**, com acessibilidade e relatórios HTML. O único skip por rodada foi a preparação opcional de carga, sem `LOAD_OUTPUT`. Aplicação e serviços encerrados, volumes preservados. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) aberto a pedido do usuário, CI/revisão pendentes; fornecedor real permanece pendente. Resultados completos na seção do 6E.
+**Última verificação local da Etapa 6 — 2026-10-19:** 6E com builds Release/Debug sem warnings, formatação, **906 testes .NET** em 20 projetos e gate de cobertura de 80% aprovados. Dependências sem vulnerabilidades reportadas; seis modelos EF sem pendência; lint, **133 Vitest**, build Angular e **duas rodadas consecutivas de 16 e2e contra o AppHost**, com acessibilidade e relatórios HTML. O único skip por rodada foi a preparação opcional de carga, sem `LOAD_OUTPUT`. Aplicação e serviços encerrados, volumes preservados. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) mergeado pelo usuário em 2026-10-19, merge `af904e3`, com todos os checks do CI aprovados; fornecedor real permanece pendente. Resultados completos na seção do 6E.
 
 **Arrumação pós-merge do 6A (2026-10-19):** PR #31 confirmado como mergeado (`f2e01a9`); `main` atualizada por fast-forward; branch `codex/etapa-6b-captura-alertas` criado dessa base. ADR 0032 aceita; AGENTS/CLAUDE sincronizados; diff somente documental conferido. Mantida a verificação completa do 6A; nenhuma mudança de runtime nesta arrumação. Commit e push documentais seguem o ciclo autorizado pós-merge. O plano 6B já foi aprovado; não precisa de nova aprovação das mesmas escolhas.
 **Arrumação pós-merge do 6B (2026-10-19):** PR #32 confirmado como `MERGED`, commit `a137919`; todos os checks do CI aprovados, incluindo AppHost/E2E. `main` atualizada por fast-forward e branch `codex/etapa-6c-datajud-integracoes` criado dessa base. Manual e guia preservados por cherry-pick dos dois commits locais, sem conflitos; ADR 0033 aceita; AGENTS/CLAUDE e handoff atualizados. Commit/push desta arrumação seguem o ciclo já autorizado.
 
 **Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
 
-### PR 6E — Telas de publicações e andamentos (PR #35 aberto; aguardando CI/revisão)
+**Arrumação pós-merge do 6E — 2026-10-20 (Claude):** os registros locais do Codex foram preservados (merge e checks do #35, ADR 0036 aceita, manual e guia). A `main` local foi atualizada até `af904e3`, e o branch `etapa-7-prazos-agenda` foi criado dessa base, porque o branch remoto do 6E foi apagado após o merge. A árvore de `34c07dc` é idêntica à do merge. As alterações são só documentais e nenhuma suíte de runtime foi repetida. Manual e guia revisados: sem impacto além do que o Codex já registrou.
 
-**Branch:** `codex/etapa-6e-telas-publicacoes`, criado da main no merge `75aaa9c` do PR #34; arrumação remota `c5c13c0`. Implementação `23c853d`, enviada com a atualização documental desta entrega no mesmo push, por autorização do usuário em 2026-10-19. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) aberto contra `main`; CI/revisão pendentes, sem merge. Plano 6A–6E já aprovado; ADR [0036](adr/0036-telas-publicacoes-triagem-e-tempo-real.md) proposta para revisão.
+### PR 6E — Telas de publicações e andamentos (concluído: PR #35 mergeado em 2026-10-19)
+
+**Branch:** `codex/etapa-6e-telas-publicacoes`, criado da main no merge `75aaa9c` do PR #34; arrumação remota `c5c13c0`. Implementação `23c853d`, enviada com a atualização documental desta entrega no mesmo push, por autorização do usuário em 2026-10-19. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) mergeado pelo usuário em 2026-10-19, merge `af904e3`; todos os checks do CI aprovados. Checkout local ainda no branch do 6E, em `34c07dc`; main local não atualizada nesta passagem de bastão. Plano 6A–6E já aprovado; ADR [0036](adr/0036-telas-publicacoes-triagem-e-tempo-real.md) aceita no PR #35.
 
 **Decisão operacional adicional — 2026-10-19:** usuário aprovou **Tentar captura agora**, com `settings.integrations.manage` em escopo de escritório, fonte ativa, auditoria/deduplicação e execução no Worker. Mantida a rotina automática 05h–07h. Pedido e auditoria são persistidos com evento no outbox; consumidor com inbox agenda o job existente com `force=true`. Dia entre a última ativação e hoje, conforme a política existente; consulta de execuções aceita dia opcional. Resposta 202 representa solicitação, sem afirmar conclusão. Nenhuma dúvida de negócio pendente.
 
@@ -83,7 +167,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Publicação — 2026-10-19:** usuário autorizou push/PR. Código e documentos enviados juntos, em um único push. PR #35 aberto; esta atualização é somente documental. Manual e guia local revisados, sem alteração nos passos de uso/inicialização. UTF-8, links locais, diff e igualdade dos agentes conferidos; mantidos os gates completos acima, sem repetir suítes de runtime.
 
-**Pendências:** CI, revisão e merge do PR #35 pelo usuário. Fornecedor real de publicações/intimações continua externo e pendente, portanto **não declarar a Etapa 6 integralmente concluída**. Calculadora e agenda completas ficam na Etapa 7. Históricos antigos de períodos encerrados sem associação inequívoca de captura exigem avaliação técnica, sem reescrever datas ou presumir captura válida. Manual/guia não incluem imagens nesta edição.
+**Passagem ao Claude — 2026-10-19:** usuário informou o merge e pediu **somente registrar o estado**, pois continuará com outro agente. GitHub confirmou MERGED (`af904e3`, 22h36 de Brasília) e todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. Apenas documentos atualizados localmente; sem commit/push, troca de branch, atualização da main ou início da próxima etapa. Main remota aponta para o merge; branch local continua `codex/etapa-6e-telas-publicacoes`, HEAD `34c07dc`. Preservar estas alterações documentais ao retomar.
+
+**Pendências:** arrumação local pós-merge e continuidade pelo Claude, quando o usuário autorizar. Não há falha de CI ou revisão pendente no PR #35. Fornecedor real de publicações/intimações continua externo e pendente, portanto **não declarar a Etapa 6 integralmente concluída**. Calculadora e agenda completas ficam na Etapa 7. Históricos antigos de períodos encerrados sem associação inequívoca de captura exigem avaliação técnica, sem reescrever datas ou presumir captura válida. Manual/guia não incluem imagens nesta edição.
 
 ### PR 6D — Triagem, distribuição e fechamento diário (concluído: PR #34 mergeado em 2026-10-19)
 

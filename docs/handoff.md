@@ -10,6 +10,128 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (7A enviado e PR #36 aberto)
+
+**Pedido do usuário:** criar o PR do 7A já implementado pelo Claude. Aprovada também a divisão no Codex: Sol como orquestrador e Luna para verificações, exploração e implementação delimitada; Sol em subtarefas mais exigentes.
+
+**Feito:** conferidos a branch, o estado limpo, o commit de implementação `49043b2`, a base remota `af904e3` e a ausência de PR anterior para esta branch. Implementação enviada; aberto o PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36), de `etapa-7-prazos-agenda` para `main`, e anexado à conversa.
+
+**Verificação:** subagente verificador Luna conferiu somente os logs existentes de `TestResults/7a-final-validation`, confirmando os 1.026 testes .NET, cobertura de 80%, demais gates e a limitação de Playwright sem AppHost. O orquestrador conferiu evidências por amostra. Nenhuma suíte repetida e nenhuma mudança de runtime. Progress, ADR 0037 e AGENTS/CLAUDE atualizados; os dois manuais revisados, com ajuste apenas da disponibilidade/checkout e sem novos comandos. Aplicação não iniciada.
+
+**Estado:** implementação com push e PR #36 aberto; registro documental desta publicação segue em commit e push na mesma branch. CI deve ser conferido no GitHub; não presumir aprovação. ADR 0037 permanece proposta.
+
+**Próximo agente:** acompanhar revisão/CI; o merge é do usuário. Após o merge, fazer a arrumação pós-merge e seguir o 7B, com o plano e as decisões já aprovados. Continuam pendentes a revisão jurídica dos 72 casos e do seed estadual, a conferência legal indicada no progress e o fornecedor real de publicações. Não marcar o critério jurídico da Etapa 7 como atendido.
+
+---
+
+## 2026-10-20 — Claude (PR 7A implementado e verificado; commit local, sem push)
+
+**Pedido do usuário:** "Ok. gostei das sugestões. siga". O plano da Etapa 7 e as oito propostas foram aprovados como estavam, e implementei o 7A.
+
+**Feito:**
+- **Platform:**
+  - `Holiday` ganhou abrangência, tipo e duração;
+  - `IHolidayDirectory` novo;
+  - seed com o recesso do CPC, a Justiça Federal e 31 feriados estaduais de 20 UFs.
+- **Scheduling:**
+  - `IDeadlineCalculator` puro, com a memória de cálculo;
+  - `CalendarEntry` do escritório, com RLS;
+  - `POST /api/v1/deadlines/calculate` e o CRUD `/api/v1/schedule/calendar-entries`.
+- **Permissões e contratos:**
+  - permissão `schedule.calendar.manage`;
+  - `ICaseDirectory.LocationAsync`;
+  - três migrations: `ForensicCalendar`, `OfficeCalendar` e `ScheduleCalendarPermission`.
+- **Documentação e contrato:**
+  - ADR 0037, proposta;
+  - `docs/revisao/prazos-7a.md` para o advogado;
+  - manual e guia local;
+  - OpenAPI e cliente TypeScript, só com adições.
+- **Divisão de trabalho, na prática:**
+  - um subagente de pesquisa (Sonnet) levantou os feriados estaduais com fontes; entraram só os de confiança alta ou média, e os demais estão listados na ADR;
+  - o `implementador` (Sonnet) fez o CRUD do calendário e os testes; revisei o diff;
+  - o `verificador` (Haiku) rodou a verificação completa; conferi os logs por amostra.
+
+**Verificação:**
+- 1.026 testes .NET aprovados;
+- gate de 80% aprovado, com Scheduling.Domain em 98,3% e Scheduling.Application em 99,2%;
+- build Release com 0 warnings; format, dependências e seis modelos EF sem pendência;
+- lint, 133 Vitest e build Angular aprovados;
+- Playwright contra o AppHost não executado, porque o 7A não tem tela; fica para o CI.
+
+Detalhes no `progress.md`.
+
+**Estado:** commit local no branch `etapa-7-prazos-agenda`, **sem push e sem PR**. O Docker Desktop está ligado e nenhum AppHost ficou no ar.
+
+**Próximo agente:**
+- push e PR somente a pedido do usuário;
+- depois do merge, a arrumação pós-merge e o 7B.
+
+O critério 1 da etapa (casos conferidos por advogado) continua aberto até a revisão jurídica ser registrada no documento de revisão.
+
+**Atenção:** os tipos `implementador` e `verificador` só são reconhecidos numa sessão nova do Claude Code. Antes disso, use o `general-purpose` com o modelo deles.
+
+---
+
+## 2026-10-20 — Claude (subagentes, arrumação pós-merge do 6E e proposta da Etapa 7)
+
+**Pedidos do usuário:**
+- Montar a divisão entre um orquestrador (Opus) e subagentes mais baratos; o usuário perguntou também se ela vale para o Codex.
+- Depois: "Vamos testar essa divisão. Siga o desenvolvimento do projeto."
+
+**Feito:**
+- **Subagentes.** Criados `.claude/agents/verificador.md` e `.claude/agents/implementador.md`, e a seção "Divisão de trabalho entre agentes" no `CLAUDE.md` e no `AGENTS.md`, que continuam idênticos:
+  - `verificador` (Haiku): roda os gates e devolve o resumo das falhas, sem editar;
+  - `implementador` (Sonnet): fatias com especificação fechada.
+- **Arrumação pós-merge do #35.**
+  - Os registros locais do Codex (entrada abaixo) foram preservados.
+  - A `main` local foi atualizada até `af904e3`.
+  - O branch `etapa-7-prazos-agenda` foi criado dessa base. O branch remoto do 6E tinha sido apagado; a árvore do `34c07dc` é idêntica à do merge.
+- **Proposta da Etapa 7**, em PRs de 7A a 7G, registrada no `progress.md`:
+  - 7A: calendário forense e calculadora;
+  - 7B: ciclo do prazo;
+  - 7C: agenda e tarefas;
+  - 7D: controladoria e notificações;
+  - 7E: telas de prazos;
+  - 7F: telas de agenda e tarefas;
+  - 7G: sincronização com Google e Microsoft.
+- **Primeiro teste da divisão.** O `Explore` (Haiku) mapeou o Scheduling do 6D. Conferi o relatório no código: o status é só `Pending`, há apenas as consultas por processo e as permissões `schedule.*` já estão no catálogo.
+
+**Estado:** documentação no branch `etapa-7-prazos-agenda`, com commit e push desta arrumação (ciclo pós-merge). **Plano da Etapa 7 não aprovado e implementação não iniciada.**
+
+**Próximo agente:** aguardar a aprovação e as respostas às oito dúvidas da seção da Etapa 7 no `progress.md`:
+1. quem confere os 60 casos;
+2. a abrangência dos feriados;
+3. o início da contagem;
+4. a dupla conferência;
+5. a evidência;
+6. os destinatários do prazo perdido;
+7. a sincronização Google/Microsoft;
+8. as bibliotecas.
+
+Não presumir as respostas. O fornecedor real de publicações continua pendente.
+
+**Para o Codex:** os arquivos `.claude/agents/` são do Claude Code. O Codex segue a mesma divisão de papéis com os recursos que tiver, ou faz em sequência.
+
+---
+
+## 2026-10-19 — Codex → Claude (PR #35 mergeado; somente registro local a pedido)
+
+**Instrução mais recente do usuário:** “PR mergeado. Somente anote o estado atual, irei ir para outro agente de IA (Claude).” Esta instrução limita esta sessão ao registro documental. Não continuar automaticamente o ciclo pós-merge nem iniciar a próxima etapa.
+
+**Estado confirmado:** PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) MERGED pelo usuário em 2026-10-19, às 22h36 de Brasília; merge `af904e37953d32ac20f9d38a37e30e18822e7046`. Main remota aponta para esse commit. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL (C#/JS/TS), Gitleaks, Trivy e AppHost/E2E. Implementação `23c853d`, enviada com documentos até `34c07dc`. O checkout local continua **`codex/etapa-6e-telas-publicacoes`, HEAD `34c07dc`**, com os registros desta passagem de bastão **modificados localmente, sem commit/push**. Main local não foi atualizada; nenhum branch novo foi criado. Preservar essas alterações ao retomar; não descartá-las para trocar de branch.
+
+**Entregue:** fontes/DataJud e captura manual auditada no Worker; fila dividida/filtros/URL/atalhos; vínculo/distribuição/triagem com confirmação e permissões do destino; prazo/tarefa/audiência mínimos; fechamento com histórico imutável; notificações/SignalR/contador; andamentos e linha do tempo. Corrigido vínculo de captura ao período com `SourcePeriodId`, snapshot único e migration aditiva `CaptureRunSourcePeriod`; não reescrever datas ou assinaturas históricas. ADR 0036 agora aceita no registro local.
+
+**Verificação preservada:** 906 testes .NET em 20 projetos (API 210, Publications.Integration 18, Architecture 17, Security 11, AppHost 14); cobertura mínima de 80% aprovada, Publications.Application 99,2%/Domain 98,0%. Release/Debug sem warnings; format verify; dependências sem vulnerabilidades; seis modelos EF sem mudanças pendentes; OpenAPI aditivo e cliente regenerado; lint/Prettier, 133 Vitest e build Angular. Duas rodadas completas consecutivas de 16 Playwright, com WCAG 2.1 AA e relatório; apenas a preparação opcional de carga ignorada (sem `LOAD_OUTPUT`). Evidências locais em `TestResults/6e-*`; CI do PR #35 também todo aprovado. Esta sessão só altera documentação: conferir UTF-8/links/diff e agentes idênticos, sem repetir suítes de runtime.
+
+**Documentação/ambiente:** progress e AGENTS/CLAUDE registram o merge e esta parada; manual e guia local atualizados para as telas mergeadas, sem novos comandos de inicialização. Último estado operacional: aplicação e sete serviços encerrados com volumes/cadastros preservados; nenhum serviço iniciado nesta sessão. Reabrir para exploração somente a pedido. Manter os dois guias após cada melhoria.
+
+**Decisões que o Claude deve preservar:** plano 6A–6E e captura manual aprovados; fontes ativas e gestão de integrações em escopo de escritório para captura manual, com auditoria/outbox/inbox/deduplicação, sem mudar rotina 05h–07h. Primeira consulta DataJud importa todo o histórico público; seguintes acrescentam novidades sem duplicar. Descarte sem processo exige justificativa/autor; demais triagens exigem processo; criar destino exige sua permissão; novidades após fechamento exigem nova revisão preservando o histórico. Testes afetados durante implementação, verificação completa no fechamento. Todas as perguntas do 6E respondidas.
+
+**Pendências/próximo agente:** 6A–6E estão mergeados, mas o fornecedor real de publicações/intimações segue pendente e **a Etapa 6 não está integralmente concluída**; DataJud não substitui captura de intimações. Históricos antigos de períodos encerrados sem associação inequívoca de captura exigem avaliação técnica. Quando o usuário mandar retomar: ler handoff/progress, os dois arquivos `docs/spec/` e ADRs aplicáveis; preservar estes registros, concluir a arrumação pós-merge e então planejar a continuidade. Calculadora/agenda completas ficam na Etapa 7, com plano e dúvidas antes de implementar. Nenhum plano novo aprovado nesta parada. Commit/push destes registros e mudança de branch ficam para a retomada pelo Claude; não foram feitos agora.
+
+---
+
 ## 2026-10-19 — Codex (PR 6E #35 aberto a pedido do usuário)
 
 **Estado:** branch `codex/etapa-6e-telas-publicacoes`; implementação `23c853d` e atualização documental desta entrada enviados juntos, em um único push. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) aberto contra `main`, CI/revisão pendentes, sem merge. O PR foi preparado em rascunho para registrar seu número antes do push único e disponibilizado para revisão após confirmar o envio. ADR 0036 continua proposta.

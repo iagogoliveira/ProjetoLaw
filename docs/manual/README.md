@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34) disponibiliza triagem, distribuição e fechamento no backend da main. No branch `codex/etapa-6e-telas-publicacoes`, as telas de publicações, fontes, integração DataJud e fechamento estão implementadas e verificadas localmente, ainda sem merge. As instruções destas telas abaixo se referem a esse branch.
+**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34) disponibiliza triagem, distribuição e fechamento no backend da main. O 6E (#35), mergeado em 2026-10-19, disponibiliza na main as telas de publicações, fontes, integração DataJud e fechamento, verificadas localmente e no CI.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -184,20 +184,21 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 
 | Recurso | Situação nesta versão |
 | --- | --- |
-| Fontes, captura e notificações de publicações | Backend na main; telas no branch do 6E, verificadas localmente e ainda sem merge |
+| Fontes, captura e notificações de publicações | Backend na main; telas disponíveis na main desde o 6E (#35) |
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
-| DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento no branch do 6E, verificadas localmente e ainda sem merge |
-| Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas no branch do 6E, verificadas localmente e ainda sem merge |
-| Calculadora completa de prazos e agenda unificada | Etapa 7 |
+| DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento disponíveis na main desde o 6E (#35) |
+| Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
+| Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend no PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) (7A), ainda sem tela e sem merge; a tela da calculadora entra no 7E |
+| Cadastro completo de prazos, cumprimento, agenda unificada e tarefas | Etapa 7 (PRs 7B a 7G) |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis |
 
 ## Andamentos automáticos
 
-**Andamentos pelo DataJud:** depois de habilitada a integração do escritório, o sistema consulta processos judiciais ativos em ciclos de seis horas, distribuídos ao longo do dia. A primeira consulta traz o histórico público disponível; as seguintes acrescentam novidades, inclusive atos antigos disponibilizados depois. As datas dos atos são mantidas. Uma falha pode atrasar a atualização; o sistema retoma a captura sem apagar o histórico já salvo. DataJud não substitui a captura de publicações/intimações e não disponibiliza o conteúdo de processos sob sigilo. No branch do 6E, a configuração está em **Fontes e integrações → Andamentos e DataJud**, para quem gerencia integrações no escritório. A chave existente nunca é exibida; deixar o campo vazio mantém a chave. Para remover, marque **Remover a chave cadastrada** e salve. O campo da nova chave é limpo após o envio.
+**Andamentos pelo DataJud:** depois de habilitada a integração do escritório, o sistema consulta processos judiciais ativos em ciclos de seis horas, distribuídos ao longo do dia. A primeira consulta traz o histórico público disponível; as seguintes acrescentam novidades, inclusive atos antigos disponibilizados depois. As datas dos atos são mantidas. Uma falha pode atrasar a atualização; o sistema retoma a captura sem apagar o histórico já salvo. DataJud não substitui a captura de publicações/intimações e não disponibiliza o conteúdo de processos sob sigilo. Desde o 6E (#35), a configuração está em **Fontes e integrações → Andamentos e DataJud**, para quem gerencia integrações no escritório. A chave existente nunca é exibida; deixar o campo vazio mantém a chave. Para remover, marque **Remover a chave cadastrada** e salve. O campo da nova chave é limpo após o envio.
 
-## 14. Publicações, triagem e fechamento (telas do branch do 6E)
+## 14. Publicações, triagem e fechamento (6E, PR #35 mergeado)
 
 ### Fontes e captura
 

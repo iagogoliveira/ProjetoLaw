@@ -56,7 +56,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 
 - **Leia primeiro a última entrada de `docs/handoff.md`**: é ali que cada agente (Claude Code ou Codex) deixa o que fez, o que ficou combinado com o usuário e o que o próximo deve fazer.
 - O estado oficial de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio ficam na seção de cada etapa, com data.
-- **Etapas 0 a 5: concluídas.**
+- **Etapas 0 a 5: concluídas. Etapa 6: 6A a 6E mergeados, com o fornecedor real pendente. Etapa 7: em implementação; 7A no PR #36, aguardando revisão e merge pelo usuário.**
 - **Etapa 5 (processos e casos), encerrada em 2026-10-19:**
   - 5A (#24) e 5B (#25) mergeados;
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
@@ -64,7 +64,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - 5D (#28) mergeado. Traz a linha do tempo (`ITimelineContributor`), o histórico de situação, a importação XLSX/CSV com ClosedXML (critério 2 atendido) e as operações em lote (ADR 0029);
   - 5E1 (#29) mergeado: `features/cases` (lista, assistente, detalhe básico, linha do tempo, sigilo, numeração), preferências de tela e opções de cadastro (ADR 0030);
   - **5E2 (#30) mergeado pelo usuário em 2026-10-19**: abas Pedidos e valores, Risco, Acordos e Audiências; `/processos/importar`; stores, testes e correção da contagem final de inválidas na importação. ADR 0031 aceita; os três critérios de aceite da Etapa 5 estão atendidos.
-- **Etapa 6 (publicações e andamentos):** plano 6A–6E aprovado. 6A (#31), 6B (#32), 6C (#33) e 6D (#34) mergeados; ADRs 0032–0035 aceitas. Branch `codex/etapa-6e-telas-publicacoes`, base `c5c13c0` após main `75aaa9c`. **6E implementado e verificado, enviado com documentos a pedido do usuário no PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35); CI/revisão pendentes, sem merge.** Implementação `23c853d`. ADR 0036 proposta. Fontes/DataJud, fila/triagem/destinos, fechamento/histórico, notificações/SignalR/contador e andamentos entregues no branch. Tentativa manual aprovada e correção do vínculo ao período de ativação com migration aditiva. Verificação: 906 testes .NET, gate 80%, 133 Vitest, lint/builds/format/dependências/modelos aprovados e duas rodadas consecutivas de 16 Playwright com acessibilidade (1 preparação opcional de carga ignorada). Fornecedor real permanece pendente; Etapa 6 em andamento.
+- **Etapa 6 (publicações e andamentos):** PRs 6A (#31) a 6E (#35) mergeados pelo usuário; ADRs 0032–0036 aceitas. #35 merge `af904e37953d32ac20f9d38a37e30e18822e7046`, em 2026-10-19, CI todo aprovado (backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy, AppHost/E2E). Implementação `23c853d`, envio até `34c07dc`. Arrumação pós-merge feita pelo Claude em 2026-10-20 (main local em `af904e3`). Verificação preservada: 906 testes .NET, gate 80%, 133 Vitest e duas rodadas de 16 Playwright com acessibilidade (1 preparação opcional de carga ignorada). Fornecedor real permanece pendente; **não declarar a Etapa 6 integralmente concluída**.
 - **Decisões do 5C2 (2026-10-18), já implementadas:**
   - os termos finais do acordo vão à aprovação antes da homologação, e quem tem `cases.settlements.approve` aprova até o próprio acordo;
   - avaliar risco pede `cases.risk.assess`;
@@ -75,9 +75,25 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
   - os juros simples são pro rata dia, sobre o valor corrigido;
   - a deflação entra, com piso no valor original.
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
-- **Manual e demonstração (2026-10-19):** `docs/manual/README.md` e `docs/manual/ambiente-local.md` incrementados para as telas e a captura manual do 6E, identificando o branch sem merge, permissões e limitações. Revisar ambos após toda melhoria. Aplicação e sete serviços desta instância encerrados após verificar, volumes/cadastros preservados; reabrir para exploração somente a pedido.
+- **Manual e demonstração (2026-10-19):** `docs/manual/README.md` e `docs/manual/ambiente-local.md` incrementados para as telas e a captura manual do 6E, identificando o PR #35 mergeado, permissões e limitações. Revisar ambos após toda melhoria. Aplicação e sete serviços desta instância encerrados após verificar, volumes/cadastros preservados; reabrir para exploração somente a pedido.
 - **6C concluído (2026-10-19):** PR #33 mergeado pelo usuário, ADR 0034 aceita. Implementação `dd3bc20`, envio até `afc320b`, merge `fe1f654`. CI todo aprovado, incluindo AppHost/E2E; mantidos os resultados locais de 794 testes .NET, cobertura acima de 80%, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade. Nenhuma mudança de runtime na arrumação pós-merge. Manual e guia revisados e preservados. Ambiente permanece fechado a pedido, com volumes/cadastros preservados.
-- **Próximo trabalho — revisão do 6E:** PR #35 aberto a pedido do usuário, com código e documentos no mesmo push. Aguardar CI/revisão e corrigir falhas concretas quando necessárias; nunca fazer merge. Não repetir gates aprovados sem alteração, falha ou dúvida concreta. Após o merge informado pelo usuário: atualizar main, aceitar ADR 0036 com número/data do PR e preparar a próxima etapa conforme spec, progress e pendência do fornecedor. Preservar decisões: descarte sem processo exige justificativa/autor; demais triagens exigem processo; destinos exigem permissão própria; novas entradas exigem novo fechamento preservando histórico. Calculadora/agenda completas pertencem à Etapa 7. Perguntar somente dúvidas novas de negócio; o plano 6A–6E e a tentativa manual já foram aprovados.
+- **Etapa 7 (prazos, agenda e tarefas):** o plano 7A a 7G e as oito propostas foram aprovados pelo usuário em 2026-10-20. Branch `etapa-7-prazos-agenda`. **7A (calendário forense e calculadora) implementado e verificado, enviado no PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) em 2026-10-20; implementação `49043b2`.** A ADR 0037 está proposta. A revisão jurídica dos 72 casos e do seed estadual está pendente, em `docs/revisao/prazos-7a.md`.
+- **Próximo trabalho:** revisão/CI e merge do PR #36 pelo usuário. Depois, arrumação pós-merge e o 7B (ciclo do prazo), seguindo as decisões já aprovadas. O fornecedor real de publicações continua pendente. Usar a divisão de trabalho entre agentes; nunca fazer merge pelo usuário.
+
+## Divisão de trabalho entre agentes (aprovada pelo usuário em 2026-10-20)
+
+O agente principal da sessão é o **orquestrador**. Ele planeja, faz as perguntas de negócio ao usuário, implementa as partes críticas (domínio, acesso a processos, transações, migrations, contrato da API), revisa o diff de cada subagente e faz o fechamento: `progress.md`, `handoff.md`, ADR, commit e, a pedido, push e PR. Ele delega a subagentes de modelos mais baratos o trabalho mecânico ou com especificação fechada:
+
+| Subagente | Modelo | Para quê | Limites |
+| --- | --- | --- | --- |
+| `verificador` | Haiku | Rodar os gates (direcionados ou a verificação completa), gravar os logs em `TestResults/` e devolver só um resumo com as falhas | Não edita arquivos nem mexe no git; nunca relaxa testes; AppHost.Tests e Playwright nunca juntos |
+| `implementador` | Sonnet | Fatias com especificação fechada: store e spec, chaves Transloco, testes de API seguindo modelo, casos de `CrossTenantCases` | Só os arquivos indicados; sem migrations, OpenAPI, docs de controle, commit ou pacotes; dúvida de negócio volta ao orquestrador |
+| `Explore` (embutido) | — | Pesquisa de leitura no código e nas ADRs | Somente leitura |
+
+- As definições ficam em `.claude/agents/` (Claude Code). Um subagente criado durante a sessão só vira tipo próprio na sessão seguinte; até lá, use o `general-purpose` com o modelo dele e mande seguir o arquivo do subagente. Para outro agente, como o Codex, vale a mesma divisão de papéis com os recursos que ele tiver. Sem subagentes, o próprio agente segue o mesmo fluxo em sequência.
+- **Adaptação ao Codex aprovada em 2026-10-20:** Sol como orquestrador; Luna como preferência para verificação, exploração e implementação com especificação fechada. Usar Sol também em subtarefas que exijam maior capacidade. Passar somente o contexto necessário e exigir relatórios curtos; o orquestrador confere diffs e evidências. Os modelos Haiku/Sonnet da tabela se aplicam ao Claude Code.
+- Não delegue tarefas pequenas: cada subagente começa do zero e relê as regras. Nunca ponha dois escritores nos mesmos arquivos (`v1.json`, cliente gerado, `progress.md`, migrations).
+- O resultado de um subagente é um relatório, não uma prova. O orquestrador confere o diff e os números antes de registrar no `progress.md`.
 
 ## Ciclo de trabalho (um PR por vez)
 

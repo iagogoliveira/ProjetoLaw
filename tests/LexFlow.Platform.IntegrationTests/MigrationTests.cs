@@ -15,7 +15,7 @@ public sealed class MigrationTests(PlatformDatabaseFixture fixture)
     private static readonly CancellationToken Ct = TestContext.Current.CancellationToken;
 
     /// <summary>Outros testes inserem feriados temporários; aqui só interessam os do seed.</summary>
-    private static readonly Guid[] SeededHolidayIds = [.. ReferenceData.NationalHolidays.Select(h => h.Id)];
+    private static readonly Guid[] SeededHolidayIds = [.. ReferenceData.Holidays.Select(h => h.Id)];
 
     private async Task<T> WithContextAsync<T>(string connectionString, Func<PlatformDbContext, Task<T>> action)
     {
@@ -98,9 +98,16 @@ public sealed class MigrationTests(PlatformDatabaseFixture fixture)
         courts.Single(c => c.Segment == 8 && c.Code == "26").Acronym.ShouldBe("TJSP");
         courts.Single(c => c.Segment == 8 && c.Code == "07").Acronym.ShouldBe("TJDFT");
         courts.Single(c => c.Segment == 5 && c.Code == "15").State.ShouldBe("SP");
-        holidays.Count.ShouldBe(10);
-        HolidayCalendar.For(2026, holidays).Count.ShouldBe(10);
-        HolidayCalendar.For(2023, holidays).Count.ShouldBe(9); // Consciência Negra nacional desde 2024
+        holidays.Count.ShouldBe(ReferenceData.Holidays.Count);
+        var national = holidays.Where(h => h.Scope == HolidayScope.National && h.Kind == HolidayKind.Holiday).ToList();
+        national.Count.ShouldBe(10);
+        HolidayCalendar.For(2026, national).Count.ShouldBe(10);
+        HolidayCalendar.For(2023, national).Count.ShouldBe(9); // Consciência Negra nacional desde 2024
+        var recess = holidays.Single(h => h.Kind == HolidayKind.Suspension);
+        recess.DatesIn(2026).ShouldBe([.. Enumerable.Range(0, 32).Select(i => new DateOnly(2026, 12, 20).AddDays(i))]);
+        holidays.Count(h => h.Scope == HolidayScope.FederalJustice).ShouldBe(6);
+        holidays.Where(h => h.Scope == HolidayScope.State).ShouldAllBe(h => h.StateCode != null && h.StateCode.Length == 2);
+        holidays.Single(h => h.StateCode == "SP").DateIn(2026).ShouldBe(new DateOnly(2026, 7, 9));
     }
 
     [Theory]

@@ -48,4 +48,35 @@ public sealed class HolidayCalendarTests
 
         dates.Select(d => d.Date).ShouldBe([new DateOnly(2023, 1, 1), new DateOnly(2023, 4, 7), new DateOnly(2023, 12, 25)]);
     }
+
+    [Fact]
+    public void A_span_covers_consecutive_days_into_the_next_year()
+    {
+        var recess = Holiday.Of(Guid.CreateVersion7(), "Recesso", HolidayScope.National, null, HolidayKind.Suspension, HolidayRule.FixedDate,
+            12, 20, null, 32, "CPC, art. 220", 2016);
+
+        var dates = recess.DatesIn(2026).ToList();
+
+        dates.Count.ShouldBe(32);
+        dates[0].ShouldBe(new DateOnly(2026, 12, 20));
+        dates[^1].ShouldBe(new DateOnly(2027, 1, 20));
+        HolidayCalendar.For(2026, [recess]).Count.ShouldBe(32);
+    }
+
+    [Fact]
+    public void Holy_week_of_the_federal_justice_runs_from_wednesday_to_easter_sunday()
+    {
+        var holyWeek = Holiday.Of(Guid.CreateVersion7(), "Semana Santa", HolidayScope.FederalJustice, null, HolidayKind.Holiday,
+            HolidayRule.EasterRelative, null, null, -4, 5, "Lei 5.010/1966, art. 62, II", 1967);
+
+        holyWeek.DatesIn(2026).ShouldBe([new(2026, 4, 1), new(2026, 4, 2), new(2026, 4, 3), new(2026, 4, 4), new(2026, 4, 5)]);
+    }
+
+    [Theory]
+    [InlineData(HolidayScope.State, null, 1)]
+    [InlineData(HolidayScope.National, "SP", 1)]
+    [InlineData(HolidayScope.State, "SP", 0)]
+    public void Scope_requires_a_state_only_when_it_is_a_state_holiday(HolidayScope scope, string? state, int span) =>
+        Should.Throw<ArgumentException>(() => Holiday.Of(Guid.CreateVersion7(), "X", scope, state, HolidayKind.Holiday,
+            HolidayRule.FixedDate, 1, 2, null, span, "Lei", 2000));
 }
