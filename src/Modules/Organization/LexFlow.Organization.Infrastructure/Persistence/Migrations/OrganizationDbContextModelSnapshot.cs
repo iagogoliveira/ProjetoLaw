@@ -784,6 +784,10 @@ namespace LexFlow.Organization.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<bool>("RequireDeadlineReview")
+                        .HasColumnType("boolean")
+                        .HasColumnName("require_deadline_review");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");

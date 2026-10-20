@@ -20,4 +20,6 @@ export const TIMELINE_GROUPS = [
   'litigation.hearing',
   'publications.received',
   'publications.movement',
+  'scheduling.deadline',
+  'scheduling.calendar_changed',
 ] as const;

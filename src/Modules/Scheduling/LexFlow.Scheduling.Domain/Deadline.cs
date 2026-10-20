@@ -3,16 +3,16 @@ using LexFlow.SharedKernel.Results;
 
 namespace LexFlow.Scheduling.Domain;
 
-public enum WorkItemStatus { Pending }
+public enum WorkItemStatus { Pending, InProgress, Completed, Missed }
 
-/// <summary>Núcleo antecipado da Etapa 7: datas humanas, sem calculadora nem baixa de cumprimento.</summary>
-public sealed class Deadline : Entity<Guid>, ITenantOwned, ICaseScoped, IAuditable
+/// <summary>Prazo confirmado, com origem opcional em publicação, regra preservada e ciclo de conferência e cumprimento.</summary>
+public sealed partial class Deadline : Entity<Guid>, ITenantOwned, ICaseScoped, IAuditable
 {
     private Deadline() { }
     public Guid OrganizationId { get; private set; }
     public Guid LegalCaseId { get; private set; }
     Guid? ICaseScoped.CaseId => LegalCaseId;
-    public Guid PublicationId { get; private set; }
+    public Guid? PublicationId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public DateOnly StartOn { get; private set; }
     public DateOnly InternalDueOn { get; private set; }
@@ -58,7 +58,7 @@ internal static class WorkItemRules
         && assignee != Guid.Empty && confirmed && userId != Guid.Empty;
 }
 
-public static class SchedulingErrors
+public static partial class SchedulingErrors
 {
     public static readonly Error InvalidDeadline = Error.Validation("scheduling.deadline_invalid", "Confirme responsável, título e datas válidas do prazo.");
     public static readonly Error InvalidTask = Error.Validation("scheduling.task_invalid", "Confirme responsável, título e data válida da tarefa.");

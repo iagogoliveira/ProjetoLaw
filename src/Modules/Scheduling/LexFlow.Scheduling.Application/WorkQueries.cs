@@ -27,7 +27,7 @@ internal sealed class ListCaseDeadlinesHandler(ISchedulingDbContext db) : IQuery
 {
     public async Task<Result<IReadOnlyList<DeadlineResponse>>> Handle(ListCaseDeadlinesQuery query, CancellationToken cancellationToken) =>
         await db.Deadlines.AsNoTracking().Where(d => d.LegalCaseId == query.CaseId).OrderBy(d => d.FatalDueOn).ThenBy(d => d.Id)
-            .Select(d => new DeadlineResponse(d.Id, d.LegalCaseId, d.PublicationId, d.Title, d.StartOn, d.InternalDueOn, d.FatalDueOn,
+            .Select(d => new DeadlineResponse(d.Id, d.LegalCaseId, d.PublicationId ?? Guid.Empty, d.Title, d.StartOn, d.InternalDueOn, d.FatalDueOn,
                 d.AssigneeUserId, d.Status, d.ConfirmedBy, d.ConfirmedAt)).ToListAsync(cancellationToken);
 }
 

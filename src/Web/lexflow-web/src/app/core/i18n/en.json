@@ -972,6 +972,14 @@
         "movement": "Movement: {{ description }}",
         "received": "Publication received: {{ journal }}"
       },
+      "scheduling": {
+        "deadline_registered": "Deadline registered",
+        "deadline_started": "Work on deadline started",
+        "deadline_reviewed": "Deadline reviewed",
+        "deadline_completed": "Deadline completed",
+        "deadline_missed": "Deadline missed",
+        "calendar_changed": "Calendar changed"
+      },
       "filter": "Event types",
       "empty": "Nothing recorded yet.",
       "groups": {
@@ -982,7 +990,11 @@
         "settlement": "Settlements",
         "hearing": "Hearings",
         "received": "Publications",
-        "movement": "Movements"
+        "movement": "Movements",
+        "scheduling": {
+          "deadline": "Deadlines",
+          "calendar_changed": "Calendar"
+        }
       },
       "case_created": "Case created (folder {{ folder }}) by {{ by }}",
       "status_changed": "Status: {{ from }} → {{ to }}",
@@ -1318,6 +1330,7 @@
       "publication": "New publication received",
       "capture": "Capture alert",
       "open": "Open publication",
+      "openCase": "Open case",
       "read": "Mark as read",
       "readAt": "Mark notification from {{date}} as read",
       "empty": "No unread notifications."
@@ -1440,5 +1453,9 @@
       "hint": "Requires integrations or triage at office scope. Up to 200 alerts per day; successful recovery resolves the alert.",
       "empty": "No alerts available for this day."
     }
+  },
+  "scheduling": {
+    "deadline_missed": "Deadline missed",
+    "calendar_changed": "Calendar changed"
   }
 }

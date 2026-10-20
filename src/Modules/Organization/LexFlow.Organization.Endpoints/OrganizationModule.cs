@@ -2,6 +2,7 @@ using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Organization.Application.Access;
 using LexFlow.Organization.Application.Onboarding;
+using LexFlow.Organization.Application.OrgStructure;
 using LexFlow.Organization.Contracts.Permissions;
 using LexFlow.Web.Common.Modules;
 using LexFlow.Web.Common.Results;
@@ -23,6 +24,8 @@ public sealed record UpdateRolePermissionsRequest(IReadOnlyList<string> Permissi
 public sealed record AssignMemberRolesRequest(IReadOnlyList<RoleAssignmentInput> Roles);
 
 public sealed record MfaPolicyRequest(bool MfaRequired);
+
+public sealed record DeadlineReviewPolicyRequest(bool RequireDeadlineReview);
 
 public sealed record RenameOrganizationRequest(string Name);
 
@@ -127,6 +130,23 @@ public sealed class OrganizationModule : IModule
             .WithName("SetMfaPolicy")
             .WithSummary("Exige (ou não) verificação em duas etapas de todos os membros")
             .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        organization.MapGet("/deadline-review", async (IQueryHandler<GetDeadlineReviewSettingsQuery, DeadlineReviewSettingsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new GetDeadlineReviewSettingsQuery(), cancellationToken)).ToHttpResult())
+            .RequirePermission(PermissionCatalog.SettingsOrganizationManage)
+            .WithName("GetDeadlineReviewPolicy")
+            .WithSummary("Consulta a exigência de dupla conferência dos prazos do escritório")
+            .Produces<DeadlineReviewSettingsResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        organization.MapPut("/deadline-review", async (DeadlineReviewPolicyRequest request, ICommandHandler<SetDeadlineReviewSettingsCommand, DeadlineReviewSettingsResponse> handler, CancellationToken cancellationToken) =>
+                (await handler.Handle(new SetDeadlineReviewSettingsCommand(request.RequireDeadlineReview), cancellationToken)).ToHttpResult())
+            .RequirePermission(PermissionCatalog.SettingsOrganizationManage)
+            .WithName("SetDeadlineReviewPolicy")
+            .WithSummary("Define se o escritório exige dupla conferência dos prazos")
+            .Produces<DeadlineReviewSettingsResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 

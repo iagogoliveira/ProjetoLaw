@@ -15,5 +15,7 @@ public interface ISchedulingDbContext : IUnitOfWork
     DbSet<Deadline> Deadlines { get; }
     DbSet<TaskItem> Tasks { get; }
     DbSet<CalendarEntry> CalendarEntries { get; }
+    DbSet<DeadlineActivity> DeadlineActivities { get; }
+    Task LockDeadlinesAsync(CancellationToken cancellationToken);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

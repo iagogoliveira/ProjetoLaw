@@ -70,7 +70,7 @@ public static class Extensions
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
-                metrics.AddMeter("LexFlow.Publications")
+                metrics.AddMeter("LexFlow.Publications", "LexFlow.Scheduling")
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation();

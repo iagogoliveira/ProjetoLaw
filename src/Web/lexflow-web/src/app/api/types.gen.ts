@@ -543,6 +543,10 @@ export type CompanyRegistration = {
     address: null | AddressInput;
 };
 
+export type CompleteDeadlineBody = {
+    evidence: string;
+};
+
 export type ConfirmEmailRequest = {
     userId: string;
     token: string;
@@ -824,6 +828,31 @@ export type DeadlineCalculationResponse = {
     lines: Array<CalculationLineResponse>;
 };
 
+export type DeadlineDetailResponse = {
+    id: string;
+    caseId: string;
+    publicationId: null | string;
+    type: string;
+    title: string;
+    startOn: string;
+    internalDueOn: string;
+    fatalDueOn: string;
+    assigneeUserId: string;
+    status: WorkItemStatus;
+    confirmedBy: string;
+    confirmedAt: string;
+    rule: null | DeadlineRule;
+    calculation: null | DeadlineCalculationResponse;
+    requireReview: boolean;
+    reviewedBy: null | string;
+    reviewedAt: null | string;
+    completionEvidence: null | string;
+    missedReason: null | string;
+    closedBy: null | string;
+    closedAt: null | string;
+    lastCalendarAlertAt: null | string;
+};
+
 export type DeadlineResponse = {
     id: string;
     caseId: string;
@@ -836,6 +865,24 @@ export type DeadlineResponse = {
     status: WorkItemStatus;
     confirmedBy: string;
     confirmedAt: string;
+};
+
+export type DeadlineReviewPolicyRequest = {
+    requireDeadlineReview: boolean;
+};
+
+export type DeadlineReviewSettingsResponse = {
+    requireDeadlineReview: boolean;
+};
+
+export type DeadlineRule = {
+    startKind: DeadlineStartKind;
+    triggerDate: string;
+    consultedOn: null | string;
+    days: number | string;
+    mode: CountingMode;
+    doubled: boolean;
+    internalLeadDays: number | string;
 };
 
 /**
@@ -1063,6 +1110,19 @@ export type LoseOpportunityRequest = {
     note: null | string;
 };
 
+export type ManualDeadlineRequest = {
+    type: string;
+    title: string;
+    assigneeUserId: string;
+    rule: DeadlineRule;
+    confirmedInternalDueOn: string;
+    confirmedFatalDueOn: string;
+    confirmed: boolean;
+    courtId?: null | string;
+    stateCode?: null | string;
+    municipality?: null | string;
+};
+
 /**
  * Membro com nome e e-mail da conta (módulo Identity) e os perfis atribuídos.
  */
@@ -1094,6 +1154,10 @@ export type MergePeopleRequest = {
 
 export type MfaPolicyRequest = {
     mfaRequired: boolean;
+};
+
+export type MissDeadlineBody = {
+    reason: string;
 };
 
 /**
@@ -1205,6 +1269,7 @@ export type NotificationResponse = {
     resourceId: string;
     createdAt: string;
     readAt: null | string;
+    caseId?: null | string;
 };
 
 export type NotificationsPageResponse = {
@@ -2012,7 +2077,7 @@ export type ValuationInput = {
     awarded: null | number | string;
 };
 
-export type WorkItemStatus = 'pending';
+export type WorkItemStatus = 'pending' | 'inProgress' | 'completed' | 'missed';
 
 export type UpdateLookupItemData = {
     body: UpdateLookupItemRequest;
@@ -2198,6 +2263,42 @@ export type CalculateDeadlineResponses = {
 };
 
 export type CalculateDeadlineResponse = CalculateDeadlineResponses[keyof CalculateDeadlineResponses];
+
+export type ListCaseDeadlinesData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/deadlines';
+};
+
+export type ListCaseDeadlinesResponses = {
+    /**
+     * OK
+     */
+    200: Array<DeadlineResponse>;
+};
+
+export type ListCaseDeadlinesResponse = ListCaseDeadlinesResponses[keyof ListCaseDeadlinesResponses];
+
+export type RegisterDeadlineData = {
+    body: ManualDeadlineRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/cases/{id}/deadlines';
+};
+
+export type RegisterDeadlineResponses = {
+    /**
+     * Created
+     */
+    201: DeadlineDetailResponse;
+};
+
+export type RegisterDeadlineResponse = RegisterDeadlineResponses[keyof RegisterDeadlineResponses];
 
 export type GetJobData = {
     body?: never;
@@ -3090,6 +3191,60 @@ export type SetMfaPolicyResponses = {
 };
 
 export type SetMfaPolicyResponse = SetMfaPolicyResponses[keyof SetMfaPolicyResponses];
+
+export type GetDeadlineReviewPolicyData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/deadline-review';
+};
+
+export type GetDeadlineReviewPolicyErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type GetDeadlineReviewPolicyError = GetDeadlineReviewPolicyErrors[keyof GetDeadlineReviewPolicyErrors];
+
+export type GetDeadlineReviewPolicyResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineReviewSettingsResponse;
+};
+
+export type GetDeadlineReviewPolicyResponse = GetDeadlineReviewPolicyResponses[keyof GetDeadlineReviewPolicyResponses];
+
+export type SetDeadlineReviewPolicyData = {
+    body: DeadlineReviewPolicyRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/deadline-review';
+};
+
+export type SetDeadlineReviewPolicyErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type SetDeadlineReviewPolicyError = SetDeadlineReviewPolicyErrors[keyof SetDeadlineReviewPolicyErrors];
+
+export type SetDeadlineReviewPolicyResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineReviewSettingsResponse;
+};
+
+export type SetDeadlineReviewPolicyResponse = SetDeadlineReviewPolicyResponses[keyof SetDeadlineReviewPolicyResponses];
 
 export type ListRolesData = {
     body?: never;
@@ -7701,24 +7856,6 @@ export type CreateCaseMovementResponses = {
 
 export type CreateCaseMovementResponse = CreateCaseMovementResponses[keyof CreateCaseMovementResponses];
 
-export type ListCaseDeadlinesData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/v1/cases/{id}/deadlines';
-};
-
-export type ListCaseDeadlinesResponses = {
-    /**
-     * OK
-     */
-    200: Array<DeadlineResponse>;
-};
-
-export type ListCaseDeadlinesResponse = ListCaseDeadlinesResponses[keyof ListCaseDeadlinesResponses];
-
 export type ListCaseTasksData = {
     body?: never;
     path: {
@@ -7804,3 +7941,93 @@ export type UpdateCalendarEntryResponses = {
 };
 
 export type UpdateCalendarEntryResponse = UpdateCalendarEntryResponses[keyof UpdateCalendarEntryResponses];
+
+export type GetDeadlineData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/deadlines/{id}';
+};
+
+export type GetDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineDetailResponse;
+};
+
+export type GetDeadlineResponse = GetDeadlineResponses[keyof GetDeadlineResponses];
+
+export type StartDeadlineData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/deadlines/{id}/start';
+};
+
+export type StartDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineDetailResponse;
+};
+
+export type StartDeadlineResponse = StartDeadlineResponses[keyof StartDeadlineResponses];
+
+export type ReviewDeadlineData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/deadlines/{id}/review';
+};
+
+export type ReviewDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineDetailResponse;
+};
+
+export type ReviewDeadlineResponse = ReviewDeadlineResponses[keyof ReviewDeadlineResponses];
+
+export type CompleteDeadlineData = {
+    body: CompleteDeadlineBody;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/deadlines/{id}/complete';
+};
+
+export type CompleteDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineDetailResponse;
+};
+
+export type CompleteDeadlineResponse = CompleteDeadlineResponses[keyof CompleteDeadlineResponses];
+
+export type MissDeadlineData = {
+    body: MissDeadlineBody;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/deadlines/{id}/miss';
+};
+
+export type MissDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineDetailResponse;
+};
+
+export type MissDeadlineResponse = MissDeadlineResponses[keyof MissDeadlineResponses];

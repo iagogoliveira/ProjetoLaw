@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 mergeado em 2026-10-20; 7B em preparação; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 mergeado; 7B implementado e verificado, commit local sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (7A mergeado; 7B em preparação)
+## Etapa 7 — Prazos, agenda e tarefas (7A mergeado; 7B pronto para revisão)
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -115,6 +115,46 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Última verificação local da arrumação:** somente documentação; diff/UTF-8, links e igualdade AGENTS/CLAUDE conferidos antes do commit. Mantidos os 1.026 testes .NET, gate de 80%, 133 Vitest e demais resultados locais acima; o CI aprovado complementa a rodada AppHost/E2E. Ambos os manuais revisados e atualizados quanto ao merge/checkout, sem novos passos de uso nem execução. Nenhuma aplicação iniciada e nenhum volume alterado. Commit/push documental na branch do 7B segue o ciclo pós-merge autorizado.
 
 **Divisão de trabalho prevista:** o orquestrador (Opus) cuida do domínio, da calculadora, dos casos de prazo, das migrations e do contrato. O `implementador` (Sonnet) faz stores, specs e traduções com especificação fechada. O `verificador` (Haiku) roda os gates. O `Explore` faz o mapeamento; no planejamento, foi ele que levantou o estado do Scheduling.
+
+---
+
+### PR 7B — Ciclo do prazo (implementado e verificado; commit local, sem push/PR)
+
+**Branch:** `codex/etapa-7b-ciclo-prazo`, base `2184b6b` (merge do 7A). **ADR:** [0038](adr/0038-ciclo-do-prazo-e-conferencia.md), proposta. **Autorização:** continuidade pedida pelo usuário após o merge do 7A; push/PR da implementação somente a pedido.
+
+**Decisão adicional do usuário em 2026-10-20:** a conferência obrigatória bloqueia apenas o cumprimento; o trabalho pode ser iniciado antes dela. Preservadas as decisões anteriores sobre conferência independente com exceção solo, protocolo textual, justificativa e destinatários com acesso ao processo.
+
+| Subtarefa | Responsável | Verificação |
+| --- | --- | --- |
+| Domínio do prazo: cadastro manual com regra e memória confirmada, andamento, cumprimento com evidência, perda com justificativa e conferência | Sol | Unitários, API, transições concorrentes e reexecução |
+| `RequireDeadlineReview` por organização, contrato e API com permissão de configuração | Luna, revisado por Sol | Unitários e API por tenant/permissão |
+| Autorização por processo, transação, advisory lock por escritório e migrations aditivas com RLS | Sol | API, SecurityTests, RLS e migrations |
+| Alertas de alteração do calendário, sem reescrever datas/memória, e timeline com leitura de prazos | Sol | API de criação/edição/exclusão de feriado, irrelevância, alcance e sigilo |
+| Política de visibilidade, consumidor idempotente e métrica de perda | Luna, revisado por Sol | Unitários, integração do consumidor/feed, recibos e revogação de acesso |
+| Casos de isolamento, traduções e ajuste do sino/timeline existentes | Luna, revisado por Sol | SecurityTests, Vitest e Playwright contra AppHost |
+| OpenAPI e cliente regenerados, ADR, manuais e controle de continuidade | Sol | Contrato, diff e revisão documental |
+
+**Entrega técnica:** cadastro manual em `POST /api/v1/cases/{id}/deadlines`; detalhe e ações `start`, `review`, `complete` e `miss` em `/api/v1/deadlines/{id}`. As datas confirmadas precisam corresponder à sugestão atual; divergência retorna 409 para nova confirmação. A política vale para novos cadastros, inclusive triagem; prazos legados são preservados. Perda é uma decisão explícita com justificativa, não uma transição automática sem contexto. Estados terminais não são reabertos neste PR. Protocolos e justificativas são sensíveis e não são duplicados na auditoria/timeline. `NotificationResponse` ganha `caseId` opcional para o link ao processo. Telas completas de prazo ficam no 7E.
+
+**Incidentes da verificação:** corrigidos três testes unitários novos (helpers opcionais que substituíam `default` por data válida e expectativa de consulta da permissão) e três testes de API (fixtures sem as permissões de configuração/restrição e expectativas 409 para regras `BusinessRule`, cujo contrato padrão é 422). Corrigido também o preparo inicial do componente no teste do sino. A revisão identificou que o wrapper da métrica precisava ser público para a descoberta do Wolverine: corrigido e coberto por teste de persistência/reentrega, com nova rodada completa da API. Os testes de upgrade antigos de Organization passaram a semear as colunas históricas com SQL interpolado, porque o modelo atual já tem a coluna do 7B; preservadas todas as asserções e acrescentados testes 7A→7B em Organization e Scheduling. Apenas os projetos afetados foram repetidos. Logs anteriores preservados em `TestResults/7b-directed`, `7b-pre-metric-validation` e `7b-before-migration-test-corrections`; nenhuma migration já aplicada foi reescrita.
+
+**Última verificação local integral — 2026-10-20:**
+- Builds Release e Debug aprovados, com **0 warnings e 0 erros**; `dotnet format LexFlow.sln --verify-no-changes --no-restore` aprovado na versão final.
+- **1.074 testes .NET em 20 projetos, todos aprovados, sem falhas ou ignorados.** Inclui API 239, Scheduling.Unit 144, Organization.Unit 34, Organization.Integration 8, Scheduling.Integration 3, Architecture 17, Security 11 e AppHost 14.
+- **Gate de cobertura de 80% aprovado em todos os pacotes.** Scheduling.Domain **98,7%**, Scheduling.Application **98,3%**, Organization.Domain 100% e Organization.Application 97,4%.
+- Auditoria de dependências sem pacotes vulneráveis reportados; os **seis modelos EF sem mudança pendente**.
+- Contrato OpenAPI atualizado pelo teste oficial e conferido pela suíte da API; cliente TypeScript regenerado. Comparação estrutural com a main sem remoção de operações ou schemas; a checagem oasdiff do CI ficará para o PR.
+- **Frontend:** lint, **134 testes Vitest** e build Angular aprovados.
+- **Playwright:** duas rodadas completas consecutivas contra o AppHost, **17 aprovados em cada uma**, com acessibilidade WCAG 2.1 AA e o fluxo novo perda → outbox/Worker → notificação → processo/timeline. Uma preparação opcional de carga ignorada por rodada, sem `LOAD_OUTPUT`. Comando: `E2E_BASE_URL=http://localhost:4200 E2E_MAILPIT_URL=http://127.0.0.1:8025 npx playwright test --workers=2`, com diretórios de artefatos/relatórios separados. Dois workers para limitar disputa de recursos; nenhuma asserção ou verificação de acessibilidade relaxada. Mailpit usado pelo IPv4 local; a configuração da aplicação permanece igual.
+- AppHost.Tests executado e encerrado antes do AppHost manual. Esta instância usou `LexFlow__PublicPermitsPerMinute=10000` só para o E2E consecutivo, conforme a configuração de testes já suportada; limite de produção preservado.
+- **Encerramento confirmado:** AppHost, API, SPA e Worker encerrados; os sete containers da instância parados, sem remoção dos volumes/cadastros. Migrations do 7A e do 7B aplicadas no banco local pelo MigrationService durante esta verificação; não editar essas migrations.
+- **Logs e evidências:** `TestResults/7b-final-validation`, incluindo relatórios Playwright separados e `apphost-shutdown.log`. O orquestrador conferiu diffs e logs por amostra, além dos gates executados diretamente.
+
+**Critérios da Etapa 7:** cumprimento com evidência e alteração do calendário sem reescrever prazos confirmados atendidos pelo 7B. O critério jurídico dos casos da calculadora permanece pendente da revisão por advogado do 7A; a etapa completa ainda inclui 7C–7G.
+
+**Manual:** ambos os guias revisados e atualizados para a operação técnica do 7B, as permissões, os alertas e as limitações de tela; nenhum novo serviço, porta ou comando de inicialização. As migrations são aplicadas pelo MigrationService.
+
+**Estado e pendências:** implementação em commit local na branch do 7B, **sem push/PR da implementação**. Enviar/abrir o PR quando o usuário pedir e conferir o CI; merge pelo usuário. Depois, arrumação pós-merge e 7C. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
 
 ---
 

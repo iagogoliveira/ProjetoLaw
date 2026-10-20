@@ -1,3 +1,4 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Context;
 using LexFlow.Organization.Domain.Roles;
 using LexFlow.Organization.Infrastructure.Persistence;
@@ -7,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using OrganizationEntity = LexFlow.Organization.Domain.Organizations.Organization;
 
 namespace LexFlow.Organization.IntegrationTests;
 
@@ -36,7 +36,8 @@ public sealed class PublicationClosePermissionTests(OrganizationDatabaseFixture 
         await using (var seed = provider.CreateAsyncScope())
         {
             var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
-            db.Organizations.Add(OrganizationEntity.Create(office, "Escritório anterior ao 6D"));
+            await OrganizationDatabaseFixture.SeedLegacyOrganizationAsync(db, office, "Escritório anterior ao 6D",
+                seed.ServiceProvider.GetRequiredService<IClock>(), Ct);
             db.Roles.AddRange(admin, partner, controller, custom, lawyer);
             await db.SaveChangesAsync(Ct);
         }

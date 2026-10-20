@@ -18,6 +18,14 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     public DbSet<Deadline> Deadlines => Set<Deadline>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<CalendarEntry> CalendarEntries => Set<CalendarEntry>();
+    public DbSet<DeadlineActivity> DeadlineActivities => Set<DeadlineActivity>();
+
+    public async Task LockDeadlinesAsync(CancellationToken cancellationToken)
+    {
+        if (!HasActiveTransaction || CurrentOrganizationId is null) { throw new InvalidOperationException("O ciclo do prazo exige tenant e transação."); }
+        var key = "scheduling:" + CurrentOrganizationId.Value.ToString("N");
+        await Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
+    }
 }
 
 internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, IEntityTypeConfiguration<TaskItem>
@@ -28,6 +36,17 @@ internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, I
         builder.HasKey(d => d.Id);
         builder.Property(d => d.Id).ValueGeneratedNever();
         builder.Property(d => d.Title).HasMaxLength(300);
+        builder.Property(d => d.Type).HasMaxLength(80).HasDefaultValue("procedural");
+        builder.Property(d => d.CalculationSnapshot).HasColumnType("jsonb");
+        builder.Property(d => d.CompletionEvidence).HasMaxLength(4000);
+        builder.Property(d => d.MissedReason).HasMaxLength(4000);
+        builder.Property(d => d.StateCode).HasMaxLength(2);
+        builder.Property(d => d.Municipality).HasMaxLength(120);
+        builder.OwnsOne(d => d.Rule, rule =>
+        {
+            rule.Property(r => r.StartKind).HasConversion<string>().HasMaxLength(30);
+            rule.Property(r => r.Mode).HasConversion<string>().HasMaxLength(20);
+        });
         builder.Property(d => d.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(d => new { d.OrganizationId, d.PublicationId }).IsUnique();
         builder.HasIndex(d => new { d.OrganizationId, d.LegalCaseId, d.FatalDueOn });
@@ -41,6 +60,19 @@ internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, I
         builder.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(t => new { t.OrganizationId, t.PublicationId }).IsUnique();
         builder.HasIndex(t => new { t.OrganizationId, t.LegalCaseId, t.DueOn });
+    }
+}
+
+internal sealed class DeadlineActivityConfiguration : IEntityTypeConfiguration<DeadlineActivity>
+{
+    public void Configure(EntityTypeBuilder<DeadlineActivity> builder)
+    {
+        builder.ToTable("deadline_activities");
+        builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).ValueGeneratedNever();
+        builder.Property(a => a.Kind).HasMaxLength(80);
+        builder.HasOne<Deadline>().WithMany().HasForeignKey(a => a.DeadlineId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(a => new { a.OrganizationId, a.LegalCaseId, a.OccurredAt });
     }
 }
 

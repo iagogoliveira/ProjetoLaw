@@ -55,6 +55,16 @@ public sealed class OrganizationDatabaseFixture : IAsyncLifetime
         return services.BuildServiceProvider(validateScopes: true);
     }
 
+    public static Task<int> SeedLegacyOrganizationAsync(
+        OrganizationDbContext db,
+        Guid id,
+        string name,
+        IClock clock,
+        CancellationToken cancellationToken) =>
+        db.Database.ExecuteSqlInterpolatedAsync(
+            $"INSERT INTO org.organizations (id, name, mfa_required, created_at, created_by) VALUES ({id}, {name}, false, {clock.UtcNow}, {Guid.Empty})",
+            cancellationToken);
+
     public async Task<string> CreateEmptyDatabaseAsync()
     {
         var name = "lexflow_" + Guid.CreateVersion7().ToString("N");
@@ -170,7 +180,8 @@ public sealed class OrganizationDatabaseTests(OrganizationDatabaseFixture fixtur
         await using (var seed = provider.CreateAsyncScope())
         {
             var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
-            db.Organizations.Add(OrganizationEntity.Create(organizationId, "Escritório antigo"));
+            await OrganizationDatabaseFixture.SeedLegacyOrganizationAsync(db, organizationId, "Escritório antigo",
+                seed.ServiceProvider.GetRequiredService<IClock>(), Ct);
             db.Roles.AddRange(lawyer, custom);
             await db.SaveChangesAsync(Ct);
         }
@@ -213,7 +224,8 @@ public sealed class OrganizationDatabaseTests(OrganizationDatabaseFixture fixtur
         await using (var seed = provider.CreateAsyncScope())
         {
             var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
-            db.Organizations.Add(OrganizationEntity.Create(organizationId, "Escritório antigo"));
+            await OrganizationDatabaseFixture.SeedLegacyOrganizationAsync(db, organizationId, "Escritório antigo",
+                seed.ServiceProvider.GetRequiredService<IClock>(), Ct);
             db.Roles.AddRange(admin, partner, lawyer);
             await db.SaveChangesAsync(Ct);
         }
@@ -234,5 +246,55 @@ public sealed class OrganizationDatabaseTests(OrganizationDatabaseFixture fixtur
         }
 
         granted.ShouldBe([admin.Id, partner.Id], ignoreOrder: true);
+    }
+
+    [Fact]
+    public async Task Deadline_review_migration_preserves_organization_and_defaults_policy_to_false()
+    {
+        var connectionString = await fixture.CreateEmptyDatabaseAsync();
+        await using var provider = OrganizationDatabaseFixture.BuildProvider(connectionString);
+        await using (var setup = provider.CreateAsyncScope())
+        {
+            await setup.ServiceProvider.GetRequiredService<PlatformDbContext>().Database.MigrateAsync(Ct);
+            await setup.ServiceProvider.GetRequiredService<OrganizationDbContext>().GetService<IMigrator>()
+                .MigrateAsync("20261020185814_ScheduleCalendarPermission", cancellationToken: Ct);
+        }
+
+        var organizationId = Guid.CreateVersion7();
+        const string organizationName = "Escritório antes da política de conferência";
+        using (AmbientContext.Begin(organizationId, "legacy-deadline-review"))
+        await using (var seed = provider.CreateAsyncScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+            await OrganizationDatabaseFixture.SeedLegacyOrganizationAsync(db, organizationId, organizationName,
+                seed.ServiceProvider.GetRequiredService<IClock>(), Ct);
+            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE org.organizations SET mfa_required = true WHERE id = {organizationId}", Ct);
+        }
+
+        await using (var upgrade = provider.CreateAsyncScope())
+        {
+            await upgrade.ServiceProvider.GetRequiredService<OrganizationDbContext>().Database.MigrateAsync(Ct);
+        }
+
+        using (AmbientContext.Begin(organizationId, "deadline-review-default"))
+        await using (var verifyDefault = provider.CreateAsyncScope())
+        {
+            var db = verifyDefault.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+            var organization = await db.Organizations.SingleAsync(o => o.Id == organizationId, Ct);
+            organization.Id.ShouldBe(organizationId);
+            organization.Name.ShouldBe(organizationName);
+            organization.MfaRequired.ShouldBeTrue();
+            organization.RequireDeadlineReview.ShouldBeFalse();
+            organization.SetDeadlineReviewRequired(true);
+            await db.SaveChangesAsync(Ct);
+        }
+
+        using (AmbientContext.Begin(organizationId, "deadline-review-persisted"))
+        await using (var verifyPersisted = provider.CreateAsyncScope())
+        {
+            var organization = await verifyPersisted.ServiceProvider.GetRequiredService<OrganizationDbContext>()
+                .Organizations.AsNoTracking().SingleAsync(o => o.Id == organizationId, Ct);
+            organization.RequireDeadlineReview.ShouldBeTrue();
+        }
     }
 }

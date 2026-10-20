@@ -88,7 +88,7 @@ internal sealed class CalculateDeadlineHandler(ISchedulingDbContext db, ICaseDir
     private static string? Normalize(string? state) => string.IsNullOrWhiteSpace(state) ? null : state.Trim().ToUpperInvariant();
 
     /// <summary>A UF do tribunal só é presumida quando ele atende uma única UF; nos demais casos ela vem da consulta.</summary>
-    private static string? DefaultState(CourtInfo? court) => court switch
+    internal static string? DefaultState(CourtInfo? court) => court switch
     {
         null => null,
         { Segment: 5 } when !MultiStateLaborRegions.Contains(court.Code, StringComparer.Ordinal) => court.State,

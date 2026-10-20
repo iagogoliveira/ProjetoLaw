@@ -38,14 +38,16 @@ internal sealed class ListCalendarEntriesHandler(ISchedulingDbContext db) : IQue
             .ToListAsync(cancellationToken);
 }
 
-internal sealed class CreateCalendarEntryHandler(ISchedulingDbContext db, ICourtDirectory courts) : ICommandHandler<CreateCalendarEntryCommand, CalendarEntryResponse>
+internal sealed class CreateCalendarEntryHandler(ISchedulingDbContext db, ICourtDirectory courts, CalendarDeadlineAlerts alerts) : ICommandHandler<CreateCalendarEntryCommand, CalendarEntryResponse>
 {
     public async Task<Result<CalendarEntryResponse>> Handle(CreateCalendarEntryCommand command, CancellationToken cancellationToken)
     {
+        await db.LockDeadlinesAsync(cancellationToken);
         var entry = CalendarEntry.Create(command.Input);
         if (entry.IsFailure) { return entry.Error; }
         if (!await CourtExistsAsync(courts, command.Input, cancellationToken)) { return SchedulingErrors.CourtNotFound; }
         db.CalendarEntries.Add(entry.Value);
+        await alerts.ChangedAsync(null, entry.Value, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return CalendarEntryResponse.Of(entry.Value);
     }
@@ -54,27 +56,32 @@ internal sealed class CreateCalendarEntryHandler(ISchedulingDbContext db, ICourt
         input.Scope != CalendarEntryScope.Court || (input.CourtId is { } id && await courts.GetAsync(id, cancellationToken) is not null);
 }
 
-internal sealed class UpdateCalendarEntryHandler(ISchedulingDbContext db, ICourtDirectory courts) : ICommandHandler<UpdateCalendarEntryCommand, CalendarEntryResponse>
+internal sealed class UpdateCalendarEntryHandler(ISchedulingDbContext db, ICourtDirectory courts, CalendarDeadlineAlerts alerts) : ICommandHandler<UpdateCalendarEntryCommand, CalendarEntryResponse>
 {
     public async Task<Result<CalendarEntryResponse>> Handle(UpdateCalendarEntryCommand command, CancellationToken cancellationToken)
     {
+        await db.LockDeadlinesAsync(cancellationToken);
         var entry = await db.CalendarEntries.SingleOrDefaultAsync(e => e.Id == command.Id, cancellationToken);
         if (entry is null) { return SchedulingErrors.CalendarEntryNotFound; }
+        var before = CalendarDeadlineAlerts.Copy(entry);
         var result = entry.Update(command.Input);
         if (result.IsFailure) { return result.Error; }
         if (!await CreateCalendarEntryHandler.CourtExistsAsync(courts, command.Input, cancellationToken)) { return SchedulingErrors.CourtNotFound; }
+        await alerts.ChangedAsync(before, entry, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return CalendarEntryResponse.Of(entry);
     }
 }
 
-internal sealed class DeleteCalendarEntryHandler(ISchedulingDbContext db) : ICommandHandler<DeleteCalendarEntryCommand, Unit>
+internal sealed class DeleteCalendarEntryHandler(ISchedulingDbContext db, CalendarDeadlineAlerts alerts) : ICommandHandler<DeleteCalendarEntryCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(DeleteCalendarEntryCommand command, CancellationToken cancellationToken)
     {
+        await db.LockDeadlinesAsync(cancellationToken);
         var entry = await db.CalendarEntries.SingleOrDefaultAsync(e => e.Id == command.Id, cancellationToken);
         if (entry is null) { return SchedulingErrors.CalendarEntryNotFound; }
         db.CalendarEntries.Remove(entry);
+        await alerts.ChangedAsync(entry, null, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }

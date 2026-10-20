@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
+import type { NotificationResponse } from '../../../api/types.gen';
 import { CanDirective } from '../../../core/organization/can.directive';
 import { PublicationsLiveStore } from '../data/publications-live-store';
 import { PublicationErrors } from './publication-errors';
@@ -43,13 +44,7 @@ import { legalInstant } from '../data/publications-format';
         <ul>
           @for (n of live.items(); track n.id) {
             <li>
-              <span>{{
-                t(
-                  n.kind === 'publications.received'
-                    ? 'publications.notifications.publication'
-                    : 'publications.notifications.capture'
-                )
-              }}</span>
+              <span>{{ t(labelFor(n.kind)) }}</span>
               <time>{{ instant(n.createdAt) }}</time>
               @if (n.kind === 'publications.received') {
                 <a
@@ -60,12 +55,21 @@ import { legalInstant } from '../data/publications-format';
                   >{{ t('publications.notifications.open') }}</a
                 >
               } @else {
-                <a
-                  *lfCan="'settings.integrations.manage'"
-                  routerLink="/publicacoes/fontes"
-                  (click)="opened.set(false)"
-                  >{{ t('publications.sources.title') }}</a
-                >
+                @if (isScheduling(n.kind)) {
+                  <a
+                    *lfCan="'cases.read'"
+                    [routerLink]="caseRoute(n)"
+                    (click)="opened.set(false)"
+                    >{{ t('publications.notifications.openCase') }}</a
+                  >
+                } @else {
+                  <a
+                    *lfCan="'settings.integrations.manage'"
+                    routerLink="/publicacoes/fontes"
+                    (click)="opened.set(false)"
+                    >{{ t('publications.sources.title') }}</a
+                  >
+                }
               }
               <button
                 mat-button
@@ -123,4 +127,20 @@ export class NotificationBell {
   protected readonly live = inject(PublicationsLiveStore);
   protected readonly opened = signal(false);
   protected readonly instant = legalInstant;
+
+  protected labelFor(kind: string): string {
+    if (this.isScheduling(kind)) return kind;
+    return kind === 'publications.received'
+      ? 'publications.notifications.publication'
+      : 'publications.notifications.capture';
+  }
+
+  protected isScheduling(kind: string): boolean {
+    return kind === 'scheduling.deadline_missed' || kind === 'scheduling.calendar_changed';
+  }
+
+  protected caseRoute(notification: NotificationResponse): string[] {
+    const caseId = notification.caseId;
+    return caseId ? ['/processos', caseId] : ['/processos'];
+  }
 }
