@@ -28,11 +28,15 @@ public sealed class CaptureMonitor(IPublicationsDbContext db, ICaptureLocks lock
             || DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(CaptureSchedule.ActiveSince(source), clock.LegalTimeZone).DateTime) > day
             || clock.UtcNow < CaptureSchedule.Deadline(source, day, clock.LegalTimeZone)) { return; }
         var activation = CaptureSchedule.ActiveSince(source);
-        if (await db.Runs.AnyAsync(r => r.SourceId == sourceId && r.Day == day && r.SourceActivatedAt == activation && r.Status == CaptureRunStatus.Succeeded, ct))
+        var periodId = await db.SourcePeriods.Where(p => p.SourceId == sourceId && p.DeactivatedAt == null)
+            .OrderByDescending(p => p.ActivatedAt).ThenByDescending(p => p.Id).Select(p => (Guid?)p.Id).FirstOrDefaultAsync(ct);
+        var runs = db.Runs.Where(r => r.SourceId == sourceId && r.Day == day
+            && (r.SourcePeriodId != null ? r.SourcePeriodId == periodId : r.SourceActivatedAt == activation));
+        if (await runs.AnyAsync(r => r.Status == CaptureRunStatus.Succeeded, ct))
         {
             return;
         }
-        var errorCode = await db.Runs.Where(r => r.SourceId == sourceId && r.Day == day && r.SourceActivatedAt == activation)
+        var errorCode = await runs
             .OrderByDescending(r => r.StartedAt).Select(r => r.ErrorCode).FirstOrDefaultAsync(ct) ?? "publications.capture_missing";
         var alert = await db.Alerts.SingleOrDefaultAsync(a => a.SourceId == sourceId && a.Day == day, ct);
         var changed = alert is null;

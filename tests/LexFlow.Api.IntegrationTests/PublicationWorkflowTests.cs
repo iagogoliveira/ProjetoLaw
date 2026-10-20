@@ -106,7 +106,13 @@ public sealed partial class PublicationWorkflowTests(DependenciesFixture depende
 
     private sealed class WorkflowClock : IClock
     {
-        public DateTimeOffset UtcNow { get; set; } = new(2026, 10, 19, 15, 0, 0, TimeSpan.Zero);
+        private DateTimeOffset _now = new(2026, 10, 19, 15, 0, 0, TimeSpan.Zero);
+        public TimeSpan AdvanceOnRead { get; set; }
+        public DateTimeOffset UtcNow
+        {
+            get { var value = _now; _now += AdvanceOnRead; return value; }
+            set => _now = value;
+        }
         public TimeZoneInfo LegalTimeZone => TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
         public DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(UtcNow, LegalTimeZone).DateTime);
     }

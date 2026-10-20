@@ -27,6 +27,7 @@ internal sealed class PublicationConfigurations :
         builder.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
         builder.Property(r => r.ErrorCode).HasMaxLength(100);
         builder.HasOne<CaptureSource>().WithMany().HasForeignKey(r => r.SourceId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<CaptureSourcePeriod>().WithMany().HasForeignKey(r => r.SourcePeriodId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(r => new { r.OrganizationId, r.SourceId, r.Day });
     }
 

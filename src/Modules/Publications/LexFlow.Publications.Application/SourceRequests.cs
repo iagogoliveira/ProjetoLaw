@@ -49,8 +49,9 @@ internal sealed class CreateCaptureSourceHandler(IPublicationsDbContext db, IClo
         if (result.IsFailure) { return result.Error; }
         if (result.Value.IsActive)
         {
-            result.Value.ActivateAt(clock.UtcNow);
-            db.SourcePeriods.Add(CaptureSourcePeriod.Start(result.Value.Id, clock.UtcNow));
+            var activatedAt = clock.UtcNow;
+            result.Value.ActivateAt(activatedAt);
+            db.SourcePeriods.Add(CaptureSourcePeriod.Start(result.Value.Id, activatedAt));
             events.Publish(new SourceActivatedIntegrationEvent(result.Value.Id));
         }
         db.Sources.Add(result.Value);
@@ -71,15 +72,16 @@ internal sealed class UpdateCaptureSourceHandler(IPublicationsDbContext db, IClo
         var result = source.Update(command.Input);
         if (result.IsFailure) { return result.Error; }
         var newActivation = !wasActive || oldKind != source.Kind || !string.Equals(oldValue, source.Value, StringComparison.Ordinal);
+        var changedAt = clock.UtcNow;
         if (wasActive && (!source.IsActive || newActivation))
         {
             foreach (var period in await db.SourcePeriods.Where(p => p.SourceId == source.Id && p.DeactivatedAt == null).ToListAsync(cancellationToken))
-            { period.End(clock.UtcNow); }
+            { period.End(changedAt); }
         }
         if (source.IsActive && newActivation)
         {
-            source.ActivateAt(clock.UtcNow);
-            db.SourcePeriods.Add(CaptureSourcePeriod.Start(source.Id, clock.UtcNow));
+            source.ActivateAt(changedAt);
+            db.SourcePeriods.Add(CaptureSourcePeriod.Start(source.Id, changedAt));
             events.Publish(new SourceActivatedIntegrationEvent(source.Id));
         }
         await db.SaveChangesAsync(cancellationToken);

@@ -29,6 +29,7 @@ public sealed class PublicationsModule : IModule
         PublicationWorkflowEndpoints.Map(endpoints);
         MapSources(endpoints);
         MapPublications(endpoints);
+        MapScreenQueries(endpoints);
         MapMovements(endpoints);
     }
 
@@ -85,5 +86,16 @@ public sealed class PublicationsModule : IModule
             (await handler.Handle(new CreateCaseMovementCommand(id, input), ct))
                 .ToHttpResult(m => TypedResults.Created($"/api/v1/cases/{id:D}/movements", m)))
             .RequirePermission("cases.edit").WithName("CreateCaseMovement").Produces<MovementResponse>(StatusCodes.Status201Created);
+    }
+
+    private static void MapScreenQueries(IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/v1/publications").WithTags("Publications");
+        group.MapGet("/pending-count", async (IQueryHandler<GetPublicationPendingCountQuery, PublicationPendingCountResponse> handler, CancellationToken ct) =>
+            (await handler.Handle(new GetPublicationPendingCountQuery(), ct)).ToHttpResult())
+            .RequirePermission("publications.read").WithName("GetPublicationPendingCount").Produces<PublicationPendingCountResponse>();
+        group.MapGet("/workflow-options", async (string? q, IQueryHandler<GetPublicationScreenOptionsQuery, PublicationScreenOptionsResponse> handler, CancellationToken ct) =>
+            (await handler.Handle(new GetPublicationScreenOptionsQuery(q), ct)).ToHttpResult())
+            .RequirePermission("publications.read").WithName("GetPublicationScreenOptions").Produces<PublicationScreenOptionsResponse>();
     }
 }

@@ -1,8 +1,8 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6C (#33), em 2026-10-19: consultas DataJud disponíveis no backend da main; o branch `codex/etapa-6d-triagem-fechamento` começa dessa base. Comandos e endereços permanecem os mesmos. O ambiente está fechado a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6D (#34), em 2026-10-19: consultas DataJud, triagem e fechamento disponíveis no backend da main; o branch `codex/etapa-6e-telas-publicacoes` começa dessa base para as telas previstas no plano aprovado. No branch do 6E, as telas estão implementadas e verificadas localmente, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
-No branch do 6D, triagem, distribuição, prazo/tarefa mínimos e fechamento estão implementados e verificados no backend desse branch, ainda sem merge. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização nem tela nova nesta entrega.
+Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
 ## 1. O que precisa estar disponível
 
@@ -72,7 +72,7 @@ Os dados gravados são dados do ambiente local, e as ações feitas na interface
 
 ## 7. Integração de andamentos (6C, operação técnica)
 
-As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está prevista no 6E; até lá, a operação técnica usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
+As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está disponível no branch do 6E; a operação técnica equivalente usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
 
 - `GET /api/v1/movement-integration`: consulta o provedor e indica se há chave cadastrada, sem devolvê-la.
 - `PUT /api/v1/movement-integration`: informa `provider` (`disabled`, `fake` ou `dataJud`), `apiKey` opcional e `clearApiKey` opcional. Ao omitir a chave, mantém a anterior; para substituí-la, envia uma nova. Para removê-la, usa `clearApiKey: true` com o provedor desabilitado ou fake. Não envia remoção e substituição juntas. DataJud exige chave.
@@ -84,10 +84,14 @@ O Worker verifica os processos elegíveis a cada cinco minutos; cada processo te
 
 ## 8. Triagem e fechamento (6D, operação técnica)
 
-Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas de publicações estão previstas no 6E.
+Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas correspondentes estão no branch do 6E; o [manual](README.md) descreve o uso verificado localmente no branch, ainda sem merge.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |
+| Contar pendências visíveis | `GET /api/v1/publications/pending-count` | `publications.read` |
+| Opções da fila sem administração de usuários | `GET /api/v1/publications/workflow-options?q=<pasta-ou-cnj>` | `publications.read`; opções de processo exigem triagem no seu alcance |
+| Consultar execuções por dia | `GET /api/v1/publication-sources/{id}/capture?day=2026-10-19` | Integrações ou triagem em escopo de escritório |
+| Solicitar captura manual | `POST /api/v1/publication-sources/{id}/capture`, com `day` | `settings.integrations.manage`, escopo de escritório e fonte ativa |
 | Filtrar fila pelo responsável | `GET /api/v1/publications?assignee=<userId>&status=pending` | `publications.read` |
 | Consultar atribuição e decisão registrada | `GET /api/v1/publications/{id}` | `publications.read` |
 | Vincular processo | `PUT /api/v1/publications/{id}/link`, com `caseId` | `publications.triage` |
@@ -108,3 +112,17 @@ Os responsáveis precisam estar ativos e ter acesso de leitura ao processo/desti
 O histórico do fechamento aceita `limit` (1–200) e `beforeRevision`; quando houver outra página, use `nextRevision` como próximo `beforeRevision`. `latest` aponta para a última assinatura, enquanto `isClosed` informa se ela ainda cobre o estado atual. Novidades exigem nova assinatura, preservando as anteriores. O fechamento considera pendências anteriores e captura incompleta; usuário sem alcance de todo o conteúdo não recebe as contagens do escritório.
 
 A permissão nova de fechamento é incluída nos perfis padrão Administrador, Sócio e Controladoria, inclusive em escritórios existentes. Perfis personalizados precisam de atribuição explícita. A Controladoria não recebe `cases.edit` automaticamente para criar audiências; conceda essa permissão somente conforme a política do escritório. Não há calculadora ou agenda completa antecipada da Etapa 7. Ao terminar a verificação local, encerre o AppHost e os serviços desta instância, preservando os volumes, conforme a preferência do usuário.
+
+
+## 9. Conferir as telas do 6E
+
+Com AppHost iniciado e conta administradora no escritório de teste:
+
+1. Crie um processo e abra **Fontes e integrações**. Cadastre uma fonte de nome com valor fictício, consulte suas execuções e use **Tentar captura agora**. A API retorna 202: isso confirma a solicitação, não a conclusão. O Worker precisa estar em execução. Pedido, autor, dia e evento ficam auditados/persistidos antes do agendamento.
+2. Aguarde a captura simulada e abra **Publicações**. O provedor local gera uma publicação com CNJ de exemplo e outra sem CNJ por critério/dia; quando não há processo correspondente, ambas ficam não vinculadas. Uma nova tentativa do mesmo recorte não duplica a fila. A tentativa manual funciona também antes das 05h, sem mudar o horário automático.
+3. Teste filtros/URL, distribuição, vínculo e triagem com confirmação humana. As permissões do destino continuam obrigatórias. Para datas de prazo/tarefa use dias civis; horários de audiência/andamento são informados em São Paulo.
+4. Abra **Fechamento diário**: pendências ou captura incompleta impedem fechar. Depois de concluir a triagem e recuperar as capturas, confirme o dia e confira o histórico. Novas publicações exigem nova conferência e outra assinatura, preservando as anteriores.
+5. Confira **Notificações**, reconexão e o contador; marcar aviso lido não trata a publicação. Na aba **Andamentos** do processo, registre um ato manual e confira a linha do tempo. A configuração DataJud é independente da captura simulada de publicações; não precisa de chave para este roteiro local.
+6. Ao terminar, encerre AppHost e os serviços desta instância, sem remover volumes. Não deixe tokens ou chaves em arquivos de teste; o campo da chave é limpo após envio e o valor existente nunca é retornado.
+
+O frontend usa LongPolling no hub existente, com Bearer e escritório em cabeçalhos. Se a conexão cair, a consulta REST permanece disponível e a reconexão recupera os avisos persistidos. Nenhum novo serviço, porta ou comando de inicialização foi acrescentado no 6E. Consultas de opções/contagens e a tentativa manual são adições do backend. A migration aditiva `CaptureRunSourcePeriod`, aplicada pelo MigrationService, corrige o vínculo de execuções com a ativação correspondente sem reescrever datas ou fechamentos anteriores. Históricos antigos de períodos encerrados sem correspondência inequívoca exigem avaliação técnica, sem presumir uma captura válida.

@@ -33,11 +33,12 @@ internal sealed class DailyCloseState(IPublicationsDbContext db, IClock clock)
         var expected = periods.GroupBy(p => p.SourceId).Select(g => g.OrderBy(p => p.ActivatedAt)
             .ThenBy(p => p.DeactivatedAt ?? DateTimeOffset.MaxValue).ThenBy(p => p.Id).Last()).ToList();
         var runs = await db.Runs.AsNoTracking().Where(r => r.Day == day && r.Status == CaptureRunStatus.Succeeded)
-            .Select(r => new { r.SourceId, r.SourceActivatedAt, r.StartedAt }).ToListAsync(cancellationToken);
+            .Select(r => new { r.SourceId, r.SourcePeriodId, r.SourceActivatedAt, r.StartedAt }).ToListAsync(cancellationToken);
         var legacyStarts = await db.Sources.AsNoTracking().ToDictionaryAsync(s => s.Id, s => s.CreatedAt, cancellationToken);
         var missing = expected.Count(p => !runs.Any(r => r.SourceId == p.SourceId
-            && (r.SourceActivatedAt == p.ActivatedAt || r.SourceActivatedAt == legacyStarts[p.SourceId]
-                && r.StartedAt >= p.ActivatedAt && (p.DeactivatedAt == null || r.StartedAt < p.DeactivatedAt))));
+            && (r.SourcePeriodId is { } periodId ? periodId == p.Id
+                : r.SourceActivatedAt == p.ActivatedAt || r.SourceActivatedAt == legacyStarts[p.SourceId]
+                    && r.StartedAt >= p.ActivatedAt && (p.DeactivatedAt == null || r.StartedAt < p.DeactivatedAt))));
         var earlierAlerts = await db.Alerts.CountAsync(a => a.Day < day && a.ResolvedAt == null, cancellationToken);
         var material = string.Join('\n', expected.Select(p => p.Id.ToString("N")).Order(StringComparer.Ordinal));
         var fingerprint = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(material)));

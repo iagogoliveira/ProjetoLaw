@@ -22,6 +22,7 @@
       @if (session.user(); as user) {
         <span class="user">{{ user.name }}</span>
       }
+      <lf-notification-bell *lfCan="'identity.profile.read'" />
       <button mat-button type="button" (click)="session.signOut()">{{ t('shell.signOut') }}</button>
     </mat-toolbar>
   </header>
@@ -61,6 +62,22 @@
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             >{{ t('shell.funnel') }}</a
+          >
+          <a
+            *lfCan="'publications.read'"
+            mat-list-item
+            routerLink="/publicacoes"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('publications.title') }} <lf-pending-badge
+          /></a>
+          <a
+            *lfCan="'settings.integrations.manage'"
+            mat-list-item
+            routerLink="/publicacoes/fontes"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('publications.sources.title') }}</a
           >
           <a
             *lfCan="'crm.conflicts.check'"

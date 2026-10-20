@@ -1,0 +1,183 @@
+<section *transloco="let t" class="page">
+  <div class="header inline">
+    <h1>{{ t('publications.sources.title') }}</h1>
+    <a *lfCan="'publications.read'" mat-button routerLink="/publicacoes">{{
+      t('publications.title')
+    }}</a>
+  </div>
+  <p>{{ t('publications.sources.explanation') }}</p>
+  <p class="hint">{{ t('publications.sources.simulation') }}</p>
+  <lf-publication-errors [code]="store.errorCode()" />
+  @if (saved()) {
+    <p role="status">{{ t('publications.saved') }}</p>
+  }
+  @if (store.loading()) {
+    <p role="status">{{ t('publications.loading') }}</p>
+  }
+  <form *lfCan="'settings.integrations.manage'" [formGroup]="sourceForm" (ngSubmit)="save()">
+    <h2>{{ t(editing() ? 'publications.sources.edit' : 'publications.sources.new') }}</h2>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.sources.kind') }}</mat-label
+      ><mat-select formControlName="kind">
+        @for (k of kinds; track k) {
+          <mat-option [value]="k">{{ t('publications.sources.kinds.' + k) }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.sources.label') }}</mat-label
+      ><input matInput formControlName="label" required maxlength="200"
+    /></mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.sources.value') }}</mat-label
+      ><input matInput formControlName="value" required /><mat-hint>{{
+        t('publications.sources.valueHint')
+      }}</mat-hint></mat-form-field
+    >
+    <mat-checkbox formControlName="isActive">{{ t('publications.sources.active') }}</mat-checkbox>
+    <div class="actions">
+      <button mat-flat-button type="submit" [disabled]="store.busy() || sourceForm.invalid">
+        {{ t('publications.sources.save') }}</button
+      ><button mat-button type="button" (click)="edit(null)">
+        {{ t('publications.sources.clear') }}
+      </button>
+    </div>
+  </form>
+  <h2>{{ t('publications.sources.list') }}</h2>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{{ t('publications.sources.label') }}</th>
+          <th scope="col">{{ t('publications.sources.kind') }}</th>
+          <th scope="col">{{ t('publications.sources.value') }}</th>
+          <th scope="col">{{ t('publications.status') }}</th>
+          <th scope="col">{{ t('publications.sources.operations') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of store.items(); track s.id) {
+          <tr>
+            <td>{{ s.label }}</td>
+            <td>{{ t('publications.sources.kinds.' + s.kind) }}</td>
+            <td>{{ s.value }}</td>
+            <td>
+              {{ t(s.isActive ? 'publications.sources.active' : 'publications.sources.inactive') }}
+            </td>
+            <td>
+              <button
+                mat-button
+                type="button"
+                [disabled]="store.busy()"
+                (click)="edit(s)"
+                [attr.aria-label]="t('publications.sources.editNamed', { name: s.label })"
+              >
+                {{ t('publications.sources.edit') }}</button
+              ><button
+                mat-button
+                type="button"
+                (click)="inspect(s.id)"
+                [attr.aria-label]="t('publications.sources.captureNamed', { name: s.label })"
+              >
+                {{ t('publications.sources.inspect') }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <mat-form-field appearance="outline"
+    ><mat-label>{{ t('publications.sources.captureDay') }}</mat-label
+    ><input matInput type="date" [formControl]="captureDay" [max]="today"
+  /></mat-form-field>
+  @if (store.requested(); as requested) {
+    <p role="status">{{ t('publications.sources.requested', { day: requested.day }) }}</p>
+  }
+  @if (store.capture(); as capture) {
+    <h2>{{ t('publications.sources.capture') }}</h2>
+    <p>{{ capture.day }}</p>
+    <button
+      *lfCan="'settings.integrations.manage'"
+      mat-button
+      type="button"
+      [disabled]="
+        store.busy() ||
+        captureDay.invalid ||
+        capture.day !== captureDay.value ||
+        !canRetry(capture.sourceId)
+      "
+      (click)="store.retry(capture.sourceId, captureDay.value)"
+    >
+      {{ t('publications.sources.retry') }}
+    </button>
+
+    <p>{{ t('publications.sources.dueBy', { at: instant(capture.dueBy) }) }}</p>
+    <button mat-button type="button" (click)="inspect(capture.sourceId)">
+      {{ t('publications.refresh') }}
+    </button>
+    @if (capture.alert; as alert) {
+      <p role="status">
+        {{
+          t(
+            alert.resolvedAt
+              ? 'publications.sources.alertResolved'
+              : 'publications.sources.alertOpen'
+          )
+        }}
+      </p>
+      <lf-publication-errors [code]="alert.resolvedAt ? null : alert.errorCode" />
+    }
+    <ul>
+      @for (run of capture.runs; track run.id) {
+        <li>
+          {{ instant(run.startedAt) }} — {{ t('publications.sources.runs.' + run.status) }} —
+          {{ t('publications.sources.count', { count: run.count })
+          }}<lf-publication-errors [code]="run.errorCode" />
+        </li>
+      } @empty {
+        <li>{{ t('publications.sources.noRuns') }}</li>
+      }
+    </ul>
+  }
+  <form
+    *lfCan="'settings.integrations.manage'"
+    [formGroup]="integrationForm"
+    (ngSubmit)="configure()"
+  >
+    <h2>{{ t('publications.integration.title') }}</h2>
+    <p>{{ t('publications.integration.explanation') }}</p>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.integration.provider') }}</mat-label
+      ><mat-select formControlName="provider">
+        @for (p of providers; track p) {
+          <mat-option [value]="p">{{ t('publications.integration.providers.' + p) }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <p>
+      {{
+        t(
+          store.integration()?.hasApiKey
+            ? 'publications.integration.keyStored'
+            : 'publications.integration.noKey'
+        )
+      }}
+    </p>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.integration.apiKey') }}</mat-label
+      ><input
+        matInput
+        type="password"
+        autocomplete="new-password"
+        formControlName="apiKey"
+      /><mat-hint>{{ t('publications.integration.keyHint') }}</mat-hint></mat-form-field
+    >
+    <mat-checkbox formControlName="clearApiKey">{{
+      t('publications.integration.clearKey')
+    }}</mat-checkbox>
+    <button mat-flat-button type="submit" [disabled]="store.busy()">
+      {{ t('publications.integration.save') }}
+    </button>
+  </form>
+</section>

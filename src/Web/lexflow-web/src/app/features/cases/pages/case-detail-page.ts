@@ -29,6 +29,7 @@ import { ClaimsTab } from './tabs/claims-tab';
 import { RiskTab } from './tabs/risk-tab';
 import { SettlementsTab } from './tabs/settlements-tab';
 import { HearingsTab } from './tabs/hearings-tab';
+import { MovementsTab } from '../../publications/components/movements-tab';
 
 /** Ação de ciclo de vida aberta para confirmação. */
 type PendingAction = 'close' | 'delete' | null;
@@ -53,6 +54,7 @@ const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
     RiskTab,
     SettlementsTab,
     HearingsTab,
+    MovementsTab,
     FormsModule,
     MatButtonModule,
     MatFormFieldModule,

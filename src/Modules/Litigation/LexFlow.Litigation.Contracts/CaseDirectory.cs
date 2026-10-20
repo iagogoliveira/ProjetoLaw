@@ -5,6 +5,7 @@ namespace LexFlow.Litigation.Contracts;
 /// <summary>Consultas e autorização de processo para outros módulos, sem compartilhar DbContext.</summary>
 public interface ICaseDirectory
 {
+    Task<IReadOnlyList<PublicationCaseOption>> PublicationOptionsAsync(string? term, CancellationToken cancellationToken);
     Task<bool> IsOpenAsync(Guid caseId, CancellationToken cancellationToken);
     Task<CaseReadScope> ScopeForUserAsync(Guid userId, string permission, CancellationToken cancellationToken);
     Task<Result> AuthorizeAsync(Guid caseId, string permission, CancellationToken cancellationToken);
@@ -18,5 +19,6 @@ public interface ICaseDirectory
 }
 
 public sealed record MonitoredCase(Guid Id, string Cnj);
+public sealed record PublicationCaseOption(Guid Id, string Folder, string? Cnj);
 
 public sealed record CaseReadScope(IReadOnlyCollection<Guid> VisibleIds, IReadOnlyCollection<string> HiddenCnjs);

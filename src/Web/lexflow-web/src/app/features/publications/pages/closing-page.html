@@ -1,0 +1,82 @@
+<section *transloco="let t" class="page">
+  <div class="header inline">
+    <h1>{{ t('publications.closing.title') }}</h1>
+    <a *lfCan="'publications.read'" mat-button routerLink="/publicacoes">{{
+      t('publications.title')
+    }}</a>
+  </div>
+  <p>{{ t('publications.closing.explanation') }}</p>
+  <form class="inline" (ngSubmit)="load()">
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.closing.day') }}</mat-label
+      ><input matInput type="date" [formControl]="day" [max]="today"
+    /></mat-form-field>
+    <button mat-button type="submit" [disabled]="day.invalid || store.loading() || store.busy()">
+      {{ t('publications.closing.inspect') }}
+    </button>
+  </form>
+  <lf-publication-errors [code]="store.errorCode()" />
+  @if (store.loading()) {
+    <p role="status">{{ t('publications.loading') }}</p>
+  }
+  @if (store.state(); as s) {
+    <h2>{{ s.day | date: 'dd/MM/yyyy' : 'UTC' }}</h2>
+    <dl>
+      <dt>{{ t('publications.closing.pending') }}</dt>
+      <dd>{{ s.pendingCount }}</dd>
+      <dt>{{ t('publications.closing.missing') }}</dt>
+      <dd>{{ s.missingCaptureCount }}</dd>
+      <dt>{{ t('publications.closing.total') }}</dt>
+      <dd>{{ s.publicationCount }}</dd>
+    </dl>
+    <p role="status">
+      {{ t(s.isClosed ? 'publications.closing.closed' : 'publications.closing.open') }}
+    </p>
+    @if (+s.pendingCount > 0) {
+      <p>{{ t('publications.closing.pendingHint') }}</p>
+    }
+    @if (+s.missingCaptureCount > 0) {
+      <p>{{ t('publications.closing.missingHint') }}</p>
+    }
+    <mat-checkbox [formControl]="confirmed">{{ t('publications.closing.confirm') }}</mat-checkbox>
+    <button
+      *lfCan="'publications.close'"
+      mat-flat-button
+      type="button"
+      (click)="close()"
+      [disabled]="
+        store.busy() ||
+        store.loading() ||
+        confirmed.invalid ||
+        s.isClosed ||
+        +s.pendingCount > 0 ||
+        +s.missingCaptureCount > 0 ||
+        day.value !== store.day()
+      "
+    >
+      {{ t('publications.closing.close') }}
+    </button>
+    <h2>{{ t('publications.closing.history') }}</h2>
+    <ol>
+      @for (h of s.history; track h.id) {
+        <li>
+          {{
+            t('publications.closing.record', {
+              revision: h.revision,
+              at: instant(h.closedAt),
+              by: h.closedBy,
+              count: h.publicationCount,
+            })
+          }}
+        </li>
+      } @empty {
+        <li>{{ t('publications.closing.noHistory') }}</li>
+      }
+    </ol>
+    @if (s.nextRevision) {
+      <button mat-button type="button" [disabled]="store.loading()" (click)="store.more()">
+        {{ t('publications.more') }}
+      </button>
+    }
+  }
+</section>

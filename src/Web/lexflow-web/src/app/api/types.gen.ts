@@ -91,6 +91,15 @@ export type CaptureAlertResponse = {
     errorCode: string;
 };
 
+export type CaptureRetryInput = {
+    day: string;
+};
+
+export type CaptureRetryResponse = {
+    requestId: string;
+    day: string;
+};
+
 export type CaptureRunResponse = {
     id: string;
     day: string;
@@ -1519,9 +1528,24 @@ export type ProspectResponse = {
     phone: null | string;
 };
 
+export type PublicationCaseOption = {
+    id: string;
+    folder: string;
+    cnj: null | string;
+};
+
 export type PublicationHearingFormat = 'inPerson' | 'virtual' | 'hybrid';
 
 export type PublicationHearingType = 'conciliation' | 'instruction' | 'combined' | 'judgment' | 'other';
+
+export type PublicationMemberOption = {
+    userId: string;
+    name: string;
+};
+
+export type PublicationPendingCountResponse = {
+    count: number | string;
+};
 
 export type PublicationResponse = {
     id: string;
@@ -1536,6 +1560,11 @@ export type PublicationResponse = {
     receivedAt: string;
     assigneeUserId?: null | string;
     triage?: null | PublicationTriageResponse;
+};
+
+export type PublicationScreenOptionsResponse = {
+    members: Array<PublicationMemberOption>;
+    cases: Array<PublicationCaseOption>;
 };
 
 export type PublicationsPageResponse = {
@@ -7204,7 +7233,9 @@ export type GetCaptureStateData = {
     path: {
         id: string;
     };
-    query?: never;
+    query?: {
+        day?: string;
+    };
     url: '/api/v1/publication-sources/{id}/capture';
 };
 
@@ -7216,6 +7247,24 @@ export type GetCaptureStateResponses = {
 };
 
 export type GetCaptureStateResponse = GetCaptureStateResponses[keyof GetCaptureStateResponses];
+
+export type RequestPublicationCaptureData = {
+    body: CaptureRetryInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/publication-sources/{id}/capture';
+};
+
+export type RequestPublicationCaptureResponses = {
+    /**
+     * Accepted
+     */
+    202: CaptureRetryResponse;
+};
+
+export type RequestPublicationCaptureResponse = RequestPublicationCaptureResponses[keyof RequestPublicationCaptureResponses];
 
 export type ListCaptureAlertsData = {
     body?: never;
@@ -7484,6 +7533,40 @@ export type GetPublicationResponses = {
 };
 
 export type GetPublicationResponse = GetPublicationResponses[keyof GetPublicationResponses];
+
+export type GetPublicationPendingCountData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/publications/pending-count';
+};
+
+export type GetPublicationPendingCountResponses = {
+    /**
+     * OK
+     */
+    200: PublicationPendingCountResponse;
+};
+
+export type GetPublicationPendingCountResponse = GetPublicationPendingCountResponses[keyof GetPublicationPendingCountResponses];
+
+export type GetPublicationScreenOptionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+    };
+    url: '/api/v1/publications/workflow-options';
+};
+
+export type GetPublicationScreenOptionsResponses = {
+    /**
+     * OK
+     */
+    200: PublicationScreenOptionsResponse;
+};
+
+export type GetPublicationScreenOptionsResponse = GetPublicationScreenOptionsResponses[keyof GetPublicationScreenOptionsResponses];
 
 export type ListCaseMovementsData = {
     body?: never;

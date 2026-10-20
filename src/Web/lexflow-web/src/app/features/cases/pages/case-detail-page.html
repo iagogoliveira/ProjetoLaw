@@ -348,7 +348,10 @@
             >
               @for (g of groups; track g) {
                 <mat-option [value]="g">{{
-                  t('cases.timeline.groups.' + g.replace('litigation.', ''))
+                  t(
+                    'cases.timeline.groups.' +
+                      g.replace('litigation.', '').replace('publications.', '')
+                  )
                 }}</mat-option>
               }
             </mat-select>
@@ -479,6 +482,11 @@
             [options]="store.options()"
             [closed]="closed()"
             (changed)="store.loadTimeline(timelineFilter())"
+        /></ng-template>
+      </mat-tab>
+      <mat-tab *lfCan="'cases.read'" [label]="t('publications.movements.title')">
+        <ng-template matTabContent
+          ><lf-movements-tab [caseId]="c.id" (changed)="store.loadTimeline(timelineFilter())"
         /></ng-template>
       </mat-tab>
       <mat-tab [label]="t('cases.tabs.documents')">
