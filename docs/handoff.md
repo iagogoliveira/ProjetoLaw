@@ -10,6 +10,20 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (pós-merge do 7A e preparação do 7B)
+
+**Pedido do usuário:** "Merge aprovado". Confirmado no GitHub o PR #36 como MERGED em 2026-10-20 às 18:11 (America/Sao_Paulo), merge `2184b6b`, com todos os checks aprovados, inclusive AppHost/E2E.
+
+**Feito:** main atualizada por fast-forward; branch `codex/etapa-7b-ciclo-prazo` criado dessa base. ADR 0037 aceita; progress, AGENTS/CLAUDE e os dois manuais atualizados quanto ao merge e à base local. Preservadas a revisão jurídica pendente, os resultados locais do 7A e as decisões aprovadas do 7B. Esta arrumação não altera runtime nem exige repetir suítes aprovadas; diff e sincronização documental conferidos. Nenhuma aplicação iniciada.
+
+**Estado:** arrumação documental na branch do 7B para commit e push pelo ciclo pós-merge. O 7B permanece em preparação, sem implementação ou PR neste registro.
+
+**Mapeamento de leitura do Luna, conferido por amostra pelo orquestrador:** `Deadline` ainda tem só `Pending`, exige publicação e compartilha `WorkItemStatus` com `TaskItem`; o cadastro manual e o ciclo precisam de evolução aditiva. `RequireDeadlineReview` ainda não existe em Organization. Reutilizar `IOrganizationMembers.CountActiveAsync` para a exceção solo (padrão de propostas), `ICaseDirectory` e `WorkAssignees` para escopo/sigilo. Scheduling ainda não contribui à timeline; os padrões estão em `PublicationsTimeline`/`ITimelineContributor`. O CRUD de `CalendarEntry` ainda não emite alertas de alteração; a política de visibilidade das notificações deve restringir destinatários e acesso ao processo. Nenhum código ou teste alterado nesse mapeamento.
+
+**Próximo trabalho:** ciclo do prazo (7B) conforme plano aprovado: cadastro com regra/sugestão, andamento/cumprimento/perda, evidência e justificativa, dupla conferência com exceção de escritório solo, notificações com escopo/sigilo, alertas por mudança do calendário sem alterar prazos confirmados, timeline e métrica. Sol como orquestrador e Luna nas tarefas delimitadas. Push/PR de implementação só a pedido; merge pelo usuário. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
+
+---
+
 ## 2026-10-20 — Codex (7A enviado e PR #36 aberto)
 
 **Pedido do usuário:** criar o PR do 7A já implementado pelo Claude. Aprovada também a divisão no Codex: Sol como orquestrador e Luna para verificações, exploração e implementação delimitada; Sol em subtarefas mais exigentes.

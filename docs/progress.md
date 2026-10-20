@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (plano 7A a 7G aprovado em 2026-10-20; 7A implementado e verificado no PR #36, aguardando revisão e merge) | `etapa-7-prazos-agenda` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 mergeado em 2026-10-20; 7B em preparação; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (plano aprovado em 2026-10-20; 7A em implementação)
+## Etapa 7 — Prazos, agenda e tarefas (7A mergeado; 7B em preparação)
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -65,9 +65,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 7. **Sincronização Google/Microsoft:** depende de registrar as aplicações OAuth (credenciais externas). Proposta: deixar para o último PR (7G), com o fake, e manter os adaptadores reais como pendência externa.
 8. **Bibliotecas:** FullCalendar na versão padrão (MIT), sem as visões premium por recurso, que são pagas; a visão por pessoa ou equipe seria feita por filtro. Dapper (Apache 2.0) para as consultas da controladoria, como pede a spec. FsCheck (BSD-3) para os testes de propriedade. Cada uma com sua ADR.
 
-### PR 7A — Calendário forense e calculadora de prazos (PR #36 aberto em 2026-10-20)
+### PR 7A — Calendário forense e calculadora de prazos (concluído; PR #36 mergeado em 2026-10-20)
 
-**Branch:** `etapa-7-prazos-agenda`. **ADR:** [0037](adr/0037-calendario-forense-e-calculadora-de-prazos.md), proposta. **Revisão jurídica:** [docs/revisao/prazos-7a.md](revisao/prazos-7a.md), com os 72 casos e o seed estadual, pendente de advogado.
+**Branch:** `etapa-7-prazos-agenda`. **ADR:** [0037](adr/0037-calendario-forense-e-calculadora-de-prazos.md), aceita no PR #36. **Revisão jurídica:** [docs/revisao/prazos-7a.md](revisao/prazos-7a.md), com os 72 casos e o seed estadual, pendente de advogado.
 
 | Subtarefa | Quem fez | Testes |
 | --- | --- | --- |
@@ -103,13 +103,16 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Pendências do 7A:**
 - revisão jurídica dos 72 casos e do seed estadual (`docs/revisao/prazos-7a.md`); o critério 1 da etapa só é marcado depois dela;
 - conferir no Planalto a redação do art. 62 da Lei 5.010/1966 e do art. 220 do CPC;
-- revisão/CI e merge do PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) pelo usuário.
 
 **Publicação autorizada em 2026-10-20:** usuário pediu a criação do PR do 7A. Implementação `49043b2` enviada na branch `etapa-7-prazos-agenda`; PR #36 aberto contra `main`. ADR 0037 permanece proposta e o critério jurídico continua pendente. Após o merge pelo usuário, seguir a arrumação pós-merge e o 7B.
 
 **Verificação da publicação:** verificador Luna conferiu os logs existentes, sem executar novamente as suítes; o orquestrador conferiu por amostra build, cobertura, API, Vitest e Playwright. Mantidos os resultados e limitações da última verificação local acima. Alterações desta publicação somente documentais; diff e sincronização AGENTS/CLAUDE conferidos. Ambos os manuais revisados: disponibilidade do PR e contexto do checkout atualizados, sem novos passos de uso ou inicialização. Nenhuma aplicação iniciada.
 
 **Divisão no Codex aprovada nesta sessão:** Sol como orquestrador e Luna para tarefas leves e delimitadas; tarefas que exijam mais capacidade podem usar Sol. Preferir contexto mínimo, relatórios curtos e conferência pelo orquestrador.
+
+**Arrumação pós-merge do 7A (2026-10-20):** PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) confirmado como mergeado pelo usuário às 18:11 (America/Sao_Paulo), merge `2184b6b99c1edb0cebc38a7347f5b32ee45b2f1d`. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. Main atualizada por fast-forward e branch `codex/etapa-7b-ciclo-prazo` criado da base mergeada. ADR 0037 aceita; AGENTS/CLAUDE e handoff atualizados. Revisão jurídica continua pendente.
+
+**Última verificação local da arrumação:** somente documentação; diff/UTF-8, links e igualdade AGENTS/CLAUDE conferidos antes do commit. Mantidos os 1.026 testes .NET, gate de 80%, 133 Vitest e demais resultados locais acima; o CI aprovado complementa a rodada AppHost/E2E. Ambos os manuais revisados e atualizados quanto ao merge/checkout, sem novos passos de uso nem execução. Nenhuma aplicação iniciada e nenhum volume alterado. Commit/push documental na branch do 7B segue o ciclo pós-merge autorizado.
 
 **Divisão de trabalho prevista:** o orquestrador (Opus) cuida do domínio, da calculadora, dos casos de prazo, das migrations e do contrato. O `implementador` (Sonnet) faz stores, specs e traduções com especificação fechada. O `verificador` (Haiku) roda os gates. O `Explore` faz o mapeamento; no planejamento, foi ele que levantou o estado do Scheduling.
 

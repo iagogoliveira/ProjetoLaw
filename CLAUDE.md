@@ -56,7 +56,7 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 
 - **Leia primeiro a última entrada de `docs/handoff.md`**: é ali que cada agente (Claude Code ou Codex) deixa o que fez, o que ficou combinado com o usuário e o que o próximo deve fazer.
 - O estado oficial de cada etapa e de cada PR está no topo de `docs/progress.md`. As decisões de negócio ficam na seção de cada etapa, com data.
-- **Etapas 0 a 5: concluídas. Etapa 6: 6A a 6E mergeados, com o fornecedor real pendente. Etapa 7: em implementação; 7A no PR #36, aguardando revisão e merge pelo usuário.**
+- **Etapas 0 a 5: concluídas. Etapa 6: 6A a 6E mergeados, com o fornecedor real pendente. Etapa 7: 7A mergeado no PR #36; 7B em preparação.**
 - **Etapa 5 (processos e casos), encerrada em 2026-10-19:**
   - 5A (#24) e 5B (#25) mergeados;
   - 5C1 (#26) mergeado: índices monetários, `IMonetaryCorrection`, pedidos com valores por instância e a ADR 0027. Atende ao critério 3;
@@ -77,8 +77,8 @@ Se a spec e uma decisão registrada no `progress.md` ou numa ADR divergirem, val
 - **Decisões da importação (2026-10-18), já implementadas:** pessoas fora do cadastro são criadas (o documento existente reaproveita a pessoa); a pasta legada é mantida quando vem na planilha; CNJ existente vai para o relatório; importam-se as válidas.
 - **Manual e demonstração (2026-10-19):** `docs/manual/README.md` e `docs/manual/ambiente-local.md` incrementados para as telas e a captura manual do 6E, identificando o PR #35 mergeado, permissões e limitações. Revisar ambos após toda melhoria. Aplicação e sete serviços desta instância encerrados após verificar, volumes/cadastros preservados; reabrir para exploração somente a pedido.
 - **6C concluído (2026-10-19):** PR #33 mergeado pelo usuário, ADR 0034 aceita. Implementação `dd3bc20`, envio até `afc320b`, merge `fe1f654`. CI todo aprovado, incluindo AppHost/E2E; mantidos os resultados locais de 794 testes .NET, cobertura acima de 80%, 96 Vitest e duas rodadas de 14 Playwright com acessibilidade. Nenhuma mudança de runtime na arrumação pós-merge. Manual e guia revisados e preservados. Ambiente permanece fechado a pedido, com volumes/cadastros preservados.
-- **Etapa 7 (prazos, agenda e tarefas):** o plano 7A a 7G e as oito propostas foram aprovados pelo usuário em 2026-10-20. Branch `etapa-7-prazos-agenda`. **7A (calendário forense e calculadora) implementado e verificado, enviado no PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) em 2026-10-20; implementação `49043b2`.** A ADR 0037 está proposta. A revisão jurídica dos 72 casos e do seed estadual está pendente, em `docs/revisao/prazos-7a.md`.
-- **Próximo trabalho:** revisão/CI e merge do PR #36 pelo usuário. Depois, arrumação pós-merge e o 7B (ciclo do prazo), seguindo as decisões já aprovadas. O fornecedor real de publicações continua pendente. Usar a divisão de trabalho entre agentes; nunca fazer merge pelo usuário.
+- **Etapa 7 (prazos, agenda e tarefas):** o plano 7A a 7G e as oito propostas foram aprovados pelo usuário em 2026-10-20. **7A mergeado pelo usuário no PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) em 2026-10-20**, merge `2184b6b`, CI todo aprovado, incluindo AppHost/E2E; implementação `49043b2`, envio até `b96a5cf`. ADR 0037 aceita. Main local atualizada e branch `codex/etapa-7b-ciclo-prazo` criado dessa base. A revisão jurídica dos 72 casos e do seed estadual permanece pendente em `docs/revisao/prazos-7a.md`; o merge não atende ao critério jurídico.
+- **Próximo trabalho:** 7B (ciclo do prazo), seguindo o plano e as decisões já aprovados. O fornecedor real de publicações continua pendente. Usar a divisão de trabalho entre agentes; push/PR de implementação só a pedido e nunca fazer merge pelo usuário.
 
 ## Divisão de trabalho entre agentes (aprovada pelo usuário em 2026-10-20)
 
