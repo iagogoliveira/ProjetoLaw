@@ -18,4 +18,6 @@ export const TIMELINE_GROUPS = [
   'litigation.risk',
   'litigation.settlement',
   'litigation.hearing',
+  'publications.received',
+  'publications.movement',
 ] as const;

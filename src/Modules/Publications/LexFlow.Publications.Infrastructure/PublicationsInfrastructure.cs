@@ -37,6 +37,7 @@ public static class PublicationsInfrastructure
         services.AddScoped<CaptureSourceJob>();
         services.AddScoped<CaptureMonitor>();
         services.AddScoped<CaptureQueriesAccess>();
+        services.AddScoped<ICaptureRetryAudit, CaptureRetryAudit>();
         services.AddScoped<CaptureDispatchJobs>();
         services.AddScoped<ICaptureAlertDirectory, CaptureAlertDirectory>();
         services.AddScoped<INotificationVisibility, PublicationNotificationVisibility>();

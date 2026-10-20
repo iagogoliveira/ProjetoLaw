@@ -16,15 +16,22 @@ public sealed class CaptureSourceJob(IPublicationsDbContext db, ICaptureLocks lo
     {
         await using var transaction = await db.BeginTransactionAsync(cancellationToken);
         if (!await locks.TrySourceAsync(sourceId, day, cancellationToken)) { return; }
-        var source = await db.Sources.AsNoTracking().SingleOrDefaultAsync(s => s.Id == sourceId, cancellationToken);
-        if (source is null || !CaptureSchedule.CanCapture(source, day, clock.UtcNow, clock.LegalTimeZone, force)) { return; }
+        var snapshot = await db.Sources.AsNoTracking().Where(s => s.Id == sourceId).Select(s => new
+        {
+            Source = s,
+            PeriodId = db.SourcePeriods.Where(p => p.SourceId == s.Id && p.DeactivatedAt == null)
+                .OrderByDescending(p => p.ActivatedAt).ThenByDescending(p => p.Id).Select(p => (Guid?)p.Id).FirstOrDefault(),
+        }).SingleOrDefaultAsync(cancellationToken);
+        if (snapshot is null || !CaptureSchedule.CanCapture(snapshot.Source, day, clock.UtcNow, clock.LegalTimeZone, force)) { return; }
+        var source = snapshot.Source;
         var activation = CaptureSchedule.ActiveSince(source);
-        var previous = await db.Runs.AsNoTracking().Where(r => r.SourceId == sourceId && r.Day == day && r.SourceActivatedAt == activation)
+        var previous = await db.Runs.AsNoTracking().Where(r => r.SourceId == sourceId && r.Day == day
+            && (r.SourcePeriodId != null ? r.SourcePeriodId == snapshot.PeriodId : r.SourceActivatedAt == activation))
             .OrderByDescending(r => r.StartedAt).FirstOrDefaultAsync(cancellationToken);
         if (!force && previous is not null && (previous.Status == CaptureRunStatus.Succeeded
             || previous.StartedAt > clock.UtcNow.Subtract(CaptureSchedule.RetryInterval))) { return; }
 
-        var run = CaptureRun.Start(sourceId, day, clock.UtcNow, activation).Value;
+        var run = CaptureRun.Start(sourceId, day, clock.UtcNow, activation, snapshot.PeriodId).Value;
         db.Runs.Add(run);
         var result = await FetchAsync(source, day, cancellationToken);
         await locks.ControlAsync(cancellationToken);

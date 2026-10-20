@@ -3,9 +3,15 @@ import { expect, Page } from '@playwright/test';
 /** Campos vazios do Material são abertos pelo teclado (AGENTS.md). */
 export async function choose(page: Page, label: string, option: string): Promise<void> {
   const select = page.getByRole('combobox', { name: label, exact: true });
-  await select.focus();
-  await select.press('Enter');
-  await expect(select).toHaveAttribute('aria-expanded', 'true');
+  await expect(select).toBeEnabled();
+  // O Material pode terminar de carregar opções/gerenciar foco após renderizar o controle.
+  await expect(async () => {
+    if ((await select.getAttribute('aria-expanded')) !== 'true') {
+      await select.focus();
+      await select.press('Enter');
+    }
+    await expect(select).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
+  }).toPass({ timeout: 10000 });
   await page.getByRole('option', { name: option, exact: true }).click();
 }
 export async function openCaseTab(page: Page, name: string): Promise<void> {

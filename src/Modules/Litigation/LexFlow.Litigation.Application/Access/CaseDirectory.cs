@@ -8,6 +8,21 @@ namespace LexFlow.Litigation.Application.Access;
 
 internal sealed class CaseDirectory(ILitigationDbContext db, CaseAccess access) : ICaseDirectory
 {
+    public async Task<IReadOnlyList<PublicationCaseOption>> PublicationOptionsAsync(string? term, CancellationToken cancellationToken)
+    {
+        var context = await access.ContextAsync("publications.triage", cancellationToken);
+        var query = CaseAccess.Visible(db.Cases.AsNoTracking(), context);
+        var search = term?.Trim();
+        if (!string.IsNullOrEmpty(search))
+        {
+            var digits = new string([.. search.Where(char.IsAsciiDigit)]);
+            query = query.Where(c => c.InternalFolder.Contains(search) || c.CnjNumber != null
+                && (c.CnjNumber.Contains(search) || digits.Length == 20 && c.CnjNumber.Contains(digits)));
+        }
+        return await query.OrderBy(c => c.InternalFolder).ThenBy(c => c.Id).Take(50)
+            .Select(c => new PublicationCaseOption(c.Id, c.InternalFolder, c.CnjNumber)).ToListAsync(cancellationToken);
+    }
+
     public Task<bool> IsOpenAsync(Guid caseId, CancellationToken cancellationToken) =>
         db.Cases.AnyAsync(c => c.Id == caseId && c.Status != CaseStatus.Closed, cancellationToken);
 

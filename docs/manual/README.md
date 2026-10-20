@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34), mergeado em 2026-10-19, acrescenta triagem, distribuição e fechamento pela API, disponíveis no backend da main; as telas dessas operações continuam previstas no 6E. Não procure esses formulários no menu atual.
+**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34) disponibiliza triagem, distribuição e fechamento no backend da main. No branch `codex/etapa-6e-telas-publicacoes`, as telas de publicações, fontes, integração DataJud e fechamento estão implementadas e verificadas localmente, ainda sem merge. As instruções destas telas abaixo se referem a esse branch.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -180,34 +180,56 @@ Use um escritório de demonstração e pessoas fictícias para manter o ensaio s
 
 Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebida. Informe se estava usando a conta administradora ou outra conta. Esses detalhes ajudam a reproduzir o comportamento.
 
-## 13. Recursos que ainda não devem ser procurados nas telas
+## 13. Disponibilidade dos recursos
 
 | Recurso | Situação nesta versão |
 | --- | --- |
-| Fontes, captura e notificações de publicações | Base/backend em evolução na Etapa 6; operação visual prevista no 6E |
+| Fontes, captura e notificações de publicações | Backend na main; telas no branch do 6E, verificadas localmente e ainda sem merge |
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
-| DataJud e consultas periódicas de movimentações | Backend do 6C; configuração e acompanhamento visual previstos no 6E |
-| Triagem, distribuição e fechamento diário da controladoria | Backend disponível na main desde o 6D (#34); telas no 6E |
+| DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento no branch do 6E, verificadas localmente e ainda sem merge |
+| Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas no branch do 6E, verificadas localmente e ainda sem merge |
 | Calculadora completa de prazos e agenda unificada | Etapa 7 |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis |
 
-## Andamentos automáticos (backend do 6C)
+## Andamentos automáticos
 
-**Andamentos pelo DataJud:** depois de habilitada a integração do escritório, o sistema consulta processos judiciais ativos em ciclos de seis horas, distribuídos ao longo do dia. A primeira consulta traz o histórico público disponível; as seguintes acrescentam novidades, inclusive atos antigos disponibilizados depois. As datas dos atos são mantidas. Uma falha pode atrasar a atualização; o sistema retoma a captura sem apagar o histórico já salvo. DataJud não substitui a captura de publicações/intimações e não disponibiliza o conteúdo de processos sob sigilo. Nesta versão, a configuração exige apoio técnico e permissão de gerenciar integrações no escritório; ainda não há botão ou formulário para isso nas telas.
+**Andamentos pelo DataJud:** depois de habilitada a integração do escritório, o sistema consulta processos judiciais ativos em ciclos de seis horas, distribuídos ao longo do dia. A primeira consulta traz o histórico público disponível; as seguintes acrescentam novidades, inclusive atos antigos disponibilizados depois. As datas dos atos são mantidas. Uma falha pode atrasar a atualização; o sistema retoma a captura sem apagar o histórico já salvo. DataJud não substitui a captura de publicações/intimações e não disponibiliza o conteúdo de processos sob sigilo. No branch do 6E, a configuração está em **Fontes e integrações → Andamentos e DataJud**, para quem gerencia integrações no escritório. A chave existente nunca é exibida; deixar o campo vazio mantém a chave. Para remover, marque **Remover a chave cadastrada** e salve. O campo da nova chave é limpo após o envio.
 
-## 14. Triagem e fechamento (backend do 6D, sem tela nesta entrega)
+## 14. Publicações, triagem e fechamento (telas do branch do 6E)
+
+### Fontes e captura
+
+Abra **Fontes e integrações** no menu. Escolha Nome, OAB ou CNPJ, preencha nome da fonte e valor monitorado e salve. Fontes ativas seguem a captura automática; editar permite desativar sem apagar o histórico. O ambiente AppHost usa provedor simulado; isso não representa captura real de intimações.
+
+Escolha o **Dia da captura (São Paulo)** e use **Consultar captura de …**. O painel mostra execuções e alerta da fonte. **Tentar captura agora** exige gestão de integrações em escopo de escritório e fonte ativa; registra uma solicitação auditada e a executa no Worker. Escolha um dia entre a última ativação da fonte e hoje. Aguarde e use **Atualizar** para conferir o resultado. Repetir uma captura mantém a deduplicação das publicações. Falhas de períodos anteriores a uma mudança do critério da fonte precisam de avaliação técnica; não altere o critério para tentar reproduzir um recorte antigo.
+
+### Fila e notificações
+
+Abra **Publicações**. Filtre por situação, vínculo ou responsável; a URL guarda os filtros e pode ser compartilhada com quem tem o acesso correspondente. A lista carrega por páginas. Selecione um item para ler o texto e preencher a triagem ao lado; o CNJ aparece destacado. O contador do menu mede publicações pendentes visíveis, independentemente de notificações lidas.
+
+J/K navegam, T foca a classificação e P prepara um prazo, quando permitido. Os atalhos não atuam enquanto você digita ou usa uma seleção; desmarque **Habilitar atalhos de uma tecla** para desativá-los. Novidades são avisadas sem apagar o formulário em edição. Termine ou abandone a edição antes de **Atualizar**, trocar a publicação ou mudar filtros.
+
+Em **Notificações**, consulte referências recebidas, abra a publicação autorizada ou marque o aviso como lido. Marcar aviso como lido não conclui triagem. A conexão se recupera automaticamente; a consulta manual continua disponível enquanto reconecta. Quem tem triagem no escritório pode consultar alertas de captura por dia na fila; quem só lê não recebe controles de triagem.
+
+### Tratar uma publicação
 
 A operação técnica está descrita no [guia de ambiente local](ambiente-local.md). Para tratar uma publicação, a pessoa precisa de permissão de leitura e triagem e de acesso ao seu conteúdo. Distribuir exige a permissão de distribuição; atribuir a alguém não concede acesso ao processo. O responsável precisa estar ativo e conseguir ler e triar aquela publicação.
 
-A classificação e o destino são confirmados por uma pessoa. Criar prazo ou tarefa exige também a respectiva permissão de cadastro; criar audiência exige editar o processo. Prazo e tarefa têm responsável e datas informadas manualmente. Não há cálculo automático de prazo, cumprimento, calendário ou dupla conferência nesta entrega. A audiência criada aparece na aba **Audiências** já existente do processo; os prazos e tarefas ainda são consultados pela API.
+Busque o processo por pasta ou CNJ, selecione-o e use **Vincular processo**, quando necessário. A busca traz até 50 opções por vez, respeitando seu alcance; refine a pesquisa. Em **Distribuição**, escolha um membro e use **Salvar distribuição**; a opção sem atribuição remove a distribuição. A classificação e o destino são confirmados por uma pessoa. Criar prazo ou tarefa exige também a respectiva permissão de cadastro; criar audiência exige editar o processo. Prazo e tarefa têm responsável e datas informadas manualmente. Não há cálculo automático de prazo, cumprimento, calendário ou dupla conferência nesta entrega. A audiência criada aparece na aba **Audiências** já existente do processo; os prazos e tarefas ainda são consultados pela API.
 
-Uma publicação irrelevante ou capturada por engano pode ser encerrada sem processo, como **Outros / Descartar**, com justificativa e identificação de quem decidiu. As demais triagens exigem processo vinculado. A gravação da triagem e do destino é conjunta: falhas antes da confirmação da transação desfazem os dois. Se houver falha de resposta, consulte o estado antes de reenviar. Uma publicação já triada não pode ser triada, vinculada ou distribuída novamente.
+Uma publicação irrelevante ou capturada por engano pode ser encerrada sem processo, com classificação **Outros** e ação **Encerrar como irrelevante/engano**, com justificativa e identificação de quem decidiu. As demais triagens exigem processo vinculado. Escolha a classificação e a ação compatíveis, preencha os dados do destino, marque a confirmação humana e use **Confirmar e salvar triagem**. A gravação da triagem e do destino é conjunta: falhas antes da confirmação da transação desfazem os dois. Se houver falha de resposta, consulte o estado antes de reenviar. Uma publicação já triada não pode ser triada, vinculada ou distribuída novamente.
 
-O fechamento diário exige `publications.close` em escopo de escritório e alcance de todas as publicações consideradas. O dia usa o recebimento no horário de São Paulo e inclui publicações anteriores ainda pendentes. Captura esperada sem sucesso ou alerta anterior de captura ainda não resolvido impede fechar, mesmo sem publicações na fila; uma execução bem-sucedida com zero resultados conta como sucesso. Desativar a fonte depois da janela de captura não apaga essa obrigação. Falha de captura exige recuperar a captura; descartar publicações não substitui dados ausentes.
+### Fechar o dia
+
+Abra **Fechamento diário**, escolha o dia e use **Consultar fechamento**. Confira pendências e capturas, marque a confirmação e use **Confirmar fechamento**. O histórico mantém as revisões anteriores e oferece **Carregar mais** quando necessário. O fechamento diário exige `publications.close` em escopo de escritório e alcance de todas as publicações consideradas. O dia usa o recebimento no horário de São Paulo e inclui publicações anteriores ainda pendentes. Captura esperada sem sucesso ou alerta anterior de captura ainda não resolvido impede fechar, mesmo sem publicações na fila; uma execução bem-sucedida com zero resultados conta como sucesso. Desativar a fonte depois da janela de captura não apaga essa obrigação. Falha de captura exige recuperar a captura; descartar publicações não substitui dados ausentes.
 
 O fechamento registra usuário, instante e revisão. Se novas publicações chegarem depois, o dia volta a exigir conferência e novo fechamento, inclusive quando as novas entradas já tiverem sido triadas. A assinatura anterior permanece no histórico. Repetir o fechamento sem novidades devolve o mesmo registro. Essa assinatura é o registro auditado da conta autenticada; não é assinatura digital de um documento.
+
+### Andamentos do processo
+
+Na aba **Andamentos** do processo, consulte origem, data do ato e data de coleta, com paginação e situação da última sincronização. Para registrar manualmente, informe data/hora em São Paulo e descrição e use **Salvar andamento**; é necessário editar o processo. O registro aparece também na **Linha do tempo**, cujo filtro inclui publicações recebidas e andamentos.
 
 ## 15. Manutenção do manual
 

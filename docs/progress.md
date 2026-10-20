@@ -12,7 +12,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 3 — Organizações, estrutura e permissões | **Concluída** (PRs #11 a #17 mergeados; os 4 critérios de aceite atendidos) | `etapa-3a-organizations`, `etapa-3b-tenant-permissions`, `etapa-3c-rls-security-tests`, `etapa-3d-invites-structure`, `etapa-3e-custom-fields`, `etapa-3f-settings-screens`, `etapa-3f2-settings-screens` |
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
-| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32, 6C/DataJud #33 e 6D #34 concluídos; 6E em preparação; fornecedor real pendente) | `codex/etapa-6e-telas-publicacoes` |
+| 6 — Publicações e andamentos | **Em implementação** (6A #31, 6B #32, 6C/DataJud #33 e 6D #34 concluídos; 6E implementado e verificado localmente, aguardando revisão; fornecedor real pendente) | `codex/etapa-6e-telas-publicacoes` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -33,7 +33,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 6 — Publicações e andamentos (6A a 6D concluídos; 6E em preparação)
+## Etapa 6 — Publicações e andamentos (6A a 6D concluídos; 6E em verificação)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.
 
@@ -60,13 +60,28 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local desta arrumação:** diff em relação à main somente documental; UTF-8/links e igualdade AGENTS/CLAUDE verificados antes do commit. Nenhuma suíte de runtime repetida: preservados os resultados completos do 6B e o CI aprovado. SPA, API e Mailpit continuam respondendo HTTP 200, sem interromper a exploração do usuário. Ambos os guias foram revisados; atualização de disponibilidade/base após merge, sem mudança de comandos de inicialização.
 
-### PR 6E — Telas de publicações e andamentos (em preparação)
+### PR 6E — Telas de publicações e andamentos (implementado e verificado; sem push/PR)
 
-**Branch:** `codex/etapa-6e-telas-publicacoes`, criado da main atualizada no merge `75aaa9c` do PR #34. Somente arrumação documental pós-merge; implementação ainda não iniciada. Plano 6A–6E já aprovado, sem nova aprovação das mesmas escolhas.
+**Branch:** `codex/etapa-6e-telas-publicacoes`, criado da main no merge `75aaa9c` do PR #34; arrumação remota `c5c13c0`. Esta entrega integra o commit local de implementação (consultar `git log -1`), com código e documentos juntos. Sem push/PR/merge. Plano 6A–6E já aprovado; ADR [0036](adr/0036-telas-publicacoes-triagem-e-tempo-real.md) proposta para revisão.
 
-**Escopo previsto:** fontes e integrações, fila dividida com atalhos, não vinculadas, vínculo/distribuição/triagem e fechamento/histórico, contador e atualizações em tempo real, andamentos na linha do tempo. Seguir contratos atuais, permissões/escopo/sigilo e confirmação humana do 6D. Frontend standalone/OnPush/signals, HTTP em `data/`, Transloco pt-BR/en, Vitest das stores e Playwright/WCAG 2.1 AA contra AppHost. Não antecipar calculadora/agenda da Etapa 7. Dúvidas novas de negócio devem ser perguntadas; nenhuma das três perguntas complementares do 6D permanece pendente.
+**Decisão operacional adicional — 2026-10-19:** usuário aprovou **Tentar captura agora**, com `settings.integrations.manage` em escopo de escritório, fonte ativa, auditoria/deduplicação e execução no Worker. Mantida a rotina automática 05h–07h. Pedido e auditoria são persistidos com evento no outbox; consumidor com inbox agenda o job existente com `force=true`. Dia entre a última ativação e hoje, conforme a política existente; consulta de execuções aceita dia opcional. Resposta 202 representa solicitação, sem afirmar conclusão. Nenhuma dúvida de negócio pendente.
 
-**Verificação e pendências:** preparação documental conferida conforme a arrumação abaixo; nenhum resultado de runtime atribuído ao 6E. Criar ADR 0036 proposta e tabela de subtarefas/testes com a implementação, incrementar os dois guias e executar os gates pertinentes. Fornecedor real permanece pendente externo. Código novo termina em commit local; push/PR somente a pedido.
+| Subtarefa | Estado | Testes/evidências |
+| --- | --- | --- |
+| Consultas de opções e contador visível | Implementadas e verificadas | 5 testes novos da API: escopo, sigilo, tenant, busca por CNJ/pasta e membros sem e-mail/permissão de administração; SecurityTests e contrato aditivo |
+| Fontes, DataJud e tentativa manual | Implementadas e verificadas | SourcesStore; 3 testes novos de pedido/Worker/auditoria/inbox/deduplicação e recuperação histórica, inclusive às 02h; e2e cria fonte e solicita captura, cadastra/remove chave sem eco |
+| Fila dividida, filtros/URL, vínculo, distribuição e triagem | Implementados e verificados | Stores/componentes com respostas antigas e edição preservada; e2e de contador, novidades, teclado, distribuição, vínculo, confirmação e criação de prazo/tarefa/audiência; perfil leitor sem ações e rotas restritas |
+| Fechamento e histórico | Implementados e verificados | Vitest, API e e2e com duas revisões preservadas; regressão com relógio progressivo e duas ativações no mesmo instante |
+| Vínculo captura/período e migration aditiva | Implementados e verificados | `SourcePeriodId` com FK/índice; snapshot único antes da captura, monitor/fechamento por período; upgrade/down/reapply sem reescrever datas ou assinaturas; dois testes novos da API e um de PostgreSQL |
+| Notificações/SignalR e contador | Implementados e verificados | Cliente oficial MIT, LongPolling e cabeçalhos; Vitest de reconexão/descarte/concorrência e contador exato; e2e verifica conexão e preservação da edição ao receber novidades |
+| Andamentos, ato manual e filtros da linha do tempo | Implementados e verificados | Store testada; e2e registra andamento com `cases.edit` e confere a linha do tempo, datas/origem e acessibilidade |
+| ADR 0036, agentes, manual e guia local | Atualizados | Licenças registradas; dois guias incrementados com as rotas/ações entregues no branch e limitações; UTF-8, links locais e agentes idênticos conferidos |
+
+**Correções encontradas na verificação:** o relógio real revelou que fonte e período recebiam instantes diferentes, impedindo fechamento apesar de captura concluída. Um único instante por transição e a referência ao período corrigem a associação. A migration `CaptureRunSourcePeriod` associa apenas históricos inequívocos, preservando datas, períodos e assinaturas. Testes passaram com relógio progressivo e reativação no mesmo timestamp. Nos e2e, o helper aguarda seletor habilitado/aberto pelo teclado; o teste de processos aguarda o detalhe antes de ler a pasta, evitando o título transitório do assistente. Nenhuma asserção de negócio ou acessibilidade foi removida.
+
+**Última verificação local — PR 6E, 2026-10-19:** builds Release e Debug com **0 warnings**, `dotnet format --verify-no-changes`, **906 testes .NET aprovados em 20 projetos**, incluindo API 210, Publications.Integration 18, Architecture 17, Security 11 e AppHost 14. Resultados consolidados sem duplicar relatórios; projetos afetados repetidos após a correção, demais resultados preservados conforme a política aprovada. Gate de **80% aprovado em todos os módulos** (Publications.Application 99,2% e Domain 98,0%). Sem pacotes .NET/npm vulneráveis; seis modelos EF sem mudanças pendentes. OpenAPI atualizado pelo teste oficial e validado pela suíte da API, apenas adições; cliente TypeScript regenerado. Lint/Prettier, **133 Vitest em 18 arquivos** e build Angular aprovados. **Duas rodadas completas consecutivas de Playwright contra AppHost: 16 aprovados por rodada**, WCAG 2.1 AA, relatório HTML ligado; 1 preparação opcional de carga ignorada por rodada, sem ignorar fluxos funcionais. Evidências em `TestResults/6e-consolidated-validation`, `6e-affected-validation`, `6e-final-*` e `6e-playwright-final-{1,2}-*`; tentativas anteriores preservadas. Aplicação e sete serviços desta instância encerrados após verificar, volumes/cadastros preservados.
+
+**Pendências:** push e abertura do PR a pedido do usuário; revisão/CI/merge ainda não realizados. Fornecedor real de publicações/intimações continua externo e pendente, portanto **não declarar a Etapa 6 integralmente concluída**. Calculadora e agenda completas ficam na Etapa 7. Históricos antigos de períodos encerrados sem associação inequívoca de captura exigem avaliação técnica, sem reescrever datas ou presumir captura válida. Manual/guia não incluem imagens nesta edição.
 
 ### PR 6D — Triagem, distribuição e fechamento diário (concluído: PR #34 mergeado em 2026-10-19)
 

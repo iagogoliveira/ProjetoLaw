@@ -10,6 +10,36 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (6E verificado; commit local, aguardando pedido de push/PR)
+
+**Estado:** branch `codex/etapa-6e-telas-publicacoes`, base remota `c5c13c0`. Esta entrada integra o commit local de implementação (consultar `git log -1`), com código, ADR 0036 proposta, OpenAPI/cliente e documentos juntos. Sem push/PR/merge. Fornecedor real pendente; Etapa 6 continua em andamento.
+
+**Feito:** fontes/DataJud, fila dividida/filtros/URL/teclado, não vinculadas, vínculo/distribuição/triagem e criação confirmada de prazo/tarefa/audiência, fechamento/histórico, notificações/SignalR/contador exato e andamentos na linha do tempo. Duas consultas de apoio e tentativa manual adicionadas com permissões, testes e contrato aditivo. Cliente SignalR 10.0.11 MIT e transitivas permissivas registrados na ADR; nenhum pacote .NET novo.
+
+**Decisão nova aprovada:** “Tentar captura agora” para fonte ativa, `settings.integrations.manage` em escopo de escritório, auditoria/deduplicação e Worker; rotina 05h–07h preservada. Dia entre última ativação e hoje, resposta 202 de solicitação; auditoria e evento no outbox, consumidor com inbox. Não pedir aprovação novamente.
+
+**Correção descoberta no e2e:** relógio real fazia fonte/período diferirem em microssegundos e impedia fechar. Reutilizado o instante e introduzido `CaptureRun.SourcePeriodId` com FK/índice; snapshot único, monitor/fechamento por ID, inclusive reativações simultâneas. Migration aditiva `CaptureRunSourcePeriod` só associa históricos inequívocos; não muda datas/períodos/assinaturas. Casos antigos ambíguos de períodos encerrados exigem avaliação técnica. Nenhuma migration aplicada foi alterada. Helpers e2e aguardam opções habilitadas/abertura pelo teclado; teste de processos aguarda detalhe carregado antes de ler a pasta. Não relaxadas asserções.
+
+**Verificado:** Release/Debug 0 warnings; format verify; 906 testes .NET em 20 projetos, incluindo API 210, Publications.Integration 18, Architecture 17, Security 11 e AppHost 14; gate 80% aprovado (Publications.Application 99,2%/Domain 98,0%). Consolidação sem duplicar cobertura e repetições somente afetadas após ajustes. Sem dependências vulneráveis; seis modelos EF sem pendências; OpenAPI oficial e cliente regenerado; lint/Prettier, 133 Vitest/18 arquivos e build Angular. Duas rodadas completas consecutivas de Playwright/AppHost com relatório: 16 aprovados + 1 preparação opcional de carga ignorada em cada, com WCAG 2.1 AA. Evidências em `TestResults/6e-*`, relatórios `6e-playwright-final-{1,2}-report`; tentativas anteriores preservadas. UTF-8, links, chaves pt/en e agentes idênticos conferidos. Manual e guia atualizados para uso entregue no branch, ainda sem merge; imagens ficam para revisão posterior.
+
+**Ambiente:** AppHost e os sete serviços desta instância encerrados, com volumes/cadastros preservados. Só reabrir para exploração a pedido. Não executar testes completos de novo sem alteração ou preocupação concreta.
+
+**Próximo:** aguardar pedido de push/PR e enviar código/documentos no mesmo push. Usuário faz merge. Após aviso: conferir merge/CI, atualizar main, aceitar ADR 0036 e preparar próxima etapa, considerando fornecedor real ainda pendente e calculadora/agenda da Etapa 7. Nenhuma dúvida de negócio pendente para o 6E.
+
+---
+
+## 2026-10-19 — Codex (6E implementado; verificação em andamento)
+
+**Estado:** branch `codex/etapa-6e-telas-publicacoes`, base remota `c5c13c0`. Código do 6E no diretório de trabalho, sem commit/push/PR. ADR 0036 proposta; fontes/DataJud, fila dividida/filtros/teclado, triagem/distribuição/vínculo, fechamento/histórico, notificações/contador/SignalR e andamentos implementados. Duas consultas de apoio e tentativa manual acrescentadas; OpenAPI atualizado pelo teste oficial, cliente regenerado. Nenhuma migration ou pacote .NET novo; cliente SignalR 10.0.11 MIT e transitivas permissivas registrados na ADR.
+
+**Nova decisão do usuário:** aprovou “Tentar captura agora”, restrita a fonte ativa e `settings.integrations.manage` no escritório, com auditoria/deduplicação e Worker, sem mudar a rotina automática. Pedido e auditoria gravados com evento no outbox; consumidor com inbox agenda o job forçado. Dia segue a política existente (última ativação até hoje); consulta de execuções recebe dia opcional. Todas as perguntas de negócio respondidas.
+
+**Verificação parcial:** Release/Debug sem warnings, 39 testes direcionados do fluxo e OpenAPI aprovados; lint, 127 Vitest, build e npm audit aprovados. Rodada .NET completa com cobertura em `TestResults/6e-final-validation`; AppHost interrompido para concluir o cliente após a nova operação. Repetições afetadas em `TestResults/6e-affected-validation` (API atual 208 aprovados), seguidas de AppHost.Tests com frontend atualizado. Não abrir AppHost manual até esse projeto terminar. Resultados não afetados devem ser preservados; consolidar cobertura sem duplicar relatórios antigos dos mesmos projetos. Frontend com testes adicionais de concorrência e dois e2e novos ainda em verificação; logs `TestResults/6e-*`.
+
+**O que falta:** concluir gates e duas rodadas Playwright/AppHost com WCAG, corrigir falhas sem relaxar asserções, revisar manual/guia e atualizar resultados/pendências no progress, AGENTS/CLAUDE e este handoff. Depois encerrar aplicação/serviços próprios preservando volumes, conferir diff/UTF-8/contrato aditivo e commit local. Não enviar código nem abrir PR até pedido. Fornecedor real segue pendente; Etapa 6 em andamento. Os dois guias já foram incrementados para o branch, identificando verificação e ausência de merge.
+
+---
+
 ## 2026-10-19 — Codex (6D #34 mergeado; arrumação e branch do 6E)
 
 **Estado confirmado:** usuário informou o merge do PR [#34](https://github.com/iagogoliveira/ProjetoLaw/pull/34); GitHub confirmou MERGED em 2026-10-19, merge `75aaa9c`, com todos os checks aprovados (backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E). Implementação `77acd5e` + `18cbec4`, enviada com documentos até `07287bd`. Main atualizada por fast-forward; branch `codex/etapa-6e-telas-publicacoes` criado da nova main. ADR 0035 aceita. Esta entrada integra o commit/push documental pós-merge autorizado pelo ciclo; consultar `git log -1` para o commit. Nenhum PR do 6E aberto.

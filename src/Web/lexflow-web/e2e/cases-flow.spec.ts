@@ -72,6 +72,8 @@ test.describe('Cases flow', () => {
 
     // Revisão e cadastro.
     await page.getByRole('button', { name: 'Cadastrar processo' }).click();
+    await expect(page).toHaveURL(/\/processos\/[\da-f-]+$/);
+    await expect(page.getByRole('link', { name: 'Editar', exact: true })).toBeVisible();
     const heading = page.getByRole('heading', { level: 1 });
     await expect(heading).not.toHaveText('Novo processo');
     const folder = (await heading.textContent())!.trim();

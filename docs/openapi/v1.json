@@ -9835,6 +9835,45 @@
       }
     },
     "/api/v1/publication-sources/{id}/capture": {
+      "post": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "RequestPublicationCapture",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureRetryInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureRetryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "tags": [
           "Publications"
@@ -9849,6 +9888,14 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -10420,6 +10467,55 @@
         }
       }
     },
+    "/api/v1/publications/pending-count": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "GetPublicationPendingCount",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationPendingCountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/workflow-options": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "operationId": "GetPublicationScreenOptions",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationScreenOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cases/{id}/movements": {
       "get": {
         "tags": [
@@ -10885,6 +10981,35 @@
           },
           "errorCode": {
             "type": "string"
+          }
+        }
+      },
+      "CaptureRetryInput": {
+        "required": [
+          "day"
+        ],
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "CaptureRetryResponse": {
+        "required": [
+          "requestId",
+          "day"
+        ],
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
           }
         }
       },
@@ -16658,6 +16783,29 @@
           }
         }
       },
+      "PublicationCaseOption": {
+        "required": [
+          "id",
+          "folder",
+          "cnj"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "folder": {
+            "type": "string"
+          },
+          "cnj": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "PublicationHearingFormat": {
         "enum": [
           "inPerson",
@@ -16673,6 +16821,38 @@
           "judgment",
           "other"
         ]
+      },
+      "PublicationMemberOption": {
+        "required": [
+          "userId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicationPendingCountResponse": {
+        "required": [
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
       },
       "PublicationResponse": {
         "required": [
@@ -16747,6 +16927,27 @@
                 "$ref": "#/components/schemas/PublicationTriageResponse"
               }
             ]
+          }
+        }
+      },
+      "PublicationScreenOptionsResponse": {
+        "required": [
+          "members",
+          "cases"
+        ],
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationMemberOption"
+            }
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationCaseOption"
+            }
           }
         }
       },

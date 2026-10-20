@@ -197,6 +197,10 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("source_id");
 
+                    b.Property<Guid?>("SourcePeriodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_period_id");
+
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
@@ -218,6 +222,9 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SourceId")
                         .HasDatabaseName("ix_capture_runs_source_id");
+
+                    b.HasIndex("SourcePeriodId")
+                        .HasDatabaseName("ix_capture_runs_source_period_id");
 
                     b.HasIndex("OrganizationId", "SourceId", "Day")
                         .HasDatabaseName("ix_capture_runs_organization_id_source_id_day");
@@ -878,6 +885,12 @@ namespace LexFlow.Publications.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_capture_runs_capture_sources_source_id");
+
+                    b.HasOne("LexFlow.Publications.Domain.CaptureSourcePeriod", null)
+                        .WithMany()
+                        .HasForeignKey("SourcePeriodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_capture_runs_capture_source_periods_source_period_id");
                 });
 
             modelBuilder.Entity("LexFlow.Publications.Domain.CaptureSourcePeriod", b =>

@@ -1,0 +1,132 @@
+<section *transloco="let t" class="page">
+  <div class="header inline">
+    <h1>{{ t('publications.title') }}</h1>
+    <div class="actions">
+      <a *lfCan="'settings.integrations.manage'" mat-button routerLink="/publicacoes/fontes">{{
+        t('publications.sources.title')
+      }}</a>
+      <a *lfCan="'publications.close'" mat-button routerLink="/publicacoes/fechamento">{{
+        t('publications.closing.title')
+      }}</a>
+      <button
+        mat-button
+        type="button"
+        [disabled]="store.loading() || store.busy()"
+        (click)="refresh()"
+      >
+        {{ t('publications.refresh') }}
+      </button>
+    </div>
+  </div>
+  <p class="hint">{{ t('publications.shortcuts') }}</p>
+  <mat-checkbox [formControl]="shortcuts">{{ t('publications.enableShortcuts') }}</mat-checkbox>
+  <form class="inline" [formGroup]="filters" (ngSubmit)="applyFilters()">
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.status') }}</mat-label
+      ><mat-select formControlName="status">
+        <mat-option value="all">{{ t('publications.all') }}</mat-option>
+        @for (s of statuses; track s) {
+          <mat-option [value]="s">{{ t('publications.statuses.' + s) }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.linked') }}</mat-label
+      ><mat-select formControlName="linked">
+        <mat-option value="">{{ t('publications.all') }}</mat-option
+        ><mat-option value="true">{{ t('publications.linkedOnly') }}</mat-option
+        ><mat-option value="false">{{ t('publications.unlinked') }}</mat-option>
+      </mat-select></mat-form-field
+    >
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('publications.filterAssignee') }}</mat-label
+      ><mat-select formControlName="assignee">
+        <mat-option value="">{{ t('publications.all') }}</mat-option>
+        @for (m of store.options()?.members ?? []; track m.userId) {
+          <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <button mat-flat-button type="submit" [disabled]="store.busy()">
+      {{ t('publications.filter') }}
+    </button>
+  </form>
+  <lf-publication-errors [code]="store.errorCode()" />
+  <lf-capture-alerts *lfCan="'publications.triage'" />
+  @if (saved()) {
+    <p role="status">{{ t('publications.saved') }}</p>
+  }
+  @if (store.notice()) {
+    <p role="status">{{ t('publications.news') }}</p>
+  }
+  @if (store.loading()) {
+    <p role="status">{{ t('publications.loading') }}</p>
+  }
+  <div class="queue">
+    <nav [attr.aria-label]="t('publications.queue')">
+      <ul class="publication-list">
+        @for (p of store.items(); track p.id) {
+          <li>
+            <button
+              type="button"
+              class="publication-row"
+              [attr.aria-pressed]="store.selected()?.id === p.id"
+              [disabled]="store.busy()"
+              (click)="select(p.id)"
+            >
+              <strong>{{ p.journal }}</strong
+              ><span>{{ p.publishedOn | date: 'dd/MM/yyyy' : 'UTC' }}</span>
+              <span>{{ p.extractedCnj || t('publications.noCnj') }}</span
+              ><span>{{ t('publications.statuses.' + p.status) }}</span>
+            </button>
+          </li>
+        } @empty {
+          @if (!store.loading()) {
+            <li>{{ t('publications.empty') }}</li>
+          }
+        }
+      </ul>
+      @if (store.nextCursor()) {
+        <button mat-button type="button" [disabled]="store.loading()" (click)="store.more()">
+          {{ t('publications.more') }}
+        </button>
+      }
+    </nav>
+    <article [attr.aria-label]="t('publications.detail')" [attr.aria-busy]="store.selecting()">
+      @if (store.selected(); as p) {
+        <h2>{{ p.journal }}</h2>
+        <p>
+          {{ t('publications.publishedOn') }}: {{ p.publishedOn | date: 'dd/MM/yyyy' : 'UTC' }} ·
+          {{ t('publications.availableOn') }}: {{ p.availableOn | date: 'dd/MM/yyyy' : 'UTC' }}
+        </p>
+        <p>{{ t('publications.receivedAt') }}: {{ instant(p.receivedAt) }}</p>
+        @if (p.legalCaseId) {
+          <a *lfCan="'cases.read'" [routerLink]="['/processos', p.legalCaseId]">{{
+            t('publications.openCase')
+          }}</a>
+        }
+        <div class="triage-panels">
+          <div class="publication-text">
+            @for (part of fragments(p.text); track $index) {
+              @if (part.cnj) {
+                <mark>{{ part.text }}</mark>
+              } @else {
+                {{ part.text }}
+              }
+            }
+          </div>
+          <lf-triage-form
+            [publication]="p"
+            [options]="store.options()"
+            (caseSearchRequested)="store.loadOptions($event)"
+            (triageRequested)="triage($event)"
+            (linkRequested)="link($event)"
+            (assignmentRequested)="assign($event)"
+          />
+        </div>
+      } @else {
+        <p>{{ t(store.selecting() ? 'publications.loading' : 'publications.select') }}</p>
+      }
+    </article>
+  </div>
+</section>

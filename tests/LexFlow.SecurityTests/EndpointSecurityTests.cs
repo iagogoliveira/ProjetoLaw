@@ -118,6 +118,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     {
         cases.Add("GET /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner)));
         cases.Add("GET /api/v1/publication-sources/{id:guid}/capture", async owner => new CrossTenantCase(await SourceOfAsync(owner)));
+        cases.Add("POST /api/v1/publication-sources/{id:guid}/capture", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { day = "2026-10-19" }));
         cases.Add("POST /api/v1/notifications/{id:guid}/read", async owner => new CrossTenantCase(await NotificationOfAsync(owner)));
         cases.Add("PUT /api/v1/publication-sources/{id:guid}", async owner => new CrossTenantCase(await SourceOfAsync(owner), new { kind = "name", label = "Fonte", value = "Maria" }));
         cases.Add("GET /api/v1/publications/{id:guid}", async owner => new CrossTenantCase(await PublicationOfAsync(owner)));
