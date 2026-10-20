@@ -10,6 +10,18 @@ Como funciona:
 
 ---
 
+## 2026-10-19 — Codex (PR 6E #35 aberto a pedido do usuário)
+
+**Estado:** branch `codex/etapa-6e-telas-publicacoes`; implementação `23c853d` e atualização documental desta entrada enviados juntos, em um único push. PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35) aberto contra `main`, CI/revisão pendentes, sem merge. O PR foi preparado em rascunho para registrar seu número antes do push único e disponibilizado para revisão após confirmar o envio. ADR 0036 continua proposta.
+
+**Pedido do usuário:** “Pode seguir o PR” autoriza enviar a implementação e abrir o PR. Não autoriza merge. Mantidas as decisões de negócio já aprovadas, inclusive a captura manual; nenhuma nova dúvida.
+
+**Feito e verificado:** descrição do PR em português com escopo, migration, testes e pendências; progress, ADR e AGENTS/CLAUDE atualizados e sincronizados. Manual e guia local revisados: esta publicação não altera uso ou inicialização, e ambos já descrevem as telas do branch sem merge; não acrescentar passos artificiais. UTF-8, links e diff conferidos antes do commit documental. Sem mudança de runtime: mantidos 906 testes .NET, cobertura mínima de 80%, 133 Vitest, lint/builds/format/dependências/seis modelos aprovados e duas rodadas consecutivas de 16 Playwright com WCAG (1 preparação opcional de carga ignorada por rodada). Não repetir suítes completas sem mudança, falha ou dúvida concreta. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Próximo:** aguardar CI/revisão do PR #35 e tratar falhas concretas. Usuário faz merge. Após aviso: confirmar merge/checks, atualizar main, aceitar ADR 0036 com número/data e preparar a continuidade conforme spec/progress. Fornecedor real de publicações/intimações segue pendente; não declarar a Etapa 6 integralmente concluída. Calculadora e agenda completas ficam na Etapa 7; planejar e esclarecer dúvidas antes de implementar.
+
+---
+
 ## 2026-10-19 — Codex (6E verificado; commit local, aguardando pedido de push/PR)
 
 **Estado:** branch `codex/etapa-6e-telas-publicacoes`, base remota `c5c13c0`. Esta entrada integra o commit local de implementação (consultar `git log -1`), com código, ADR 0036 proposta, OpenAPI/cliente e documentos juntos. Sem push/PR/merge. Fornecedor real pendente; Etapa 6 continua em andamento.

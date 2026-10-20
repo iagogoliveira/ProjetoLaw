@@ -3,6 +3,7 @@
 - **Status:** Proposta (para revisão no PR 6E)
 - **Data:** 2026-10-19
 - **Etapa:** 6 (PR 6E)
+- **Revisão:** PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35), aberto em 2026-10-19; aguardando CI/revisão, sem merge.
 
 ## Contexto
 
