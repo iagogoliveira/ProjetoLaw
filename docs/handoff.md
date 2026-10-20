@@ -10,6 +10,20 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (7A enviado e PR #36 aberto)
+
+**Pedido do usuário:** criar o PR do 7A já implementado pelo Claude. Aprovada também a divisão no Codex: Sol como orquestrador e Luna para verificações, exploração e implementação delimitada; Sol em subtarefas mais exigentes.
+
+**Feito:** conferidos a branch, o estado limpo, o commit de implementação `49043b2`, a base remota `af904e3` e a ausência de PR anterior para esta branch. Implementação enviada; aberto o PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36), de `etapa-7-prazos-agenda` para `main`, e anexado à conversa.
+
+**Verificação:** subagente verificador Luna conferiu somente os logs existentes de `TestResults/7a-final-validation`, confirmando os 1.026 testes .NET, cobertura de 80%, demais gates e a limitação de Playwright sem AppHost. O orquestrador conferiu evidências por amostra. Nenhuma suíte repetida e nenhuma mudança de runtime. Progress, ADR 0037 e AGENTS/CLAUDE atualizados; os dois manuais revisados, com ajuste apenas da disponibilidade/checkout e sem novos comandos. Aplicação não iniciada.
+
+**Estado:** implementação com push e PR #36 aberto; registro documental desta publicação segue em commit e push na mesma branch. CI deve ser conferido no GitHub; não presumir aprovação. ADR 0037 permanece proposta.
+
+**Próximo agente:** acompanhar revisão/CI; o merge é do usuário. Após o merge, fazer a arrumação pós-merge e seguir o 7B, com o plano e as decisões já aprovados. Continuam pendentes a revisão jurídica dos 72 casos e do seed estadual, a conferência legal indicada no progress e o fornecedor real de publicações. Não marcar o critério jurídico da Etapa 7 como atendido.
+
+---
+
 ## 2026-10-20 — Claude (PR 7A implementado e verificado; commit local, sem push)
 
 **Pedido do usuário:** "Ok. gostei das sugestões. siga". O plano da Etapa 7 e as oito propostas foram aprovados como estavam, e implementei o 7A.

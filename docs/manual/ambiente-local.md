@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6E (#35), em 2026-10-19; as telas estão disponíveis na main remota e foram verificadas localmente e no CI. O checkout local ainda está no branch do 6E; a atualização da main local ficou para o próximo agente, a pedido do usuário. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado na publicação do PR #36 (7A), em 2026-10-20; as telas do 6E (#35) estão disponíveis na main e foram verificadas localmente e no CI. O checkout local está na branch `etapa-7-prazos-agenda`, com o backend do 7A em revisão no PR #36, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
