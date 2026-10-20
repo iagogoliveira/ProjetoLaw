@@ -132,6 +132,23 @@ public sealed partial class DeadlineLifecycleTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Case_list_preserves_legacy_status_and_exposes_the_current_deadline_lifecycle()
+    {
+        var office = await OfficeAsync();
+        var deadlineId = await RegisteredDeadlineAsync(office);
+        var transition = await SendAsync(office.Admin, HttpMethod.Post, $"/api/v1/deadlines/{deadlineId}/complete", new { evidence = "protocol 123" });
+        transition.Status.ShouldBe(HttpStatusCode.OK, transition.Body.ToString());
+
+        var (status, body) = await SendAsync(office.Admin, HttpMethod.Get, $"/api/v1/cases/{office.CaseId}/deadlines");
+
+        status.ShouldBe(HttpStatusCode.OK, body.ToString());
+        var item = body.EnumerateArray().Single();
+        item.GetProperty("id").GetGuid().ShouldBe(deadlineId);
+        item.GetProperty("status").GetString().ShouldBe("pending");
+        item.GetProperty("lifecycleStatus").GetString().ShouldBe("completed");
+    }
+
+    [Fact]
     public async Task Manual_creation_rejects_unconfirmed_or_stale_calculated_dates()
     {
         var office = await OfficeAsync();

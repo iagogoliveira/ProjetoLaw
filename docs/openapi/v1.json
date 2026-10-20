@@ -13419,6 +13419,12 @@
           }
         }
       },
+      "ConfirmedWorkStatus": {
+        "enum": [
+          "pending"
+        ],
+        "description": "Compatibility value of the original confirmed-work lists; deadline lifecycle is exposed separately."
+      },
       "ConfirmEmailRequest": {
         "required": [
           "userId",
@@ -14722,7 +14728,8 @@
           "assigneeUserId",
           "status",
           "confirmedBy",
-          "confirmedAt"
+          "confirmedAt",
+          "lifecycleStatus"
         ],
         "type": "object",
         "properties": {
@@ -14758,7 +14765,7 @@
             "format": "uuid"
           },
           "status": {
-            "$ref": "#/components/schemas/WorkItemStatus"
+            "$ref": "#/components/schemas/ConfirmedWorkStatus"
           },
           "confirmedBy": {
             "type": "string",
@@ -14767,6 +14774,9 @@
           "confirmedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "lifecycleStatus": {
+            "$ref": "#/components/schemas/WorkItemStatus"
           }
         }
       },
@@ -19127,7 +19137,7 @@
             "format": "uuid"
           },
           "status": {
-            "$ref": "#/components/schemas/WorkItemStatus"
+            "$ref": "#/components/schemas/ConfirmedWorkStatus"
           },
           "confirmedBy": {
             "type": "string",

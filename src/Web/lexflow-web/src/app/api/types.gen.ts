@@ -547,6 +547,11 @@ export type CompleteDeadlineBody = {
     evidence: string;
 };
 
+/**
+ * Compatibility value of the original confirmed-work lists; deadline lifecycle is exposed separately.
+ */
+export type ConfirmedWorkStatus = 'pending';
+
 export type ConfirmEmailRequest = {
     userId: string;
     token: string;
@@ -862,9 +867,10 @@ export type DeadlineResponse = {
     internalDueOn: string;
     fatalDueOn: string;
     assigneeUserId: string;
-    status: WorkItemStatus;
+    status: ConfirmedWorkStatus;
     confirmedBy: string;
     confirmedAt: string;
+    lifecycleStatus: WorkItemStatus;
 };
 
 export type DeadlineReviewPolicyRequest = {
@@ -1971,7 +1977,7 @@ export type TaskItemResponse = {
     title: string;
     dueOn: string;
     assigneeUserId: string;
-    status: WorkItemStatus;
+    status: ConfirmedWorkStatus;
     confirmedBy: string;
     confirmedAt: string;
 };

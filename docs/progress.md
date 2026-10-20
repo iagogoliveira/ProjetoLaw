@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 mergeado; 7B implementado e verificado, commit local sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 mergeado; 7B implementado e verificado, PR #37 aberto; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -118,7 +118,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-### PR 7B — Ciclo do prazo (implementado e verificado; commit local, sem push/PR)
+### PR 7B — Ciclo do prazo (implementado e verificado; PR #37 aberto)
 
 **Branch:** `codex/etapa-7b-ciclo-prazo`, base `2184b6b` (merge do 7A). **ADR:** [0038](adr/0038-ciclo-do-prazo-e-conferencia.md), proposta. **Autorização:** continuidade pedida pelo usuário após o merge do 7A; push/PR da implementação somente a pedido.
 
@@ -150,11 +150,14 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 - **Encerramento confirmado:** AppHost, API, SPA e Worker encerrados; os sete containers da instância parados, sem remoção dos volumes/cadastros. Migrations do 7A e do 7B aplicadas no banco local pelo MigrationService durante esta verificação; não editar essas migrations.
 - **Logs e evidências:** `TestResults/7b-final-validation`, incluindo relatórios Playwright separados e `apphost-shutdown.log`. O orquestrador conferiu diffs e logs por amostra, além dos gates executados diretamente.
 
+**Publicação e correções do CI — 2026-10-20:** PR #37 aberto. A primeira rodada detectou a ampliação do enum fechado de resposta e um advisory transitivo do Vite. Preservado o `status: pending` das listas legadas e acrescentado `lifecycleStatus` na lista de prazos; detalhe/transições continuam com o ciclo completo em `status`. Novo teste verifica o contrato antigo e o estado real após cumprimento. Nenhuma exceção adicionada ao oasdiff. Override fixa Vite 8.3.4 (MIT, já presente na árvore), removendo a cópia 8.3.0 do Angular build, sem novo pacote ou alteração do Angular.
+
+**Verificação das correções:** build Release com zero warnings/erros; format aprovado; API completa **240/240**, incluindo regressão nova e snapshot OpenAPI; cliente regenerado; oasdiff oficial **v1.33.0**, com checksum conferido, comparado à `origin/main`, **sem quebra (exit 0)**. Frontend: `npm ci --ignore-scripts`, audit com **zero vulnerabilidades**, lint, **134 Vitest** e build Angular aprovados. A primeira tentativa Vitest não executou testes por ENOENT do diretório temporário do sandbox; nova execução com TEMP/TMP no diretório de testes passou. Evidências em `TestResults/7b-ci-fixes`. Mantidos os demais resultados da verificação integral anterior; consolidado passa a **1.075 testes .NET** (nova rodada da API substitui a anterior). Gate de cobertura consolidado aprovado: Scheduling.Application **97,0%**, Domain **98,7%**, usando os 19 relatórios anteriores dos demais projetos e somente a nova cobertura da API, sem misturar o relatório substituído. A validação AppHost/E2E da atualização do Vite será também conferida no CI do PR antes do merge; não presumir aprovação a partir das rodadas locais anteriores. Aplicação segue fechada.
 **Critérios da Etapa 7:** cumprimento com evidência e alteração do calendário sem reescrever prazos confirmados atendidos pelo 7B. O critério jurídico dos casos da calculadora permanece pendente da revisão por advogado do 7A; a etapa completa ainda inclui 7C–7G.
 
 **Manual:** ambos os guias revisados e atualizados para a operação técnica do 7B, as permissões, os alertas e as limitações de tela; nenhum novo serviço, porta ou comando de inicialização. As migrations são aplicadas pelo MigrationService.
 
-**Estado e pendências:** implementação em commit local na branch do 7B, **sem push/PR da implementação**. Enviar/abrir o PR quando o usuário pedir e conferir o CI; merge pelo usuário. Depois, arrumação pós-merge e 7C. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
+**Estado e pendências:** implementação `7c7b4bf` enviada na branch do 7B; [PR #37](https://github.com/iagogoliveira/ProjetoLaw/pull/37) aberto contra `main` em 2026-10-20, após o pedido do usuário "Ok, prossiga". Conferir o CI e a revisão; merge pelo usuário. Publicação sem mudança de runtime: mantidos os gates aprovados acima. Ambos os manuais revisados, com atualização apenas da referência ao PR; sem novos passos de uso ou inicialização. Depois, arrumação pós-merge e 7C. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
 
 ---
 

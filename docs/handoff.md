@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (7B enviado e PR #37 aberto)
+
+**Pedido do usuário:** "Ok, prossiga", após a entrega local do 7B. Implementação `7c7b4bf` enviada na branch `codex/etapa-7b-ciclo-prazo`; [PR #37](https://github.com/iagogoliveira/ProjetoLaw/pull/37) aberto contra `main` e anexado à conversa. Merge permanece com o usuário.
+
+**Feito:** progress, ADR 0038 e AGENTS/CLAUDE atualizados com a publicação. Ambos os manuais revisados, com ajuste da referência ao PR; nenhum passo novo de uso ou inicialização. O CI inicial apontou ampliação de enum fechado no OpenAPI e vulnerabilidade transitiva no Vite. Corrigidos com `lifecycleStatus` aditivo na lista de prazos (status legado preservado) e override de Vite 8.3.4, MIT; sem nova exceção de contrato ou redução do audit. Verificação das correções: build/format, API 240/240 (consolidado 1.075 .NET), gate 80%, oasdiff v1.33.0 sem quebra, audit zero, lint, 134 Vitest e build Angular aprovados. Detalhes no progress; logs em `TestResults/7b-ci-fixes`. Conferir AppHost/E2E no CI após o ajuste do Vite antes do merge. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Estado e continuidade:** PR #37 aberto, ADR 0038 proposta; registro documental desta publicação segue em commit e push na mesma branch. Acompanhar CI e revisão sem presumir aprovação. Após merge pelo usuário, atualizar main, aceitar a ADR e preparar o 7C conforme o plano aprovado. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes. Nenhuma decisão nova de negócio.
+
+---
+
 ## 2026-10-20 — Codex (7B implementado, verificado e commitado localmente; sem push/PR)
 
 **Pedido do usuário:** "Ok, continue." Implementação do 7B no branch `codex/etapa-7b-ciclo-prazo`, após a arrumação pós-merge `a674bd1`.
