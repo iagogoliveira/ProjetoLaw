@@ -35,6 +35,10 @@ internal sealed class CaseDirectory(ILitigationDbContext db, CaseAccess access) 
         db.Cases.AsNoTracking().Where(c => c.Id == id && c.Kind == CaseKind.Judicial && c.Status == CaseStatus.Active && c.CnjNumber != null)
             .Select(c => new MonitoredCase(c.Id, c.CnjNumber!)).SingleOrDefaultAsync(cancellationToken);
 
+    public Task<CaseLocation?> LocationAsync(Guid caseId, CancellationToken cancellationToken) =>
+        db.Cases.AsNoTracking().Where(c => c.Id == caseId)
+            .Select(c => new CaseLocation(c.Id, c.CourtId, c.District)).SingleOrDefaultAsync(cancellationToken);
+
     public async Task<CaseReadScope> ScopeForUserAsync(Guid userId, string permission, CancellationToken cancellationToken)
     {
         var context = await access.ContextForUserAsync(userId, permission, cancellationToken);

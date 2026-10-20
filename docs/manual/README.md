@@ -188,7 +188,8 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
 | DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento disponíveis na main desde o 6E (#35) |
 | Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
-| Calculadora completa de prazos e agenda unificada | Etapa 7 |
+| Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend no branch do 7A, ainda sem tela e sem merge; a tela da calculadora entra no 7E |
+| Cadastro completo de prazos, cumprimento, agenda unificada e tarefas | Etapa 7 (PRs 7B a 7G) |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis |

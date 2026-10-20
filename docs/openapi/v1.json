@@ -333,6 +333,37 @@
         }
       }
     },
+    "/api/v1/deadlines/calculate": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "summary": "Sugere o vencimento de um prazo, com a memória de cálculo; não grava nada.",
+        "operationId": "CalculateDeadline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateDeadlineQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineCalculationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs/{id}": {
       "get": {
         "tags": [
@@ -10672,6 +10703,121 @@
           }
         }
       }
+    },
+    "/api/v1/schedule/calendar-entries": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "summary": "Dias sem expediente cadastrados pelo escritório",
+        "operationId": "ListCalendarEntries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarEntryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "CreateCalendarEntry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarEntryInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schedule/calendar-entries/{id}": {
+      "put": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "UpdateCalendarEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarEntryInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "DeleteCalendarEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10944,6 +11090,274 @@
             ]
           }
         }
+      },
+      "CalculateDeadlineQuery": {
+        "required": [
+          "caseId",
+          "courtId",
+          "stateCode",
+          "municipality",
+          "startKind",
+          "triggerDate",
+          "consultedOn",
+          "days",
+          "mode",
+          "doubled",
+          "internalLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "stateCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startKind": {
+            "$ref": "#/components/schemas/DeadlineStartKind"
+          },
+          "triggerDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "consultedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "days": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/CountingMode"
+          },
+          "doubled": {
+            "type": "boolean"
+          },
+          "internalLeadDays": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "Pede a sugestão de prazo. O local vem do processo (tribunal e comarca), mas pode ser informado ou corrigido na própria\nconsulta; a resposta diz qual local foi usado. Nada é gravado."
+      },
+      "CalculationLineResponse": {
+        "required": [
+          "date",
+          "step",
+          "count",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "step": {
+            "$ref": "#/components/schemas/CalculationStep"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CalculationStep": {
+        "enum": [
+          "trigger",
+          "publication",
+          "intimation",
+          "skipped",
+          "counted",
+          "extended"
+        ]
+      },
+      "CalendarEntryInput": {
+        "required": [
+          "name",
+          "kind",
+          "scope",
+          "stateCode",
+          "municipality",
+          "courtId",
+          "startsOn",
+          "endsOn",
+          "recursYearly",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CalendarEntryKind"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/CalendarEntryScope"
+          },
+          "stateCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "recursYearly": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CalendarEntryKind": {
+        "enum": [
+          "holiday",
+          "suspension",
+          "systemOutage"
+        ]
+      },
+      "CalendarEntryResponse": {
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "scope",
+          "stateCode",
+          "municipality",
+          "courtId",
+          "startsOn",
+          "endsOn",
+          "recursYearly",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CalendarEntryKind"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/CalendarEntryScope"
+          },
+          "stateCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "recursYearly": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CalendarEntryScope": {
+        "enum": [
+          "office",
+          "state",
+          "municipality",
+          "court"
+        ]
       },
       "CaptureAlertResponse": {
         "required": [
@@ -13066,6 +13480,12 @@
           }
         }
       },
+      "CountingMode": {
+        "enum": [
+          "businessDays",
+          "calendarDays"
+        ]
+      },
       "CourtResponse": {
         "required": [
           "id",
@@ -13769,6 +14189,75 @@
         ],
         "description": "Escopo de dados de uma atribuição de perfil (seção 7.2)."
       },
+      "DeadlineCalculationResponse": {
+        "required": [
+          "intimationOn",
+          "startsOn",
+          "fatalDueOn",
+          "internalDueOn",
+          "countedDays",
+          "courtId",
+          "stateCode",
+          "municipality",
+          "federalJustice",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "intimationOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "fatalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "internalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "countedDays": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "stateCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "federalJustice": {
+            "type": "boolean"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationLineResponse"
+            }
+          }
+        }
+      },
       "DeadlineResponse": {
         "required": [
           "id",
@@ -13828,6 +14317,15 @@
             "format": "date-time"
           }
         }
+      },
+      "DeadlineStartKind": {
+        "enum": [
+          "eventDate",
+          "publication",
+          "djenAvailability",
+          "portalIntimation"
+        ],
+        "description": "Como o prazo começa (o fato que fixa o termo inicial)."
       },
       "DeadlineTriageInput": {
         "required": [
@@ -18443,6 +18941,9 @@
       "name": "Proposals"
     },
     {
+      "name": "Scheduling"
+    },
+    {
       "name": "Jobs"
     },
     {
@@ -18489,9 +18990,6 @@
     },
     {
       "name": "Publications"
-    },
-    {
-      "name": "Scheduling"
     }
   ]
 }

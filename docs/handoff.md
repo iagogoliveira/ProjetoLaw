@@ -10,6 +10,54 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Claude (PR 7A implementado e verificado; commit local, sem push)
+
+**Pedido do usuário:** "Ok. gostei das sugestões. siga". O plano da Etapa 7 e as oito propostas foram aprovados como estavam, e implementei o 7A.
+
+**Feito:**
+- **Platform:**
+  - `Holiday` ganhou abrangência, tipo e duração;
+  - `IHolidayDirectory` novo;
+  - seed com o recesso do CPC, a Justiça Federal e 31 feriados estaduais de 20 UFs.
+- **Scheduling:**
+  - `IDeadlineCalculator` puro, com a memória de cálculo;
+  - `CalendarEntry` do escritório, com RLS;
+  - `POST /api/v1/deadlines/calculate` e o CRUD `/api/v1/schedule/calendar-entries`.
+- **Permissões e contratos:**
+  - permissão `schedule.calendar.manage`;
+  - `ICaseDirectory.LocationAsync`;
+  - três migrations: `ForensicCalendar`, `OfficeCalendar` e `ScheduleCalendarPermission`.
+- **Documentação e contrato:**
+  - ADR 0037, proposta;
+  - `docs/revisao/prazos-7a.md` para o advogado;
+  - manual e guia local;
+  - OpenAPI e cliente TypeScript, só com adições.
+- **Divisão de trabalho, na prática:**
+  - um subagente de pesquisa (Sonnet) levantou os feriados estaduais com fontes; entraram só os de confiança alta ou média, e os demais estão listados na ADR;
+  - o `implementador` (Sonnet) fez o CRUD do calendário e os testes; revisei o diff;
+  - o `verificador` (Haiku) rodou a verificação completa; conferi os logs por amostra.
+
+**Verificação:**
+- 1.026 testes .NET aprovados;
+- gate de 80% aprovado, com Scheduling.Domain em 98,3% e Scheduling.Application em 99,2%;
+- build Release com 0 warnings; format, dependências e seis modelos EF sem pendência;
+- lint, 133 Vitest e build Angular aprovados;
+- Playwright contra o AppHost não executado, porque o 7A não tem tela; fica para o CI.
+
+Detalhes no `progress.md`.
+
+**Estado:** commit local no branch `etapa-7-prazos-agenda`, **sem push e sem PR**. O Docker Desktop está ligado e nenhum AppHost ficou no ar.
+
+**Próximo agente:**
+- push e PR somente a pedido do usuário;
+- depois do merge, a arrumação pós-merge e o 7B.
+
+O critério 1 da etapa (casos conferidos por advogado) continua aberto até a revisão jurídica ser registrada no documento de revisão.
+
+**Atenção:** os tipos `implementador` e `verificador` só são reconhecidos numa sessão nova do Claude Code. Antes disso, use o `general-purpose` com o modelo deles.
+
+---
+
 ## 2026-10-20 — Claude (subagentes, arrumação pós-merge do 6E e proposta da Etapa 7)
 
 **Pedidos do usuário:**

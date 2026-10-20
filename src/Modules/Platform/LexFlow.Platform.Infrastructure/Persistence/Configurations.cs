@@ -50,7 +50,11 @@ internal sealed class HolidayConfiguration : IEntityTypeConfiguration<Holiday>
         builder.Property(h => h.LegalBasis).HasMaxLength(200);
         builder.Property(h => h.Scope).HasConversion<string>().HasMaxLength(20);
         builder.Property(h => h.Rule).HasConversion<string>().HasMaxLength(20);
-        builder.HasData(ReferenceData.NationalHolidays);
+        builder.Property(h => h.Kind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(h => h.StateCode).HasMaxLength(2).IsFixedLength();
+        builder.Property(h => h.SpanDays).HasDefaultValue(1);
+        builder.HasIndex(h => new { h.Scope, h.StateCode });
+        builder.HasData(ReferenceData.Holidays);
     }
 }
 

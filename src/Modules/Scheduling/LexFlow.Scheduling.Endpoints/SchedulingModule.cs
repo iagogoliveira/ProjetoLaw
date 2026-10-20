@@ -1,5 +1,6 @@
 using LexFlow.Application.Abstractions.Messaging;
 using LexFlow.Scheduling.Application;
+using LexFlow.Scheduling.Application.Calendar;
 using LexFlow.Web.Common.Modules;
 using LexFlow.Web.Common.Results;
 using LexFlow.Web.Common.Security;
@@ -23,5 +24,13 @@ public sealed class SchedulingModule : IModule
         group.MapGet("/{id:guid}/tasks", async (Guid id, IQueryHandler<ListCaseTasksQuery, IReadOnlyList<TaskItemResponse>> handler, CancellationToken ct) =>
             (await handler.Handle(new ListCaseTasksQuery(id), ct)).ToHttpResult())
             .RequirePermission("schedule.tasks.read").WithName("ListCaseTasks").Produces<IReadOnlyList<TaskItemResponse>>();
+
+        endpoints.MapPost("/api/v1/deadlines/calculate", async (CalculateDeadlineQuery body,
+                IQueryHandler<CalculateDeadlineQuery, DeadlineCalculationResponse> handler, CancellationToken ct) =>
+            (await handler.Handle(body, ct)).ToHttpResult())
+            .WithTags("Scheduling").RequirePermission("schedule.deadlines.manage").WithName("CalculateDeadline")
+            .WithSummary("Sugere o vencimento de um prazo, com a memória de cálculo; não grava nada.")
+            .Produces<DeadlineCalculationResponse>();
+        endpoints.MapCalendarEntries();
     }
 }

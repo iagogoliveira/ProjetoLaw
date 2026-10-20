@@ -100,6 +100,7 @@ public static partial class PermissionCatalog
         new("schedule.deadlines.read", Groups.Schedule, "Ver prazos"),
         new("schedule.deadlines.manage", Groups.Schedule, "Cadastrar e cumprir prazos"),
         new("schedule.deadlines.verify", Groups.Schedule, "Conferir o cumprimento de prazos"),
+        new("schedule.calendar.manage", Groups.Schedule, "Cadastrar feriados, suspensões e indisponibilidades do escritório"),
         new("schedule.events.read", Groups.Schedule, "Ver a agenda"),
         new("schedule.events.manage", Groups.Schedule, "Gerenciar compromissos e audiências"),
         new("schedule.tasks.read", Groups.Schedule, "Ver tarefas"),

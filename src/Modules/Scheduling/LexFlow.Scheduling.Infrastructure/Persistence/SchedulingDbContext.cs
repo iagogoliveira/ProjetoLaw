@@ -2,6 +2,7 @@ using LexFlow.Application.Abstractions;
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Scheduling.Application;
 using LexFlow.Scheduling.Domain;
+using LexFlow.Scheduling.Domain.Calendar;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,6 +17,7 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     protected override string Schema => SchemaName;
     public DbSet<Deadline> Deadlines => Set<Deadline>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<CalendarEntry> CalendarEntries => Set<CalendarEntry>();
 }
 
 internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, IEntityTypeConfiguration<TaskItem>
@@ -39,6 +41,23 @@ internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, I
         builder.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(t => new { t.OrganizationId, t.PublicationId }).IsUnique();
         builder.HasIndex(t => new { t.OrganizationId, t.LegalCaseId, t.DueOn });
+    }
+}
+
+internal sealed class CalendarEntryConfiguration : IEntityTypeConfiguration<CalendarEntry>
+{
+    public void Configure(EntityTypeBuilder<CalendarEntry> builder)
+    {
+        builder.ToTable("calendar_entries");
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Name).HasMaxLength(200);
+        builder.Property(e => e.Kind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Scope).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.StateCode).HasMaxLength(2).IsFixedLength();
+        builder.Property(e => e.Municipality).HasMaxLength(120);
+        builder.Property(e => e.Note).HasMaxLength(500);
+        builder.HasIndex(e => new { e.OrganizationId, e.StartsOn });
     }
 }
 

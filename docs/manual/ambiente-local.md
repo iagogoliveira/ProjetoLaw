@@ -126,3 +126,40 @@ Com AppHost iniciado e conta administradora no escritório de teste:
 6. Ao terminar, encerre AppHost e os serviços desta instância, sem remover volumes. Não deixe tokens ou chaves em arquivos de teste; o campo da chave é limpo após envio e o valor existente nunca é retornado.
 
 O frontend usa LongPolling no hub existente, com Bearer e escritório em cabeçalhos. Se a conexão cair, a consulta REST permanece disponível e a reconexão recupera os avisos persistidos. Nenhum novo serviço, porta ou comando de inicialização foi acrescentado no 6E. Consultas de opções/contagens e a tentativa manual são adições do backend. A migration aditiva `CaptureRunSourcePeriod`, aplicada pelo MigrationService, corrige o vínculo de execuções com a ativação correspondente sem reescrever datas ou fechamentos anteriores. Históricos antigos de períodos encerrados sem correspondência inequívoca exigem avaliação técnica, sem presumir uma captura válida.
+
+## 10. Calculadora de prazos e calendário (7A, operação técnica)
+
+Ainda não há tela; a calculadora entra na interface no 7E. Use a API autenticada no escritório ativo, como na seção 8. A calculadora só sugere: nada é gravado.
+
+| Operação | Endpoint | Permissão |
+| --- | --- | --- |
+| Calcular a sugestão de prazo com a memória de cálculo | `POST /api/v1/deadlines/calculate` | `schedule.deadlines.manage` e, com processo, acesso a ele |
+| Listar os dias sem expediente do escritório | `GET /api/v1/schedule/calendar-entries` | `schedule.deadlines.read` |
+| Cadastrar, alterar ou excluir um dia sem expediente | `POST /api/v1/schedule/calendar-entries`, `PUT` ou `DELETE /api/v1/schedule/calendar-entries/{id}` | `schedule.calendar.manage` |
+
+O cálculo recebe:
+- `startKind`: `publication`, `djenAvailability`, `portalIntimation` ou `eventDate`;
+- `triggerDate`;
+- `consultedOn`, só para o portal;
+- `days` (1 a 365);
+- `mode`: `businessDays` ou `calendarDays`;
+- `doubled`;
+- `internalLeadDays` (0 a 30);
+- opcionalmente `caseId`, `courtId`, `stateCode` e `municipality`.
+
+A resposta traz:
+- o termo inicial, o primeiro dia contado, o vencimento e a data interna;
+- o local usado (tribunal, UF, comarca e Justiça Federal);
+- as linhas da memória, com o motivo de cada dia pulado.
+
+A UF só é presumida para tribunais de uma única UF. Num TRF ou num TRT de várias UFs, informe `stateCode`.
+
+O seed da plataforma traz:
+- os feriados nacionais;
+- o recesso de 20/12 a 20/01;
+- os dias da Justiça Federal;
+- os feriados estaduais confirmados.
+
+A lista completa e os que ficaram de fora estão em [revisão jurídica do 7A](../revisao/prazos-7a.md). Feriados municipais, forenses próprios e indisponibilidades são cadastrados pelo escritório. A permissão nova `schedule.calendar.manage` vai para os perfis padrão Administrador, Sócio e Controladoria jurídica, inclusive nos escritórios existentes.
+
+As migrations `ForensicCalendar` (Platform), `OfficeCalendar` (Scheduling) e `ScheduleCalendarPermission` (Organization) são aplicadas pelo MigrationService, sem novo serviço, porta ou comando de inicialização.

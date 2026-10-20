@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em planejamento** (proposta 7A a 7G registrada em 2026-10-20; aguardando aprovação e as respostas às dúvidas) | `etapa-7-prazos-agenda` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (plano 7A a 7G aprovado em 2026-10-20; 7A implementado e verificado, aguardando push/PR) | `etapa-7-prazos-agenda` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,9 +34,11 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (planejamento; aguardando aprovação)
+## Etapa 7 — Prazos, agenda e tarefas (plano aprovado em 2026-10-20; 7A em implementação)
 
-**RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude; **plano não aprovado e implementação não iniciada**.
+**RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
+
+**Aprovação do usuário (2026-10-20):** "Ok. gostei das sugestões. siga". O plano 7A a 7G e as propostas das oito dúvidas abaixo foram aprovados como estão; nenhuma resposta foi alterada. Um PR por vez, começando pelo 7A; push e PR só a pedido.
 
 **Ponto de partida (núcleo do 6D, ADR 0035):** o Scheduling já tem `Deadline` e `TaskItem` com status único `Pending`, criados apenas pela triagem por `ISchedulingIntake`, dentro da transação compartilhada. Há duas consultas por processo (`GET /cases/{id}/deadlines` e `/tasks`). As permissões `schedule.deadlines.read/manage/verify`, `schedule.events.read/manage` e `schedule.tasks.read/manage` já estão no catálogo e nos perfis padrão; `verify` e `events.*` ainda sem uso. O Platform tem `Holiday` só com feriados nacionais (data fixa ou relativa à Páscoa). Não existem calculadora, agenda, cumprimento nem telas de prazos.
 
@@ -52,7 +54,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 7F | Telas de agenda, tarefas e controladoria: agenda (dia, semana e mês, por pessoa e equipe), tarefas em lista e kanban (CDK drag-and-drop) e painel da controladoria | Vitest, Playwright e WCAG |
 | 7G | Sincronização com Google Calendar e Microsoft 365: `ICalendarSyncProvider` com fake; agenda bidirecional e prazos só de saída | Contratos com respostas gravadas; adaptadores reais dependem do registro das aplicações OAuth (pendência externa, como o fornecedor de publicações) |
 
-**Dúvidas para o usuário (antes de implementar):**
+**Decisões aprovadas em 2026-10-20 (eram as dúvidas da proposta):**
 
 1. **Os 60 casos conferidos por advogado (critério 1):** quem confere? Proposta: o agente redige os casos com o fundamento legal de cada um e um advogado do escritório revisa; o critério só é marcado depois dessa revisão.
 2. **Feriados mantidos pela plataforma:** proposta de seed com os nacionais; o recesso (art. 220 do CPC); os da Justiça Federal (Lei 5.010/1966, art. 62); e os estaduais das 27 UFs. Feriados municipais, os forenses próprios de cada TJ ou comarca e as indisponibilidades de sistema seriam cadastrados pelo escritório. A plataforma ampliaria o seed conforme a demanda.
@@ -62,6 +64,46 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 6. **"Notifica coordenação" no prazo perdido:** proposta de destinatários: o responsável, o conferente e os membros com `schedule.deadlines.verify` e alcance ao processo.
 7. **Sincronização Google/Microsoft:** depende de registrar as aplicações OAuth (credenciais externas). Proposta: deixar para o último PR (7G), com o fake, e manter os adaptadores reais como pendência externa.
 8. **Bibliotecas:** FullCalendar na versão padrão (MIT), sem as visões premium por recurso, que são pagas; a visão por pessoa ou equipe seria feita por filtro. Dapper (Apache 2.0) para as consultas da controladoria, como pede a spec. FsCheck (BSD-3) para os testes de propriedade. Cada uma com sua ADR.
+
+### PR 7A — Calendário forense e calculadora de prazos (implementado e verificado; commit local, sem push)
+
+**Branch:** `etapa-7-prazos-agenda`. **ADR:** [0037](adr/0037-calendario-forense-e-calculadora-de-prazos.md), proposta. **Revisão jurídica:** [docs/revisao/prazos-7a.md](revisao/prazos-7a.md), com os 72 casos e o seed estadual, pendente de advogado.
+
+| Subtarefa | Quem fez | Testes |
+| --- | --- | --- |
+| `Holiday` com abrangência (nacional, estadual, Justiça Federal), tipo (feriado ou suspensão) e duração; `IHolidayDirectory`; seed com o recesso do CPC, a Justiça Federal e 31 feriados estaduais de 20 UFs; migration `ForensicCalendar` | Orquestrador | Unitários do Platform (duração atravessando o ano, Semana Santa, validação da abrangência); `MigrationTests` do seed |
+| Pesquisa dos feriados estaduais e do art. 62 da Lei 5.010/1966 com fontes e confiança | Subagente de pesquisa (Sonnet) | Conferida pelo orquestrador; só os de confiança alta ou média entraram (ADR 0037, item 2) |
+| `IDeadlineCalculator` puro com a memória de cálculo: DJEN, portal, art. 231, dias úteis e corridos, dobra, suspensão, prorrogação e data interna | Orquestrador | 72 casos (referência independente em Python) e três propriedades FsCheck (100 amostras cada, rodadas 3 vezes) |
+| `POST /api/v1/deadlines/calculate`: local do processo (`ICaseDirectory.LocationAsync`), UF presumida só em tribunal de uma UF, calendário da plataforma mais o do escritório | Orquestrador | 6 testes de API com o seed real (TJSP, TRF1, municipal, recesso, erros, permissões) |
+| `CalendarEntry` do escritório (domínio, tabela com RLS, migration `OfficeCalendar`), permissão `schedule.calendar.manage` com a migration `ScheduleCalendarPermission` | Orquestrador | Unitários do domínio; RLS; SecurityTests |
+| CRUD `/api/v1/schedule/calendar-entries` (Application, Endpoints, testes de domínio, de API e CrossTenantCases) | Implementador (Sonnet), revisado pelo orquestrador | `CalendarEntryTests`, 6 testes de API e 11 SecurityTests |
+| OpenAPI (só adições: 5 operações e os schemas) e cliente TypeScript regenerados | Orquestrador | `OpenApiContractTests` |
+| ADR 0037, documento de revisão jurídica, manual e guia local | Orquestrador | — |
+
+**Incidentes:**
+- Os subagentes criados nesta sessão (`implementador`, `verificador`) ainda não eram reconhecidos como tipo próprio. Foram usados pelo `general-purpose`, com o modelo definido e a instrução de seguir o arquivo do subagente.
+- Uma propriedade FsCheck estava errada (exigia vencimento estritamente posterior com N+1 dias corridos) e foi corrigida no teste; a calculadora não mudou.
+- Um teste de API criava dois processos com o mesmo CNJ; foi corrigido com um segundo número válido.
+
+**Última verificação local, 2026-10-20 (pelo `verificador`; logs conferidos por amostra pelo orquestrador):**
+- **Build e formatação:** build Release com **0 warnings e 0 erros**; `dotnet format --verify-no-changes` aprovado.
+- **Testes .NET:** **1.026 testes em 20 projetos, todos aprovados**, sem falhas nem ignorados. Os principais:
+  - API: 222;
+  - Scheduling.Unit: 116;
+  - Platform: 50 unitários e 54 de integração;
+  - SecurityTests: 11;
+  - AppHost.Tests: 14.
+- **Cobertura:** gate de 80% aprovado em todos os módulos. Scheduling.Domain 98,3%, Scheduling.Application 99,2%, Platform.Domain 100% e Platform.Application 97,4%.
+- **Dependências e modelos:** nenhum pacote vulnerável; seis modelos EF sem mudança pendente.
+- **Frontend:** lint, **133 Vitest** e build Angular aprovados. O cliente TypeScript foi regenerado, só com adições.
+- **Playwright:** o comando padrão rodou 4 testes e pulou 13, que exigem o AppHost. O 7A não mexe em telas, então a rodada contra o AppHost não foi feita localmente. Fica para o job AppHost/E2E do CI, e a migration nova não foi aplicada no banco local de exploração.
+- **Logs:** `TestResults/7a-final-validation`.
+- **Docker Desktop:** continua ligado; nenhum AppHost ficou no ar.
+
+**Pendências do 7A:**
+- revisão jurídica dos 72 casos e do seed estadual (`docs/revisao/prazos-7a.md`); o critério 1 da etapa só é marcado depois dela;
+- conferir no Planalto a redação do art. 62 da Lei 5.010/1966 e do art. 220 do CPC;
+- push e PR quando o usuário pedir.
 
 **Divisão de trabalho prevista:** o orquestrador (Opus) cuida do domínio, da calculadora, dos casos de prazo, das migrations e do contrato. O `implementador` (Sonnet) faz stores, specs e traduções com especificação fechada. O `verificador` (Haiku) roda os gates. O `Explore` faz o mapeamento; no planejamento, foi ele que levantou o estado do Scheduling.
 

@@ -16,9 +16,12 @@ public interface ICaseDirectory
     /// <summary>Somente para jobs internos: processos judiciais ativos do tenant, por chave.</summary>
     Task<IReadOnlyList<MonitoredCase>> MonitoredAsync(Guid? after, int limit, CancellationToken cancellationToken);
     Task<MonitoredCase?> MonitoredCaseAsync(Guid id, CancellationToken cancellationToken);
+    /// <summary>Tribunal e comarca do processo, para o calendário de prazos; não autoriza leitura (o chamador autoriza antes).</summary>
+    Task<CaseLocation?> LocationAsync(Guid caseId, CancellationToken cancellationToken);
 }
 
 public sealed record MonitoredCase(Guid Id, string Cnj);
+public sealed record CaseLocation(Guid CaseId, Guid? CourtId, string? District);
 public sealed record PublicationCaseOption(Guid Id, string Folder, string? Cnj);
 
 public sealed record CaseReadScope(IReadOnlyCollection<Guid> VisibleIds, IReadOnlyCollection<string> HiddenCnjs);

@@ -82,6 +82,64 @@ export type BranchResponse = {
     municipalRegistration: null | string;
 };
 
+/**
+ * Pede a sugestão de prazo. O local vem do processo (tribunal e comarca), mas pode ser informado ou corrigido na própria
+ * consulta; a resposta diz qual local foi usado. Nada é gravado.
+ */
+export type CalculateDeadlineQuery = {
+    caseId: null | string;
+    courtId: null | string;
+    stateCode: null | string;
+    municipality: null | string;
+    startKind: DeadlineStartKind;
+    triggerDate: string;
+    consultedOn: null | string;
+    days: number | string;
+    mode: CountingMode;
+    doubled: boolean;
+    internalLeadDays: number | string;
+};
+
+export type CalculationLineResponse = {
+    date: string;
+    step: CalculationStep;
+    count: null | number | string;
+    reason: null | string;
+};
+
+export type CalculationStep = 'trigger' | 'publication' | 'intimation' | 'skipped' | 'counted' | 'extended';
+
+export type CalendarEntryInput = {
+    name: string;
+    kind: CalendarEntryKind;
+    scope: CalendarEntryScope;
+    stateCode: null | string;
+    municipality: null | string;
+    courtId: null | string;
+    startsOn: string;
+    endsOn: string;
+    recursYearly: boolean;
+    note: null | string;
+};
+
+export type CalendarEntryKind = 'holiday' | 'suspension' | 'systemOutage';
+
+export type CalendarEntryResponse = {
+    id: string;
+    name: string;
+    kind: CalendarEntryKind;
+    scope: CalendarEntryScope;
+    stateCode: null | string;
+    municipality: null | string;
+    courtId: null | string;
+    startsOn: string;
+    endsOn: string;
+    recursYearly: boolean;
+    note: null | string;
+};
+
+export type CalendarEntryScope = 'office' | 'state' | 'municipality' | 'court';
+
 export type CaptureAlertResponse = {
     id: string;
     sourceId: string;
@@ -589,6 +647,8 @@ export type CostCenterResponse = {
     name: string;
 };
 
+export type CountingMode = 'businessDays' | 'calendarDays';
+
 export type CourtResponse = {
     id: string;
     acronym: string;
@@ -751,6 +811,19 @@ export type DailyCloseStatusResponse = {
  */
 export type DataScope = 'own' | 'team' | 'practiceArea' | 'branch' | 'organization';
 
+export type DeadlineCalculationResponse = {
+    intimationOn: string;
+    startsOn: string;
+    fatalDueOn: string;
+    internalDueOn: string;
+    countedDays: number | string;
+    courtId: null | string;
+    stateCode: null | string;
+    municipality: null | string;
+    federalJustice: boolean;
+    lines: Array<CalculationLineResponse>;
+};
+
 export type DeadlineResponse = {
     id: string;
     caseId: string;
@@ -764,6 +837,11 @@ export type DeadlineResponse = {
     confirmedBy: string;
     confirmedAt: string;
 };
+
+/**
+ * Como o prazo começa (o fato que fixa o termo inicial).
+ */
+export type DeadlineStartKind = 'eventDate' | 'publication' | 'djenAvailability' | 'portalIntimation';
 
 export type DeadlineTriageInput = {
     title: string;
@@ -2104,6 +2182,22 @@ export type CreateProposalResponses = {
 };
 
 export type CreateProposalResponse = CreateProposalResponses[keyof CreateProposalResponses];
+
+export type CalculateDeadlineData = {
+    body: CalculateDeadlineQuery;
+    path?: never;
+    query?: never;
+    url: '/api/v1/deadlines/calculate';
+};
+
+export type CalculateDeadlineResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineCalculationResponse;
+};
+
+export type CalculateDeadlineResponse = CalculateDeadlineResponses[keyof CalculateDeadlineResponses];
 
 export type GetJobData = {
     body?: never;
@@ -7642,3 +7736,71 @@ export type ListCaseTasksResponses = {
 };
 
 export type ListCaseTasksResponse = ListCaseTasksResponses[keyof ListCaseTasksResponses];
+
+export type ListCalendarEntriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/schedule/calendar-entries';
+};
+
+export type ListCalendarEntriesResponses = {
+    /**
+     * OK
+     */
+    200: Array<CalendarEntryResponse>;
+};
+
+export type ListCalendarEntriesResponse = ListCalendarEntriesResponses[keyof ListCalendarEntriesResponses];
+
+export type CreateCalendarEntryData = {
+    body: CalendarEntryInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/schedule/calendar-entries';
+};
+
+export type CreateCalendarEntryResponses = {
+    /**
+     * Created
+     */
+    201: CalendarEntryResponse;
+};
+
+export type CreateCalendarEntryResponse = CreateCalendarEntryResponses[keyof CreateCalendarEntryResponses];
+
+export type DeleteCalendarEntryData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/schedule/calendar-entries/{id}';
+};
+
+export type DeleteCalendarEntryResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteCalendarEntryResponse = DeleteCalendarEntryResponses[keyof DeleteCalendarEntryResponses];
+
+export type UpdateCalendarEntryData = {
+    body: CalendarEntryInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/schedule/calendar-entries/{id}';
+};
+
+export type UpdateCalendarEntryResponses = {
+    /**
+     * OK
+     */
+    200: CalendarEntryResponse;
+};
+
+export type UpdateCalendarEntryResponse = UpdateCalendarEntryResponses[keyof UpdateCalendarEntryResponses];

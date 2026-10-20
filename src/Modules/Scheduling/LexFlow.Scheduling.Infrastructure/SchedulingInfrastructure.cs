@@ -1,6 +1,7 @@
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Scheduling.Application;
 using LexFlow.Scheduling.Contracts;
+using LexFlow.Scheduling.Domain.Calendar;
 using LexFlow.Scheduling.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ public static class SchedulingInfrastructure
         services.AddSchedulingPersistence(configuration);
         services.AddScoped<WorkAssignees>();
         services.AddScoped<ISchedulingIntake, SchedulingIntake>();
+        services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
         return services;
     }
 }

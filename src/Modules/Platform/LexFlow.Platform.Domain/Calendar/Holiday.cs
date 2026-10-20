@@ -13,8 +13,23 @@ public enum HolidayRule
 
 public enum HolidayScope
 {
-    /// <summary>Feriado nacional por lei federal. Estaduais, municipais e forenses entram na Etapa 7.</summary>
+    /// <summary>Vale em todo o país (lei federal ou suspensão do CPC).</summary>
     National,
+
+    /// <summary>Feriado estadual, declarado por lei estadual; vale para os processos de uma UF.</summary>
+    State,
+
+    /// <summary>Dia sem expediente da Justiça Federal (Lei 5.010/1966, art. 62).</summary>
+    FederalJustice,
+}
+
+public enum HolidayKind
+{
+    /// <summary>Dia sem expediente: não conta em prazo de dias úteis e prorroga o vencimento.</summary>
+    Holiday,
+
+    /// <summary>Suspensão do curso dos prazos (ex.: CPC, art. 220): os dias não contam em nenhuma regra.</summary>
+    Suspension,
 }
 
 /// <summary>
@@ -39,6 +54,26 @@ public sealed class Holiday : Entity<Guid>
         ValidFromYear = validFromYear;
         ValidToYear = validToYear;
         Scope = HolidayScope.National;
+        Kind = HolidayKind.Holiday;
+        SpanDays = 1;
+    }
+
+    /// <summary>Feriado ou período de uma abrangência; <paramref name="spanDays"/> conta a partir da data da regra, inclusive.</summary>
+    public static Holiday Of(Guid id, string name, HolidayScope scope, string? stateCode, HolidayKind kind, HolidayRule rule,
+        int? month, int? day, int? easterOffsetDays, int spanDays, string legalBasis, int validFromYear, int? validToYear = null)
+    {
+        if (spanDays < 1 || (scope == HolidayScope.State) == string.IsNullOrWhiteSpace(stateCode))
+        {
+            throw new ArgumentException("Abrangência ou duração inválida.", nameof(scope));
+        }
+
+        return new Holiday(id, name, rule, month, day, easterOffsetDays, legalBasis, validFromYear, validToYear)
+        {
+            Scope = scope,
+            StateCode = stateCode,
+            Kind = kind,
+            SpanDays = spanDays,
+        };
     }
 
     public string Name { get; private set; } = string.Empty;
@@ -46,6 +81,14 @@ public sealed class Holiday : Entity<Guid>
     public HolidayScope Scope { get; private set; }
 
     public HolidayRule Rule { get; private set; }
+
+    /// <summary>Sigla da UF quando a abrangência é estadual.</summary>
+    public string? StateCode { get; private set; }
+
+    public HolidayKind Kind { get; private set; }
+
+    /// <summary>Quantos dias seguidos a regra cobre a partir da sua data (1 para um feriado comum).</summary>
+    public int SpanDays { get; private set; } = 1;
 
     public int? Month { get; private set; }
 
@@ -65,6 +108,16 @@ public sealed class Holiday : Entity<Guid>
     public DateOnly DateIn(int year) => Rule == HolidayRule.FixedDate
         ? new DateOnly(year, Month!.Value, Day!.Value)
         : HolidayCalendar.EasterSunday(year).AddDays(EasterOffsetDays!.Value);
+
+    /// <summary>Todas as datas cobertas pela regra que começa no ano informado (um período pode avançar no ano seguinte).</summary>
+    public IEnumerable<DateOnly> DatesIn(int year)
+    {
+        var start = DateIn(year);
+        for (var i = 0; i < SpanDays; i++)
+        {
+            yield return start.AddDays(i);
+        }
+    }
 }
 
 /// <summary>Uma data de feriado já calculada.</summary>
@@ -76,7 +129,7 @@ public static class HolidayCalendar
     public static IReadOnlyList<HolidayDate> For(int year, IEnumerable<Holiday> rules)
     {
         ArgumentNullException.ThrowIfNull(rules);
-        return [.. rules.Where(r => r.AppliesTo(year)).Select(r => new HolidayDate(r.DateIn(year), r.Name)).OrderBy(h => h.Date)];
+        return [.. rules.Where(r => r.AppliesTo(year)).SelectMany(r => r.DatesIn(year).Select(d => new HolidayDate(d, r.Name))).OrderBy(h => h.Date)];
     }
 
     /// <summary>Domingo de Páscoa no calendário gregoriano (algoritmo anônimo de Meeus/Jones/Butcher).</summary>

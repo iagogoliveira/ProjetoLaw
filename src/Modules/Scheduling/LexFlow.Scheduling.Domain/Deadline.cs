@@ -64,4 +64,9 @@ public static class SchedulingErrors
     public static readonly Error InvalidTask = Error.Validation("scheduling.task_invalid", "Confirme responsável, título e data válida da tarefa.");
     public static readonly Error AssigneeUnavailable = Error.Validation("scheduling.assignee_unavailable", "Responsável inativo ou sem acesso ao processo.");
     public static readonly Error CaseUnavailable = Error.BusinessRule("scheduling.case_unavailable", "Processo inexistente ou encerrado.");
+    public static readonly Error InvalidCalculation = Error.Validation("scheduling.calculation_invalid", "Informe o início, de 1 a 365 dias e uma data interna de até 30 dias úteis antes do vencimento.");
+    public static readonly Error CalendarOutOfRange = Error.BusinessRule("scheduling.calendar_out_of_range", "O prazo ultrapassa o período do calendário disponível.");
+    public static readonly Error InvalidCalendarEntry = Error.Validation("scheduling.calendar_entry_invalid", "Informe nome, período válido e a abrangência do dia sem expediente.");
+    public static readonly Error CourtNotFound = Error.Validation("scheduling.court_not_found", "Tribunal não encontrado.");
+    public static readonly Error CalendarEntryNotFound = Error.NotFound("scheduling.calendar_entry_not_found", "Dia sem expediente não encontrado.");
 }

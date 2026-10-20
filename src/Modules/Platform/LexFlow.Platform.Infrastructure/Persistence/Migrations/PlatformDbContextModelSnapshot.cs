@@ -127,6 +127,12 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("easter_offset_days");
 
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
                     b.Property<string>("LegalBasis")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -155,6 +161,18 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("scope");
 
+                    b.Property<int>("SpanDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("span_days");
+
+                    b.Property<string>("StateCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasColumnName("state_code")
+                        .IsFixedLength();
+
                     b.Property<int>("ValidFromYear")
                         .HasColumnType("integer")
                         .HasColumnName("valid_from_year");
@@ -166,6 +184,9 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_holidays");
 
+                    b.HasIndex("Scope", "StateCode")
+                        .HasDatabaseName("ix_holidays_scope_state_code");
+
                     b.ToTable("holidays", "platform");
 
                     b.HasData(
@@ -173,110 +194,650 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("be8709e9-fc92-8d17-ba36-b12e3806840b"),
                             Day = 1,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949",
                             Month = 1,
                             Name = "Confraternização Universal",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("6889e49a-93e0-854b-a012-6e4e1c1d56c6"),
                             Day = 21,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949 (redação da Lei 10.607/2002)",
                             Month = 4,
                             Name = "Tiradentes",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("ee30731b-33e3-88ad-ae27-7195aa241602"),
                             Day = 1,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949",
                             Month = 5,
                             Name = "Dia do Trabalho",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("9b4f671b-da73-83fd-9541-16295f4fd8a1"),
                             Day = 7,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949",
                             Month = 9,
                             Name = "Independência do Brasil",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("325b2ff0-a806-8040-ac82-9debfd544345"),
                             Day = 12,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 6.802/1980",
                             Month = 10,
                             Name = "Nossa Senhora Aparecida",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1980
                         },
                         new
                         {
                             Id = new Guid("c78aeb20-19dd-8238-9dad-fdee8eea890b"),
                             Day = 2,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949 (redação da Lei 10.607/2002)",
                             Month = 11,
                             Name = "Finados",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("56c45ce7-cdb7-8262-bb60-1175d20a9ae7"),
                             Day = 15,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949",
                             Month = 11,
                             Name = "Proclamação da República",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("150e8013-68ba-8901-8aeb-25847bebe326"),
                             Day = 20,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 14.759/2023",
                             Month = 11,
                             Name = "Dia Nacional de Zumbi e da Consciência Negra",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 2024
                         },
                         new
                         {
                             Id = new Guid("3ce60634-65f5-81c5-967a-079f63d9e6dc"),
                             Day = 25,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 662/1949",
                             Month = 12,
                             Name = "Natal",
                             Rule = "FixedDate",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
                         },
                         new
                         {
                             Id = new Guid("7b4f5cbf-80e7-8adf-9d52-69db35b3decc"),
                             EasterOffsetDays = -2,
+                            Kind = "Holiday",
                             LegalBasis = "Lei 9.093/1995",
                             Name = "Sexta-feira Santa",
                             Rule = "EasterRelative",
                             Scope = "National",
+                            SpanDays = 1,
                             ValidFromYear = 1950
+                        },
+                        new
+                        {
+                            Id = new Guid("19b37bdc-4dfc-8009-abe0-32fa58b0a193"),
+                            Day = 20,
+                            Kind = "Suspension",
+                            LegalBasis = "CPC, art. 220",
+                            Month = 12,
+                            Name = "Suspensão dos prazos (recesso forense)",
+                            Rule = "FixedDate",
+                            Scope = "National",
+                            SpanDays = 32,
+                            ValidFromYear = 2016
+                        },
+                        new
+                        {
+                            Id = new Guid("df338c76-4962-8b5d-b96b-2af9296a54d8"),
+                            Day = 20,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, I",
+                            Month = 12,
+                            Name = "Recesso da Justiça Federal",
+                            Rule = "FixedDate",
+                            Scope = "FederalJustice",
+                            SpanDays = 18,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("e06588d6-3f82-8853-8349-12b36f0ed5f6"),
+                            EasterOffsetDays = -4,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, II",
+                            Name = "Semana Santa (quarta-feira a domingo de Páscoa)",
+                            Rule = "EasterRelative",
+                            Scope = "FederalJustice",
+                            SpanDays = 5,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("7ff37277-a6c4-83f8-897e-9f07efce4844"),
+                            EasterOffsetDays = -48,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, III",
+                            Name = "Segunda e terça-feira de Carnaval",
+                            Rule = "EasterRelative",
+                            Scope = "FederalJustice",
+                            SpanDays = 2,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("305b5cbd-e764-845d-a7c7-f7ef305463ad"),
+                            Day = 11,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, IV",
+                            Month = 8,
+                            Name = "Dia da criação dos cursos jurídicos",
+                            Rule = "FixedDate",
+                            Scope = "FederalJustice",
+                            SpanDays = 1,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("4d37a985-8eac-87db-803b-a9041f27084a"),
+                            Day = 1,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, IV",
+                            Month = 11,
+                            Name = "Dia de Todos os Santos",
+                            Rule = "FixedDate",
+                            Scope = "FederalJustice",
+                            SpanDays = 1,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("6580b955-0204-8bc1-b44b-687f884c3afd"),
+                            Day = 8,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei 5.010/1966, art. 62, IV",
+                            Month = 12,
+                            Name = "Dia da Justiça",
+                            Rule = "FixedDate",
+                            Scope = "FederalJustice",
+                            SpanDays = 1,
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("21136135-2085-8643-b7a8-9af7074f8cef"),
+                            Day = 23,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 1.538/2004",
+                            Month = 1,
+                            Name = "Dia do Evangélico",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AC",
+                            ValidFromYear = 2004
+                        },
+                        new
+                        {
+                            Id = new Guid("5053c96d-56b4-8d57-9f02-95100439b84f"),
+                            Day = 8,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 1.411/2001",
+                            Month = 3,
+                            Name = "Dia Internacional da Mulher",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AC",
+                            ValidFromYear = 2001
+                        },
+                        new
+                        {
+                            Id = new Guid("5e30ac51-f5bc-861c-a10e-fe286454f5cf"),
+                            Day = 15,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 14/1964",
+                            Month = 6,
+                            Name = "Aniversário do Acre",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AC",
+                            ValidFromYear = 1964
+                        },
+                        new
+                        {
+                            Id = new Guid("f77037dc-a1c0-8d77-8c28-a8fbd179101c"),
+                            Day = 5,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 1.526/2004",
+                            Month = 9,
+                            Name = "Dia da Amazônia",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AC",
+                            ValidFromYear = 2004
+                        },
+                        new
+                        {
+                            Id = new Guid("a2340822-4383-8674-80f3-c7d6a945485e"),
+                            Day = 24,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 5.508/1993",
+                            Month = 6,
+                            Name = "São João",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AL",
+                            ValidFromYear = 1993
+                        },
+                        new
+                        {
+                            Id = new Guid("c8bdd021-cd71-8c57-9aba-2f2c3a916266"),
+                            Day = 29,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 5.509/1993",
+                            Month = 6,
+                            Name = "São Pedro",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AL",
+                            ValidFromYear = 1993
+                        },
+                        new
+                        {
+                            Id = new Guid("3ffdc618-b886-8d16-a85e-5840420218c5"),
+                            Day = 30,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 7.530/2013",
+                            Month = 11,
+                            Name = "Dia do Evangélico",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AL",
+                            ValidFromYear = 2014
+                        },
+                        new
+                        {
+                            Id = new Guid("e7a66df6-eae8-8fb6-be5e-2bc262d33f23"),
+                            Day = 5,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 25/1977",
+                            Month = 9,
+                            Name = "Elevação do Amazonas à categoria de Província",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AM",
+                            ValidFromYear = 1977
+                        },
+                        new
+                        {
+                            Id = new Guid("6748dbef-b7a9-8b89-9bc0-8dc6e5484cce"),
+                            Day = 19,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 667/2002",
+                            Month = 3,
+                            Name = "Dia de São José",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AP",
+                            ValidFromYear = 2002
+                        },
+                        new
+                        {
+                            Id = new Guid("1970d9a1-f0fd-8b06-a58f-43f9f668334b"),
+                            Day = 13,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado do Amapá",
+                            Month = 9,
+                            Name = "Criação do Território Federal do Amapá",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "AP",
+                            ValidFromYear = 1991
+                        },
+                        new
+                        {
+                            Id = new Guid("34d21d69-2ff3-8911-b6bb-c695ac6cba6d"),
+                            Day = 2,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado da Bahia, art. 6º, § 3º",
+                            Month = 7,
+                            Name = "Independência da Bahia",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "BA",
+                            ValidFromYear = 1989
+                        },
+                        new
+                        {
+                            Id = new Guid("f7edd53e-71a7-8548-954d-658e3e5d9e03"),
+                            Day = 25,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado do Ceará, art. 18, parágrafo único",
+                            Month = 3,
+                            Name = "Data Magna do Ceará",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "CE",
+                            ValidFromYear = 1989
+                        },
+                        new
+                        {
+                            Id = new Guid("3a19f119-b2b0-8245-a763-8bf1fd05c842"),
+                            Day = 30,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei distrital 963/1995",
+                            Month = 11,
+                            Name = "Dia do Evangélico",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "DF",
+                            ValidFromYear = 1995
+                        },
+                        new
+                        {
+                            Id = new Guid("1ffd2abe-dfae-81b8-bec2-d6faea7d654c"),
+                            EasterOffsetDays = 8,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 11.010/2019",
+                            Name = "Nossa Senhora da Penha",
+                            Rule = "EasterRelative",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "ES",
+                            ValidFromYear = 2020
+                        },
+                        new
+                        {
+                            Id = new Guid("a4e8322c-95b1-8b81-b4ad-c06bfd61f15a"),
+                            Day = 28,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 2.457/1964",
+                            Month = 7,
+                            Name = "Adesão do Maranhão à Independência",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "MA",
+                            ValidFromYear = 1964
+                        },
+                        new
+                        {
+                            Id = new Guid("46796972-8847-87d4-8328-ba8a057541ff"),
+                            Day = 15,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 5.999/1996",
+                            Month = 8,
+                            Name = "Adesão do Pará à Independência",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "PA",
+                            ValidFromYear = 1996
+                        },
+                        new
+                        {
+                            Id = new Guid("60967c46-56ac-8cf9-a197-1990ae3994e6"),
+                            Day = 5,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 3.489/1967",
+                            Month = 8,
+                            Name = "Fundação do Estado da Paraíba",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "PB",
+                            ValidFromYear = 1967
+                        },
+                        new
+                        {
+                            Id = new Guid("54cce250-cd30-861b-9e66-268b424b24de"),
+                            Day = 6,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 16.241/2017",
+                            Month = 3,
+                            Name = "Data Magna de Pernambuco (Revolução de 1817)",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "PE",
+                            ValidFromYear = 2018
+                        },
+                        new
+                        {
+                            Id = new Guid("84a39dc8-941c-8c32-8979-975eb65592a9"),
+                            Day = 23,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 5.198/2008",
+                            Month = 4,
+                            Name = "Dia de São Jorge",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RJ",
+                            ValidFromYear = 2008
+                        },
+                        new
+                        {
+                            Id = new Guid("3a6c9bdc-6a5f-8828-b8c9-968fe9e82826"),
+                            EasterOffsetDays = -47,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 5.243/2008",
+                            Name = "Terça-feira de Carnaval",
+                            Rule = "EasterRelative",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RJ",
+                            ValidFromYear = 2009
+                        },
+                        new
+                        {
+                            Id = new Guid("4faf27e8-4a3d-8134-9791-a87b62cc9cde"),
+                            EasterOffsetDays = 60,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 11.002/2025",
+                            Name = "Corpus Christi",
+                            Rule = "EasterRelative",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RJ",
+                            ValidFromYear = 2026
+                        },
+                        new
+                        {
+                            Id = new Guid("a7ab48c4-5dec-85ea-9ee7-49fc1a19f314"),
+                            Day = 3,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 8.913/2006",
+                            Month = 10,
+                            Name = "Mártires de Cunhaú e Uruaçu",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RN",
+                            ValidFromYear = 2007
+                        },
+                        new
+                        {
+                            Id = new Guid("694b6af2-c900-8cb9-9982-f7a3a7173ff1"),
+                            Day = 4,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 2.291/2010",
+                            Month = 1,
+                            Name = "Criação do Estado de Rondônia",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RO",
+                            ValidFromYear = 2011
+                        },
+                        new
+                        {
+                            Id = new Guid("60a6ad27-20e4-84bb-9743-8739a5ebc223"),
+                            Day = 18,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 1.026/2001",
+                            Month = 6,
+                            Name = "Dia do Evangélico",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RO",
+                            ValidFromYear = 2002
+                        },
+                        new
+                        {
+                            Id = new Guid("738ce185-0e0f-8e6d-abf3-a830680c998e"),
+                            Day = 5,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado de Roraima, art. 9º",
+                            Month = 10,
+                            Name = "Criação do Estado de Roraima",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RR",
+                            ValidFromYear = 1991
+                        },
+                        new
+                        {
+                            Id = new Guid("476f749d-96e6-89f8-a855-f8a5cf74e984"),
+                            Day = 20,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado do Rio Grande do Sul, art. 6º, parágrafo único",
+                            Month = 9,
+                            Name = "Revolução Farroupilha",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "RS",
+                            ValidFromYear = 1989
+                        },
+                        new
+                        {
+                            Id = new Guid("7fa4e684-7ccf-859f-a9f4-483d4174c308"),
+                            Day = 8,
+                            Kind = "Holiday",
+                            LegalBasis = "Constituição do Estado de Sergipe, art. 269",
+                            Month = 7,
+                            Name = "Emancipação Política de Sergipe",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "SE",
+                            ValidFromYear = 1989
+                        },
+                        new
+                        {
+                            Id = new Guid("778db1d1-d5b1-88d2-be30-2d84c938f03f"),
+                            Day = 9,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 9.497/1997",
+                            Month = 7,
+                            Name = "Revolução Constitucionalista de 1932",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "SP",
+                            ValidFromYear = 1997
+                        },
+                        new
+                        {
+                            Id = new Guid("ec895e5b-dd3b-80e7-9758-29880488e633"),
+                            Day = 15,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 4.509/2024",
+                            Month = 4,
+                            Name = "Senhor do Bonfim",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "TO",
+                            ValidFromYear = 2025
+                        },
+                        new
+                        {
+                            Id = new Guid("66298bf0-85ed-873c-8921-8e6bc5bbd2ab"),
+                            Day = 8,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 627/1993",
+                            Month = 9,
+                            Name = "Nossa Senhora da Natividade",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "TO",
+                            ValidFromYear = 1994
+                        },
+                        new
+                        {
+                            Id = new Guid("d342e488-82a6-82ac-bb36-7b6ccf1f7631"),
+                            Day = 5,
+                            Kind = "Holiday",
+                            LegalBasis = "Lei estadual 98/1989",
+                            Month = 10,
+                            Name = "Criação do Estado do Tocantins",
+                            Rule = "FixedDate",
+                            Scope = "State",
+                            SpanDays = 1,
+                            StateCode = "TO",
+                            ValidFromYear = 1990
                         });
                 });
 
