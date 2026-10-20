@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6D (#34), em 2026-10-19: consultas DataJud, triagem e fechamento disponíveis no backend da main; o branch `codex/etapa-6e-telas-publicacoes` começa dessa base para as telas previstas no plano aprovado. No branch do 6E, as telas estão implementadas e verificadas localmente, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 6E (#35), em 2026-10-19; as telas estão disponíveis na main remota e foram verificadas localmente e no CI. O checkout local ainda está no branch do 6E; a atualização da main local ficou para o próximo agente, a pedido do usuário. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -72,7 +72,7 @@ Os dados gravados são dados do ambiente local, e as ações feitas na interface
 
 ## 7. Integração de andamentos (6C, operação técnica)
 
-As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está disponível no branch do 6E; a operação técnica equivalente usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
+As movimentações automáticas ficam desabilitadas por padrão, inclusive para escritórios locais existentes. O fake de publicações habilitado no AppHost é independente dessa configuração. A tela de configuração está disponível na main desde o 6E (#35); a operação técnica equivalente usa a API autenticada, no escritório ativo, com `settings.integrations.manage` em escopo de escritório:
 
 - `GET /api/v1/movement-integration`: consulta o provedor e indica se há chave cadastrada, sem devolvê-la.
 - `PUT /api/v1/movement-integration`: informa `provider` (`disabled`, `fake` ou `dataJud`), `apiKey` opcional e `clearApiKey` opcional. Ao omitir a chave, mantém a anterior; para substituí-la, envia uma nova. Para removê-la, usa `clearApiKey: true` com o provedor desabilitado ou fake. Não envia remoção e substituição juntas. DataJud exige chave.
@@ -84,7 +84,7 @@ O Worker verifica os processos elegíveis a cada cinco minutos; cada processo te
 
 ## 8. Triagem e fechamento (6D, operação técnica)
 
-Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas correspondentes estão no branch do 6E; o [manual](README.md) descreve o uso verificado localmente no branch, ainda sem merge.
+Usar a API autenticada no escritório ativo, respeitando o acesso ao conteúdo. A documentação interativa da API apresenta os schemas; não salve tokens de acesso no repositório ou neste guia. As telas correspondentes estão na main desde o 6E (#35); o [manual](README.md) descreve o uso verificado localmente e no PR #35 mergeado.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |

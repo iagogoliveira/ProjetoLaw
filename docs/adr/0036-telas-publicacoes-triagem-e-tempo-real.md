@@ -1,9 +1,9 @@
 # ADR 0036 — Telas de publicações, triagem e tempo real
 
-- **Status:** Proposta (para revisão no PR 6E)
+- **Status:** Aceita (PR #35 mergeado em 2026-10-19)
 - **Data:** 2026-10-19
 - **Etapa:** 6 (PR 6E)
-- **Revisão:** PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35), aberto em 2026-10-19; aguardando CI/revisão, sem merge.
+- **Revisão:** PR [#35](https://github.com/iagogoliveira/ProjetoLaw/pull/35), merge `af904e3`, confirmado com todos os checks aprovados.
 
 ## Contexto
 
