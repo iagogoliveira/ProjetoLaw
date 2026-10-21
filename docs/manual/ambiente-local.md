@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no fechamento do 7C, em 2026-10-21; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch `codex/etapa-7c-agenda-tarefas`, com o backend do 7C implementado e verificado, ainda sem merge. As migrations do 7A, do 7B e do 7C foram aplicadas no banco local durante a verificação; a nova é `20261021025032_AgendaAndTasks`. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no fechamento do 7C, em 2026-10-21; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch `codex/etapa-7c-agenda-tarefas`, com o backend do 7C implementado e verificado, publicado no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), ainda sem merge. As migrations do 7A, do 7B e do 7C foram aplicadas no banco local durante a verificação; a nova é `20261021025032_AgendaAndTasks`. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -166,7 +166,7 @@ As migrations `ForensicCalendar` (Platform), `OfficeCalendar` (Scheduling) e `Sc
 
 ## 11. Ciclo do prazo (7B, operação técnica)
 
-Implementado no branch `codex/etapa-7b-ciclo-prazo`, ainda sem merge. As migrations aditivas `DeadlineLifecycle` e `RequireDeadlineReview` são aplicadas pelo MigrationService ao iniciar. Não há novo serviço, porta ou comando de inicialização. Preserve os volumes e encerre o ambiente depois da conferência.
+Disponível na main pelo PR #37 mergeado. As migrations aditivas `DeadlineLifecycle` e `RequireDeadlineReview` são aplicadas pelo MigrationService ao iniciar. Não há novo serviço, porta ou comando de inicialização. Preserve os volumes e encerre o ambiente depois da conferência.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |
@@ -190,7 +190,7 @@ Para conferir os alertas, cadastre um prazo futuro e altere um feriado do escrit
 
 ## 12. Agenda e tarefas (7C, operação técnica)
 
-Backend implementado e verificado no branch `codex/etapa-7c-agenda-tarefas`, ainda sem merge. A verificação integral foi aprovada em 2026-10-21, incluindo duas rodadas de Playwright contra o AppHost; o ambiente foi encerrado, preservando os volumes/cadastros. Não há novos serviços, portas ou comandos de inicialização. A migration `AgendaAndTasks` é aplicada pelo MigrationService ao subir o AppHost; preserva as tarefas legadas e acrescenta prioridade Normal. Telas no 7F e anexos no GED da Etapa 9.
+Backend implementado e verificado no branch `codex/etapa-7c-agenda-tarefas`, publicado no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), ainda sem merge. A verificação integral foi aprovada em 2026-10-21, incluindo duas rodadas de Playwright contra o AppHost; o ambiente foi encerrado, preservando os volumes/cadastros. Não há novos serviços, portas ou comandos de inicialização. A migration `AgendaAndTasks` é aplicada pelo MigrationService ao subir o AppHost; preserva as tarefas legadas e acrescenta prioridade Normal. Telas no 7F e anexos no GED da Etapa 9.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # ADR 0039 — Agenda, tarefas e redistribuição em lote
 
-- **Status:** Proposta (para revisão no PR 7C)
+- **Status:** Proposta (para revisão no PR #38)
 - **Data:** 2026-10-20
 - **Etapa:** 7 (7C; RF-24)
 

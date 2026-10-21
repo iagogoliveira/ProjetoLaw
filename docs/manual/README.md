@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o 7C implementado e verificado no branch de desenvolvimento, ainda sem merge. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o 7C implementado e verificado no branch de desenvolvimento, publicado no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), ainda sem merge. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -243,7 +243,7 @@ No sino de notificações, os alertas de **Prazo perdido** e **Calendário alter
 
 ## 16. Agenda e tarefas (7C, backend no branch de desenvolvimento)
 
-No branch `codex/etapa-7c-agenda-tarefas`, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas continuam previstas para o 7F; a implementação do 7C foi verificada em 2026-10-21 e ainda não foi mergeada. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
+No branch `codex/etapa-7c-agenda-tarefas`, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas continuam previstas para o 7F; a implementação do 7C foi verificada em 2026-10-21 e está publicada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), aguardando merge pelo usuário. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
 
 A tarefa tem responsável, vencimento, prioridade, checklist, comentários e subtarefas completas de um nível. Para concluir, todos os itens do checklist precisam estar marcados e as subtarefas concluídas ou canceladas. Tarefas concluídas/canceladas podem ser reabertas como pendentes. Reabra primeiro a principal para alterar uma subtarefa de principal fechada. Cancelar a principal preserva o estado das subtarefas. Anexos dependem do GED da Etapa 9.
 

@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7C publicado no PR #38; merge pelo usuário)
+
+**Pedido e confirmação:** usuário pediu “Crie o merge” e esclareceu: “Abra o PR; eu faço o merge”. Implementação 407ca4a enviada no branch codex/etapa-7c-agenda-tarefas; [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38) aberto e anexado ao chat. ADR 0039 permanece proposta.
+
+**Feito:** registros de publicação atualizados no progress, AGENTS/CLAUDE, ADR e ambos os manuais. Sem mudança de runtime ou novos passos de uso/inicialização; preservada a verificação integral da entrada anterior (1.124 .NET, 134 Vitest e duas rodadas de 17 Playwright). Diff, UTF-8 e sincronização dos agentes conferidos. Aplicação permanece fechada, volumes/cadastros preservados; .codex/ local excluído do commit.
+
+**Próximo:** conferir CI e revisão do PR #38 e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7D. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
+
 ## 2026-10-21 — Codex (7C implementado, verificado e commitado localmente; sem push/PR)
 
 **Pedido do usuário:** "Prossiga", após a arrumação pós-merge do 7B. Implementação no branch `codex/etapa-7c-agenda-tarefas`, que já tinha a arrumação `75d38c4` enviada.
