@@ -4,6 +4,7 @@ namespace LexFlow.Scheduling.Domain;
 
 public static partial class SchedulingErrors
 {
+    public static readonly Error InvalidDeadlineList = Error.Validation("scheduling.deadline_list_invalid", "Informe intervalo de até 366 dias, página de 1 a 100 itens e cursor válido.");
     public static readonly Error TaskNotFound = Error.NotFound("scheduling.task_not_found", "Tarefa não encontrada.");
     public static readonly Error TaskTransitionInvalid = Error.Conflict("scheduling.task_transition_invalid", "Transição ou alteração indisponível neste estado da tarefa.");
     public static readonly Error TaskUnresolved = Error.BusinessRule("scheduling.task_unresolved", "Conclua o checklist e resolva as subtarefas antes de concluir a tarefa.");

@@ -64,6 +64,14 @@
             >{{ t('shell.funnel') }}</a
           >
           <a
+            *lfCan="'schedule.deadlines.read'"
+            mat-list-item
+            routerLink="/prazos"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('deadlines.title') }}</a
+          >
+          <a
             *lfCan="'publications.read'"
             mat-list-item
             routerLink="/publicacoes"

@@ -949,6 +949,26 @@ export type DeadlineDetailResponse = {
     lastCalendarAlertAt: null | string;
 };
 
+export type DeadlineListItem = {
+    id: string;
+    caseId: string;
+    type: string;
+    title: string;
+    startOn: string;
+    internalDueOn: string;
+    fatalDueOn: string;
+    assigneeUserId: string;
+    status: WorkItemStatus;
+    requireReview: boolean;
+    reviewedAt: null | string;
+};
+
+export type DeadlineListPage = {
+    today: string;
+    items: Array<DeadlineListItem>;
+    nextCursor: null | string;
+};
+
 export type DeadlineResponse = {
     id: string;
     caseId: string;
@@ -2506,6 +2526,31 @@ export type RegisterDeadlineResponses = {
 };
 
 export type RegisterDeadlineResponse = RegisterDeadlineResponses[keyof RegisterDeadlineResponses];
+
+export type ListDeadlinesData = {
+    body?: never;
+    path?: never;
+    query: {
+        from: string;
+        until: string;
+        assigneeUserId?: string;
+        teamId?: string;
+        caseId?: string;
+        includeClosed?: boolean;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/deadlines';
+};
+
+export type ListDeadlinesResponses = {
+    /**
+     * OK
+     */
+    200: DeadlineListPage;
+};
+
+export type ListDeadlinesResponse = ListDeadlinesResponses[keyof ListDeadlinesResponses];
 
 export type ListAgendaData = {
     body?: never;

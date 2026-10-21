@@ -1,0 +1,82 @@
+<section class="page" *transloco="let t">
+  <a routerLink="/prazos">{{ t('deadlines.common.back') }}</a>
+  <h1>{{ t('deadlines.create.title') }}</h1>
+  <mat-form-field appearance="outline"
+    ><mat-label>{{ t('deadlines.create.caseSearch') }}</mat-label
+    ><input matInput #query [disabled]="store.busy()" (input)="searchCases(query.value)"
+  /></mat-form-field>
+  @if (store.caseResults().length) {
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('deadlines.create.selectCase') }}</mat-label
+      ><mat-select [disabled]="store.busy()" (selectionChange)="selectCase($event.value)">
+        @for (c of store.caseResults(); track c.id) {
+          <mat-option [value]="c">{{ c.internalFolder || c.cnjNumber }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+  }
+  @if (store.selectedCase(); as c) {
+    <p>{{ c.internalFolder || c.cnjNumber }}</p>
+  }
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <fieldset [disabled]="store.busy()">
+      <mat-form-field appearance="outline"
+        ><mat-label>{{ t('deadlines.create.type') }}</mat-label
+        ><input matInput formControlName="type" maxlength="80" required /></mat-form-field
+      ><mat-form-field appearance="outline"
+        ><mat-label>{{ t('deadlines.create.titleField') }}</mat-label
+        ><input matInput formControlName="title" maxlength="300" required
+      /></mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>{{ t('deadlines.create.assignee') }}</mat-label
+        ><mat-select formControlName="assigneeUserId" required>
+          @for (m of store.options()?.members ?? []; track m.userId) {
+            <mat-option [value]="m.userId">{{ m.name }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <lf-deadline-calculator [caseId]="caseId()" (calculated)="onCalculated($event)" />
+      @if (suggestion(); as s) {
+        <p>
+          {{ t('deadlines.create.suggestedDates') }}: {{ date(s.result.internalDueOn) }} /
+          {{ date(s.result.fatalDueOn) }}
+        </p>
+        <mat-checkbox [checked]="confirmed()" (change)="confirmed.set($event.checked)">{{
+          t('deadlines.create.confirmDates')
+        }}</mat-checkbox>
+      }
+    </fieldset>
+    @if (suggestion()?.result; as calculated) {
+      <p>
+        {{ t('deadlines.detail.calculationLocation') }}: {{ calculated.municipality || '—' }},
+        {{ calculated.stateCode || '—' }}
+        @if (calculated.federalJustice) {
+          · {{ t('deadlines.calculator.federalJustice') }}
+        }
+      </p>
+    }
+    @if (store.optionsError()) {
+      <p role="alert">{{ t(errorTranslationKey(store.optionsError()!)) }}</p>
+      <button mat-stroked-button type="button" (click)="store.loadOptions()">
+        {{ t('deadlines.list.retry') }}
+      </button>
+    }
+    @if (store.error()) {
+      <p role="alert">{{ t(errorTranslationKey(store.error()!)) }}</p>
+    }
+    <button
+      mat-flat-button
+      type="submit"
+      [disabled]="
+        store.busy() ||
+        form.invalid ||
+        !store.options() ||
+        !confirmed() ||
+        !suggestion() ||
+        !caseId()
+      "
+    >
+      {{ t('deadlines.create.save') }}
+    </button>
+  </form>
+</section>

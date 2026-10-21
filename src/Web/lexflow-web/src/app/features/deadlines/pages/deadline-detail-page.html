@@ -1,0 +1,158 @@
+<section class="page" *transloco="let t">
+  <a routerLink="/prazos">{{ t('deadlines.common.back') }}</a>
+  @if (store.loading()) {
+    <h1>{{ t('deadlines.detail.loadingTitle') }}</h1>
+    <p role="status">{{ t('deadlines.list.loading') }}</p>
+  }
+  @if (!store.loading() && !store.item()) {
+    <h1>{{ t('deadlines.detail.loadingTitle') }}</h1>
+  }
+  @if (store.error()) {
+    <p role="alert">{{ t(errorTranslationKey(store.error()!)) }}</p>
+    <button mat-stroked-button (click)="load()">{{ t('deadlines.list.retry') }}</button>
+  }
+  @if (store.item(); as d) {
+    <h1>{{ d.title }}</h1>
+    <p>
+      {{ t('deadlines.detail.type') }}: {{ d.type }} · {{ t('deadlines.detail.status') }}:
+      {{ t('deadlines.list.status.' + d.status) }}
+    </p>
+    <dl>
+      <dt>{{ t('deadlines.detail.startOn') }}</dt>
+      <dd>{{ date(d.startOn) }}</dd>
+      <dt>{{ t('deadlines.detail.internalDueOn') }}</dt>
+      <dd>{{ date(d.internalDueOn) }}</dd>
+      <dt>{{ t('deadlines.detail.fatalDueOn') }}</dt>
+      <dd>{{ date(d.fatalDueOn) }}</dd>
+    </dl>
+    @if (d.lastCalendarAlertAt) {
+      <p role="status">{{ t('deadlines.detail.calendarChanged') }}</p>
+    }
+    <p>
+      {{ t('deadlines.detail.review') }}:
+      {{
+        d.requireReview
+          ? d.reviewedAt
+            ? t('deadlines.detail.reviewed')
+            : t('deadlines.detail.reviewRequired')
+          : t('deadlines.detail.notRequired')
+      }}
+    </p>
+    @if (d.rule) {
+      <details>
+        <summary>{{ t('deadlines.detail.ruleMemory') }}</summary>
+        <dl>
+          <dt>{{ t('deadlines.detail.startKind') }}</dt>
+          <dd>{{ t('deadlines.calculator.startKinds.' + d.rule.startKind) }}</dd>
+          <dt>{{ t('deadlines.detail.triggerDate') }}</dt>
+          <dd>{{ date(d.rule.triggerDate) }}</dd>
+          <dt>{{ t('deadlines.calculator.days') }}</dt>
+          <dd>
+            {{ d.rule.days }} · {{ t('deadlines.calculator.modes.' + d.rule.mode)
+            }}{{ d.rule.doubled ? ' · ' + t('deadlines.calculator.doubled') : '' }}
+          </dd>
+        </dl>
+        @if (d.calculation) {
+          <p>
+            {{ t('deadlines.detail.calculationLocation') }}:
+            {{ d.calculation.municipality || '—' }}, {{ d.calculation.stateCode || '—' }}
+            @if (d.calculation.federalJustice) {
+              · {{ t('deadlines.calculator.federalJustice') }}
+            }
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('deadlines.calculator.date') }}</th>
+                <th>{{ t('deadlines.calculator.step') }}</th>
+                <th>{{ t('deadlines.calculator.count') }}</th>
+                <th>{{ t('deadlines.calculator.reason') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of d.calculation.lines; track $index) {
+                <tr>
+                  <td>{{ date(line.date) }}</td>
+                  <td>{{ t('deadlines.calculator.steps.' + line.step) }}</td>
+                  <td>{{ line.count ?? '—' }}</td>
+                  <td>{{ line.reason || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </details>
+    }
+    @if (d.completionEvidence) {
+      <p>{{ t('deadlines.detail.evidence') }}: {{ d.completionEvidence }}</p>
+    }
+    @if (d.missedReason) {
+      <p>{{ t('deadlines.detail.reason') }}: {{ d.missedReason }}</p>
+    }
+    @if (d.status === 'pending') {
+      <button
+        mat-stroked-button
+        *lfCan="'schedule.deadlines.manage'"
+        [disabled]="store.busy()"
+        (click)="act('start')"
+      >
+        {{ t('deadlines.detail.start') }}
+      </button>
+    }
+    @if (d.status === 'pending' || d.status === 'inProgress') {
+      @if (d.requireReview && !d.reviewedAt) {
+        <button
+          mat-stroked-button
+          *lfCan="'schedule.deadlines.verify'"
+          [disabled]="store.busy()"
+          (click)="act('review')"
+        >
+          {{ t('deadlines.detail.reviewAction') }}
+        </button>
+      }
+      <div *lfCan="'schedule.deadlines.manage'">
+        <form [formGroup]="form">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('deadlines.detail.evidence') }}</mat-label
+            ><textarea
+              matInput
+              formControlName="evidence"
+              maxlength="4000"
+              required
+            ></textarea></mat-form-field
+          ><button
+            mat-flat-button
+            type="button"
+            [disabled]="
+              store.busy() ||
+              (d.requireReview && !d.reviewedAt) ||
+              form.controls.evidence.invalid ||
+              !form.controls.evidence.value.trim()
+            "
+            (click)="act('complete')"
+          >
+            {{ t('deadlines.detail.complete') }}
+          </button>
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ t('deadlines.detail.reason') }}</mat-label
+            ><textarea
+              matInput
+              formControlName="reason"
+              maxlength="4000"
+              required
+            ></textarea></mat-form-field
+          ><button
+            mat-stroked-button
+            type="button"
+            [disabled]="
+              store.busy() || form.controls.reason.invalid || !form.controls.reason.value.trim()
+            "
+            (click)="act('miss')"
+          >
+            {{ t('deadlines.detail.miss') }}
+          </button>
+        </form>
+      </div>
+    }
+  }
+</section>

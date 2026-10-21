@@ -492,8 +492,8 @@
       <mat-tab [label]="t('cases.tabs.documents')">
         <p class="tab empty">{{ t('cases.comingSoon') }}</p>
       </mat-tab>
-      <mat-tab [label]="t('cases.tabs.deadlines')">
-        <p class="tab empty">{{ t('cases.comingSoon') }}</p>
+      <mat-tab *lfCan="'schedule.deadlines.read'" [label]="t('cases.tabs.deadlines')">
+        <ng-template matTabContent><lf-case-deadlines-tab [caseId]="c.id" /></ng-template>
       </mat-tab>
       <mat-tab [label]="t('cases.tabs.finance')">
         <p class="tab empty">{{ t('cases.comingSoon') }}</p>

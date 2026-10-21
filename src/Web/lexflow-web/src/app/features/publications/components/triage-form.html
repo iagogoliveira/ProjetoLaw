@@ -97,17 +97,39 @@
         >
       }
       @if (action === 'deadline') {
+        @if (form.controls.caseId.value || publication().legalCaseId) {
+          <lf-deadline-calculator
+            [caseId]="form.controls.caseId.value || publication().legalCaseId"
+            [triggerDate]="calculationTriggerDate()"
+            (calculated)="applyCalculation($event)"
+          />
+        }
         <mat-form-field appearance="outline"
           ><mat-label>{{ t('publications.startOn') }}</mat-label
-          ><input matInput type="date" formControlName="startOn" required
+          ><input
+            matInput
+            type="date"
+            formControlName="startOn"
+            required
+            (input)="form.controls.confirmed.setValue(false)"
         /></mat-form-field>
         <mat-form-field appearance="outline"
           ><mat-label>{{ t('publications.internalDueOn') }}</mat-label
-          ><input matInput type="date" formControlName="internalDueOn" required
+          ><input
+            matInput
+            type="date"
+            formControlName="internalDueOn"
+            required
+            (input)="form.controls.confirmed.setValue(false)"
         /></mat-form-field>
         <mat-form-field appearance="outline"
           ><mat-label>{{ t('publications.fatalDueOn') }}</mat-label
-          ><input matInput type="date" formControlName="fatalDueOn" required
+          ><input
+            matInput
+            type="date"
+            formControlName="fatalDueOn"
+            required
+            (input)="form.controls.confirmed.setValue(false)"
         /></mat-form-field>
       }
       @if (action === 'task') {

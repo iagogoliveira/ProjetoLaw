@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D mergeado no PR #39 em 2026-10-21; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes`, `codex/etapa-7e-telas-prazos` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D mergeado no PR #39 em 2026-10-21; 7E implementado e verificado localmente, sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes`, `codex/etapa-7e-telas-prazos` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -241,6 +241,33 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Estado e continuidade:** implementação 676a2c1 enviada e publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) em 2026-10-21, a pedido do usuário. Publicação documental conferida com diff, UTF-8 e igualdade AGENTS/CLAUDE; gates integrais preservados, sem nova mudança de runtime. .codex/ local não rastreado preservado e excluído do commit. Merge confirmado pelo usuário em 2026-10-21 às 15:29 (America/Sao_Paulo), commit 621b8125203da8099c8380a6727e9699c5ea5229; envio até 3f9f40b. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. ADR 0040 aceita. Main atualizada por fast-forward e branch codex/etapa-7e-telas-prazos criado dessa base. Próximo: 7E (telas de prazos), ainda não iniciado. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes; não declarar as etapas 7 e 6 integralmente concluídas.
 
 **Última verificação local da arrumação pós-merge — 2026-10-21:** somente documentação; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Preservada a verificação integral acima, complementada pelo CI aprovado no head 3f9f40b. Ambos os manuais revisados para disponibilidade na main e checkout do 7E, sem novos passos. Aplicação não iniciada; volumes/cadastros e .codex/ preservados. Commit e push documental no branch do 7E conforme o ciclo aprovado.
+
+---
+### PR 7E — Telas de prazos (implementado e verificado localmente; sem push/PR)
+
+**Branch:** codex/etapa-7e-telas-prazos, criado da main no merge 621b812 do PR #39. **Autorização:** “prossiga”, em 2026-10-21, seguindo o plano 7A–7G aprovado. **ADR:** [0041](adr/0041-telas-de-prazos-e-confirmacao-do-calculo.md), proposta. Sem push/PR da implementação; publicação somente a pedido.
+
+**Decisão nova aprovada em 2026-10-21:** semáforo dos prazos abertos vermelho para fatal vencido ou hoje; amarelo para meta interna vencida/hoje ou fatal nos próximos dois dias corridos; verde para os demais. Cumpridos e perdidos têm identificação própria. Datas civis de São Paulo; não altera situação ou datas do prazo.
+
+| Subtarefa | Execução/revisão | Evidência |
+| --- | --- | --- |
+| GET /api/v1/deadlines com permissão própria, janela pelo fatal, cursor e filtros; interseção de acesso e sigilo antes da paginação | Sol; testes delimitados Luna | Quatro testes de API com PostgreSQL: limites, páginas com mesma data, período semiaberto, responsáveis/equipe/processo, estados, tenant, escopo e sigilo |
+| Calculadora reutilizável com memória e aplicação explícita; sugestão na triagem | Luna, revisão e ajustes Sol | Vitest de confirmação, edição e respostas antigas; triagem mantém datas manuais e invalida a confirmação ao alterar datas |
+| Painel com semáforo textual, filtros/paginação; cadastro e detalhe com conferência/protocolo/justificativa | Luna, revisão e ajustes Sol | Vitest de urgência, páginas e confirmação; regressões de navegação após saída, troca de processo e erro de paginação conferidas |
+| Aba Prazos do processo e navegação autorizada | Sol | Integração ao detalhe e fluxos Playwright com WCAG 2.1 AA |
+| Contrato/SDK e documentação | Sol; teste oficial OpenAPI Luna | Snapshot gerado oficialmente; ambos os manuais revisados, sem novos serviços, portas ou comandos |
+
+**Verificações direcionadas:** build Release do projeto API.IntegrationTests com zero avisos/erros; quatro testes de listagem e um teste de contrato OpenAPI aprovados. SDK regenerado. Testes direcionados Angular aprovados, incluindo os novos testes de regressão. Tentativa inicial de Vitest no sandbox falhou por arquivo temporário inacessível; não contou como suíte aprovada. Nova execução com acesso autorizado passou. Logs em TestResults/7e-directed.
+
+**Última verificação local — 2026-10-21:** builds Release da solução e Debug do AppHost com zero avisos/erros; `dotnet format --verify-no-changes` aprovado. **1.165 testes .NET em 20 projetos**, sem falhas ou ignorados, incluindo API (285), Security (12) e AppHost (14). Gate de 80% aprovado em todos os módulos (Domain/Application entre 92,7% e 100%; Scheduling 98,8%/99,4%). Dependências sem vulnerabilidades e seis modelos EF sem mudanças pendentes. OpenAPI oficial e SDK regenerados (163 caminhos, 289 schemas); oasdiff v1.33.0 sem quebra. Frontend com lint, **153 Vitest em 25 arquivos**, build Angular e audit com zero vulnerabilidades aprovados. Logs e cobertura em TestResults/7e-final-validation, conferidos pelo orquestrador. Não há pacote ou migration nova; nenhuma migration aplicada foi alterada.
+
+**Playwright contra AppHost:** três testes direcionados aprovados e **duas rodadas integrais consecutivas com 18 aprovados cada**, incluindo WCAG 2.1 AA nos temas claro e escuro; uma preparação opcional de carga ignorada por rodada (sem LOAD_OUTPUT). Relatórios e artefatos separados em TestResults/7e-final-validation. AppHost.Tests executado antes do host manual, sem sobreposição. Limite público ampliado apenas no ambiente do host de teste, conforme configuração já suportada. Aplicação e sete serviços encerrados após a verificação; volumes/cadastros preservados.
+
+**Revisão:** corrigidas respostas antigas na troca de processo, navegação após saída do cadastro, perda de página após falha de paginação e concorrência das preferências salvas. Uma falha de leitura impede sobrescrever preferências; a ausência conhecida da chave permite o primeiro salvamento. Regressões automatizadas aprovadas. AGENTS/CLAUDE sincronizados; ambos os manuais revisados e atualizados nas instruções das telas. Serviços, portas e comandos de inicialização permanecem iguais.
+
+**Estado:** implementação com commit local no branch indicado, sem push ou PR; aguardar pedido de publicação do usuário. Normalização automática de 18 flags peer do lockfile descartada após conferir que não havia mudança de pacote/versão. Diretório .codex/ local preservado e excluído do commit. Próximo desenvolvimento após publicação e merge: 7F, conforme o plano aprovado.
+
+**Limites:** política de conferência e calendário do escritório continuam configurados pela API; a aba mostra a regra/memória apenas quando disponíveis. Agenda, tarefas, controladoria e preferências ficam no 7F; sincronização no 7G. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes. Merge pelo usuário.
 
 ---
 ## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)

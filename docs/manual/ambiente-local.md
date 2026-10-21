@@ -233,3 +233,18 @@ Resumo sem itens nas seções escolhidas não é enviado. Conta não confirmada,
 Preserve os volumes e encerre o AppHost após a verificação. Não altere migrations que já tiverem sido aplicadas.
 
 Verificação integral do 7D concluída em 2026-10-21: 1.161 testes .NET, 134 Vitest e duas rodadas de 17 Playwright contra o AppHost, com acessibilidade e SMTP/Mailpit real. Aplicação encerrada, portas fechadas e volumes/cadastros preservados. Não é necessário repetir as suítes sem mudança ou preocupação concreta de regressão.
+
+## 14. Telas de prazos (7E, checkout de desenvolvimento)
+
+As telas estão no branch codex/etapa-7e-telas-prazos, ainda sem merge. Os comandos de inicialização, serviços e portas continuam iguais; não há pacote ou migration nova. O AppHost só deve ficar ligado durante testes ou exploração solicitada.
+
+- Acesse /prazos com schedule.deadlines.read. A lista nova usa GET /api/v1/deadlines, sem depender de schedule.events.read. O período pelo vencimento fatal é [from, until), máximo 366 dias; limit de 1 a 100, cursor por vencimento/ID. today é a data do IClock em São Paulo. Responsável, equipe e caseId apenas restringem o alcance autorizado.
+- Cadastro em /prazos/novo exige schedule.deadlines.manage; a seleção de processos e opções usa cases.read. A aba Prazos do processo exige schedule.deadlines.read. Use as opções dos cadastros existentes, sem criar novas contas por API apenas para explorar.
+- O cálculo usa POST /api/v1/deadlines/calculate e só sugere. No cadastro manual, confira a memória, aplique as datas e marque a confirmação antes de salvar. Na triagem, a mesma calculadora preenche as datas, que continuam exigindo decisão humana.
+- O detalhe /prazos/{id} usa as transições existentes de start/review/complete/miss. Conferência exige schedule.deadlines.verify; cumprimento e perda, schedule.deadlines.manage. Protocolo e justificativa são obrigatórios nas respectivas ações. A configuração GET/PUT /api/v1/organization/deadline-review continua técnica, com settings.organization.manage e corpo { requireDeadlineReview: true/false }.
+- Para verificar bloqueio por conferência, habilite a política antes de cadastrar um novo prazo (o prazo guarda a exigência vigente no cadastro). Iniciar deve continuar possível antes da revisão; cumprir deve ficar bloqueado. Em escritório com mais de um membro ativo, outro membro autorizado precisa conferir. Desabilitar a política não apaga a exigência já registrada em um prazo.
+- As faixas do semáforo estão descritas na seção 18 do manual. Mudanças de calendário apenas alertam os prazos confirmados. A revisão jurídica do 7A continua pendente.
+
+A verificação do 7E inclui Vitest, API, segurança e o fluxo Playwright triagem → prazo → cumprimento com evidência → fechamento, além de cadastro manual e conferência. Execute AppHost.Tests antes da instância usada pelo Playwright; nunca simultaneamente. Encerre aplicação e serviços após a verificação, preservando os volumes/cadastros.
+
+Verificação integral do 7E concluída em 2026-10-21: 1.165 testes .NET, 153 Vitest e duas rodadas consecutivas de 18 Playwright aprovados, incluindo acessibilidade; apenas a preparação opcional de carga foi ignorada em cada rodada. Aplicação e sete serviços encerrados, portas locais fechadas e volumes/cadastros preservados. A implementação está commitada localmente, sem push/PR.

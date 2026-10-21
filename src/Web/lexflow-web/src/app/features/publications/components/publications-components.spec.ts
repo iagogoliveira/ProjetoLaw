@@ -1,11 +1,15 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
+import { describe, expect, it, vi } from 'vitest';
 import { AccessStore } from '../../../core/organization/access-store';
 import { translocoTesting } from '../../../core/i18n/transloco-testing';
 import { PublicationsStore } from '../data/publications-store';
 import { PublicationsLiveStore } from '../data/publications-live-store';
+import type { DeadlineCalculationResponse } from '../../../api/types.gen';
+import { DeadlinesApi } from '../../deadlines/data/deadlines-api';
 import { TriageForm } from './triage-form';
 import { PublicationsPage } from '../pages/publications-page';
 
@@ -121,6 +125,26 @@ describe('Triage draft lifecycle', () => {
     await TestBed.configureTestingModule({
       imports: [TriageForm, translocoTesting()],
       providers: [
+        {
+          provide: DeadlinesApi,
+          useValue: {
+            calculate: vi.fn().mockResolvedValue({
+              ok: true,
+              value: {
+                intimationOn: '2026-10-19',
+                startsOn: '2026-10-20',
+                fatalDueOn: '2026-11-10',
+                internalDueOn: '2026-11-08',
+                countedDays: 15,
+                courtId: null,
+                stateCode: 'SP',
+                municipality: null,
+                federalJustice: false,
+                lines: [],
+              } satisfies DeadlineCalculationResponse,
+            }),
+          },
+        },
         { provide: PublicationsStore, useValue: { busy: signal(false) } },
         {
           provide: AccessStore,
@@ -161,5 +185,49 @@ describe('Triage draft lifecycle', () => {
       .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await fixture.whenStable();
     expect(emitted).not.toHaveBeenCalled();
+  });
+  it('offers a calculator for a linked deadline and applies dates without confirming the triage', async () => {
+    const { fixture, publication, element } = await render();
+    const component = fixture.componentInstance as unknown as { form: FormGroup };
+    component.form.patchValue({
+      startOn: '2026-10-20',
+      internalDueOn: '2026-11-08',
+      fatalDueOn: '2026-11-10',
+      confirmed: true,
+    });
+    fixture.componentRef.setInput('publication', { ...publication, legalCaseId: 'case-1' });
+    await fixture.whenStable();
+    component.form.controls['action'].setValue('deadline');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const calculator = element.querySelector('lf-deadline-calculator')!;
+    expect(calculator).not.toBeNull();
+    expect(component.form.getRawValue()).toMatchObject({
+      startOn: '2026-10-20',
+      internalDueOn: '2026-11-08',
+      fatalDueOn: '2026-11-10',
+      confirmed: false,
+    });
+    calculator.querySelector<HTMLButtonElement>('button')!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const buttons = Array.from(calculator.querySelectorAll('button'));
+    buttons.at(-1)!.click();
+    expect(component.form.getRawValue()).toMatchObject({
+      startOn: '2026-10-20',
+      internalDueOn: '2026-11-08',
+      fatalDueOn: '2026-11-10',
+      confirmed: false,
+    });
+    component.form.controls['internalDueOn'].setValue('2026-11-07');
+    const trigger = calculator.querySelector<HTMLInputElement>('input[type=date]')!;
+    trigger.value = '2026-10-21';
+    trigger.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(component.form.getRawValue()).toMatchObject({
+      startOn: '',
+      internalDueOn: '2026-11-07',
+      fatalDueOn: '',
+      confirmed: false,
+    });
   });
 });
