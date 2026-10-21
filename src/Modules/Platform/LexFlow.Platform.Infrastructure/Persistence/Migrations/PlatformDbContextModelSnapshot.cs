@@ -2243,6 +2243,44 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                     b.ToTable("jobs", "platform");
                 });
 
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.DigestDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date")
+                        .HasColumnName("day");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_digest_deliveries");
+
+                    b.HasIndex("OrganizationId", "UserId", "Day")
+                        .IsUnique()
+                        .HasDatabaseName("ix_digest_deliveries_organization_id_user_id_day");
+
+                    b.ToTable("digest_deliveries", "platform");
+                });
+
             modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2296,6 +2334,73 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                     b.ToTable("notifications", "platform");
                 });
 
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.NotificationPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("DailyDigestEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("daily_digest_enabled");
+
+                    b.Property<bool>("IncludeAgenda")
+                        .HasColumnType("boolean")
+                        .HasColumnName("include_agenda");
+
+                    b.Property<bool>("IncludeDeadlines")
+                        .HasColumnType("boolean")
+                        .HasColumnName("include_deadlines");
+
+                    b.Property<bool>("IncludePublications")
+                        .HasColumnType("boolean")
+                        .HasColumnName("include_publications");
+
+                    b.PrimitiveCollection<string[]>("MutedKinds")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("muted_kinds");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_preferences");
+
+                    b.HasIndex("OrganizationId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_preferences_organization_id_user_id");
+
+                    b.ToTable("notification_preferences", "platform");
+                });
+
             modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.NotificationReceipt", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2339,6 +2444,53 @@ namespace LexFlow.Platform.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_notification_receipts_organization_id_notification_id_user_");
 
                     b.ToTable("notification_receipts", "platform");
+                });
+
+            modelBuilder.Entity("LexFlow.Platform.Domain.Notifications.NotificationRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.PrimitiveCollection<string[]>("RequiredKinds")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("required_kinds");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_rules");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_rules_organization_id");
+
+                    b.ToTable("notification_rules", "platform");
                 });
 
             modelBuilder.Entity("LexFlow.Platform.Domain.Preferences.UserPreference", b =>

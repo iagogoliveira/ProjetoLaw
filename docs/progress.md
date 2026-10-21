@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C implementado e verificado, publicado no PR #38 (aberto); revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D implementado e verificado, publicado no PR #39 (aberto); revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (7A e 7B mergeados; 7C pronto para revisão)
+## Etapa 7 — Prazos, agenda e tarefas (7A, 7B e 7C mergeados; 7D implementado e verificado, publicado no PR #39 (aberto))
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -164,9 +164,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local da arrumação pós-merge:** somente documentação; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantidos os 1.075 testes .NET consolidados, gate de 80%, 134 Vitest e demais verificações anteriores; CI final aprovado complementa AppHost/E2E após a correção. Ambos os manuais revisados/atualizados para disponibilidade na main e checkout do 7C, sem novos passos de uso ou execução. Nenhuma aplicação iniciada e nenhum volume alterado. Diretório local não rastreado `.codex/` preservado e excluído do commit. Commit/push documental na branch do 7C segue o ciclo pós-merge autorizado; implementação do 7C ainda não iniciada. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
 
-### PR 7C — Agenda e tarefas (implementado e verificado; PR #38 aberto)
+### PR 7C — Agenda e tarefas (concluído; PR #38 mergeado em 2026-10-21)
 
-**Branch:** `codex/etapa-7c-agenda-tarefas`, base `aaec47f` (merge do 7B), arrumação pós-merge `75d38c4`. **ADR:** [0039](adr/0039-agenda-tarefas-e-redistribuicao.md), proposta. Continuidade autorizada pelo usuário em 2026-10-20: "Prossiga"; o plano 7A–7G permanece aprovado. Push/PR da implementação somente a pedido.
+**Branch:** `codex/etapa-7c-agenda-tarefas`, base `aaec47f` (merge do 7B), arrumação pós-merge `75d38c4`. **ADR:** [0039](adr/0039-agenda-tarefas-e-redistribuicao.md), aceita no PR #38. Continuidade autorizada pelo usuário em 2026-10-20: "Prossiga"; o plano 7A–7G permanece aprovado. Push/PR da implementação somente a pedido.
 
 **Decisões adicionais do usuário em 2026-10-20:** (1) tarefas e compromissos com processo opcional; (2) concluir exige checklist e subtarefas resolvidos; (3) tarefas Pendente/Em andamento/Concluída/Cancelada, prioridades Baixa/Normal/Alta/Urgente, com reabertura; (4) subtarefas completas de um nível, com responsável, vencimento, prioridade e checklist, considerando concluída ou cancelada como resolvida para o pai.
 
@@ -195,7 +195,50 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Manual:** ambos os guias revisados e atualizados para tarefas, compromissos, permissões, filtros, reabertura, subtarefas e redistribuição. Sem novos serviços, portas ou comandos de inicialização. Telas continuam previstas para o 7F; anexos no GED da Etapa 9, preferências/notificações adicionais no 7D e sincronização externa no 7G.
 
-**Estado e continuidade:** implementação 407ca4a publicada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), aberto em 2026-10-21 a pedido do usuário. Usuário confirmou: “Abra o PR; eu faço o merge”. Conferir CI e revisão e aguardar o merge; depois, arrumação pós-merge e 7D. ADR 0039 permanece proposta. Publicação altera somente documentação: diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos; mantidos os gates integrais acima, sem repetir runtime. Ambos os manuais revisados, sem novos passos. Aplicação permanece fechada, dados preservados. Diretório local .codex/ preservado e excluído do commit. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+**Estado e continuidade:** implementação 407ca4a publicada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), aberto em 2026-10-21 a pedido do usuário. Usuário confirmou: “Abra o PR; eu faço o merge”. Merge confirmado pelo usuário em 2026-10-21 às 10:48 (America/Sao_Paulo), commit 966a3a1ca1c5fcf3fb004e43f990620ea74b6841, envio até f63f6e8. Todos os checks do PR aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. ADR 0039 aceita. Publicação altera somente documentação: diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos; mantidos os gates integrais acima, sem repetir runtime. Ambos os manuais revisados, sem novos passos. Aplicação permanece fechada, dados preservados. Diretório local .codex/ preservado e excluído do commit. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+**Última verificação local da arrumação pós-merge (2026-10-21):** main atualizada por fast-forward para 966a3a1; branch codex/etapa-7d-controladoria-notificacoes criado dessa base. Somente documentação alterada; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantida a verificação integral do 7C acima, complementada pelo CI integral aprovado no head f63f6e8. Ambos os manuais atualizados para disponibilidade do backend na main e checkout do 7D, sem novos passos de uso/inicialização. Nenhuma aplicação iniciada ou volume alterado; .codex/ preservado e excluído do commit. Commit e push documental no branch do 7D seguem o ciclo pós-merge autorizado. Implementação do 7D ainda não iniciada; próximo trabalho é detalhar controladoria e notificações conforme o plano aprovado.
+
+### PR 7D — Controladoria e notificações (PR #39 aberto; implementado e verificado)
+
+**Branch:** codex/etapa-7d-controladoria-notificacoes, base 966a3a1, arrumação pós-merge 22f1479. Continuidade autorizada em 2026-10-21: “Continue com o desenvolvimento”; propostas de negócio confirmadas depois com “Pode seguir com essas propostas”. **ADR:** [0040](adr/0040-controladoria-e-notificacoes.md), proposta para revisão no PR.
+
+**Decisões aprovadas em 2026-10-21:**
+
+- Processos sem andamento: apenas ativos, pelo último CaseMovement.OccurredAt ou CreatedAt sem andamento; padrão de 30 dias ajustável. Não usar atualização do cadastro ou coleta como andamento.
+- Indicadores: tempo médio recebimento→triagem; confirmação de prazo após a data interna; retrabalho por triagem refeita. O fluxo atual permite uma triagem imutável, por isso retrabalho é zero, sem inventar histórico.
+- Pendências: responsável ausente ou inativo em prazo aberto; sem evidência inclui abertos vencidos ou cumpridos legados sem protocolo. O domínio continua exigindo protocolo para cumprir.
+- Alertas in-app obrigatórios: perda, alteração de calendário e fatal no dia, para destinatários autorizados. Mantido o conferente nos dois tipos anteriores. Preferências pessoais não suprimem o piso; escritório pode exigir adicionalmente os tipos existentes de publicação/captura.
+- Resumo opt-in às 07:30 de São Paulo, com seções escolhidas de agenda atribuída no dia, prazos abertos em sete dias a partir de hoje e publicações pendentes visíveis. Conta confirmada e membro ativo; sem conteúdo visível, nenhum e-mail.
+
+| Subtarefa | Execução/revisão | Verificação |
+| --- | --- | --- |
+| Dapper 2.1.89 (Apache-2.0), TenantSql parametrizado com tenant e transação preservados | Sol; testes Luna | BuildingBlocks.Integration 51/51, quatro novos testes de parâmetro, ausência/troca de tenant e rollback; a amostra do helper não afirma provar RLS |
+| Contratos e GET /api/v1/schedule/control, janela civil e limites, leitura/escopo/sigilo antes de itens e totais | Sol; fontes e testes delimitados Luna | Três ControlReportTests, oito unitários de janela/composição; API integral 281/281 |
+| Publicações pendentes, prazos pendentes, processos parados e indicadores | Luna com especificação fechada e revisão Sol | Três ControlQualityTests com PostgreSQL real, isolamento, sigilo, média e cadastro tardio; datas PostgreSQL convertidas explicitamente na consulta Dapper |
+| schedule.control.read para Administrador/Sócio/Controladoria; preferências, regras e histórico de envio auditados/isolados | Sol | Migrations aditivas ControlReportPermission e NotificationPoliciesAndDailyDigest; Platform.Integration 55/55, upgrade preservando dados e RLS real nas três tabelas como lexflow_app |
+| Preferências por usuário, regras por escritório e política efetiva aplicada ao feed, recibos e stream | Sol; API Luna | Cinco NotificationSettingsTests; cinco unitários do domínio; SecurityTests 12/12 |
+| Dispatcher por escritório, jobs por usuário, lembrete fatal e resumo diário, opt-in, escape HTML, dedup e retry | Sol; testes adicionais Sol | Sete DailySchedulingTests, concorrência, horário, conta confirmada, opt-out, sigilo e destinatários; um DailyDigestMailpitTests com SMTP/Mailpit reais |
+| Novo aviso no sino e traduções pt-BR/en; OpenAPI/cliente oficiais | Luna; contrato e revisão Sol | 134 Vitest, lint/build, OpenAPI 162 caminhos/287 schemas; oasdiff sem quebra; duas rodadas Playwright contra AppHost |
+| ADR, progress/handoff, AGENTS/CLAUDE e ambos os manuais | Sol | Diff, UTF-8 e igualdade dos agentes conferidos antes do commit |
+
+**Última verificação local integral — 2026-10-21:**
+
+- Build Release da solução em modo serial (-m:1), **zero avisos/erros**; format verify-no-changes aprovado. Build Debug atualizado de AppHost/API/Worker, zero avisos/erros.
+- **1.161 testes .NET, 20 projetos, zero falhas/ignorados**, com cobertura por projeto: BuildingBlocks 238 unitários/51 integração; CRM 33/3; Identity 38/19; Litigation 36/11; Organization 34/8; Platform 63/55; Publications 57/18; Scheduling 169/4; Architecture 17; API 281; Security 12; AppHost 14.
+- Gate de **80% aprovado em todos os módulos**, unindo apenas os relatórios desta rodada em TestResults/7d-final-validation/coverage. Platform.Domain **100,0%**, Application **97,7%**; Scheduling.Domain **98,8%**, Application **99,4%**; Litigation.Domain **97,9%**, Application **92,7%**.
+- Auditoria .NET: 64 projetos sem pacotes vulneráveis; seis modelos EF (Platform, Organization, Crm, Litigation, Publications, Scheduling) sem alterações pendentes. Os EF checks usaram --no-build com Debug atualizado, enquanto o AppHost manual já estava em verificação.
+- Snapshot OpenAPI atualizado pelos testes oficiais e cliente regenerado. **162 caminhos/287 schemas**; **oasdiff oficial v1.33.0 sem quebra** contra origin/main, sem nova exceção. Nenhum JSON de contrato editado à mão.
+- Frontend: lint/Prettier, **134 Vitest em 19 arquivos**, build Angular e npm audit aprovados; **zero vulnerabilidades**. Sem pacote novo no frontend. A instalação do AppHost normalizou somente 18 flags peer no lockfile, sem mudar versões; diff conferido e normalização descartada.
+- **Duas rodadas completas consecutivas de Playwright contra o AppHost: 17 aprovados em cada uma**, com WCAG 2.1 AA. Uma preparação opcional de carga ignorada por rodada, sem LOAD_OUTPUT. E2E_BASE_URL=http://localhost:4200, E2E_MAILPIT_URL=http://127.0.0.1:8025, workers=2, relatórios/artifacts separados. Limite público 10000 apenas na instância de verificação; produção preservada.
+- AppHost.Tests concluiu antes do AppHost manual/Playwright. **Aplicação encerrada**, portas 4200/5238/8025 fechadas, sete serviços desta instância parados e zero containers ativos; volumes/cadastros preservados.
+- **Migrations 20261021140049_ControlReportPermission e 20261021141634_NotificationPoliciesAndDailyDigest aplicadas ao banco local**, confirmadas no histórico após a verificação. Não editar essas migrations. Logs em TestResults/7d-final-validation; tentativas direcionadas anteriores em TestResults/7d-directed. Orquestrador conferiu diffs, contagens e evidências; revisão Sol independente não apontou novo bug concreto.
+
+**Incidentes resolvidos sem relaxar gates:** fixture existente passou a receber IClock para o lembrete fatal; testes novos corrigiram imports/arrays e o schema de dados de preparação. A consulta Dapper passou a converter date para timestamp na projeção, evitando erro 500 ao materializar datas. Testes revelaram envio de resumo vazio, corrigido antes da rodada final. Falhas de sandbox/IPC/Docker foram resolvidas com acesso autorizado; nenhum resultado de zero testes foi contado como sucesso.
+
+**Manual e limites:** ambos os guias atualizados para o backend de controladoria, regras/preferências, sino, resumo e operação local, sem novos serviços/portas/comandos. Telas completas ficam no 7F; telas de prazos no 7E; demais canais e evoluções seguem futuros. Locks e ledger evitam duplicação concorrente e reenvio após sucesso registrado; SMTP não tem transação distribuída, podendo duplicar após queda entre aceitação e commit. Esta limitação está documentada, sem prometer exactly-once.
+
+**Estado e continuidade:** implementação 676a2c1 enviada e publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) em 2026-10-21, a pedido do usuário. Publicação documental conferida com diff, UTF-8 e igualdade AGENTS/CLAUDE; gates integrais preservados, sem nova mudança de runtime. .codex/ local não rastreado preservado e excluído do commit. Próximo: conferir CI/revisão do PR #39 e aguardar merge pelo usuário; depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes; não declarar as etapas 7 e 6 integralmente concluídas.
 
 ---
 ## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)

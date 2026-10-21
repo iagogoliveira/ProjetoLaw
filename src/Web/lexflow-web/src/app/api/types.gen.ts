@@ -687,6 +687,35 @@ export type ContactResponse = {
     preferredChannel: ContactChannel;
 };
 
+export type ControlItem = {
+    id: string;
+    caseId: null | string;
+    label: string;
+    at: string;
+};
+
+export type ControlMetric = {
+    kind: string;
+    value: null | number | string;
+    unit: string;
+    sampleSize: number | string;
+};
+
+export type ControlReportResponse = {
+    asOf: string;
+    from: string;
+    until: string;
+    idleDays: number | string;
+    sections: Array<ControlSection>;
+    metrics: Array<ControlMetric>;
+};
+
+export type ControlSection = {
+    kind: string;
+    count: number | string;
+    items: Array<ControlItem>;
+};
+
 /**
  * Um mês da memória de cálculo.
  */
@@ -1338,6 +1367,33 @@ export type NotificationResponse = {
     createdAt: string;
     readAt: null | string;
     caseId?: null | string;
+};
+
+export type NotificationRulesInput = {
+    requiredKinds: null | Array<string>;
+};
+
+export type NotificationRulesResponse = {
+    requiredKinds: Array<string>;
+    mandatoryKinds: Array<string>;
+};
+
+export type NotificationSettingsInput = {
+    dailyDigestEnabled: boolean;
+    includeAgenda: boolean;
+    includeDeadlines: boolean;
+    includePublications: boolean;
+    mutedKinds: null | Array<string>;
+};
+
+export type NotificationSettingsResponse = {
+    dailyDigestEnabled: boolean;
+    includeAgenda: boolean;
+    includeDeadlines: boolean;
+    includePublications: boolean;
+    mutedKinds: Array<string>;
+    requiredKinds: Array<string>;
+    availableKinds: Array<string>;
 };
 
 export type NotificationsPageResponse = {
@@ -2209,6 +2265,27 @@ export type ValuationInput = {
 
 export type WorkItemStatus = 'pending' | 'inProgress' | 'completed' | 'missed';
 
+export type GetControlReportData = {
+    body?: never;
+    path?: never;
+    query?: {
+        from?: string;
+        until?: string;
+        idleDays?: number | string;
+        limit?: number | string;
+    };
+    url: '/api/v1/schedule/control';
+};
+
+export type GetControlReportResponses = {
+    /**
+     * OK
+     */
+    200: ControlReportResponse;
+};
+
+export type GetControlReportResponse = GetControlReportResponses[keyof GetControlReportResponses];
+
 export type UpdateLookupItemData = {
     body: UpdateLookupItemRequest;
     path: {
@@ -2674,6 +2751,70 @@ export type ReadNotificationResponses = {
 };
 
 export type ReadNotificationResponse = ReadNotificationResponses[keyof ReadNotificationResponses];
+
+export type GetNotificationSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/notification-settings';
+};
+
+export type GetNotificationSettingsResponses = {
+    /**
+     * OK
+     */
+    200: NotificationSettingsResponse;
+};
+
+export type GetNotificationSettingsResponse = GetNotificationSettingsResponses[keyof GetNotificationSettingsResponses];
+
+export type SetNotificationSettingsData = {
+    body: NotificationSettingsInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/notification-settings';
+};
+
+export type SetNotificationSettingsResponses = {
+    /**
+     * OK
+     */
+    200: NotificationSettingsResponse;
+};
+
+export type SetNotificationSettingsResponse = SetNotificationSettingsResponses[keyof SetNotificationSettingsResponses];
+
+export type GetNotificationRulesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/notification-rules';
+};
+
+export type GetNotificationRulesResponses = {
+    /**
+     * OK
+     */
+    200: NotificationRulesResponse;
+};
+
+export type GetNotificationRulesResponse = GetNotificationRulesResponses[keyof GetNotificationRulesResponses];
+
+export type SetNotificationRulesData = {
+    body: NotificationRulesInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organization/notification-rules';
+};
+
+export type SetNotificationRulesResponses = {
+    /**
+     * OK
+     */
+    200: NotificationRulesResponse;
+};
+
+export type SetNotificationRulesResponse = SetNotificationRulesResponses[keyof SetNotificationRulesResponses];
 
 export type ListCustomFieldsData = {
     body?: never;

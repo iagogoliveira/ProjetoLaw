@@ -1,5 +1,6 @@
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Contracts;
+using LexFlow.Platform.Contracts.Control;
 using LexFlow.Platform.Contracts.Notifications;
 using LexFlow.Publications.Application;
 using LexFlow.Publications.Application.Capture;
@@ -8,6 +9,7 @@ using LexFlow.Publications.Application.Movements;
 using LexFlow.Publications.Application.Triage;
 using LexFlow.Publications.Contracts;
 using LexFlow.Publications.Infrastructure.Capture;
+using LexFlow.Publications.Infrastructure.Control;
 using LexFlow.Publications.Infrastructure.Movements;
 using LexFlow.Publications.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,9 @@ public static class PublicationsInfrastructure
     {
         services.AddPublicationsPersistence(configuration);
         services.AddScoped<PublicationAccess>();
+        services.AddScoped<IControlReportSource, StaleCasesReport>();
+        services.AddScoped<IControlReportSource, PublicationControlReport>();
+        services.AddScoped<IDailyDigestSource, PublicationControlReport>();
         services.AddScoped<PublicationWorkflowAccess>();
         services.AddScoped<PublicationTriageTargets>();
         services.AddScoped<DailyCloseAccess>();

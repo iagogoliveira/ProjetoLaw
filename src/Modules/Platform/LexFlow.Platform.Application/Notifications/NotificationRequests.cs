@@ -23,13 +23,14 @@ internal sealed class ListNotificationsValidator : AbstractValidator<ListNotific
 {
     public ListNotificationsValidator() => RuleFor(q => q.Limit).InclusiveBetween(1, 200).WithErrorCode("pagination.limit_out_of_range");
 }
-internal sealed class NotificationAccess(IOrganizationAccessDirectory directory, IEnumerable<INotificationVisibility> policies)
+internal sealed class NotificationAccess(IOrganizationAccessDirectory directory, IEnumerable<INotificationVisibility> policies, NotificationDeliveryPolicy delivery)
 {
     public async Task<IReadOnlyCollection<Guid>> VisibleAsync(NotificationViewer viewer, IReadOnlyList<Notification> rows, CancellationToken cancellationToken)
     {
         var access = await directory.GetAsync(viewer.UserId, cancellationToken);
         if (access is null || (access.MfaRequired && !viewer.MultiFactorAuthenticated)) { return []; }
-        var candidates = rows.Select(n => new NotificationCandidate(n.Id, n.Kind, n.ResourceId)).ToList();
+        var suppressed = await delivery.SuppressedAsync(viewer.UserId, cancellationToken);
+        var candidates = rows.Where(n => !suppressed.Contains(n.Kind)).Select(n => new NotificationCandidate(n.Id, n.Kind, n.ResourceId)).ToList();
         var ids = new HashSet<Guid>();
         foreach (var policy in policies) { ids.UnionWith(await policy.VisibleAsync(viewer, candidates, cancellationToken)); }
         return ids;

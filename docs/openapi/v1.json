@@ -5,6 +5,69 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/v1/schedule/control": {
+      "get": {
+        "tags": [
+          "Controladoria"
+        ],
+        "summary": "Pendências e indicadores da controladoria no alcance do usuário",
+        "operationId": "GetControlReport",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "idleDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlReportResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/lookup-items/{id}": {
       "put": {
         "tags": [
@@ -957,6 +1020,102 @@
         "responses": {
           "204": {
             "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/me/notification-settings": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "GetNotificationSettings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "SetNotificationSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationSettingsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organization/notification-rules": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "GetNotificationRules",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRulesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "SetNotificationRules",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationRulesInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRulesResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -15081,6 +15240,141 @@
           }
         }
       },
+      "ControlItem": {
+        "required": [
+          "id",
+          "caseId",
+          "label",
+          "at"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ControlMetric": {
+        "required": [
+          "kind",
+          "value",
+          "unit",
+          "sampleSize"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "value": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "sampleSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "ControlReportResponse": {
+        "required": [
+          "asOf",
+          "from",
+          "until",
+          "idleDays",
+          "sections",
+          "metrics"
+        ],
+        "type": "object",
+        "properties": {
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          },
+          "idleDays": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlSection"
+            }
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlMetric"
+            }
+          }
+        }
+      },
+      "ControlSection": {
+        "required": [
+          "kind",
+          "count",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlItem"
+            }
+          }
+        }
+      },
       "CorrectionMonthLine": {
         "required": [
           "month",
@@ -17649,6 +17943,121 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "NotificationRulesInput": {
+        "required": [
+          "requiredKinds"
+        ],
+        "type": "object",
+        "properties": {
+          "requiredKinds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NotificationRulesResponse": {
+        "required": [
+          "requiredKinds",
+          "mandatoryKinds"
+        ],
+        "type": "object",
+        "properties": {
+          "requiredKinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mandatoryKinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NotificationSettingsInput": {
+        "required": [
+          "dailyDigestEnabled",
+          "includeAgenda",
+          "includeDeadlines",
+          "includePublications",
+          "mutedKinds"
+        ],
+        "type": "object",
+        "properties": {
+          "dailyDigestEnabled": {
+            "type": "boolean"
+          },
+          "includeAgenda": {
+            "type": "boolean"
+          },
+          "includeDeadlines": {
+            "type": "boolean"
+          },
+          "includePublications": {
+            "type": "boolean"
+          },
+          "mutedKinds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NotificationSettingsResponse": {
+        "required": [
+          "dailyDigestEnabled",
+          "includeAgenda",
+          "includeDeadlines",
+          "includePublications",
+          "mutedKinds",
+          "requiredKinds",
+          "availableKinds"
+        ],
+        "type": "object",
+        "properties": {
+          "dailyDigestEnabled": {
+            "type": "boolean"
+          },
+          "includeAgenda": {
+            "type": "boolean"
+          },
+          "includeDeadlines": {
+            "type": "boolean"
+          },
+          "includePublications": {
+            "type": "boolean"
+          },
+          "mutedKinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiredKinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availableKinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -21202,6 +21611,9 @@
     }
   },
   "tags": [
+    {
+      "name": "Controladoria"
+    },
     {
       "name": "LookupTables"
     },

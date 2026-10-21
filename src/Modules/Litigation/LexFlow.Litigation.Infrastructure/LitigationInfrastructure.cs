@@ -50,6 +50,7 @@ public static class LitigationInfrastructure
         services.AddScoped<HearingRules>();
         services.AddScoped<IPublicationHearings, PublicationHearings>();
         services.AddScoped<IHearingCalendar, HearingCalendar>();
+        services.AddScoped<IHearingDigest, HearingDigest>();
         services.AddScoped<ITimelineContributor, LitigationTimeline>();
         services.AddSingleton<ICaseSheets, ClosedXmlCaseSheets>();
         services.AddScoped<CaseImportJobs>();
@@ -64,6 +65,7 @@ public static class LitigationInfrastructure
         services.AddScoped<IAccessDenials, AccessDenials>();
         services.AddScoped<ICaseVisibility, CaseVisibility>();
         services.AddScoped<ICaseDirectory, CaseDirectory>();
+        services.AddScoped<ICaseControlDirectory, CaseControlDirectory>();
         return services;
     }
 }

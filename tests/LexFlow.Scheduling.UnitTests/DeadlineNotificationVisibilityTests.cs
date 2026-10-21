@@ -1,3 +1,4 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Application.Abstractions.Data;
 using LexFlow.Litigation.Contracts;
 using LexFlow.Organization.Contracts.OrgStructure;
@@ -124,7 +125,14 @@ public sealed class DeadlineNotificationVisibilityTests
     }
 
     private static DeadlineNotificationVisibility CreateVisibility(OrganizationAccessStub access, CaseDirectoryStub cases) =>
-        new(new EmptySchedulingDbContext(), cases, access);
+        new(new EmptySchedulingDbContext(), cases, access, new FixedClock());
+
+    private sealed class FixedClock : IClock
+    {
+        public DateTimeOffset UtcNow => new(2026, 10, 21, 12, 0, 0, TimeSpan.Zero);
+        public TimeZoneInfo LegalTimeZone => TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+        public DateOnly Today => new(2026, 10, 21);
+    }
 
     private static OfficeUserAccess AccessWith(params string[] permissions) =>
         new(false, permissions.ToDictionary(permission => permission,

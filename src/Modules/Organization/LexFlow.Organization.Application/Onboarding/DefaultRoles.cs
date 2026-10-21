@@ -62,6 +62,7 @@ public static class DefaultRoles
             DataScope.Organization,
             [
                 "cases.read", "publications.read", "publications.triage", "publications.distribute", "publications.close",
+                "schedule.control.read",
                 "schedule.deadlines.read", "schedule.deadlines.manage", "schedule.deadlines.verify", "schedule.calendar.manage",
                 "schedule.events.read", "schedule.events.manage", "schedule.tasks.read", "schedule.tasks.manage",
                 "workflow.read", "documents.read", "reports.read", PermissionCatalog.PlatformJobsRead, PermissionCatalog.SettingsCustomFieldsRead,

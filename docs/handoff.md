@@ -10,6 +10,61 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7D publicado no PR #39)
+
+**Pedido:** “crie o pr”. Implementação 676a2c1 enviada no branch codex/etapa-7d-controladoria-notificacoes; [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) aberto e anexado à conversa. Merge pelo usuário.
+
+**Publicação:** progress, ADR 0040 (proposta no PR #39), AGENTS/CLAUDE e ambos os manuais atualizados. Somente documentação após a verificação integral registrada abaixo: diff, UTF-8 e igualdade dos agentes conferidos; resultados de runtime preservados. Diretório .codex/ local preservado e excluído do commit. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #39 e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações seguem pendentes. Não editar as duas migrations do 7D já aplicadas localmente.
+
+---
+## 2026-10-21 — Codex (7D implementado, verificado e commitado localmente; sem push/PR)
+
+**Pedido e decisões:** usuário aprovou as duas propostas restantes: “Pode seguir com essas propostas”. Indicadores e pendências seguem as definições no progress/ADR 0040; alertas obrigatórios in-app para perda, calendário e fatal no dia; resumo opt-in às 07:30 de São Paulo, com agenda atribuída, prazos abertos em sete dias e publicações pendentes visíveis. Continua valendo a regra já aprovada para processos ativos sem andamento, padrão 30 dias.
+
+**Estado:** branch codex/etapa-7d-controladoria-notificacoes; implementação e fechamento em commit local, sem push/PR da implementação. Remoto ainda na arrumação pós-merge 22f1479. .codex/ local não rastreado preservado e excluído do commit. ADR 0040 proposta, sem número de PR inventado.
+
+**Feito:** painel por API com itens/totais/indicadores autorizados via contratos dos módulos e Dapper parametrizado; preferências pessoais e regras obrigatórias auditadas com RLS; piso de alertas que o usuário não consegue suprimir; lembrete fatal no sino com traduções e navegação ao processo; jobs por escritório e usuário, conta confirmada, escolhas de seções, escopo/sigilo, HTML escapado, lock/ledger e retry do resumo. OpenAPI e cliente regenerados oficialmente; ambos os manuais atualizados. Telas de prazos ficam no 7E, painel/preferências/agenda no 7F; demais canais futuros.
+
+**Verificação integral aprovada em 2026-10-21:** builds Release da solução e Debug AppHost/API/Worker com zero avisos/erros; format; 1.161 testes .NET em 20 projetos, zero falhas/ignorados. API 281; Platform.Unit 63/Integration 55; BuildingBlocks.Integration 51; Scheduling.Unit 169; Security 12; AppHost 14. Gate 80% aprovado (Platform.Domain 100,0%, Application 97,7%; Scheduling.Domain 98,8%, Application 99,4%); dependências .NET sem vulneráveis e seis modelos EF sem pendências. OpenAPI 162 caminhos/287 schemas; oasdiff v1.33.0 sem quebra nem nova exceção; audit zero, lint, 134 Vitest e build Angular aprovados. Duas rodadas completas consecutivas de 17 Playwright contra AppHost, com WCAG 2.1 AA; uma preparação opcional de carga ignorada por rodada sem LOAD_OUTPUT. SMTP/Mailpit real, concorrência, retry, opt-out e revogação por sigilo verificados. AppHost.Tests terminou antes da instância manual. Logs finais TestResults/7d-final-validation; tentativas direcionadas preservadas em TestResults/7d-directed. Orquestrador conferiu diff, contagens/logs; segunda revisão Sol não apontou novo bug concreto.
+
+**Incidentes/cuidado técnico:** Npgsql entrega date como DateOnly, que o materializador Dapper não converte diretamente à propriedade DateTime; projeção SQL usa cast date::timestamp antes de mapear datas civis. Testes expuseram envio de resumos vazios; agora seções sem itens são removidas, e sem nenhuma seção visível não envia nem marca sucesso. Fixture do teste existente de visibilidade recebeu IClock. Testes de tenant do helper não habilitam RLS na amostra; o upgrade específico e SecurityTests verificam RLS real nas novas tabelas usando lexflow_app. Não conte tentativas sem testes ou falhas de IPC/Docker como sucesso. Execução serial -m:1 e acesso autorizado foram usados. Instalação npm do AppHost mudou só 18 flags peer, sem versões: diff conferido e normalização descartada. SMTP não garante exactly-once após queda entre aceitação e commit; limitação documentada, sem marcar sucesso antes de enviar.
+
+**Ambiente fechado:** AppHost/API/Worker/SPA encerrados, sete containers desta instância parados; portas 4200/5238/8025 fechadas e zero containers ativos; volumes/cadastros preservados. Migrations 20261021140049_ControlReportPermission e 20261021141634_NotificationPoliciesAndDailyDigest confirmadas no histórico do banco local. Não editar essas migrations nem as anteriores aplicadas.
+
+**Próximo:** push e PR do 7D quando o usuário solicitar; conferir CI e revisão e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações seguem pendentes; não declarar as etapas 7/6 integralmente concluídas. Sol orquestrou domínio, segurança, jobs, transações, migrations, contrato e fechamento; Luna fez fontes/testes delimitados e gates, com revisão; Sol também fez os testes mais exigentes de jobs/SMTP.
+
+---
+
+## 2026-10-21 — Codex (7D parcial; duas definições de negócio pendentes)
+
+**Pedido:** “Continue com o desenvolvimento”. Branch codex/etapa-7d-controladoria-notificacoes, HEAD ainda 22f1479 (arrumação pós-merge do 7C). Alterações do 7D no working tree, sem commit, push ou PR da implementação. .codex/ local preservado e excluído.
+
+**Decisão nova confirmada:** processos sem andamento = somente Active, último CaseMovement.OccurredAt, fallback LegalCase.CreatedAt; padrão 30 dias ajustável na consulta. Não contar edição cadastral como andamento nem usar CollectedAt.
+
+**Feito:** ADR 0040 proposta, licença oficial Apache-2.0 do Dapper conferida antes de adicionar versão 2.1.89; TenantSql com sessão do tenant reaplicada, parâmetros e transação preservados; contratos mínimos e fonte de processos parados; GET /api/v1/schedule/control; permissão schedule.control.read e migration aditiva 20261021140049_ControlReportPermission para Administrador/Sócio/Controladoria. Casos ativos vêm de Litigation por contrato com cases.read + control.read + sigilo; a consulta de andamentos em Publications lê só suas tabelas e não exige publications.read, como o endpoint existente de andamentos. Count calculado antes de limitar itens. Platform compõe as fontes; nenhum SQL entre schemas de módulos. Fonte não fornece as demais pendências/métricas ainda.
+
+**Perguntas em aberto (não presumir resposta):** usuário respondeu apenas a primeira das três perguntas assíncronas. Restam (1) definições de indicadores, prazos sem responsável e sem evidência; (2) política obrigatória de notificações, destinatários e resumo diário opt-in às 07:30. Propostas completas estão na conversa. Publicações não têm reabertura/retriagem hoje; retrabalho deve refletir isso, sem criar novo fluxo por conta própria. Demais indicadores, notificações/preferências/regras, jobs/resumo diário não implementados.
+
+**Verificação parcial:** build da infraestrutura, módulos afetados e API.IntegrationTests Release, 0 avisos/erros. API ControlReportTests 3/3 (TestResults/7d-directed/control-report.log); Platform ControlReportTests 8/8 (platform-control.log); TenantSqlTests 4/4, saída do subagente conferida (não há log persistido, código revisado). Testes cobrem parâmetros, tenant ausente/sessão em conexão aberta, transação/rollback; janela civil São Paulo; timestamp real vs coleta, contagens, tenant, sigilo, escopo, status e permissões na API. A amostra TenantSql não habilita RLS, portanto esses quatro não provam RLS. Tentativas anteriores com filtro incorreto/IPC não contam; o filtro MTP aprovado é --filter-class '*ControlReportTests', Release --no-build após build serial -m:1 com acesso autorizado.
+
+**Continuidade:** concluir após as duas respostas pendentes. Verificar upgrade/novos gates de segurança e RLS; OpenAPI e cliente ainda não regenerados; suíte completa obrigatória ainda não executada. Não declarar 7D pronto nem publicar esse estado parcial. Ambos os manuais/progress/AGENTS/CLAUDE atualizados para distinguir esse checkout da main e manter telas no 7F. Nenhum AppHost iniciado ou migration nova aplicada ao banco persistente; cadastros/volumes preservados. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes. Sol fez base/contratos/permissão/migration/revisão; Luna fez fonte e testes delimitados.
+
+---
+
+## 2026-10-21 — Codex (7C mergeado; preparação do 7D)
+
+**Pedido:** usuário confirmou “Mergeado”. PR #38 confirmado como MERGED em 2026-10-21 às 10:48 (America/Sao_Paulo), merge 966a3a1ca1c5fcf3fb004e43f990620ea74b6841. Implementação 407ca4a; envio final f63f6e8. Todos os checks aprovados, incluindo backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E.
+
+**Feito:** main atualizada por fast-forward e branch codex/etapa-7d-controladoria-notificacoes criado da base mergeada. ADR 0039 aceita; progress, AGENTS/CLAUDE e ambos os manuais atualizados. Commit e push da arrumação documental neste branch seguem o ciclo pós-merge autorizado; nenhum PR novo aberto.
+
+**Verificação:** somente documentação; diff, UTF-8 e igualdade dos agentes conferidos. Preservados 1.124 testes .NET, gate de 80%, 134 Vitest e duas rodadas de 17 Playwright do 7C, complementados pelo CI final integral aprovado. Sem repetir runtime. Aplicação permanece fechada e volumes/cadastros preservados; .codex/ local não rastreado preservado e excluído do commit. Migration AgendaAndTasks já aplicada no banco local, não editar.
+
+**Próximo:** detalhar o 7D (controladoria, indicadores, preferências/regras de notificação e resumo diário às 07:30 em America/Sao_Paulo) conforme o plano aprovado. Implementação do 7D ainda não iniciada. Sol orquestra partes críticas e revisão; Luna executa fatias delimitadas e verificação. Telas no 7F; revisão jurídica do 7A e fornecedor real de publicações seguem pendentes. Merge continua sendo feito pelo usuário.
+
+---
+
 ## 2026-10-21 — Codex (7C publicado no PR #38; merge pelo usuário)
 
 **Pedido e confirmação:** usuário pediu “Crie o merge” e esclareceu: “Abra o PR; eu faço o merge”. Implementação 407ca4a enviada no branch codex/etapa-7c-agenda-tarefas; [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38) aberto e anexado ao chat. ADR 0039 permanece proposta.
