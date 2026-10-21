@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D implementado e verificado, commit local sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D implementado e verificado, publicado no PR #39 (aberto); revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (7A, 7B e 7C mergeados; 7D implementado e verificado, commit local sem push/PR)
+## Etapa 7 — Prazos, agenda e tarefas (7A, 7B e 7C mergeados; 7D implementado e verificado, publicado no PR #39 (aberto))
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -199,7 +199,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local da arrumação pós-merge (2026-10-21):** main atualizada por fast-forward para 966a3a1; branch codex/etapa-7d-controladoria-notificacoes criado dessa base. Somente documentação alterada; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantida a verificação integral do 7C acima, complementada pelo CI integral aprovado no head f63f6e8. Ambos os manuais atualizados para disponibilidade do backend na main e checkout do 7D, sem novos passos de uso/inicialização. Nenhuma aplicação iniciada ou volume alterado; .codex/ preservado e excluído do commit. Commit e push documental no branch do 7D seguem o ciclo pós-merge autorizado. Implementação do 7D ainda não iniciada; próximo trabalho é detalhar controladoria e notificações conforme o plano aprovado.
 
-### PR 7D — Controladoria e notificações (implementado e verificado; commit local, sem push/PR)
+### PR 7D — Controladoria e notificações (PR #39 aberto; implementado e verificado)
 
 **Branch:** codex/etapa-7d-controladoria-notificacoes, base 966a3a1, arrumação pós-merge 22f1479. Continuidade autorizada em 2026-10-21: “Continue com o desenvolvimento”; propostas de negócio confirmadas depois com “Pode seguir com essas propostas”. **ADR:** [0040](adr/0040-controladoria-e-notificacoes.md), proposta para revisão no PR.
 
@@ -238,7 +238,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Manual e limites:** ambos os guias atualizados para o backend de controladoria, regras/preferências, sino, resumo e operação local, sem novos serviços/portas/comandos. Telas completas ficam no 7F; telas de prazos no 7E; demais canais e evoluções seguem futuros. Locks e ledger evitam duplicação concorrente e reenvio após sucesso registrado; SMTP não tem transação distribuída, podendo duplicar após queda entre aceitação e commit. Esta limitação está documentada, sem prometer exactly-once.
 
-**Estado e continuidade:** implementação verificada e commitada localmente, **sem push/PR da implementação**. .codex/ local não rastreado preservado e excluído do commit. Próximo: publicar quando o usuário pedir, conferir CI/revisão e aguardar merge pelo usuário; depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes; não declarar as etapas 7 e 6 integralmente concluídas.
+**Estado e continuidade:** implementação 676a2c1 enviada e publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) em 2026-10-21, a pedido do usuário. Publicação documental conferida com diff, UTF-8 e igualdade AGENTS/CLAUDE; gates integrais preservados, sem nova mudança de runtime. .codex/ local não rastreado preservado e excluído do commit. Próximo: conferir CI/revisão do PR #39 e aguardar merge pelo usuário; depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes; não declarar as etapas 7 e 6 integralmente concluídas.
 
 ---
 ## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)

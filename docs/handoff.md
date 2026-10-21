@@ -10,6 +10,15 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7D publicado no PR #39)
+
+**Pedido:** “crie o pr”. Implementação 676a2c1 enviada no branch codex/etapa-7d-controladoria-notificacoes; [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) aberto e anexado à conversa. Merge pelo usuário.
+
+**Publicação:** progress, ADR 0040 (proposta no PR #39), AGENTS/CLAUDE e ambos os manuais atualizados. Somente documentação após a verificação integral registrada abaixo: diff, UTF-8 e igualdade dos agentes conferidos; resultados de runtime preservados. Diretório .codex/ local preservado e excluído do commit. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #39 e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7E. Revisão jurídica do 7A e fornecedor real de publicações seguem pendentes. Não editar as duas migrations do 7D já aplicadas localmente.
+
+---
 ## 2026-10-21 — Codex (7D implementado, verificado e commitado localmente; sem push/PR)
 
 **Pedido e decisões:** usuário aprovou as duas propostas restantes: “Pode seguir com essas propostas”. Indicadores e pendências seguem as definições no progress/ADR 0040; alertas obrigatórios in-app para perda, calendário e fatal no dia; resumo opt-in às 07:30 de São Paulo, com agenda atribuída, prazos abertos em sete dias e publicações pendentes visíveis. Continua valendo a regra já aprovada para processos ativos sem andamento, padrão 30 dias.

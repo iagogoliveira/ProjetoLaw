@@ -251,7 +251,7 @@ A agenda reúne prazos (data fatal e informação da data interna), tarefas (ven
 
 ## 17. Controladoria e notificações (7D, backend no branch de desenvolvimento)
 
-O branch do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências continuam previstas para o 7F. A verificação integral foi aprovada em 2026-10-21; implementação commitada localmente, ainda sem push/PR ou merge. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
+O branch do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências continuam previstas para o 7F. A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), aguardando merge pelo usuário. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
 
 O relatório reúne publicações não tratadas, prazos abertos sem responsável ativo, prazos abertos vencidos sem evidência e cumpridos legados sem protocolo. Processos sem andamento consideram apenas os ativos, pelo último andamento processual ou pelo cadastro quando não houver andamento; o padrão é de 30 dias. Contagens e indicadores respeitam as mesmas permissões, alcance e sigilo dos itens.
 

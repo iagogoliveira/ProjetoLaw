@@ -1,6 +1,6 @@
 # ADR 0040 — Controladoria e notificações
 
-- **Status:** Proposta (para revisão no PR 7D)
+- **Status:** Proposta (para revisão no PR #39)
 - **Data:** 2026-10-21
 - **Etapa:** 7D (RF-05 e RF-26)
 
@@ -37,4 +37,4 @@ O plano 7A–7G aprovado inclui consultas da controladoria, indicadores, prefer�
 
 ## Verificação
 
-PostgreSQL real para consultas, RLS e upgrade; permissões, escopos e sigilo nas linhas e totais; relógio controlado e retentativas nos jobs; e-mail via Mailpit; contratos aditivos e SecurityTests. Verificação integral aprovada em 2026-10-21: builds Release/Debug sem avisos/erros, format, 1.161 testes .NET em 20 projetos, gate de 80%, dependências e seis modelos EF; OpenAPI/cliente oficiais com 162 caminhos/287 schemas e oasdiff sem quebra; lint, 134 Vitest, build Angular, audit zero e duas rodadas de 17 Playwright com acessibilidade (uma preparação opcional de carga ignorada em cada). SMTP/Mailpit real, concorrência, retry, autorização e upgrade/RLS verificados. Ambiente encerrado e volumes preservados. As duas migrations do 7D foram aplicadas ao banco local e não devem ser editadas. Evidências no progress. Implementação commitada localmente, sem push/PR.
+PostgreSQL real para consultas, RLS e upgrade; permissões, escopos e sigilo nas linhas e totais; relógio controlado e retentativas nos jobs; e-mail via Mailpit; contratos aditivos e SecurityTests. Verificação integral aprovada em 2026-10-21: builds Release/Debug sem avisos/erros, format, 1.161 testes .NET em 20 projetos, gate de 80%, dependências e seis modelos EF; OpenAPI/cliente oficiais com 162 caminhos/287 schemas e oasdiff sem quebra; lint, 134 Vitest, build Angular, audit zero e duas rodadas de 17 Playwright com acessibilidade (uma preparação opcional de carga ignorada em cada). SMTP/Mailpit real, concorrência, retry, autorização e upgrade/RLS verificados. Ambiente encerrado e volumes preservados. As duas migrations do 7D foram aplicadas ao banco local e não devem ser editadas. Evidências no progress. Implementação 676a2c1 publicada no PR #39 em 2026-10-21; aguardando revisão, CI e merge pelo usuário.
