@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7E publicado no PR #40)
+
+**Pedido:** “faça o PR”. Implementação fa8cc61 enviada no branch codex/etapa-7e-telas-prazos; [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40) aberto e anexado à conversa. Quem faz o merge é o usuário.
+
+**Publicação:** ADR 0041 proposta no PR #40, progress, AGENTS/CLAUDE e ambos os manuais atualizados para o PR aberto. Correção documental de uma indicação antiga de que a calculadora não tinha tela, apontando para o 7E. Somente documentação após os gates integrais registrados abaixo; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos, sem repetir testes de runtime. .codex/ local preservado e excluído do commit. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #40 e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7F. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
+
 ## 2026-10-21 — Codex (7E implementado e verificado; commit local, sem push/PR)
 
 **Pedido e decisão:** usuário autorizou prosseguir no plano aprovado. Semáforo confirmado: vermelho para fatal vencido/hoje; amarelo para meta interna vencida/hoje ou fatal nos próximos dois dias corridos; verde para demais abertos. Cumpridos/perdidos têm estado próprio. Datas civis de São Paulo.

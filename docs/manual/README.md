@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão no branch codex/etapa-7e-telas-prazos, ainda sem merge, conforme a seção 18. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão no branch codex/etapa-7e-telas-prazos, publicadas no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), ainda sem merge, conforme a seção 18. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 

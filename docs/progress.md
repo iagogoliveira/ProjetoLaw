@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D mergeado no PR #39 em 2026-10-21; 7E implementado e verificado localmente, sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes`, `codex/etapa-7e-telas-prazos` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D mergeado no PR #39 em 2026-10-21; 7E publicado no PR #40, aguardando revisão e merge; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes`, `codex/etapa-7e-telas-prazos` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -243,9 +243,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 **Última verificação local da arrumação pós-merge — 2026-10-21:** somente documentação; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Preservada a verificação integral acima, complementada pelo CI aprovado no head 3f9f40b. Ambos os manuais revisados para disponibilidade na main e checkout do 7E, sem novos passos. Aplicação não iniciada; volumes/cadastros e .codex/ preservados. Commit e push documental no branch do 7E conforme o ciclo aprovado.
 
 ---
-### PR 7E — Telas de prazos (implementado e verificado localmente; sem push/PR)
+### PR 7E — Telas de prazos (publicado no PR #40; aguardando revisão e merge)
 
-**Branch:** codex/etapa-7e-telas-prazos, criado da main no merge 621b812 do PR #39. **Autorização:** “prossiga”, em 2026-10-21, seguindo o plano 7A–7G aprovado. **ADR:** [0041](adr/0041-telas-de-prazos-e-confirmacao-do-calculo.md), proposta. Sem push/PR da implementação; publicação somente a pedido.
+**Branch:** codex/etapa-7e-telas-prazos, criado da main no merge 621b812 do PR #39. **Autorização:** “prossiga”, em 2026-10-21, seguindo o plano 7A–7G aprovado. **ADR:** [0041](adr/0041-telas-de-prazos-e-confirmacao-do-calculo.md), proposta. Implementação fa8cc61 publicada no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40) em 2026-10-21, a pedido do usuário.
 
 **Decisão nova aprovada em 2026-10-21:** semáforo dos prazos abertos vermelho para fatal vencido ou hoje; amarelo para meta interna vencida/hoje ou fatal nos próximos dois dias corridos; verde para os demais. Cumpridos e perdidos têm identificação própria. Datas civis de São Paulo; não altera situação ou datas do prazo.
 
@@ -265,7 +265,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Revisão:** corrigidas respostas antigas na troca de processo, navegação após saída do cadastro, perda de página após falha de paginação e concorrência das preferências salvas. Uma falha de leitura impede sobrescrever preferências; a ausência conhecida da chave permite o primeiro salvamento. Regressões automatizadas aprovadas. AGENTS/CLAUDE sincronizados; ambos os manuais revisados e atualizados nas instruções das telas. Serviços, portas e comandos de inicialização permanecem iguais.
 
-**Estado:** implementação com commit local no branch indicado, sem push ou PR; aguardar pedido de publicação do usuário. Normalização automática de 18 flags peer do lockfile descartada após conferir que não havia mudança de pacote/versão. Diretório .codex/ local preservado e excluído do commit. Próximo desenvolvimento após publicação e merge: 7F, conforme o plano aprovado.
+**Estado:** implementação fa8cc61 enviada no branch indicado e publicada no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), a pedido do usuário em 2026-10-21. Acompanhar CI e revisão; merge pelo usuário. Publicação somente documental após a verificação integral: diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos, sem repetir runtime. Normalização automática de 18 flags peer do lockfile descartada após conferir que não havia mudança de pacote/versão. Diretório .codex/ local preservado e excluído do commit. Próximo desenvolvimento após publicação e merge: 7F, conforme o plano aprovado.
 
 **Limites:** política de conferência e calendário do escritório continuam configurados pela API; a aba mostra a regra/memória apenas quando disponíveis. Agenda, tarefas, controladoria e preferências ficam no 7F; sincronização no 7G. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes. Merge pelo usuário.
 
