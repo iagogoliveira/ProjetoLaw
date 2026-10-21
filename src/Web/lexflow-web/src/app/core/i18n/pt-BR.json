@@ -973,6 +973,7 @@
         "received": "Publicação recebida: {{ journal }}"
       },
       "scheduling": {
+        "deadline_reassigned": "Prazo redistribuído",
         "deadline_registered": "Prazo cadastrado",
         "deadline_started": "Trabalho no prazo iniciado",
         "deadline_reviewed": "Prazo conferido",

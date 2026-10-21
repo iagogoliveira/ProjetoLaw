@@ -973,6 +973,7 @@
         "received": "Publication received: {{ journal }}"
       },
       "scheduling": {
+        "deadline_reassigned": "Deadline reassigned",
         "deadline_registered": "Deadline registered",
         "deadline_started": "Work on deadline started",
         "deadline_reviewed": "Deadline reviewed",

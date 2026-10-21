@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-19.** Este manual acompanha as telas disponíveis até a Etapa 5 e identifica os recursos da Etapa 6 ainda em construção. O 6B (#32) acrescentou infraestrutura de captura e notificações. O 6C (#33), mergeado em 2026-10-19, acrescentou a integração DataJud no backend, disponível na main. O 6D (#34) disponibiliza triagem, distribuição e fechamento no backend da main. O 6E (#35), mergeado em 2026-10-19, disponibiliza na main as telas de publicações, fontes, integração DataJud e fechamento, verificadas localmente e no CI.
+**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o 7C implementado e verificado no branch de desenvolvimento, ainda sem merge. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -190,7 +190,7 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
 | Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend na main desde o 7A ([#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36)); ainda sem tela, prevista para o 7E; revisão jurídica pendente |
 | Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend disponível na main pelo PR #37 (7B), mergeado em 2026-10-20; telas no 7E |
-| Agenda unificada e tarefas completas | Etapa 7 (7C e telas no 7F); sincronização no 7G |
+| Agenda unificada e tarefas completas | Backend implementado e verificado no branch do 7C, ainda sem merge; telas no 7F e sincronização no 7G |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis |
@@ -241,7 +241,15 @@ O cumprimento exige texto do protocolo. A perda exige justificativa. Quando a or
 
 No sino de notificações, os alertas de **Prazo perdido** e **Calendário alterado** abrem o processo correspondente. Somente o responsável, o conferente e a coordenação com as permissões e o alcance necessários veem esses alertas. Uma alteração relevante de dia sem expediente também aparece na linha do tempo; as datas e a memória do prazo confirmado permanecem preservadas. Não há referência a documentos do GED nesta entrega; ela entra na Etapa 9.
 
-## 16. Manutenção do manual
+## 16. Agenda e tarefas (7C, backend no branch de desenvolvimento)
+
+No branch `codex/etapa-7c-agenda-tarefas`, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas continuam previstas para o 7F; a implementação do 7C foi verificada em 2026-10-21 e ainda não foi mergeada. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
+
+A tarefa tem responsável, vencimento, prioridade, checklist, comentários e subtarefas completas de um nível. Para concluir, todos os itens do checklist precisam estar marcados e as subtarefas concluídas ou canceladas. Tarefas concluídas/canceladas podem ser reabertas como pendentes. Reabra primeiro a principal para alterar uma subtarefa de principal fechada. Cancelar a principal preserva o estado das subtarefas. Anexos dependem do GED da Etapa 9.
+
+A agenda reúne prazos (data fatal e informação da data interna), tarefas (vencimento), compromissos e audiências, com filtros por pessoa, equipe e período. Um filtro não concede acesso: as permissões, o alcance e o sigilo continuam valendo. Os compromissos aceitam horários simultâneos; cancelar preserva o registro. A redistribuição em lote informa o resultado de cada item e preserva as datas e a conferência dos prazos.
+
+## 17. Manutenção do manual
 
 Este é um documento em evolução, não a descrição de funcionalidades futuras como se já estivessem entregues. Após cada melhoria, revisar este manual e o guia de ambiente local. Atualizar as instruções de uso afetadas, os pré-requisitos de acesso e a tabela de disponibilidade; atualizar também o guia quando mudar a forma de iniciar, executar ou conferir o sistema. Se a melhoria não afetar um dos documentos, registrar essa ausência de impacto na verificação da entrega. Os nomes das ações devem ser conferidos na interface e nos testes de navegador.
 

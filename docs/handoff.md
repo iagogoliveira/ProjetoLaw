@@ -10,6 +10,26 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7C implementado, verificado e commitado localmente; sem push/PR)
+
+**Pedido do usuário:** "Prossiga", após a arrumação pós-merge do 7B. Implementação no branch `codex/etapa-7c-agenda-tarefas`, que já tinha a arrumação `75d38c4` enviada.
+
+**Decisões do usuário em 2026-10-20:** processo opcional para tarefas/compromissos; concluir exige checklist e subtarefas resolvidos; tarefas com quatro estados e prioridades, permitindo reabrir; subtarefas completas de um nível, com canceladas também liberando o pai. Registradas no progress e na ADR 0039, proposta.
+
+**Feito:** domínio, persistência e API de tarefas com prioridade, checklist, comentários, subtarefas e reabertura; compromissos; agenda unificada por usuário/equipe/escritório, intervalo e cursor; leitura mínima de audiências por `IHearingCalendar` em Litigation, sem acesso cruzado a DbContext; redistribuição parcial em lote de tarefas, compromissos e prazos. Datas e conferência dos prazos preservadas, com atividade traduzida na timeline. OpenAPI e cliente regenerados; ambos os manuais atualizados. Telas no 7F; anexos no GED da Etapa 9, notificações adicionais no 7D e sincronização no 7G. Sem pacote novo.
+
+**Divisão e revisão:** Sol fez domínio, autorização, transações, migrations, contrato e fechamento; Luna fez endpoints, testes delimitados e os gates backend. Segunda revisão Sol encontrou dois problemas corrigidos: destinatário administrativo precisa ter leitura cujo escopo alcance sua atribuição; recurso oculto e inexistente precisam do mesmo código do tipo, preservando a auditoria de CaseAccess. Testes cobrem ambos. Data inválida de query passou de 500 para 400 por seletor de status em Web.Common, sem expor detalhes; erro inesperado continua 500.
+
+**Verificação integral aprovada em 2026-10-21:** builds Release/Debug sem warnings/erros; format; **1.124 testes .NET em 20 projetos**, todos sem falhas/skips; gate de 80% (Scheduling.Domain 98,8%, Application 99,2%); dependências sem vulneráveis e seis modelos EF sem pendências. API **262**, Scheduling.Unit **169**, Scheduling.Integration **4**, Security **12** e AppHost **14**. OpenAPI **159 caminhos/279 schemas**, oasdiff v1.33.0 sem quebra, cliente regenerado; audit zero, lint, **134 Vitest** e build Angular aprovados. **Duas rodadas completas consecutivas de 17 Playwright contra AppHost**, com acessibilidade; somente preparação opcional de carga ignorada em cada rodada. AppHost.Tests encerrou antes do manual. Logs finais em `TestResults/7c-final-validation`, tentativas anteriores em `TestResults/7c-directed`. Orquestrador conferiu diffs/evidências.
+
+**Cuidados de continuidade:** tarefas usam `TaskState`, distinto de `WorkItemStatus` dos prazos; `LegalCaseId`/`PublicationId` da tarefa agora são opcionais. Na lista legada por processo, `status` permanece `pending` e o estado real vem em `lifecycleStatus`. Subtarefas herdam o vínculo de processo, têm só um nível e só são alteradas/reabertas quando o pai está aberto. `AgendaAccess` aplica permissão de destino, leitura do processo, sigilo e, para itens administrativos, responsável/equipe/escritório. Filtros não concedem acesso. O lock transacional de Scheduling ordena as mudanças. Testes de RLS direto precisam de `SET ROLE lexflow_app` na conexão aberta (migration login contorna RLS); SQL permitido é `ExecuteSqlAsync`/interpolado. Testes de timestamps preservados devem comparar GET persistido antes/depois (precisão PostgreSQL), sem afrouxar a comparação.
+
+**Ambiente fechado:** AppHost/API/Worker/SPA encerrados; os sete containers registrados da instância parados, zero containers ativos e portas 4200/5238/8025 fechadas. Volumes/cadastros preservados. Migration **`20261021025032_AgendaAndTasks` aplicada no banco local**; não editar essa migration nem as anteriores. Docker Desktop foi iniciado a partir da instalação per-user `AppData/Local/Programs/DockerDesktop`; o daemon estava parado nas primeiras tentativas. E2E usou Mailpit IPv4, dois workers e limite público 10000 só na instância de verificação, sem mudar produção.
+
+**Estado:** implementação verificada em commit local, **sem push/PR da implementação**. Remoto da branch ainda em `75d38c4`. `.codex/` local não rastreado preservado e excluído do commit. Próximo passo: push e PR do 7C quando o usuário pedir, conferir CI e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7D. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes; as etapas 7 e 6 não estão integralmente concluídas.
+
+---
+
 ## 2026-10-20 — Codex (pós-merge do 7B e preparação do 7C)
 
 **Pedido do usuário:** "Mergeado". Confirmado no GitHub o PR #37 como MERGED em 2026-10-20 às 23:35 (America/Sao_Paulo), merge `aaec47faee69ef8eecd284dd34dbf4bf20a3b4bb`. Todos os checks finais de `43356fb` aprovados, incluindo backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E; a correção do Vite está coberta pelo CI final.

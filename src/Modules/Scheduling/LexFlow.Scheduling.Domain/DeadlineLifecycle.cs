@@ -13,6 +13,13 @@ public sealed record ManualDeadlineInput(Guid CaseId, string Type, string Title,
 
 public sealed partial class Deadline
 {
+    public Result Reassign(Guid assignee)
+    {
+        if (Status is WorkItemStatus.Completed or WorkItemStatus.Missed) { return SchedulingErrors.InvalidTransition; }
+        if (assignee == Guid.Empty) { return SchedulingErrors.AssigneeUnavailable; }
+        AssigneeUserId = assignee;
+        return Result.Success;
+    }
     public string Type { get; private set; } = "procedural";
     public DeadlineRule? Rule { get; private set; }
     [Sensitive]

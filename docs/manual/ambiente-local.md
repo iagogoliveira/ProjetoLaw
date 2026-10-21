@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado após o merge do 7B, em 2026-10-20; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch `codex/etapa-7c-agenda-tarefas`, criada da main atualizada para preparar o próximo trabalho. As migrations do 7A e do 7B foram aplicadas no banco local durante a verificação. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no fechamento do 7C, em 2026-10-21; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch `codex/etapa-7c-agenda-tarefas`, com o backend do 7C implementado e verificado, ainda sem merge. As migrations do 7A, do 7B e do 7C foram aplicadas no banco local durante a verificação; a nova é `20261021025032_AgendaAndTasks`. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -187,3 +187,28 @@ A política usa o corpo `{ "requireDeadlineReview": true }` e vale para os novos
 Para conferir os alertas, cadastre um prazo futuro e altere um feriado do escritório que alcance seu período/local. A consulta do prazo deve manter as datas e a memória anteriores, com `lastCalendarAlertAt` preenchido; uma nova sugestão usa o calendário atualizado. A linha do tempo registra o alerta. O sino leva ao processo, preservando as permissões e o sigilo. Alterações apenas na nota ou em local/período sem relação com o prazo não geram alerta. Para a perda, verifique a notificação dos destinatários autorizados e o contador `lexflow_deadlines_missed_total` no meter `LexFlow.Scheduling`; a entrega pelo Worker é assíncrona e idempotente.
 
 **Compatibilidade da listagem:** em `GET /api/v1/cases/{id}/deadlines`, use `lifecycleStatus` para o estado atual; `status` mantém o valor legado `pending`. A consulta de detalhe e as ações retornam o estado atual em `status`.
+
+## 12. Agenda e tarefas (7C, operação técnica)
+
+Backend implementado e verificado no branch `codex/etapa-7c-agenda-tarefas`, ainda sem merge. A verificação integral foi aprovada em 2026-10-21, incluindo duas rodadas de Playwright contra o AppHost; o ambiente foi encerrado, preservando os volumes/cadastros. Não há novos serviços, portas ou comandos de inicialização. A migration `AgendaAndTasks` é aplicada pelo MigrationService ao subir o AppHost; preserva as tarefas legadas e acrescenta prioridade Normal. Telas no 7F e anexos no GED da Etapa 9.
+
+| Operação | Endpoint | Permissão |
+| --- | --- | --- |
+| Cadastrar/listar tarefas | `POST`/`GET /api/v1/tasks` | `schedule.tasks.manage` / `schedule.tasks.read` |
+| Consultar/editar tarefa | `GET`/`PUT /api/v1/tasks/{id}` | `schedule.tasks.read` / `schedule.tasks.manage` |
+| Criar subtarefa | `POST /api/v1/tasks/{id}/subtasks` | `schedule.tasks.manage` |
+| Alterar estado | `POST /api/v1/tasks/{id}/state` | `schedule.tasks.manage` |
+| Incluir/marcar checklist | `POST /api/v1/tasks/{id}/checklist`, `PUT /api/v1/tasks/{id}/checklist/{itemId}` | `schedule.tasks.manage` |
+| Comentar | `POST /api/v1/tasks/{id}/comments` | `schedule.tasks.manage` |
+| Cadastrar/consultar/editar compromisso | `POST /api/v1/schedule/events`, `GET`/`PUT /api/v1/schedule/events/{id}` | `schedule.events.manage` / `schedule.events.read` / `schedule.events.manage` |
+| Cancelar compromisso | `POST /api/v1/schedule/events/{id}/cancel` | `schedule.events.manage` |
+| Agenda unificada | `GET /api/v1/schedule/agenda` | `schedule.events.read`, mais leitura de cada fonte e processo |
+| Redistribuir | `POST /api/v1/tasks/redistribute`, `/api/v1/deadlines/redistribute`, `/api/v1/schedule/events/redistribute` | Permissão de gerenciar o tipo correspondente |
+
+Cadastro/edição de tarefa recebe `caseId` opcional, `title`, `description` opcional, `dueOn` (`yyyy-MM-dd`), `assigneeUserId` e `priority` (`low`, `normal`, `high`, `urgent`). A criação de subtarefa usa o mesmo corpo e o mesmo processo do pai; apenas um nível. Alterar estado recebe `{ "status": "inProgress" }`, aceitando também `pending`, `completed` e `cancelled`, conforme a transição. Títulos aceitam até 300 caracteres, descrições/comentários até 4000 e o checklist até 100 itens. Checklist recebe `{ "title": "Conferir" }` e marcação `{ "completed": true }`; comentário recebe `{ "text": "Nota interna" }`. A conclusão com pendências responde `scheduling.task_unresolved`; reabra a principal antes de alterar uma subtarefa de principal fechada.
+
+O compromisso recebe `caseId` opcional, `title`, `description` opcional, `startsAt`, `endsAt`, `assigneeUserId` e `location` opcional. Envie início/fim com fuso; a API normaliza para UTC. O fim precisa ser posterior ao início. O vínculo de processo não muda na edição. Cancelamento é preservado, sem remoção física.
+
+Na agenda, informe `from` inclusivo e `until` exclusivo como datas civis em São Paulo, com intervalo de até 366 dias. Filtros opcionais: `assigneeUserId`, `teamId`, `includeClosed`, `cursor` e `limit` (1 a 100). Reenvie o `nextCursor` da resposta, codificado na URL, com os mesmos filtros para continuar. A lista de tarefas aceita `caseId`, `assigneeUserId`, `teamId`, `parentTaskId`, `status`, `priority`, `after` e `limit`. A agenda não replica notas, testemunhas ou resultados das audiências. Itens administrativos respeitam responsável/equipe/escritório; itens de processo exigem também leitura do processo e respeito ao sigilo.
+
+Redistribuição recebe `{ "ids": ["..."], "assigneeUserId": "..." }`, com até 1000 IDs distintos. Confira `items`, `changed` e `errorCode`: os válidos podem ser alterados mesmo quando outros forem rejeitados. Itens fechados permanecem intactos; responsável precisa ser ativo e alcançar a leitura de cada destino. Prazos mantêm as datas e a conferência, e a timeline registra a redistribuição.

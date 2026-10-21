@@ -63,7 +63,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     private sealed record CrossTenantCase(Guid Id, object? Body = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
-    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithDeadlineRoutes(WithCaseWorkflowRoutes(WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithSchedulingRoutes(WithDeadlineRoutes(WithCaseWorkflowRoutes(WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
     {
         ["GET /api/v1/jobs/{id:guid}"] = async owner => new CrossTenantCase(await CreateJobAsync(owner.OrganizationId)),
         ["DELETE /api/v1/me/sessions/{id:guid}"] = async owner => new CrossTenantCase(await CreateSessionAsync(owner.UserId)),
@@ -115,7 +115,46 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
-    })))));
+    }))))));
+
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithSchedulingRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        cases.Add("GET /api/v1/tasks/{id:guid}", async owner => new CrossTenantCase(await TaskOfAsync(owner)));
+        cases.Add("PUT /api/v1/tasks/{id:guid}", async owner => new CrossTenantCase(await TaskOfAsync(owner), TaskBody(owner)));
+        cases.Add("POST /api/v1/tasks/{id:guid}/subtasks", async owner => new CrossTenantCase(await TaskOfAsync(owner), TaskBody(owner)));
+        cases.Add("POST /api/v1/tasks/{id:guid}/state", async owner => new CrossTenantCase(await TaskOfAsync(owner), new { status = "inProgress" }));
+        cases.Add("POST /api/v1/tasks/{id:guid}/checklist", async owner => new CrossTenantCase(await TaskOfAsync(owner), new { title = "Conferir anexos" }));
+        cases.Add("PUT /api/v1/tasks/{id:guid}/checklist/{itemId:guid}", async owner => new CrossTenantCase(await TaskOfAsync(owner), new { completed = true }));
+        cases.Add("POST /api/v1/tasks/{id:guid}/comments", async owner => new CrossTenantCase(await TaskOfAsync(owner), new { text = "Aguardando documentos" }));
+        cases.Add("GET /api/v1/schedule/events/{id:guid}", async owner => new CrossTenantCase(await EventOfAsync(owner)));
+        cases.Add("PUT /api/v1/schedule/events/{id:guid}", async owner => new CrossTenantCase(await EventOfAsync(owner), EventBody(owner)));
+        cases.Add("POST /api/v1/schedule/events/{id:guid}/cancel", async owner => new CrossTenantCase(await EventOfAsync(owner)));
+        return cases;
+    }
+
+    private static object TaskBody(SeededMember owner) => new
+    {
+        caseId = (Guid?)null,
+        title = "Tarefa de teste",
+        dueOn = "2027-03-15",
+        assigneeUserId = owner.UserId,
+        priority = "normal",
+    };
+
+    private static object EventBody(SeededMember owner) => new
+    {
+        caseId = (Guid?)null,
+        title = "Compromisso de teste",
+        startsAt = "2027-04-05T10:00:00-03:00",
+        endsAt = "2027-04-05T11:00:00-03:00",
+        assigneeUserId = owner.UserId,
+    };
+
+    private async Task<Guid> TaskOfAsync(SeededMember owner) =>
+        await PostAsOwnerAsync(owner, "/api/v1/tasks", TaskBody(owner));
+
+    private async Task<Guid> EventOfAsync(SeededMember owner) =>
+        await PostAsOwnerAsync(owner, "/api/v1/schedule/events", EventBody(owner));
 
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithPublicationsRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
     {
@@ -550,6 +589,35 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         }
 
         failures.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Redistribution_batches_return_resource_not_found_without_foreign_details()
+    {
+        var owner = await FullAccessMemberAsync();
+        var intruder = await FullAccessMemberAsync();
+        var taskId = await TaskOfAsync(owner);
+        var eventId = await EventOfAsync(owner);
+        var deadlineId = await DeadlineOfAsync(owner);
+        var requests = new (string Route, Guid Id, string ExpectedCode)[]
+        {
+            ("/api/v1/tasks/redistribute", taskId, "scheduling.task_not_found"),
+            ("/api/v1/deadlines/redistribute", deadlineId, "scheduling.deadline_not_found"),
+            ("/api/v1/schedule/events/redistribute", eventId, "scheduling.event_not_found"),
+        };
+
+        foreach (var (route, id, expectedCode) in requests)
+        {
+            var endpoint = Endpoints().Single(e => e.Method == HttpMethods.Post && e.Route == route);
+            using var response = await SendAsync(endpoint, route, intruder, new { ids = new[] { id }, assigneeUserId = intruder.UserId });
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+            var body = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(cancellationToken: Ct);
+            var item = body.GetProperty("items")[0];
+            item.GetProperty("changed").GetBoolean().ShouldBeFalse();
+            item.GetProperty("errorCode").GetString().ShouldBe(expectedCode);
+            item.TryGetProperty("title", out _).ShouldBeFalse();
+            item.TryGetProperty("caseId", out _).ShouldBeFalse();
+        }
     }
 
     [Fact]

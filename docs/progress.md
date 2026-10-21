@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C em preparação; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C implementado e verificado, commit local sem push/PR; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (7A e 7B mergeados; 7C em preparação)
+## Etapa 7 — Prazos, agenda e tarefas (7A e 7B mergeados; 7C pronto para revisão)
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -164,8 +164,40 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local da arrumação pós-merge:** somente documentação; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantidos os 1.075 testes .NET consolidados, gate de 80%, 134 Vitest e demais verificações anteriores; CI final aprovado complementa AppHost/E2E após a correção. Ambos os manuais revisados/atualizados para disponibilidade na main e checkout do 7C, sem novos passos de uso ou execução. Nenhuma aplicação iniciada e nenhum volume alterado. Diretório local não rastreado `.codex/` preservado e excluído do commit. Commit/push documental na branch do 7C segue o ciclo pós-merge autorizado; implementação do 7C ainda não iniciada. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
 
----
+### PR 7C — Agenda e tarefas (implementado e verificado; commit local, sem push/PR)
 
+**Branch:** `codex/etapa-7c-agenda-tarefas`, base `aaec47f` (merge do 7B), arrumação pós-merge `75d38c4`. **ADR:** [0039](adr/0039-agenda-tarefas-e-redistribuicao.md), proposta. Continuidade autorizada pelo usuário em 2026-10-20: "Prossiga"; o plano 7A–7G permanece aprovado. Push/PR da implementação somente a pedido.
+
+**Decisões adicionais do usuário em 2026-10-20:** (1) tarefas e compromissos com processo opcional; (2) concluir exige checklist e subtarefas resolvidos; (3) tarefas Pendente/Em andamento/Concluída/Cancelada, prioridades Baixa/Normal/Alta/Urgente, com reabertura; (4) subtarefas completas de um nível, com responsável, vencimento, prioridade e checklist, considerando concluída ou cancelada como resolvida para o pai.
+
+| Subtarefa | Responsável | Verificação |
+| --- | --- | --- |
+| Domínio de tarefas, checklist, comentários e compromissos; reabertura e dependências | Sol; testes Luna | Scheduling.Unit **169/169**, incluindo redistribuição dos prazos e preservação das confirmações |
+| Mappings, migration `AgendaAndTasks`, preservação do 7B, tenant, auditoria e RLS | Sol; testes Luna | Scheduling.Integration **4/4**, incluindo upgrade 7B→7C e SQL direto como `lexflow_app` |
+| Cadastro, consulta, edição, transições, checklist, comentários e subtarefas; autorização por destino | Sol; endpoints e testes Luna | API direcionada: tarefas **7/7** e compromissos **3/3**; incluídos na API integral **262/262** |
+| Contrato mínimo de audiências, agenda com fontes autorizadas, filtros e cursor | Sol; testes Luna | Agenda **5/5**: quatro fontes, empates de paginação, intervalo, filtros, sigilo e permissões |
+| Redistribuição parcial de tarefas, compromissos e prazos, sem alterar datas confirmadas | Sol; testes Luna | Redistribuição **7/7** e Security **12/12**, incluindo destino com escopo de equipe e negativa uniforme de recurso oculto |
+| Contrato, cliente, tradução da timeline, documentação e fechamento integral | Sol; verificador Luna nos gates backend | OpenAPI/cliente regenerados; oasdiff v1.33.0 sem quebra; gates integrais abaixo |
+
+**Revisão e incidentes:** Sol revisou domínio, persistência, contratos e diffs das fatias Luna. Uma segunda revisão Sol identificou que a leitura do destinatário administrativo precisava alcançar a própria atribuição, e que negativas de caso retornavam código diferente de recurso inexistente; ambos corrigidos e cobertos sem dispensar auditoria. Data inválida na query expunha 500 do tratamento genérico de exceções: o seletor de status agora preserva BadHttpRequest como 400, com `http.bad_request` e sem detalhes internos; exceções inesperadas permanecem 500. Corrigidas fixtures/analisadores novos (nullable, cultura de datas, limite de método, SQL permitido). A comparação da conferência usa GET antes/depois da redistribuição, na precisão persistida do PostgreSQL, sem tolerância ou relaxamento da asserção. As primeiras tentativas da API não executaram casos por Docker parado; localizada a instalação per-user, iniciada com janela oculta e confirmada versão 29.6.2. Tentativas preservadas em `TestResults/7c-directed`. O npm do AppHost normalizou 18 flags `peer` do lockfile sem mudar versões; essa alteração incidental foi conferida e restaurada, mantendo o lock original e as mesmas dependências verificadas.
+
+**Última verificação local integral — 2026-10-21:**
+- Builds Release global e Debug do AppHost/dependências aprovados, com **zero warnings/erros**; `dotnet format LexFlow.sln --verify-no-changes --no-restore` aprovado.
+- **1.124 testes .NET em 20 projetos, todos aprovados, sem falhas ou skips.** BuildingBlocks Unit/Integration **238/47**; Crm **33/3**; Identity **38/19**; Litigation **36/11**; Organization **34/8**; Platform **50/54**; Publications **57/18**; Scheduling **169/4**; Architecture **17**; API **262**; Security **12**; AppHost **14**.
+- Gate de cobertura mínima de **80% aprovado em todos os pacotes**. Scheduling.Domain **98,8%**, Scheduling.Application **99,2%**; Litigation.Domain **97,9%**, Application **92,7%**; Organization.Domain **100%**, Application **97,4%**.
+- Dependências .NET sem vulnerabilidades reportadas; **seis modelos EF sem pendências** (Platform, Organization, Crm, Litigation, Publications, Scheduling).
+- Contrato gerado pelo teste oficial e conferido na suíte integral; **159 caminhos e 279 schemas**. Cliente TypeScript regenerado; oasdiff oficial **v1.33.0** comparado à `origin/main`, **sem quebra (exit 0)**, sem nova exceção.
+- Frontend: **npm audit sem vulnerabilidades**, lint/Prettier, **134 Vitest em 19 arquivos** e build Angular aprovados.
+- **Duas rodadas completas consecutivas de Playwright contra o AppHost: 17 aprovados em cada rodada**, com acessibilidade WCAG 2.1 AA; uma preparação opcional de carga ignorada por rodada, sem `LOAD_OUTPUT`. Comando: `E2E_BASE_URL=http://localhost:4200 E2E_MAILPIT_URL=http://127.0.0.1:8025 npx playwright test --workers=2`, com diretórios de relatório/artefatos separados. Dois workers para limitar disputa de recursos; nenhuma asserção ou acessibilidade relaxada. Limite público de teste 10000 somente na instância de verificação; produção preservada.
+- AppHost.Tests encerrou antes do AppHost manual/Playwright. A API e o Mailpit responderam 200; a suíte só começou após HTTP 200 do SPA. Mailpit usado pelo IPv4 local, conforme verificação anterior.
+- **Encerramento confirmado:** AppHost/API/Worker/SPA encerrados; sete containers registrados da instância parados, **zero containers ativos**, portas 4200/5238/8025 fechadas. Volumes e cadastros preservados. Migration **`20261021025032_AgendaAndTasks` aplicada no banco local**; não editar essa migration nem as anteriores aplicadas.
+- Evidências em `TestResults/7c-final-validation`, incluindo logs por projeto, cobertura, `oasdiff.log`, relatórios/traces Playwright separados e `apphost-shutdown.log`. Orquestrador conferiu os diffs e evidências; resultados dos subagentes não foram aceitos sem conferência.
+
+**Manual:** ambos os guias revisados e atualizados para tarefas, compromissos, permissões, filtros, reabertura, subtarefas e redistribuição. Sem novos serviços, portas ou comandos de inicialização. Telas continuam previstas para o 7F; anexos no GED da Etapa 9, preferências/notificações adicionais no 7D e sincronização externa no 7G.
+
+**Estado e continuidade:** implementação verificada e commitada localmente, **sem push/PR da implementação**. A branch remota contém apenas a arrumação pós-merge `75d38c4`. Próximo passo: publicar o 7C quando o usuário pedir, conferir CI e aguardar merge pelo usuário; depois, arrumação pós-merge e 7D. `.codex/` local não rastreado preservado e excluído do commit. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes; não declarar a Etapa 7 ou a integração real da Etapa 6 integralmente concluídas.
+
+---
 ## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)
 
 **Aprovação do usuário (2026-10-19):** plano 6A a 6E e recomendações aprovados: começar com fake + DataJud, mantendo fornecedor real como pendência; antecipar o núcleo mínimo de Scheduling com confirmação humana e transação local compartilhada formalizada em ADR; fontes/credenciais com `settings.integrations.manage`, consulta com `publications.read`, triagem com `publications.triage`, distribuição com `publications.distribute` e fechamento com nova permissão `publications.close`; fechamento pela data de recebimento em America/Sao_Paulo, incluindo pendências anteriores e bloqueando conclusão integral quando faltar captura esperada. Não exige segunda pessoa no escritório individual. Implementar um PR por vez, começando pelo 6A; push/PR somente a pedido.

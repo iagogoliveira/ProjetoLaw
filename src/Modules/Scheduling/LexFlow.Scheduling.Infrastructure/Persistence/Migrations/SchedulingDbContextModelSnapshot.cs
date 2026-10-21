@@ -202,6 +202,88 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                     b.ToTable("calendar_entries", "scheduling");
                 });
 
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.CalendarEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssigneeUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignee_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<Guid?>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("location");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_events");
+
+                    b.HasIndex("OrganizationId", "StartsAt")
+                        .HasDatabaseName("ix_calendar_events_organization_id_starts_at");
+
+                    b.HasIndex("OrganizationId", "AssigneeUserId", "StartsAt")
+                        .HasDatabaseName("ix_calendar_events_organization_id_assignee_user_id_starts_at");
+
+                    b.ToTable("calendar_events", "scheduling");
+                });
+
             modelBuilder.Entity("LexFlow.Scheduling.Domain.Deadline", b =>
                 {
                     b.Property<Guid>("Id")
@@ -405,6 +487,134 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                     b.ToTable("deadline_activities", "scheduling");
                 });
 
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskChecklistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("completed");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_task_checklist_items");
+
+                    b.HasIndex("TaskId")
+                        .HasDatabaseName("ix_task_checklist_items_task_id");
+
+                    b.HasIndex("OrganizationId", "TaskId")
+                        .HasDatabaseName("ix_task_checklist_items_organization_id_task_id");
+
+                    b.ToTable("task_checklist_items", "scheduling");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuthorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_task_comments");
+
+                    b.HasIndex("TaskId")
+                        .HasDatabaseName("ix_task_comments_task_id");
+
+                    b.HasIndex("OrganizationId", "TaskId", "OccurredAt")
+                        .HasDatabaseName("ix_task_comments_organization_id_task_id_occurred_at");
+
+                    b.ToTable("task_comments", "scheduling");
+                });
+
             modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -414,6 +624,14 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AssigneeUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("assignee_user_id");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<Guid?>("ClosedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("closed_by");
 
                     b.Property<DateTimeOffset>("ConfirmedAt")
                         .HasColumnType("timestamp with time zone")
@@ -431,11 +649,16 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("description");
+
                     b.Property<DateOnly>("DueOn")
                         .HasColumnType("date")
                         .HasColumnName("due_on");
 
-                    b.Property<Guid>("LegalCaseId")
+                    b.Property<Guid?>("LegalCaseId")
                         .HasColumnType("uuid")
                         .HasColumnName("legal_case_id");
 
@@ -443,7 +666,19 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
 
-                    b.Property<Guid>("PublicationId")
+                    b.Property<Guid?>("ParentTaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_task_id");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Normal")
+                        .HasColumnName("priority");
+
+                    b.Property<Guid?>("PublicationId")
                         .HasColumnType("uuid")
                         .HasColumnName("publication_id");
 
@@ -476,9 +711,15 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_tasks");
 
+                    b.HasIndex("ParentTaskId")
+                        .HasDatabaseName("ix_tasks_parent_task_id");
+
                     b.HasIndex("OrganizationId", "PublicationId")
                         .IsUnique()
                         .HasDatabaseName("ix_tasks_organization_id_publication_id");
+
+                    b.HasIndex("OrganizationId", "AssigneeUserId", "DueOn")
+                        .HasDatabaseName("ix_tasks_organization_id_assignee_user_id_due_on");
 
                     b.HasIndex("OrganizationId", "LegalCaseId", "DueOn")
                         .HasDatabaseName("ix_tasks_organization_id_legal_case_id_due_on");
@@ -640,6 +881,42 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_deadline_activities_deadlines_deadline_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskChecklistItem", b =>
+                {
+                    b.HasOne("LexFlow.Scheduling.Domain.TaskItem", null)
+                        .WithMany("Checklist")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_checklist_items_tasks_task_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskComment", b =>
+                {
+                    b.HasOne("LexFlow.Scheduling.Domain.TaskItem", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_comments_tasks_task_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskItem", b =>
+                {
+                    b.HasOne("LexFlow.Scheduling.Domain.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("ParentTaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_tasks_tasks_parent_task_id");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.TaskItem", b =>
+                {
+                    b.Navigation("Checklist");
+
+                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

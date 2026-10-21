@@ -29,6 +29,7 @@ public static class ProblemDetailsSetup
             {
                 problem.Extensions["code"] = problem.Status switch
                 {
+                    StatusCodes.Status400BadRequest => "http.bad_request",
                     StatusCodes.Status401Unauthorized => "auth.unauthenticated",
                     StatusCodes.Status403Forbidden => "auth.forbidden",
                     StatusCodes.Status404NotFound => "http.not_found",
@@ -41,7 +42,7 @@ public static class ProblemDetailsSetup
 
             if (context.Exception is not null)
             {
-                problem.Title = "Ocorreu um erro inesperado.";
+                problem.Title = context.Exception is BadHttpRequestException ? "A requisição é inválida." : "Ocorreu um erro inesperado.";
                 problem.Detail = null;
             }
         });
@@ -49,7 +50,11 @@ public static class ProblemDetailsSetup
     /// <summary>Exceções não tratadas e status sem corpo passam a responder com ProblemDetails.</summary>
     public static IApplicationBuilder UseLexFlowProblemDetails(this IApplicationBuilder app)
     {
-        app.UseExceptionHandler();
+        app.UseExceptionHandler(new ExceptionHandlerOptions
+        {
+            StatusCodeSelector = exception => exception is BadHttpRequestException badRequest
+                ? badRequest.StatusCode : StatusCodes.Status500InternalServerError,
+        });
         app.UseStatusCodePages();
         return app;
     }

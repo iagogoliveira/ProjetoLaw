@@ -3,19 +3,19 @@ using LexFlow.SharedKernel.Results;
 
 namespace LexFlow.Scheduling.Domain;
 
-public sealed class TaskItem : Entity<Guid>, ITenantOwned, ICaseScoped, IAuditable
+public sealed partial class TaskItem : Entity<Guid>, ITenantOwned, ICaseScoped, IAuditable
 {
     private TaskItem() { }
     public Guid OrganizationId { get; private set; }
-    public Guid LegalCaseId { get; private set; }
+    public Guid? LegalCaseId { get; private set; }
     Guid? ICaseScoped.CaseId => LegalCaseId;
-    public Guid PublicationId { get; private set; }
+    public Guid? PublicationId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public DateOnly DueOn { get; private set; }
     public Guid AssigneeUserId { get; private set; }
     public Guid ConfirmedBy { get; private set; }
     public DateTimeOffset ConfirmedAt { get; private set; }
-    public WorkItemStatus Status { get; private set; }
+    public TaskState Status { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
