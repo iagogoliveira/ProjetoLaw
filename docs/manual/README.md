@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está implementado e verificado no branch de desenvolvimento, ainda sem merge; o sino já trata o novo lembrete nesse checkout. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -193,7 +193,7 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Agenda unificada e tarefas completas | Backend disponível na main pelo PR #38; telas no 7F e sincronização no 7G |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
-| Indicadores gerenciais completos na página inicial | Ainda não disponíveis; backend da controladoria verificado no branch do 7D, ainda sem merge, telas no 7F |
+| Indicadores gerenciais completos na página inicial | Ainda não disponíveis; backend da controladoria disponível na main pelo PR #39; telas no 7F |
 
 ## Andamentos automáticos
 
@@ -249,9 +249,9 @@ A tarefa tem responsável, vencimento, prioridade, checklist, comentários e sub
 
 A agenda reúne prazos (data fatal e informação da data interna), tarefas (vencimento), compromissos e audiências, com filtros por pessoa, equipe e período. Um filtro não concede acesso: as permissões, o alcance e o sigilo continuam valendo. Os compromissos aceitam horários simultâneos; cancelar preserva o registro. A redistribuição em lote informa o resultado de cada item e preserva as datas e a conferência dos prazos.
 
-## 17. Controladoria e notificações (7D, backend no branch de desenvolvimento)
+## 17. Controladoria e notificações (7D, backend disponível na main)
 
-O branch do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências continuam previstas para o 7F. A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), aguardando merge pelo usuário. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
+O backend do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências continuam previstas para o 7F. A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeada pelo usuário em 2026-10-21, com CI integral aprovado. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
 
 O relatório reúne publicações não tratadas, prazos abertos sem responsável ativo, prazos abertos vencidos sem evidência e cumpridos legados sem protocolo. Processos sem andamento consideram apenas os ativos, pelo último andamento processual ou pelo cadastro quando não houver andamento; o padrão é de 30 dias. Contagens e indicadores respeitam as mesmas permissões, alcance e sigilo dos itens.
 

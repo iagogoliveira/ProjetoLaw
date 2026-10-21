@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7D mergeado; branch do 7E preparado)
+
+**Pedido:** usuário confirmou “mergeado”. PR #39 conferido como MERGED em 2026-10-21 às 15:29 (America/Sao_Paulo), merge 621b8125203da8099c8380a6727e9699c5ea5229, head 3f9f40b. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E.
+
+**Estado:** main atualizada por fast-forward; branch codex/etapa-7e-telas-prazos criado dessa base. ADR 0040 aceita, progress, AGENTS/CLAUDE e ambos os manuais atualizados. Arrumação somente documental, com commit/push nesse branch conforme o ciclo aprovado. Diff, UTF-8 e igualdade dos agentes conferidos; gates integrais do 7D preservados e complementados pelo CI, sem repetir runtime. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7E (telas de prazos), implementação ainda não iniciada. Ler o plano aprovado e as decisões registradas antes de detalhar o trabalho. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes. Migrations do 7D já aplicadas localmente: não editar. Telas de agenda/controladoria/preferências no 7F.
+
+---
+
 ## 2026-10-21 — Codex (7D publicado no PR #39)
 
 **Pedido:** “crie o pr”. Implementação 676a2c1 enviada no branch codex/etapa-7d-controladoria-notificacoes; [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) aberto e anexado à conversa. Merge pelo usuário.
