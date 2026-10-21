@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LexFlow.Platform.Application.Notifications;
 
 public sealed record NotificationPosition(DateTimeOffset CreatedAt, Guid Id);
-public sealed record NotificationResponse(Guid Id, string Kind, Guid ResourceId, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt);
+public sealed record NotificationResponse(Guid Id, string Kind, Guid ResourceId, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt, Guid? CaseId = null);
 public sealed record NotificationsPage(IReadOnlyList<NotificationResponse> Items, NotificationPosition? Next);
 public sealed record ListNotificationsQuery(NotificationViewer Viewer, NotificationPosition? After, int Limit, bool UnreadOnly = false) : IQuery<NotificationsPage>;
 public sealed record ReadNotificationCommand(Guid Id, NotificationViewer Viewer) : ICommand;
@@ -52,7 +52,7 @@ internal sealed class ListNotificationsHandler(IPlatformDbContext db, Notificati
             var reads = await db.NotificationReceipts.AsNoTracking().Where(r => visible.Contains(r.NotificationId) && r.UserId == query.Viewer.UserId)
                 .ToDictionaryAsync(r => r.NotificationId, r => r.ReadAt, cancellationToken);
             found.AddRange(batch.Where(n => visible.Contains(n.Id)).Select(n => new NotificationResponse(n.Id, n.Kind, n.ResourceId, n.CreatedAt,
-                reads.TryGetValue(n.Id, out var readAt) ? readAt : null)));
+                reads.TryGetValue(n.Id, out var readAt) ? readAt : null, n.CaseId)));
             if (batch.Count < 200) { break; }
             after = new NotificationPosition(batch[^1].CreatedAt, batch[^1].Id);
         }

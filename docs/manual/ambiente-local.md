@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado na publicação do PR #36 (7A), em 2026-10-20; as telas do 6E (#35) estão disponíveis na main e foram verificadas localmente e no CI. O checkout local está na branch `etapa-7-prazos-agenda`, com o backend do 7A em revisão no PR #36, ainda sem merge. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no fechamento local do 7B, em 2026-10-20; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O checkout local está na branch `codex/etapa-7b-ciclo-prazo`, com o 7B implementado e verificado no PR #37, ainda sem merge. As migrations do 7A e do 7B foram aplicadas no banco local durante a verificação. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -127,7 +127,7 @@ Com AppHost iniciado e conta administradora no escritório de teste:
 
 O frontend usa LongPolling no hub existente, com Bearer e escritório em cabeçalhos. Se a conexão cair, a consulta REST permanece disponível e a reconexão recupera os avisos persistidos. Nenhum novo serviço, porta ou comando de inicialização foi acrescentado no 6E. Consultas de opções/contagens e a tentativa manual são adições do backend. A migration aditiva `CaptureRunSourcePeriod`, aplicada pelo MigrationService, corrige o vínculo de execuções com a ativação correspondente sem reescrever datas ou fechamentos anteriores. Históricos antigos de períodos encerrados sem correspondência inequívoca exigem avaliação técnica, sem presumir uma captura válida.
 
-## 10. Calculadora de prazos e calendário (7A, operação técnica)
+## 10. Calculadora de prazos e calendário (7A, PR #36 mergeado)
 
 Ainda não há tela; a calculadora entra na interface no 7E. Use a API autenticada no escritório ativo, como na seção 8. A calculadora só sugere: nada é gravado.
 
@@ -163,3 +163,27 @@ O seed da plataforma traz:
 A lista completa e os que ficaram de fora estão em [revisão jurídica do 7A](../revisao/prazos-7a.md). Feriados municipais, forenses próprios e indisponibilidades são cadastrados pelo escritório. A permissão nova `schedule.calendar.manage` vai para os perfis padrão Administrador, Sócio e Controladoria jurídica, inclusive nos escritórios existentes.
 
 As migrations `ForensicCalendar` (Platform), `OfficeCalendar` (Scheduling) e `ScheduleCalendarPermission` (Organization) são aplicadas pelo MigrationService, sem novo serviço, porta ou comando de inicialização.
+
+## 11. Ciclo do prazo (7B, operação técnica)
+
+Implementado no branch `codex/etapa-7b-ciclo-prazo`, ainda sem merge. As migrations aditivas `DeadlineLifecycle` e `RequireDeadlineReview` são aplicadas pelo MigrationService ao iniciar. Não há novo serviço, porta ou comando de inicialização. Preserve os volumes e encerre o ambiente depois da conferência.
+
+| Operação | Endpoint | Permissão |
+| --- | --- | --- |
+| Consultar/definir a conferência obrigatória do escritório | `GET`/`PUT /api/v1/organization/deadline-review` | `settings.organization.manage` |
+| Cadastrar prazo manual no processo | `POST /api/v1/cases/{id}/deadlines` | `schedule.deadlines.manage` e acesso ao processo |
+| Consultar prazo e memória confirmada | `GET /api/v1/deadlines/{id}` | `schedule.deadlines.read` e acesso ao processo |
+| Iniciar o trabalho | `POST /api/v1/deadlines/{id}/start` | `schedule.deadlines.manage` |
+| Conferir | `POST /api/v1/deadlines/{id}/review` | `schedule.deadlines.verify` |
+| Cumprir com protocolo | `POST /api/v1/deadlines/{id}/complete`, corpo `{ "evidence": "Protocolo ..." }` | `schedule.deadlines.manage` |
+| Registrar perda justificada | `POST /api/v1/deadlines/{id}/miss`, corpo `{ "reason": "Justificativa ..." }` | `schedule.deadlines.manage` |
+
+Todas as operações por ID conferem tenant, alcance e sigilo do processo. Os estados são `pending`, `inProgress`, `completed` e `missed`. Cumprimento e perda são finais nesta entrega; repetir a transição retorna conflito, sem novo histórico.
+
+Para cadastrar, obtenha primeiro a sugestão em `/api/v1/deadlines/calculate`. Envie ao cadastro `type` (texto de até 80 caracteres), `title`, `assigneeUserId`, `rule` (os campos `startKind`, `triggerDate`, `consultedOn`, `days`, `mode`, `doubled` e `internalLeadDays` do cálculo), `confirmedInternalDueOn`, `confirmedFatalDueOn` e `confirmed: true`. Tribunal, UF e município são opcionais, como na calculadora. Se o calendário tiver mudado e as datas divergirem, a resposta é 409, código `scheduling.calculation_changed`: consulte a sugestão novamente e confirme as novas datas.
+
+A política usa o corpo `{ "requireDeadlineReview": true }` e vale para os novos cadastros, inclusive pela triagem; prazos anteriores mantêm a exigência registrada na criação. A revisão obrigatória bloqueia somente o cumprimento, com `scheduling.deadline_review_required` (422), e permite iniciar. A conferência pelo próprio autor em escritório com mais de um membro ativo retorna `scheduling.separate_reviewer_required` (422). Protocolo e justificativa aceitam até 4000 caracteres.
+
+Para conferir os alertas, cadastre um prazo futuro e altere um feriado do escritório que alcance seu período/local. A consulta do prazo deve manter as datas e a memória anteriores, com `lastCalendarAlertAt` preenchido; uma nova sugestão usa o calendário atualizado. A linha do tempo registra o alerta. O sino leva ao processo, preservando as permissões e o sigilo. Alterações apenas na nota ou em local/período sem relação com o prazo não geram alerta. Para a perda, verifique a notificação dos destinatários autorizados e o contador `lexflow_deadlines_missed_total` no meter `LexFlow.Scheduling`; a entrega pelo Worker é assíncrona e idempotente.
+
+**Compatibilidade da listagem:** em `GET /api/v1/cases/{id}/deadlines`, use `lifecycleStatus` para o estado atual; `status` mantém o valor legado `pending`. A consulta de detalhe e as ações retornam o estado atual em `status`.

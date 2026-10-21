@@ -1,6 +1,6 @@
 # ADR 0037: calendário forense e calculadora de prazos
 
-- **Status:** Proposta (para revisão no PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36), 7A)
+- **Status:** Aceita (PR [#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36) mergeado em 2026-10-20)
 - **Data:** 2026-10-20
 - **Etapa:** 7 (PR 7A)
 

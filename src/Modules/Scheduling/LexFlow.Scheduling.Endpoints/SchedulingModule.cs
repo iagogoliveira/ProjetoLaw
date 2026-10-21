@@ -32,5 +32,6 @@ public sealed class SchedulingModule : IModule
             .WithSummary("Sugere o vencimento de um prazo, com a memória de cálculo; não grava nada.")
             .Produces<DeadlineCalculationResponse>();
         endpoints.MapCalendarEntries();
+        endpoints.MapDeadlines();
     }
 }

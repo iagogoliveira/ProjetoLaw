@@ -54,18 +54,21 @@ internal sealed class WorkAssignees(ICaseDirectory cases, IOrganizationAccessDir
     }
 }
 
-internal sealed class CreateDeadlineHandler(ISchedulingDbContext db, WorkAssignees assignees, ICurrentUser user, IClock clock)
+internal sealed class CreateDeadlineHandler(ISchedulingDbContext db, WorkAssignees assignees, ICurrentUser user, IClock clock, IDeadlineReviewPolicy policy)
     : ICommandHandler<CreateDeadlineCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(CreateDeadlineCommand command, CancellationToken cancellationToken)
     {
+        await db.LockDeadlinesAsync(cancellationToken);
         var d = command.Draft;
         var value = Deadline.Create(d.CaseId, d.PublicationId, d.Title, d.StartOn, d.InternalDueOn, d.FatalDueOn,
             d.AssigneeUserId, d.Confirmed, user.UserId ?? Guid.Empty, clock.UtcNow);
         if (value.IsFailure) { return value.Error; }
         var allowed = await assignees.CheckAsync(d.CaseId, d.AssigneeUserId, "schedule.deadlines.read", cancellationToken);
         if (allowed.IsFailure) { return allowed.Error; }
+        value.Value.SetReviewRequirement(await policy.RequiredAsync(cancellationToken));
         db.Deadlines.Add(value.Value);
+        db.DeadlineActivities.Add(DeadlineActivity.Record(value.Value, "scheduling.deadline_registered", user.UserId!.Value, clock.UtcNow));
         await db.SaveChangesAsync(cancellationToken);
         return value.Value.Id;
     }

@@ -44,6 +44,7 @@ public static class OrganizationInfrastructure
         services.AddScoped<IMembershipLookup, MembershipLookup>();
         services.AddScoped<IOrganizationMembers, OrganizationMembers>();
         services.AddScoped<IOrganizationDirectory, OrganizationDirectory>();
+        services.AddScoped<IDeadlineReviewPolicy, DeadlineReviewPolicy>();
         services.AddScoped<IOrganizationAccessDirectory, OrganizationAccessDirectory>();
         return services;
     }

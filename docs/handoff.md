@@ -10,6 +10,50 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (7B enviado e PR #37 aberto)
+
+**Pedido do usuário:** "Ok, prossiga", após a entrega local do 7B. Implementação `7c7b4bf` enviada na branch `codex/etapa-7b-ciclo-prazo`; [PR #37](https://github.com/iagogoliveira/ProjetoLaw/pull/37) aberto contra `main` e anexado à conversa. Merge permanece com o usuário.
+
+**Feito:** progress, ADR 0038 e AGENTS/CLAUDE atualizados com a publicação. Ambos os manuais revisados, com ajuste da referência ao PR; nenhum passo novo de uso ou inicialização. O CI inicial apontou ampliação de enum fechado no OpenAPI e vulnerabilidade transitiva no Vite. Corrigidos com `lifecycleStatus` aditivo na lista de prazos (status legado preservado) e override de Vite 8.3.4, MIT; sem nova exceção de contrato ou redução do audit. Verificação das correções: build/format, API 240/240 (consolidado 1.075 .NET), gate 80%, oasdiff v1.33.0 sem quebra, audit zero, lint, 134 Vitest e build Angular aprovados. Detalhes no progress; logs em `TestResults/7b-ci-fixes`. Conferir AppHost/E2E no CI após o ajuste do Vite antes do merge. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Estado e continuidade:** PR #37 aberto, ADR 0038 proposta; registro documental desta publicação segue em commit e push na mesma branch. Acompanhar CI e revisão sem presumir aprovação. Após merge pelo usuário, atualizar main, aceitar a ADR e preparar o 7C conforme o plano aprovado. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes. Nenhuma decisão nova de negócio.
+
+---
+
+## 2026-10-20 — Codex (7B implementado, verificado e commitado localmente; sem push/PR)
+
+**Pedido do usuário:** "Ok, continue." Implementação do 7B no branch `codex/etapa-7b-ciclo-prazo`, após a arrumação pós-merge `a674bd1`.
+
+**Decisão nova do usuário:** "Bloquear apenas o cumprimento; permitir iniciar o trabalho" quando a conferência for obrigatória. Registrada no progress e na ADR 0038, proposta. Nenhuma outra decisão anterior foi alterada.
+
+**Feito:** domínio e endpoints de cadastro manual, consulta e transições do prazo, política de conferência por organização/contrato, snapshots de cálculo e local, atividades/timeline, alertas do calendário sem reescrever datas, notificações com visibilidade e consumidor idempotente, métrica, RLS e migrations aditivas `DeadlineLifecycle` e `RequireDeadlineReview`. OpenAPI e cliente regenerados. Ajustados sino/timeline existentes e traduções; telas completas de prazo seguem no 7E. Ambos os manuais atualizados.
+
+**Divisão:** Sol fez domínio, autorização, transações, migrations e contrato; Luna fez configuração, fatias de notificação, testes, segurança e i18n/UI sob escopo definido. O orquestrador revisou os diffs e corrigiu integração/fixtures; o verificador Luna executa os gates. Logs de tentativas direcionadas preservados em `TestResults/7b-directed`; fechamento em `TestResults/7b-final-validation`.
+
+**Verificação integral aprovada:** builds Release/Debug sem warnings/erros; format final; **1.074 testes .NET em 20 projetos**, sem falhas/skips; cobertura mínima de 80% (Scheduling.Domain 98,7%, Application 98,3%); nenhuma vulnerabilidade reportada; seis modelos EF sem pendências; OpenAPI e cliente regenerados; lint, **134 Vitest**, build Angular e **duas rodadas consecutivas de 17 Playwright contra AppHost**, com acessibilidade. Somente a preparação opcional da carga ignorada em cada rodada. AppHost.Tests 14/14 antes do AppHost manual. Verificador Luna executou os gates backend; Sol conferiu evidências e executou frontend/E2E. Resultados finais e comandos no progress; logs em `TestResults/7b-final-validation`.
+
+**Cuidados para continuidade:** o consumer de Scheduling no Platform usa um `Handle` público que envolve `base.Handle`, pois o Wolverine descobre métodos públicos; a métrica só é contada depois da persistência e não na reentrega. Teste específico protege esse comportamento. Testes antigos de upgrade de Organization usam SQL interpolado para semear o schema histórico; o modelo EF atual não serve para inserir antes de adicionar `require_deadline_review`. Foram acrescentados testes de upgrade 7A→7B em Organization e Scheduling, sem reescrever migrations aplicadas.
+
+**Ambiente fechado:** AppHost/API/SPA/Worker encerrados e sete containers desta instância parados, sem remover volumes/cadastros. O banco local agora tem as migrations do 7A e do 7B aplicadas; não editar essas migrations. Mailpit verificado pelo IPv4 (`127.0.0.1:8025`) no E2E, com dois workers e limite público de teste 10000 apenas na instância de verificação.
+
+**Estado:** implementação em commit local na branch `codex/etapa-7b-ciclo-prazo`, **sem push/PR da implementação**. A branch remota contém apenas a arrumação pós-merge `a674bd1`. ADR 0038 proposta; AGENTS/CLAUDE sincronizados e ambos os manuais revisados/atualizados. Próximo passo: push e PR do 7B quando o usuário pedir; conferir CI e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7C. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
+
+---
+
+## 2026-10-20 — Codex (pós-merge do 7A e preparação do 7B)
+
+**Pedido do usuário:** "Merge aprovado". Confirmado no GitHub o PR #36 como MERGED em 2026-10-20 às 18:11 (America/Sao_Paulo), merge `2184b6b`, com todos os checks aprovados, inclusive AppHost/E2E.
+
+**Feito:** main atualizada por fast-forward; branch `codex/etapa-7b-ciclo-prazo` criado dessa base. ADR 0037 aceita; progress, AGENTS/CLAUDE e os dois manuais atualizados quanto ao merge e à base local. Preservadas a revisão jurídica pendente, os resultados locais do 7A e as decisões aprovadas do 7B. Esta arrumação não altera runtime nem exige repetir suítes aprovadas; diff e sincronização documental conferidos. Nenhuma aplicação iniciada.
+
+**Estado:** arrumação documental na branch do 7B para commit e push pelo ciclo pós-merge. O 7B permanece em preparação, sem implementação ou PR neste registro.
+
+**Mapeamento de leitura do Luna, conferido por amostra pelo orquestrador:** `Deadline` ainda tem só `Pending`, exige publicação e compartilha `WorkItemStatus` com `TaskItem`; o cadastro manual e o ciclo precisam de evolução aditiva. `RequireDeadlineReview` ainda não existe em Organization. Reutilizar `IOrganizationMembers.CountActiveAsync` para a exceção solo (padrão de propostas), `ICaseDirectory` e `WorkAssignees` para escopo/sigilo. Scheduling ainda não contribui à timeline; os padrões estão em `PublicationsTimeline`/`ITimelineContributor`. O CRUD de `CalendarEntry` ainda não emite alertas de alteração; a política de visibilidade das notificações deve restringir destinatários e acesso ao processo. Nenhum código ou teste alterado nesse mapeamento.
+
+**Próximo trabalho:** ciclo do prazo (7B) conforme plano aprovado: cadastro com regra/sugestão, andamento/cumprimento/perda, evidência e justificativa, dupla conferência com exceção de escritório solo, notificações com escopo/sigilo, alertas por mudança do calendário sem alterar prazos confirmados, timeline e métrica. Sol como orquestrador e Luna nas tarefas delimitadas. Push/PR de implementação só a pedido; merge pelo usuário. A revisão jurídica do 7A e o fornecedor real de publicações continuam pendentes.
+
+---
+
 ## 2026-10-20 — Codex (7A enviado e PR #36 aberto)
 
 **Pedido do usuário:** criar o PR do 7A já implementado pelo Claude. Aprovada também a divisão no Codex: Sol como orquestrador e Luna para verificações, exploração e implementação delimitada; Sol em subtarefas mais exigentes.

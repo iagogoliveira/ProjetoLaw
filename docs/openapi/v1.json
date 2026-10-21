@@ -364,6 +364,79 @@
         }
       }
     },
+    "/api/v1/cases/{id}/deadlines": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "RegisterDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualDeadlineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ListCaseDeadlines",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeadlineResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs/{id}": {
       "get": {
         "tags": [
@@ -1834,6 +1907,86 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organization/deadline-review": {
+      "get": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "Consulta a exigência de dupla conferência dos prazos do escritório",
+        "operationId": "GetDeadlineReviewPolicy",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineReviewSettingsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "Define se o escritório exige dupla conferência dos prazos",
+        "operationId": "SetDeadlineReviewPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeadlineReviewPolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineReviewSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           },
           "403": {
             "description": "Forbidden",
@@ -10636,40 +10789,6 @@
         }
       }
     },
-    "/api/v1/cases/{id}/deadlines": {
-      "get": {
-        "tags": [
-          "Scheduling"
-        ],
-        "operationId": "ListCaseDeadlines",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DeadlineResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/cases/{id}/tasks": {
       "get": {
         "tags": [
@@ -10815,6 +10934,181 @@
         "responses": {
           "204": {
             "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/deadlines/{id}": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "GetDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deadlines/{id}/start": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "StartDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deadlines/{id}/review": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ReviewDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deadlines/{id}/complete": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "CompleteDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteDeadlineBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deadlines/{id}/miss": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "MissDeadline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MissDeadlineBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadlineDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -13114,6 +13408,23 @@
         },
         "description": "Dados de uma empresa na Receita Federal, para preencher o cadastro."
       },
+      "CompleteDeadlineBody": {
+        "required": [
+          "evidence"
+        ],
+        "type": "object",
+        "properties": {
+          "evidence": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmedWorkStatus": {
+        "enum": [
+          "pending"
+        ],
+        "description": "Compatibility value of the original confirmed-work lists; deadline lifecycle is exposed separately."
+      },
       "ConfirmEmailRequest": {
         "required": [
           "userId",
@@ -14258,6 +14569,153 @@
           }
         }
       },
+      "DeadlineDetailResponse": {
+        "required": [
+          "id",
+          "caseId",
+          "publicationId",
+          "type",
+          "title",
+          "startOn",
+          "internalDueOn",
+          "fatalDueOn",
+          "assigneeUserId",
+          "status",
+          "confirmedBy",
+          "confirmedAt",
+          "rule",
+          "calculation",
+          "requireReview",
+          "reviewedBy",
+          "reviewedAt",
+          "completionEvidence",
+          "missedReason",
+          "closedBy",
+          "closedAt",
+          "lastCalendarAlertAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publicationId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "internalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "fatalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkItemStatus"
+          },
+          "confirmedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rule": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DeadlineRule"
+              }
+            ]
+          },
+          "calculation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DeadlineCalculationResponse"
+              }
+            ]
+          },
+          "requireReview": {
+            "type": "boolean"
+          },
+          "reviewedBy": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "reviewedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "completionEvidence": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "missedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "closedBy": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "closedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lastCalendarAlertAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
       "DeadlineResponse": {
         "required": [
           "id",
@@ -14270,7 +14728,8 @@
           "assigneeUserId",
           "status",
           "confirmedBy",
-          "confirmedAt"
+          "confirmedAt",
+          "lifecycleStatus"
         ],
         "type": "object",
         "properties": {
@@ -14306,7 +14765,7 @@
             "format": "uuid"
           },
           "status": {
-            "$ref": "#/components/schemas/WorkItemStatus"
+            "$ref": "#/components/schemas/ConfirmedWorkStatus"
           },
           "confirmedBy": {
             "type": "string",
@@ -14315,6 +14774,81 @@
           "confirmedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "lifecycleStatus": {
+            "$ref": "#/components/schemas/WorkItemStatus"
+          }
+        }
+      },
+      "DeadlineReviewPolicyRequest": {
+        "required": [
+          "requireDeadlineReview"
+        ],
+        "type": "object",
+        "properties": {
+          "requireDeadlineReview": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeadlineReviewSettingsResponse": {
+        "required": [
+          "requireDeadlineReview"
+        ],
+        "type": "object",
+        "properties": {
+          "requireDeadlineReview": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeadlineRule": {
+        "required": [
+          "startKind",
+          "triggerDate",
+          "consultedOn",
+          "days",
+          "mode",
+          "doubled",
+          "internalLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "startKind": {
+            "$ref": "#/components/schemas/DeadlineStartKind"
+          },
+          "triggerDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "consultedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "days": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/CountingMode"
+          },
+          "doubled": {
+            "type": "boolean"
+          },
+          "internalLeadDays": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -15122,6 +15656,63 @@
           }
         }
       },
+      "ManualDeadlineRequest": {
+        "required": [
+          "type",
+          "title",
+          "assigneeUserId",
+          "rule",
+          "confirmedInternalDueOn",
+          "confirmedFatalDueOn",
+          "confirmed"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "assigneeUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/DeadlineRule"
+          },
+          "confirmedInternalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "confirmedFatalDueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "courtId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "stateCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "municipality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "MemberResponse": {
         "required": [
           "id",
@@ -15228,6 +15819,17 @@
         "properties": {
           "mfaRequired": {
             "type": "boolean"
+          }
+        }
+      },
+      "MissDeadlineBody": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
           }
         }
       },
@@ -15649,6 +16251,13 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "caseId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -18528,7 +19137,7 @@
             "format": "uuid"
           },
           "status": {
-            "$ref": "#/components/schemas/WorkItemStatus"
+            "$ref": "#/components/schemas/ConfirmedWorkStatus"
           },
           "confirmedBy": {
             "type": "string",
@@ -18922,7 +19531,10 @@
       },
       "WorkItemStatus": {
         "enum": [
-          "pending"
+          "pending",
+          "inProgress",
+          "completed",
+          "missed"
         ]
       }
     }

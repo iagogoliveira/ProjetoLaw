@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using LexFlow.Api.IntegrationTests;
+using LexFlow.Application.Abstractions;
 using LexFlow.Crm.Domain.Proposals;
 using LexFlow.Crm.Infrastructure.Persistence;
 using LexFlow.Identity.Domain.Sessions;
@@ -16,6 +17,8 @@ using LexFlow.Platform.Domain.Notifications;
 using LexFlow.Platform.Infrastructure.Persistence;
 using LexFlow.Publications.Domain;
 using LexFlow.Publications.Infrastructure.Persistence;
+using LexFlow.Scheduling.Domain;
+using LexFlow.Scheduling.Infrastructure.Persistence;
 using LexFlow.Web.Common.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -60,7 +63,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     private sealed record CrossTenantCase(Guid Id, object? Body = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
-    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithDeadlineRoutes(WithCaseWorkflowRoutes(WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
     {
         ["GET /api/v1/jobs/{id:guid}"] = async owner => new CrossTenantCase(await CreateJobAsync(owner.OrganizationId)),
         ["DELETE /api/v1/me/sessions/{id:guid}"] = async owner => new CrossTenantCase(await CreateSessionAsync(owner.UserId)),
@@ -112,7 +115,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             new CrossTenantCase(await PostAsOwnerAsync(owner, "/api/v1/economic-groups", new { name = $"Grupo {Guid.CreateVersion7():N}" })),
         ["PUT /api/v1/lookup-items/{id:guid}"] = async owner =>
             new CrossTenantCase(await PostAsOwnerAsync(owner, $"/api/v1/lookup-tables/{await LookupTableOfAsync(owner)}/items", new { name = "Item" }), new { name = "Tomado", position = 1, isActive = true }),
-    })));
+    })))));
 
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithPublicationsRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
     {
@@ -128,6 +131,27 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         cases.Add("PUT /api/v1/publications/{id:guid}/assignment", async owner => new CrossTenantCase(await PublicationOfAsync(owner), new { assigneeUserId = owner.UserId }));
         cases.Add("POST /api/v1/publications/{id:guid}/triage", async owner => new CrossTenantCase(await PublicationOfAsync(owner),
             new { classification = "other", action = "discard", confirmed = true, reason = "Homônimo" }));
+        return cases;
+    }
+
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithDeadlineRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        cases.Add("GET /api/v1/cases/{id:guid}/deadlines", async owner => new CrossTenantCase(await CaseOfAsync(owner)));
+        cases.Add("POST /api/v1/cases/{id:guid}/deadlines", async owner => new CrossTenantCase(await CaseOfAsync(owner), new
+        {
+            type = "procedural",
+            title = "Prazo de teste",
+            assigneeUserId = owner.UserId,
+            rule = new { startKind = "publication", triggerDate = "2027-02-01", consultedOn = (string?)null, days = 5, mode = "businessDays", doubled = false, internalLeadDays = 0 },
+            confirmedInternalDueOn = "2027-02-08",
+            confirmedFatalDueOn = "2027-02-08",
+            confirmed = true,
+        }));
+        cases.Add("GET /api/v1/deadlines/{id:guid}", async owner => new CrossTenantCase(await DeadlineOfAsync(owner)));
+        cases.Add("POST /api/v1/deadlines/{id:guid}/start", async owner => new CrossTenantCase(await DeadlineOfAsync(owner)));
+        cases.Add("POST /api/v1/deadlines/{id:guid}/review", async owner => new CrossTenantCase(await DeadlineOfAsync(owner)));
+        cases.Add("POST /api/v1/deadlines/{id:guid}/complete", async owner => new CrossTenantCase(await DeadlineOfAsync(owner), new { evidence = "Protocolo" }));
+        cases.Add("POST /api/v1/deadlines/{id:guid}/miss", async owner => new CrossTenantCase(await DeadlineOfAsync(owner), new { reason = "Justificativa" }));
         return cases;
     }
 
@@ -174,7 +198,6 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
         {
             ["GET /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
-            ["GET /api/v1/cases/{id:guid}/deadlines"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["GET /api/v1/cases/{id:guid}/tasks"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["GET /api/v1/cases/{id:guid}/movement-sync"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/movements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { occurredAt = "2026-10-19T12:00:00Z", description = "Sentença" }),
@@ -200,15 +223,6 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["GET /api/v1/cases/{id:guid}/risk/history"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/risk-assessments"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { probability = "remote" }),
             ["GET /api/v1/cases/{id:guid}/settlements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
-            ["POST /api/v1/cases/{id:guid}/settlements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { direction = "clientPays" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/offers"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { party = "office", amount = 1m, offeredOn = "2026-10-01" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/submit"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { agreedAmount = 1m, installments = new[] { new { dueOn = "2026-11-01", amount = 1m } } }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/approve"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/return"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/homologate"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { homologatedOn = "2026-10-01" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/reject"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/cancel"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
-            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/installments/{installmentId:guid}/pay"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { paidOn = "2026-11-01", paidAmount = 1m }),
             ["GET /api/v1/cases/{id:guid}/hearings"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
             ["POST /api/v1/cases/{id:guid}/hearings"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), hearing),
             ["PUT /api/v1/cases/{id:guid}/hearings/{hearingId:guid}"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), hearing),
@@ -219,6 +233,28 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             ["GET /api/v1/cases/imports/{importId:guid}"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
             ["POST /api/v1/cases/imports/{importId:guid}/confirm"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
             ["GET /api/v1/cases/imports/{importId:guid}/errors"] = async owner => new CrossTenantCase(await ImportOfAsync(owner)),
+        };
+        foreach (var (route, create) in routes)
+        {
+            cases.Add(route, create);
+        }
+
+        return cases;
+    }
+
+    private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> WithCaseWorkflowRoutes(Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> cases)
+    {
+        var routes = new Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>>(StringComparer.Ordinal)
+        {
+            ["POST /api/v1/cases/{id:guid}/settlements"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { direction = "clientPays" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/offers"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { party = "office", amount = 1m, offeredOn = "2026-10-01" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/submit"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { agreedAmount = 1m, installments = new[] { new { dueOn = "2026-11-01", amount = 1m } } }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/approve"] = async owner => new CrossTenantCase(await CaseOfAsync(owner)),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/return"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/homologate"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { homologatedOn = "2026-10-01" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/reject"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/cancel"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { reason = "x" }),
+            ["POST /api/v1/cases/{id:guid}/settlements/{settlementId:guid}/installments/{installmentId:guid}/pay"] = async owner => new CrossTenantCase(await CaseOfAsync(owner), new { paidOn = "2026-11-01", paidAmount = 1m }),
         };
         foreach (var (route, create) in routes)
         {
@@ -294,6 +330,21 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
             kind = "extrajudicial",
             parties = new[] { new { personId = await PersonOfAsync(owner), pole = "active", isClient = true } },
         });
+
+    private async Task<Guid> DeadlineOfAsync(SeededMember owner)
+    {
+        var caseId = await CaseOfAsync(owner);
+        using var ambient = AmbientContext.Begin(owner.OrganizationId, "security-tests");
+        await using var scope = _factory.Services.CreateAsyncScope();
+        using var tenant = scope.ServiceProvider.GetRequiredService<TenantOverride>().BeginForNewOrganization(owner.OrganizationId);
+        var db = scope.ServiceProvider.GetRequiredService<SchedulingDbContext>();
+        var deadline = Deadline.Create(caseId, Guid.CreateVersion7(), "Prazo de teste", new DateOnly(2026, 10, 20),
+            new DateOnly(2026, 10, 27), new DateOnly(2026, 10, 27), owner.UserId, true, owner.UserId,
+            new DateTimeOffset(2026, 10, 20, 12, 0, 0, TimeSpan.Zero)).Value;
+        db.Deadlines.Add(deadline);
+        await db.SaveChangesAsync(Ct);
+        return deadline.Id;
+    }
 
     private IReadOnlyList<ApiEndpoint> Endpoints() =>
         [.. _factory.Services.GetRequiredService<EndpointDataSource>().Endpoints

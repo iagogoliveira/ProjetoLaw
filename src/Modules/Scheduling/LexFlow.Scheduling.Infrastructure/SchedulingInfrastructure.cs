@@ -1,5 +1,8 @@
 using LexFlow.Infrastructure.Common.Persistence;
+using LexFlow.Litigation.Contracts;
+using LexFlow.Platform.Contracts.Notifications;
 using LexFlow.Scheduling.Application;
+using LexFlow.Scheduling.Application.Calendar;
 using LexFlow.Scheduling.Contracts;
 using LexFlow.Scheduling.Domain.Calendar;
 using LexFlow.Scheduling.Infrastructure.Persistence;
@@ -20,6 +23,12 @@ public static class SchedulingInfrastructure
     {
         services.AddSchedulingPersistence(configuration);
         services.AddScoped<WorkAssignees>();
+        services.AddScoped<DeadlineAccess>();
+        services.AddScoped<CalendarDeadlineAlerts>();
+        services.AddScoped<ITimelineContributor, SchedulingTimeline>();
+        services.AddScoped<DeadlineNotificationVisibility>();
+        services.AddScoped<INotificationVisibility>(sp => sp.GetRequiredService<DeadlineNotificationVisibility>());
+        services.AddScoped<IDeadlineAlertDirectory, DeadlineAlertDirectory>();
         services.AddScoped<ISchedulingIntake, SchedulingIntake>();
         services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
         return services;

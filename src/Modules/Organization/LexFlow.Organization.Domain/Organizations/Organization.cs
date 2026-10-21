@@ -25,6 +25,9 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditable
     /// <summary>Exige segundo fator de todos os membros (RF-01; aplicado no PR 3B).</summary>
     public bool MfaRequired { get; private set; }
 
+    /// <summary>Exige conferência independente antes de marcar o prazo como cumprido; não bloqueia o início do trabalho.</summary>
+    public bool RequireDeadlineReview { get; private set; }
+
     public DateTimeOffset CreatedAt { get; private set; }
 
     public Guid CreatedBy { get; private set; }
@@ -46,4 +49,6 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditable
     }
 
     public void RequireMfa(bool required) => MfaRequired = required;
+
+    public void SetDeadlineReviewRequired(bool required) => RequireDeadlineReview = required;
 }

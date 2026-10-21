@@ -972,6 +972,14 @@
         "movement": "Andamento: {{ description }}",
         "received": "Publicação recebida: {{ journal }}"
       },
+      "scheduling": {
+        "deadline_registered": "Prazo cadastrado",
+        "deadline_started": "Trabalho no prazo iniciado",
+        "deadline_reviewed": "Prazo conferido",
+        "deadline_completed": "Prazo cumprido",
+        "deadline_missed": "Prazo perdido",
+        "calendar_changed": "Calendário alterado"
+      },
       "filter": "Tipos de acontecimento",
       "empty": "Nada registrado ainda.",
       "groups": {
@@ -982,7 +990,11 @@
         "settlement": "Acordos",
         "hearing": "Audiências",
         "received": "Publicações",
-        "movement": "Andamentos"
+        "movement": "Andamentos",
+        "scheduling": {
+          "deadline": "Prazos",
+          "calendar_changed": "Calendário"
+        }
       },
       "case_created": "Processo cadastrado (pasta {{ folder }}) por {{ by }}",
       "status_changed": "Situação: {{ from }} → {{ to }}",
@@ -1318,6 +1330,7 @@
       "publication": "Nova publicação recebida",
       "capture": "Alerta de captura",
       "open": "Abrir publicação",
+      "openCase": "Abrir processo",
       "read": "Marcar como lida",
       "readAt": "Marcar como lida a notificação de {{date}}",
       "empty": "Nenhuma notificação não lida."
@@ -1440,5 +1453,9 @@
       "hint": "Consulta exige integração ou triagem em escopo de escritório. Até 200 alertas por dia; a captura recuperada resolve o alerta.",
       "empty": "Nenhum alerta disponível para este dia."
     }
+  },
+  "scheduling": {
+    "deadline_missed": "Prazo perdido",
+    "calendar_changed": "Calendário alterado"
   }
 }
