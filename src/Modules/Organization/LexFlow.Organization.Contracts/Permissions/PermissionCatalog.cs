@@ -97,6 +97,7 @@ public static partial class PermissionCatalog
         new("publications.close", Groups.Publications, "Fechar a conferência diária de publicações"),
         new("publications.distribute", Groups.Publications, "Distribuir publicações e prazos"),
 
+        new("schedule.control.read", Groups.Schedule, "Ver painel e indicadores da controladoria"),
         new("schedule.deadlines.read", Groups.Schedule, "Ver prazos"),
         new("schedule.deadlines.manage", Groups.Schedule, "Cadastrar e cumprir prazos"),
         new("schedule.deadlines.verify", Groups.Schedule, "Conferir o cumprimento de prazos"),

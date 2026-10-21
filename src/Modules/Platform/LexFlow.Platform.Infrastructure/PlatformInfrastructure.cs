@@ -28,6 +28,8 @@ public static class PlatformInfrastructure
     public static IServiceCollection AddPlatformNotifications(this IServiceCollection services)
     {
         services.AddScoped<NotificationAccess>();
+        services.AddScoped<NotificationDeliveryPolicy>();
+        services.AddScoped<NotificationSettingsAccess>();
         services.AddScoped<INotificationReadLock, NotificationReadLock>();
         return services;
     }
@@ -48,6 +50,9 @@ public static class PlatformInfrastructure
         services.AddScoped<IMonetaryCorrection, MonetaryCorrection>();
         services.AddScoped<MonetaryIndexImporter>();
         services.AddScoped<MonetaryIndexImportJob>();
+        services.AddScoped<DailySchedulingDispatchJob>();
+        services.AddScoped<DailyOfficeNotificationsJob>();
+        services.AddScoped<DailyDigestJob>();
         AddIndexSources(services, configuration);
         return services;
     }
@@ -94,6 +99,10 @@ public static class PlatformInfrastructure
                 MonetaryIndexImportJob.RecurringJobId,
                 job => job.RunAsync(),
                 MonetaryIndexImportJob.Cron);
+            scope.ServiceProvider.GetRequiredService<IJobScheduler>().AddOrUpdateRecurring<DailySchedulingDispatchJob>(
+                DailySchedulingDispatchJob.RecurringJobId,
+                job => job.RunAsync(),
+                DailySchedulingDispatchJob.Cron);
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

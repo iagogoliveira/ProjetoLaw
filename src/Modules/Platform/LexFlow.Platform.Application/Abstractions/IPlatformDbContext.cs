@@ -15,6 +15,9 @@ public interface IPlatformDbContext
 {
     DbSet<Notification> Notifications { get; }
     DbSet<NotificationReceipt> NotificationReceipts { get; }
+    DbSet<NotificationPreference> NotificationPreferences { get; }
+    DbSet<NotificationRule> NotificationRules { get; }
+    DbSet<DigestDelivery> DigestDeliveries { get; }
     DbSet<Job> Jobs { get; }
 
     DbSet<IdempotencyKey> IdempotencyKeys { get; }

@@ -1,10 +1,12 @@
 using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Litigation.Contracts;
+using LexFlow.Platform.Contracts.Control;
 using LexFlow.Platform.Contracts.Notifications;
 using LexFlow.Scheduling.Application;
 using LexFlow.Scheduling.Application.Calendar;
 using LexFlow.Scheduling.Contracts;
 using LexFlow.Scheduling.Domain.Calendar;
+using LexFlow.Scheduling.Infrastructure.Control;
 using LexFlow.Scheduling.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +35,9 @@ public static class SchedulingInfrastructure
         services.AddScoped<DeadlineNotificationVisibility>();
         services.AddScoped<INotificationVisibility>(sp => sp.GetRequiredService<DeadlineNotificationVisibility>());
         services.AddScoped<IDeadlineAlertDirectory, DeadlineAlertDirectory>();
+        services.AddScoped<IFatalDeadlineReminders, FatalDeadlineReminders>();
+        services.AddScoped<IControlReportSource, SchedulingControlReport>();
+        services.AddScoped<IDailyDigestSource, SchedulingControlReport>();
         services.AddScoped<ISchedulingIntake, SchedulingIntake>();
         services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
         return services;

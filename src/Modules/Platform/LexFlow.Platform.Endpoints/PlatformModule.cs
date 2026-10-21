@@ -45,6 +45,8 @@ public sealed class PlatformModule : IModule
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         NotificationEndpoints.Map(endpoints);
+        NotificationSettingsEndpoints.Map(endpoints);
+        ControlEndpoints.Map(endpoints);
         CustomFieldEndpoints.Map(endpoints);
         MonetaryIndexEndpoints.Map(endpoints);
     }

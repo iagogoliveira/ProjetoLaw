@@ -129,6 +129,9 @@ export class NotificationBell {
   protected readonly instant = legalInstant;
 
   protected labelFor(kind: string): string {
+    if (kind === 'scheduling.deadline_due_today') {
+      return 'publications.notifications.deadline_due_today';
+    }
     if (this.isScheduling(kind)) return kind;
     return kind === 'publications.received'
       ? 'publications.notifications.publication'
@@ -136,7 +139,11 @@ export class NotificationBell {
   }
 
   protected isScheduling(kind: string): boolean {
-    return kind === 'scheduling.deadline_missed' || kind === 'scheduling.calendar_changed';
+    return (
+      kind === 'scheduling.deadline_missed' ||
+      kind === 'scheduling.calendar_changed' ||
+      kind === 'scheduling.deadline_due_today'
+    );
   }
 
   protected caseRoute(notification: NotificationResponse): string[] {

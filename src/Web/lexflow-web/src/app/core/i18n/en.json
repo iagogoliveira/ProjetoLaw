@@ -1330,6 +1330,7 @@
       "reconnecting": "Reconnecting; manual refresh is still available.",
       "publication": "New publication received",
       "capture": "Capture alert",
+      "deadline_due_today": "Deadline due today",
       "open": "Open publication",
       "openCase": "Open case",
       "read": "Mark as read",

@@ -21,6 +21,14 @@ describe('NotificationBell', () => {
           useValue: {
             items: signal([
               {
+                id: 'due-today',
+                kind: 'scheduling.deadline_due_today',
+                resourceId: 'deadline-0',
+                caseId: 'case-today',
+                createdAt: '2026-10-20T12:00:00Z',
+                readAt: null,
+              },
+              {
                 id: 'missed',
                 kind: 'scheduling.deadline_missed',
                 resourceId: 'deadline-1',
@@ -63,9 +71,11 @@ describe('NotificationBell', () => {
     await fixture.whenStable();
 
     const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Prazo fatal hoje');
     expect(element.textContent).toContain('Prazo perdido');
     expect(element.textContent).toContain('Calendário alterado');
     expect(element.querySelector('a[href="/processos/case-1"]')).not.toBeNull();
+    expect(element.querySelector('a[href="/processos/case-today"]')).not.toBeNull();
     expect(element.querySelector('a[href="/processos"]')).not.toBeNull();
     expect(
       element.querySelector('a[href^="/publicacoes?publication=publication-1"]'),

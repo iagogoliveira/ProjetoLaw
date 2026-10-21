@@ -1,7 +1,9 @@
+using LexFlow.Application.Abstractions;
 using LexFlow.Litigation.Contracts;
 using LexFlow.Organization.Contracts.OrgStructure;
 using LexFlow.Platform.Contracts.Notifications;
 using LexFlow.Scheduling.Contracts;
+using LexFlow.Scheduling.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexFlow.Scheduling.Application;
@@ -10,10 +12,11 @@ namespace LexFlow.Scheduling.Application;
 internal sealed class DeadlineNotificationVisibility(
     ISchedulingDbContext db,
     ICaseDirectory cases,
-    IOrganizationAccessDirectory directory) : INotificationVisibility
+    IOrganizationAccessDirectory directory, IClock clock) : INotificationVisibility
 {
     private const string DeadlineMissed = "scheduling.deadline_missed";
     private const string CalendarChanged = "scheduling.calendar_changed";
+    private const string DueToday = "scheduling.deadline_due_today";
     private const string CasesRead = "cases.read";
     private const string DeadlinesRead = "schedule.deadlines.read";
     private const string DeadlinesVerify = "schedule.deadlines.verify";
@@ -45,6 +48,16 @@ internal sealed class DeadlineNotificationVisibility(
             {
                 visibleActivities.Add(alert.ActivityId);
             }
+        }
+
+        var dueIds = candidates.Where(c => string.Equals(c.Kind, DueToday, StringComparison.Ordinal)).Select(c => c.ResourceId).ToArray();
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.UtcNow, clock.LegalTimeZone).DateTime);
+        var due = await db.Deadlines.AsNoTracking().Where(d => dueIds.Contains(d.Id) && d.FatalDueOn == today
+            && d.Status != WorkItemStatus.Completed && d.Status != WorkItemStatus.Missed).ToListAsync(cancellationToken);
+        foreach (var deadline in due)
+        {
+            var detail = new DeadlineAlertDetails(deadline.Id, deadline.Id, deadline.LegalCaseId, DueToday, deadline.AssigneeUserId, null);
+            if (await VisibleToAsync(viewer, detail, cancellationToken)) { visibleActivities.Add(deadline.Id); }
         }
 
         return alertCandidates.Where(c => visibleActivities.Contains(c.ResourceId)).Select(c => c.Id).ToList();
@@ -98,5 +111,6 @@ internal sealed class DeadlineNotificationVisibility(
 
     private static bool IsSupported(string kind) =>
         string.Equals(kind, DeadlineMissed, StringComparison.Ordinal)
-        || string.Equals(kind, CalendarChanged, StringComparison.Ordinal);
+        || string.Equals(kind, CalendarChanged, StringComparison.Ordinal)
+        || string.Equals(kind, DueToday, StringComparison.Ordinal);
 }

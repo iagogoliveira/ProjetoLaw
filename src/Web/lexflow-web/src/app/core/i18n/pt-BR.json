@@ -1330,6 +1330,7 @@
       "reconnecting": "Reconectando; a consulta manual continua disponível.",
       "publication": "Nova publicação recebida",
       "capture": "Alerta de captura",
+      "deadline_due_today": "Prazo fatal hoje",
       "open": "Abrir publicação",
       "openCase": "Abrir processo",
       "read": "Marcar como lida",
