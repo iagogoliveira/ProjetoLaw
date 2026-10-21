@@ -19,6 +19,9 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<CalendarEntry> CalendarEntries => Set<CalendarEntry>();
     public DbSet<DeadlineActivity> DeadlineActivities => Set<DeadlineActivity>();
+    public DbSet<CalendarEvent> Events => Set<CalendarEvent>();
+    public DbSet<TaskChecklistItem> TaskChecklistItems => Set<TaskChecklistItem>();
+    public DbSet<TaskComment> TaskComments => Set<TaskComment>();
 
     public async Task LockDeadlinesAsync(CancellationToken cancellationToken)
     {
@@ -57,7 +60,14 @@ internal sealed class WorkConfigurations : IEntityTypeConfiguration<Deadline>, I
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Id).ValueGeneratedNever();
         builder.Property(t => t.Title).HasMaxLength(300);
+        builder.Property(t => t.Description).HasMaxLength(4000);
+        builder.Property(t => t.Priority).HasConversion<string>().HasMaxLength(20).HasDefaultValue(TaskPriority.Normal);
         builder.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Ignore(t => t.IsClosed);
+        builder.HasOne<TaskItem>().WithMany().HasForeignKey(t => t.ParentTaskId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(t => t.Checklist).WithOne().HasForeignKey(t => t.TaskId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(t => t.Comments).WithOne().HasForeignKey(t => t.TaskId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(t => new { t.OrganizationId, t.AssigneeUserId, t.DueOn });
         builder.HasIndex(t => new { t.OrganizationId, t.PublicationId }).IsUnique();
         builder.HasIndex(t => new { t.OrganizationId, t.LegalCaseId, t.DueOn });
     }

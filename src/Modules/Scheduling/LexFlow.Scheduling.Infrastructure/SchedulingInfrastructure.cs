@@ -24,6 +24,10 @@ public static class SchedulingInfrastructure
         services.AddSchedulingPersistence(configuration);
         services.AddScoped<WorkAssignees>();
         services.AddScoped<DeadlineAccess>();
+        services.AddScoped<AgendaAccess>();
+        services.AddScoped<AgendaFilters>();
+        services.AddScoped<AgendaSources>();
+        services.AddScoped<TaskWrites>();
         services.AddScoped<CalendarDeadlineAlerts>();
         services.AddScoped<ITimelineContributor, SchedulingTimeline>();
         services.AddScoped<DeadlineNotificationVisibility>();

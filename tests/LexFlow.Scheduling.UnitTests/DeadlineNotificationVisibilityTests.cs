@@ -175,6 +175,9 @@ public sealed class DeadlineNotificationVisibilityTests
         public DbSet<TaskItem> Tasks => throw new NotSupportedException();
         public DbSet<CalendarEntry> CalendarEntries => throw new NotSupportedException();
         public DbSet<DeadlineActivity> DeadlineActivities => throw new NotSupportedException();
+        public DbSet<CalendarEvent> Events => throw new NotSupportedException();
+        public DbSet<TaskChecklistItem> TaskChecklistItems => throw new NotSupportedException();
+        public DbSet<TaskComment> TaskComments => throw new NotSupportedException();
         public bool HasActiveTransaction => false;
         public Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
         public Task LockDeadlinesAsync(CancellationToken cancellationToken) => throw new NotSupportedException();

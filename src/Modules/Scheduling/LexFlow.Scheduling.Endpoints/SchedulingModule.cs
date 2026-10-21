@@ -33,5 +33,8 @@ public sealed class SchedulingModule : IModule
             .Produces<DeadlineCalculationResponse>();
         endpoints.MapCalendarEntries();
         endpoints.MapDeadlines();
+        endpoints.MapAgenda();
+        endpoints.MapTasks();
+        endpoints.MapEvents();
     }
 }

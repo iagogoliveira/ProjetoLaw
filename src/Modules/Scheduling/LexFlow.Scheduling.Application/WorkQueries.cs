@@ -14,7 +14,7 @@ public sealed record DeadlineResponse(Guid Id, Guid CaseId, Guid PublicationId, 
     DateOnly InternalDueOn, DateOnly FatalDueOn, Guid AssigneeUserId, ConfirmedWorkStatus Status, Guid ConfirmedBy, DateTimeOffset ConfirmedAt,
     WorkItemStatus LifecycleStatus);
 public sealed record TaskItemResponse(Guid Id, Guid CaseId, Guid PublicationId, string Title, DateOnly DueOn,
-    Guid AssigneeUserId, ConfirmedWorkStatus Status, Guid ConfirmedBy, DateTimeOffset ConfirmedAt);
+    Guid AssigneeUserId, ConfirmedWorkStatus Status, Guid ConfirmedBy, DateTimeOffset ConfirmedAt, TaskState LifecycleStatus);
 public sealed record ListCaseDeadlinesQuery(Guid CaseId) : IQuery<IReadOnlyList<DeadlineResponse>>;
 public sealed record ListCaseTasksQuery(Guid CaseId) : IQuery<IReadOnlyList<TaskItemResponse>>;
 
@@ -39,6 +39,6 @@ internal sealed class ListCaseTasksHandler(ISchedulingDbContext db) : IQueryHand
 {
     public async Task<Result<IReadOnlyList<TaskItemResponse>>> Handle(ListCaseTasksQuery query, CancellationToken cancellationToken) =>
         await db.Tasks.AsNoTracking().Where(t => t.LegalCaseId == query.CaseId).OrderBy(t => t.DueOn).ThenBy(t => t.Id)
-            .Select(t => new TaskItemResponse(t.Id, t.LegalCaseId, t.PublicationId, t.Title, t.DueOn,
-                t.AssigneeUserId, ConfirmedWorkStatus.Pending, t.ConfirmedBy, t.ConfirmedAt)).ToListAsync(cancellationToken);
+            .Select(t => new TaskItemResponse(t.Id, t.LegalCaseId!.Value, t.PublicationId ?? Guid.Empty, t.Title, t.DueOn,
+                t.AssigneeUserId, ConfirmedWorkStatus.Pending, t.ConfirmedBy, t.ConfirmedAt, t.Status)).ToListAsync(cancellationToken);
 }

@@ -49,6 +49,7 @@ public static class LitigationInfrastructure
         services.AddScoped<SettlementResponses>();
         services.AddScoped<HearingRules>();
         services.AddScoped<IPublicationHearings, PublicationHearings>();
+        services.AddScoped<IHearingCalendar, HearingCalendar>();
         services.AddScoped<ITimelineContributor, LitigationTimeline>();
         services.AddSingleton<ICaseSheets, ClosedXmlCaseSheets>();
         services.AddScoped<CaseImportJobs>();

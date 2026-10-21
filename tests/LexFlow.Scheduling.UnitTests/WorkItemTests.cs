@@ -78,6 +78,6 @@ public sealed class WorkItemTests
         task.AssigneeUserId.ShouldBe(_user);
         task.ConfirmedBy.ShouldBe(_user);
         task.ConfirmedAt.Offset.ShouldBe(TimeSpan.Zero);
-        task.Status.ShouldBe(WorkItemStatus.Pending);
+        task.Status.ShouldBe(TaskState.Pending);
     }
 }

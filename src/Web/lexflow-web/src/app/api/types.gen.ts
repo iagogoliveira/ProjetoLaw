@@ -37,6 +37,34 @@ export type AddressResponse = {
     isBilling: boolean;
 };
 
+export type AddTaskChecklistBody = {
+    title: string;
+};
+
+export type AddTaskCommentBody = {
+    text: string;
+};
+
+export type AgendaItem = {
+    kind: AgendaKind;
+    id: string;
+    caseId: null | string;
+    title: string;
+    startsAt: string;
+    endsAt: null | string;
+    allDay: boolean;
+    assigneeUserId: null | string;
+    status: string;
+    internalDueOn: null | string;
+};
+
+export type AgendaKind = 'deadline' | 'hearing' | 'event' | 'task';
+
+export type AgendaPage = {
+    items: Array<AgendaItem>;
+    nextCursor: null | string;
+};
+
 export type AnonymizePersonRequest = {
     reason: string;
 };
@@ -139,6 +167,30 @@ export type CalendarEntryResponse = {
 };
 
 export type CalendarEntryScope = 'office' | 'state' | 'municipality' | 'court';
+
+export type CalendarEventInput = {
+    caseId: null | string;
+    title: string;
+    description: null | string;
+    startsAt: string;
+    endsAt: string;
+    assigneeUserId: string;
+    location: null | string;
+};
+
+export type CalendarEventResponse = {
+    id: string;
+    caseId: null | string;
+    title: string;
+    description: null | string;
+    startsAt: string;
+    endsAt: string;
+    assigneeUserId: string;
+    location: null | string;
+    status: CalendarEventState;
+};
+
+export type CalendarEventState = 'scheduled' | 'cancelled';
 
 export type CaptureAlertResponse = {
     id: string;
@@ -426,11 +478,21 @@ export type CaseSummary = {
     createdAt: string;
 };
 
+export type ChangeTaskStateBody = {
+    status: TaskState;
+};
+
 export type CheckConflictRequest = {
     name: string;
     document: null | string;
     side: ConflictSide;
     contactEmails: null | Array<string>;
+};
+
+export type ChecklistResponse = {
+    id: string;
+    title: string;
+    completed: boolean;
 };
 
 /**
@@ -1774,6 +1836,21 @@ export type RecoveryCodesResponse = {
     recoveryCodes: Array<string>;
 };
 
+export type RedistributionInput = {
+    ids: Array<string>;
+    assigneeUserId: string;
+};
+
+export type RedistributionItem = {
+    id: string;
+    changed: boolean;
+    errorCode: null | string;
+};
+
+export type RedistributionResponse = {
+    items: Array<RedistributionItem>;
+};
+
 export type RegisterRequest = {
     email: string;
     fullName: string;
@@ -1891,6 +1968,10 @@ export type SetPreferenceCommand = {
     value: JsonElement;
 };
 
+export type SetTaskChecklistBody = {
+    completed: boolean;
+};
+
 /**
  * Quem recebe o valor do acordo: o cliente do escritório (contas a receber) ou a outra parte (contas a pagar).
  */
@@ -1970,6 +2051,39 @@ export type SubmitSettlementRequest = {
     installments: null | Array<InstallmentInput>;
 };
 
+export type TaskCommentResponse = {
+    id: string;
+    text: string;
+    authorUserId: string;
+    occurredAt: string;
+};
+
+export type TaskDetailResponse = {
+    id: string;
+    caseId: null | string;
+    publicationId: null | string;
+    parentTaskId: null | string;
+    title: string;
+    description: null | string;
+    dueOn: string;
+    assigneeUserId: string;
+    status: TaskState;
+    priority: TaskPriority;
+    closedBy: null | string;
+    closedAt: null | string;
+    checklist: Array<ChecklistResponse>;
+    comments: Array<TaskCommentResponse>;
+};
+
+export type TaskInput = {
+    caseId: null | string;
+    title: string;
+    description: null | string;
+    dueOn: string;
+    assigneeUserId: string;
+    priority: TaskPriority;
+};
+
 export type TaskItemResponse = {
     id: string;
     caseId: string;
@@ -1980,7 +2094,17 @@ export type TaskItemResponse = {
     status: ConfirmedWorkStatus;
     confirmedBy: string;
     confirmedAt: string;
+    lifecycleStatus: TaskState;
 };
+
+export type TaskListResponse = {
+    items: Array<TaskDetailResponse>;
+    nextCursor: null | string;
+};
+
+export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+export type TaskState = 'pending' | 'inProgress' | 'completed' | 'cancelled';
 
 export type TaskTriageInput = {
     title: string;
@@ -2305,6 +2429,182 @@ export type RegisterDeadlineResponses = {
 };
 
 export type RegisterDeadlineResponse = RegisterDeadlineResponses[keyof RegisterDeadlineResponses];
+
+export type ListAgendaData = {
+    body?: never;
+    path?: never;
+    query: {
+        from: string;
+        until: string;
+        assigneeUserId?: string;
+        teamId?: string;
+        includeClosed?: boolean;
+        cursor?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/schedule/agenda';
+};
+
+export type ListAgendaResponses = {
+    /**
+     * OK
+     */
+    200: AgendaPage;
+};
+
+export type ListAgendaResponse = ListAgendaResponses[keyof ListAgendaResponses];
+
+export type RedistributeTasksData = {
+    body: RedistributionInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tasks/redistribute';
+};
+
+export type RedistributeTasksResponses = {
+    /**
+     * OK
+     */
+    200: RedistributionResponse;
+};
+
+export type RedistributeTasksResponse = RedistributeTasksResponses[keyof RedistributeTasksResponses];
+
+export type RedistributeDeadlinesData = {
+    body: RedistributionInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/deadlines/redistribute';
+};
+
+export type RedistributeDeadlinesResponses = {
+    /**
+     * OK
+     */
+    200: RedistributionResponse;
+};
+
+export type RedistributeDeadlinesResponse = RedistributeDeadlinesResponses[keyof RedistributeDeadlinesResponses];
+
+export type RedistributeEventsData = {
+    body: RedistributionInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/schedule/events/redistribute';
+};
+
+export type RedistributeEventsResponses = {
+    /**
+     * OK
+     */
+    200: RedistributionResponse;
+};
+
+export type RedistributeEventsResponse = RedistributeEventsResponses[keyof RedistributeEventsResponses];
+
+export type ListTasksData = {
+    body?: never;
+    path?: never;
+    query?: {
+        caseId?: string;
+        assigneeUserId?: string;
+        teamId?: string;
+        parentTaskId?: string;
+        status?: TaskState;
+        priority?: TaskPriority;
+        after?: string;
+        limit?: number | string;
+    };
+    url: '/api/v1/tasks';
+};
+
+export type ListTasksErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+};
+
+export type ListTasksError = ListTasksErrors[keyof ListTasksErrors];
+
+export type ListTasksResponses = {
+    /**
+     * OK
+     */
+    200: TaskListResponse;
+};
+
+export type ListTasksResponse = ListTasksResponses[keyof ListTasksResponses];
+
+export type RegisterTaskData = {
+    body: TaskInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tasks';
+};
+
+export type RegisterTaskErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type RegisterTaskError = RegisterTaskErrors[keyof RegisterTaskErrors];
+
+export type RegisterTaskResponses = {
+    /**
+     * Created
+     */
+    201: TaskDetailResponse;
+};
+
+export type RegisterTaskResponse = RegisterTaskResponses[keyof RegisterTaskResponses];
+
+export type RegisterEventData = {
+    body: CalendarEventInput;
+    path?: never;
+    query?: never;
+    url: '/api/v1/schedule/events';
+};
+
+export type RegisterEventErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type RegisterEventError = RegisterEventErrors[keyof RegisterEventErrors];
+
+export type RegisterEventResponses = {
+    /**
+     * Created
+     */
+    201: CalendarEventResponse;
+};
+
+export type RegisterEventResponse = RegisterEventResponses[keyof RegisterEventResponses];
 
 export type GetJobData = {
     body?: never;
@@ -8037,3 +8337,374 @@ export type MissDeadlineResponses = {
 };
 
 export type MissDeadlineResponse = MissDeadlineResponses[keyof MissDeadlineResponses];
+
+export type GetTaskData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}';
+};
+
+export type GetTaskErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetTaskError = GetTaskErrors[keyof GetTaskErrors];
+
+export type GetTaskResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type GetTaskResponse = GetTaskResponses[keyof GetTaskResponses];
+
+export type EditTaskData = {
+    body: TaskInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}';
+};
+
+export type EditTaskErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type EditTaskError = EditTaskErrors[keyof EditTaskErrors];
+
+export type EditTaskResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type EditTaskResponse = EditTaskResponses[keyof EditTaskResponses];
+
+export type RegisterSubtaskData = {
+    body: TaskInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}/subtasks';
+};
+
+export type RegisterSubtaskErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type RegisterSubtaskError = RegisterSubtaskErrors[keyof RegisterSubtaskErrors];
+
+export type RegisterSubtaskResponses = {
+    /**
+     * Created
+     */
+    201: TaskDetailResponse;
+};
+
+export type RegisterSubtaskResponse = RegisterSubtaskResponses[keyof RegisterSubtaskResponses];
+
+export type ChangeTaskStateData = {
+    body: ChangeTaskStateBody;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}/state';
+};
+
+export type ChangeTaskStateErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type ChangeTaskStateError = ChangeTaskStateErrors[keyof ChangeTaskStateErrors];
+
+export type ChangeTaskStateResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type ChangeTaskStateResponse = ChangeTaskStateResponses[keyof ChangeTaskStateResponses];
+
+export type AddTaskChecklistItemData = {
+    body: AddTaskChecklistBody;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}/checklist';
+};
+
+export type AddTaskChecklistItemErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type AddTaskChecklistItemError = AddTaskChecklistItemErrors[keyof AddTaskChecklistItemErrors];
+
+export type AddTaskChecklistItemResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type AddTaskChecklistItemResponse = AddTaskChecklistItemResponses[keyof AddTaskChecklistItemResponses];
+
+export type SetTaskChecklistItemData = {
+    body: SetTaskChecklistBody;
+    path: {
+        id: string;
+        itemId: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}/checklist/{itemId}';
+};
+
+export type SetTaskChecklistItemErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type SetTaskChecklistItemError = SetTaskChecklistItemErrors[keyof SetTaskChecklistItemErrors];
+
+export type SetTaskChecklistItemResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type SetTaskChecklistItemResponse = SetTaskChecklistItemResponses[keyof SetTaskChecklistItemResponses];
+
+export type AddTaskCommentData = {
+    body: AddTaskCommentBody;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tasks/{id}/comments';
+};
+
+export type AddTaskCommentErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type AddTaskCommentError = AddTaskCommentErrors[keyof AddTaskCommentErrors];
+
+export type AddTaskCommentResponses = {
+    /**
+     * OK
+     */
+    200: TaskDetailResponse;
+};
+
+export type AddTaskCommentResponse = AddTaskCommentResponses[keyof AddTaskCommentResponses];
+
+export type GetEventData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/schedule/events/{id}';
+};
+
+export type GetEventErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+};
+
+export type GetEventError = GetEventErrors[keyof GetEventErrors];
+
+export type GetEventResponses = {
+    /**
+     * OK
+     */
+    200: CalendarEventResponse;
+};
+
+export type GetEventResponse = GetEventResponses[keyof GetEventResponses];
+
+export type EditEventData = {
+    body: CalendarEventInput;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/schedule/events/{id}';
+};
+
+export type EditEventErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type EditEventError = EditEventErrors[keyof EditEventErrors];
+
+export type EditEventResponses = {
+    /**
+     * OK
+     */
+    200: CalendarEventResponse;
+};
+
+export type EditEventResponse = EditEventResponses[keyof EditEventResponses];
+
+export type CancelEventData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/schedule/events/{id}/cancel';
+};
+
+export type CancelEventErrors = {
+    /**
+     * Forbidden
+     */
+    403: ProblemDetails;
+    /**
+     * Not Found
+     */
+    404: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+};
+
+export type CancelEventError = CancelEventErrors[keyof CancelEventErrors];
+
+export type CancelEventResponses = {
+    /**
+     * OK
+     */
+    200: CalendarEventResponse;
+};
+
+export type CancelEventResponse = CancelEventResponses[keyof CancelEventResponses];

@@ -1,6 +1,6 @@
 # ADR 0038 — Ciclo do prazo, conferência e alertas do calendário
 
-- **Status:** Proposta (para revisão no PR #37 — 7B)
+- **Status:** Aceita (PR #37 mergeado em 2026-10-20)
 - **Data:** 2026-10-20
 - **Etapa:** 7 (7B; RF-23)
 
@@ -29,3 +29,5 @@ Domínio, configuração por tenant, endpoints, permissões e sigilo; confirmaç
 Verificação integral aprovada em 2026-10-20: builds sem warnings, formatação, 1.074 testes .NET, gate de cobertura de 80%, dependências, seis modelos EF, OpenAPI/cliente, lint, 134 Vitest, build Angular e duas rodadas de 17 Playwright contra o AppHost com acessibilidade. A única preparação opcional de carga foi ignorada em cada rodada, sem `LOAD_OUTPUT`. Ambiente encerrado e volumes preservados. Evidências e limitações no `docs/progress.md`.
 
 No fechamento do PR #37, a correção aditiva do contrato foi aprovada pelo oasdiff oficial v1.33.0 e por teste de regressão; API reexecutada 240/240, consolidando 1.075 testes .NET e gate de 80% aprovado (Scheduling.Application 97,0%). Build/format, lint, 134 Vitest, build Angular e npm audit (zero vulnerabilidades) novamente aprovados. AppHost/E2E após o ajuste do Vite deve ser conferido no CI antes do merge. Fontes do advisory: [Vite/launch-editor](https://github.com/vitejs/launch-editor/security/advisories/GHSA-698v-4r3x-3vcv), [flags de editor](https://github.com/vitejs/launch-editor/security/advisories/GHSA-r825-w8mm-5pxw), [verificação de caminho no Windows](https://github.com/vitejs/launch-editor/security/advisories/GHSA-587h-7wmj-h5pm).
+
+PR #37 mergeado pelo usuário em 2026-10-20, merge `aaec47f`. CI da versão final `43356fb` integralmente aprovado, incluindo AppHost/E2E, confirmando também a execução com o Vite corrigido.
