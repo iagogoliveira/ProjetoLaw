@@ -13,7 +13,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 | 4 — Pessoas e CRM | **Concluída** (PRs #18 a #23 mergeados; os 3 critérios de aceite atendidos, o de processos com processos falsos até a Etapa 5) | `etapa-4-pessoas-crm`, `etapa-4b-conflitos`, `etapa-4c-funil-propostas`, `etapa-4d-frontend-crm`, `etapa-4d2-funil-telas`, `etapa-4e-aprovacao-escritorio-solo` |
 | 5 — Processos e casos (contencioso) | **Concluída** (PRs #24 a #30 mergeados; os 3 critérios de aceite atendidos; 5E2 #30 mergeado em 2026-10-19) | `etapa-5a-processos`, `etapa-5b-acesso-processos`, `etapa-5c-valores-risco`, `etapa-5c2-risco-acordos`, `etapa-5d-timeline-importacao`, `etapa-5e-telas-processos`, `etapa-5e2-telas-valores-importacao` |
 | 6 — Publicações e andamentos | **Pendente integração real** (6A #31 a 6E #35 mergeados; CI aprovado; fornecedor real de publicações/intimações ainda pendente) | `codex/etapa-6-publicacoes-andamentos`, `codex/etapa-6b-captura-alertas`, `codex/etapa-6c-datajud-integracoes`, `codex/etapa-6d-triagem-fechamento`, `codex/etapa-6e-telas-publicacoes` |
-| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C implementado e verificado, publicado no PR #38 (aberto); revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas` |
+| 7 — Prazos, agenda e tarefas | **Em implementação** (7A #36 e 7B #37 mergeados; 7C #38 mergeado em 2026-10-21; 7D em preparação; revisão jurídica do 7A pendente) | `etapa-7-prazos-agenda`, `codex/etapa-7b-ciclo-prazo`, `codex/etapa-7c-agenda-tarefas`, `codex/etapa-7d-controladoria-notificacoes` |
 
 
 ## Política de execução de testes (aprovada em 2026-10-19)
@@ -34,7 +34,7 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 ---
 
-## Etapa 7 — Prazos, agenda e tarefas (7A e 7B mergeados; 7C pronto para revisão)
+## Etapa 7 — Prazos, agenda e tarefas (7A, 7B e 7C mergeados; 7D em preparação)
 
 **RFs:** RF-23, RF-24 e RF-26 (e o resumo diário do RF-05). **Base:** seção 10 da `docs/spec/implementacao.md`. **Branch de planejamento:** `etapa-7-prazos-agenda`, criado da `main` no merge `af904e3` (#35). Proposta registrada em 2026-10-20 pelo Claude.
 
@@ -164,9 +164,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Última verificação local da arrumação pós-merge:** somente documentação; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantidos os 1.075 testes .NET consolidados, gate de 80%, 134 Vitest e demais verificações anteriores; CI final aprovado complementa AppHost/E2E após a correção. Ambos os manuais revisados/atualizados para disponibilidade na main e checkout do 7C, sem novos passos de uso ou execução. Nenhuma aplicação iniciada e nenhum volume alterado. Diretório local não rastreado `.codex/` preservado e excluído do commit. Commit/push documental na branch do 7C segue o ciclo pós-merge autorizado; implementação do 7C ainda não iniciada. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
 
-### PR 7C — Agenda e tarefas (implementado e verificado; PR #38 aberto)
+### PR 7C — Agenda e tarefas (concluído; PR #38 mergeado em 2026-10-21)
 
-**Branch:** `codex/etapa-7c-agenda-tarefas`, base `aaec47f` (merge do 7B), arrumação pós-merge `75d38c4`. **ADR:** [0039](adr/0039-agenda-tarefas-e-redistribuicao.md), proposta. Continuidade autorizada pelo usuário em 2026-10-20: "Prossiga"; o plano 7A–7G permanece aprovado. Push/PR da implementação somente a pedido.
+**Branch:** `codex/etapa-7c-agenda-tarefas`, base `aaec47f` (merge do 7B), arrumação pós-merge `75d38c4`. **ADR:** [0039](adr/0039-agenda-tarefas-e-redistribuicao.md), aceita no PR #38. Continuidade autorizada pelo usuário em 2026-10-20: "Prossiga"; o plano 7A–7G permanece aprovado. Push/PR da implementação somente a pedido.
 
 **Decisões adicionais do usuário em 2026-10-20:** (1) tarefas e compromissos com processo opcional; (2) concluir exige checklist e subtarefas resolvidos; (3) tarefas Pendente/Em andamento/Concluída/Cancelada, prioridades Baixa/Normal/Alta/Urgente, com reabertura; (4) subtarefas completas de um nível, com responsável, vencimento, prioridade e checklist, considerando concluída ou cancelada como resolvida para o pai.
 
@@ -195,7 +195,9 @@ Agentes: as regras e o ciclo de trabalho estão no `CLAUDE.md` e no `AGENTS.md` 
 
 **Manual:** ambos os guias revisados e atualizados para tarefas, compromissos, permissões, filtros, reabertura, subtarefas e redistribuição. Sem novos serviços, portas ou comandos de inicialização. Telas continuam previstas para o 7F; anexos no GED da Etapa 9, preferências/notificações adicionais no 7D e sincronização externa no 7G.
 
-**Estado e continuidade:** implementação 407ca4a publicada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), aberto em 2026-10-21 a pedido do usuário. Usuário confirmou: “Abra o PR; eu faço o merge”. Conferir CI e revisão e aguardar o merge; depois, arrumação pós-merge e 7D. ADR 0039 permanece proposta. Publicação altera somente documentação: diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos; mantidos os gates integrais acima, sem repetir runtime. Ambos os manuais revisados, sem novos passos. Aplicação permanece fechada, dados preservados. Diretório local .codex/ preservado e excluído do commit. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+**Estado e continuidade:** implementação 407ca4a publicada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), aberto em 2026-10-21 a pedido do usuário. Usuário confirmou: “Abra o PR; eu faço o merge”. Merge confirmado pelo usuário em 2026-10-21 às 10:48 (America/Sao_Paulo), commit 966a3a1ca1c5fcf3fb004e43f990620ea74b6841, envio até f63f6e8. Todos os checks do PR aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. ADR 0039 aceita. Publicação altera somente documentação: diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos; mantidos os gates integrais acima, sem repetir runtime. Ambos os manuais revisados, sem novos passos. Aplicação permanece fechada, dados preservados. Diretório local .codex/ preservado e excluído do commit. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+**Última verificação local da arrumação pós-merge (2026-10-21):** main atualizada por fast-forward para 966a3a1; branch codex/etapa-7d-controladoria-notificacoes criado dessa base. Somente documentação alterada; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Mantida a verificação integral do 7C acima, complementada pelo CI integral aprovado no head f63f6e8. Ambos os manuais atualizados para disponibilidade do backend na main e checkout do 7D, sem novos passos de uso/inicialização. Nenhuma aplicação iniciada ou volume alterado; .codex/ preservado e excluído do commit. Commit e push documental no branch do 7D seguem o ciclo pós-merge autorizado. Implementação do 7D ainda não iniciada; próximo trabalho é detalhar controladoria e notificações conforme o plano aprovado.
 
 ---
 ## Etapa 6 — Publicações e andamentos (6A a 6E mergeados; fornecedor real pendente)

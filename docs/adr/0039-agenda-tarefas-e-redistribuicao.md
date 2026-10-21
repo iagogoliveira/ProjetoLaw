@@ -1,6 +1,6 @@
 # ADR 0039 — Agenda, tarefas e redistribuição em lote
 
-- **Status:** Proposta (para revisão no PR #38)
+- **Status:** Aceita (PR #38 mergeado em 2026-10-21)
 - **Data:** 2026-10-20
 - **Etapa:** 7 (7C; RF-24)
 
@@ -33,4 +33,4 @@ Em 2026-10-20, o usuário confirmou:
 
 ## Verificação
 
-Verificação integral aprovada em 2026-10-21: builds Release/Debug sem warnings/erros; format; 1.124 testes .NET em 20 projetos; gate de 80% (Scheduling.Domain 98,8%, Application 99,2%); dependências, seis modelos EF e oasdiff v1.33.0 sem quebra; audit zero, lint, 134 Vitest, build Angular e duas rodadas consecutivas de 17 Playwright contra o AppHost com acessibilidade. Somente a preparação opcional de carga ignorada em cada rodada. Migração 7B→7C, RLS, auditoria, escopo/sigilo, dependências de subtarefas, reabertura, cursor entre quatro fontes e redistribuição parcial verificados. Ambiente encerrado e volumes preservados. Detalhes e evidências no `docs/progress.md`. Commit local, sem push/PR da implementação.
+Verificação integral aprovada em 2026-10-21: builds Release/Debug sem warnings/erros; format; 1.124 testes .NET em 20 projetos; gate de 80% (Scheduling.Domain 98,8%, Application 99,2%); dependências, seis modelos EF e oasdiff v1.33.0 sem quebra; audit zero, lint, 134 Vitest, build Angular e duas rodadas consecutivas de 17 Playwright contra o AppHost com acessibilidade. Somente a preparação opcional de carga ignorada em cada rodada. Migração 7B→7C, RLS, auditoria, escopo/sigilo, dependências de subtarefas, reabertura, cursor entre quatro fontes e redistribuição parcial verificados. Ambiente encerrado e volumes preservados. Detalhes e evidências no `docs/progress.md`. Implementação 407ca4a, envio até f63f6e8; PR #38 mergeado pelo usuário em 2026-10-21, merge 966a3a1, com CI integral aprovado.

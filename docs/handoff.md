@@ -10,6 +10,18 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7C mergeado; preparação do 7D)
+
+**Pedido:** usuário confirmou “Mergeado”. PR #38 confirmado como MERGED em 2026-10-21 às 10:48 (America/Sao_Paulo), merge 966a3a1ca1c5fcf3fb004e43f990620ea74b6841. Implementação 407ca4a; envio final f63f6e8. Todos os checks aprovados, incluindo backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E.
+
+**Feito:** main atualizada por fast-forward e branch codex/etapa-7d-controladoria-notificacoes criado da base mergeada. ADR 0039 aceita; progress, AGENTS/CLAUDE e ambos os manuais atualizados. Commit e push da arrumação documental neste branch seguem o ciclo pós-merge autorizado; nenhum PR novo aberto.
+
+**Verificação:** somente documentação; diff, UTF-8 e igualdade dos agentes conferidos. Preservados 1.124 testes .NET, gate de 80%, 134 Vitest e duas rodadas de 17 Playwright do 7C, complementados pelo CI final integral aprovado. Sem repetir runtime. Aplicação permanece fechada e volumes/cadastros preservados; .codex/ local não rastreado preservado e excluído do commit. Migration AgendaAndTasks já aplicada no banco local, não editar.
+
+**Próximo:** detalhar o 7D (controladoria, indicadores, preferências/regras de notificação e resumo diário às 07:30 em America/Sao_Paulo) conforme o plano aprovado. Implementação do 7D ainda não iniciada. Sol orquestra partes críticas e revisão; Luna executa fatias delimitadas e verificação. Telas no 7F; revisão jurídica do 7A e fornecedor real de publicações seguem pendentes. Merge continua sendo feito pelo usuário.
+
+---
+
 ## 2026-10-21 — Codex (7C publicado no PR #38; merge pelo usuário)
 
 **Pedido e confirmação:** usuário pediu “Crie o merge” e esclareceu: “Abra o PR; eu faço o merge”. Implementação 407ca4a enviada no branch codex/etapa-7c-agenda-tarefas; [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38) aberto e anexado ao chat. ADR 0039 permanece proposta.
