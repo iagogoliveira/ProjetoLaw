@@ -10,6 +10,17 @@ Como funciona:
 
 ---
 
+## 2026-10-20 — Codex (pós-merge do 7B e preparação do 7C)
+
+**Pedido do usuário:** "Mergeado". Confirmado no GitHub o PR #37 como MERGED em 2026-10-20 às 23:35 (America/Sao_Paulo), merge `aaec47faee69ef8eecd284dd34dbf4bf20a3b4bb`. Todos os checks finais de `43356fb` aprovados, incluindo backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E; a correção do Vite está coberta pelo CI final.
+
+**Feito:** main atualizada por fast-forward e branch `codex/etapa-7c-agenda-tarefas` criado dessa base. ADR 0038 aceita; progress, AGENTS/CLAUDE e ambos os manuais atualizados quanto ao merge, disponibilidade e checkout. Nenhuma alteração de runtime; mantidas as verificações locais consolidadas (1.075 .NET, gate de 80%, 134 Vitest) e o CI final aprovado. Diff, UTF-8 e sincronização documental conferidos. Aplicação não iniciada; volumes/cadastros preservados. Diretório não rastreado `.codex/` preservado e não incluído no commit.
+
+**Estado:** arrumação pós-merge para commit/push na branch do 7C conforme o ciclo autorizado. 7C em preparação, sem implementação ou PR neste registro. Nenhuma decisão nova de negócio.
+
+**Próximo trabalho:** 7C (agenda e tarefas) conforme o plano aprovado: compromissos, tarefas com prioridade/checklist/subtarefas/comentários, agenda unificada com audiências por contrato, filtros por usuário/equipe/escritório e redistribuição em lote; autorização, escopo/sigilo, paginação e SecurityTests. Sol orquestra partes críticas e Luna executa fatias delimitadas e verificações. Push/PR da implementação só a pedido; merge pelo usuário. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
 ## 2026-10-20 — Codex (7B enviado e PR #37 aberto)
 
 **Pedido do usuário:** "Ok, prossiga", após a entrega local do 7B. Implementação `7c7b4bf` enviada na branch `codex/etapa-7b-ciclo-prazo`; [PR #37](https://github.com/iagogoliveira/ProjetoLaw/pull/37) aberto contra `main` e anexado à conversa. Merge permanece com o usuário.

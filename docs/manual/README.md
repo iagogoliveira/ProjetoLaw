@@ -189,7 +189,7 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento disponíveis na main desde o 6E (#35) |
 | Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
 | Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend na main desde o 7A ([#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36)); ainda sem tela, prevista para o 7E; revisão jurídica pendente |
-| Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend implementado e verificado no PR #37 (7B), ainda sem merge; telas no 7E |
+| Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend disponível na main pelo PR #37 (7B), mergeado em 2026-10-20; telas no 7E |
 | Agenda unificada e tarefas completas | Etapa 7 (7C e telas no 7F); sincronização no 7G |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
@@ -233,9 +233,9 @@ O fechamento registra usuário, instante e revisão. Se novas publicações cheg
 
 Na aba **Andamentos** do processo, consulte origem, data do ato e data de coleta, com paginação e situação da última sincronização. Para registrar manualmente, informe data/hora em São Paulo e descrição e use **Salvar andamento**; é necessário editar o processo. O registro aparece também na **Linha do tempo**, cujo filtro inclui publicações recebidas e andamentos.
 
-## 15. Prazos e alertas (7B, backend no branch de desenvolvimento)
+## 15. Prazos e alertas (7B, backend na main)
 
-O cadastro manual e as ações de iniciar, conferir, cumprir e registrar perda estão disponíveis pela API no branch do 7B; a tela completa permanece prevista para o 7E. O [guia local](ambiente-local.md#11-ciclo-do-prazo-7b-operação-técnica) descreve como conferir essas operações.
+O cadastro manual e as ações de iniciar, conferir, cumprir e registrar perda estão disponíveis pela API na main desde o merge do PR #37; a tela completa permanece prevista para o 7E. O [guia local](ambiente-local.md#11-ciclo-do-prazo-7b-operação-técnica) descreve como conferir essas operações.
 
 O cumprimento exige texto do protocolo. A perda exige justificativa. Quando a organização exige conferência, o trabalho pode ser iniciado antes dela, mas o prazo só pode ser marcado como cumprido depois de conferido. O conferente precisa ser outro membro; em escritório com um único membro ativo, a autoconferência continua exigindo a permissão de conferir prazos.
 
