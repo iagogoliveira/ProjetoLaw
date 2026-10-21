@@ -248,3 +248,5 @@ As telas estão no branch codex/etapa-7e-telas-prazos, publicadas no PR #40, ain
 A verificação do 7E inclui Vitest, API, segurança e o fluxo Playwright triagem → prazo → cumprimento com evidência → fechamento, além de cadastro manual e conferência. Execute AppHost.Tests antes da instância usada pelo Playwright; nunca simultaneamente. Encerre aplicação e serviços após a verificação, preservando os volumes/cadastros.
 
 Verificação integral do 7E concluída em 2026-10-21: 1.165 testes .NET, 153 Vitest e duas rodadas consecutivas de 18 Playwright aprovados, incluindo acessibilidade; apenas a preparação opcional de carga foi ignorada em cada rodada. Aplicação e sete serviços encerrados, portas locais fechadas e volumes/cadastros preservados. A implementação fa8cc61 foi publicada no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), aguardando revisão e merge pelo usuário.
+
+Os testes Vitest usam isolamento entre arquivos para que mocks de dependências não dependam da ordem das suítes. O comando continua npm test, sem mudança na inicialização ou no uso da aplicação.

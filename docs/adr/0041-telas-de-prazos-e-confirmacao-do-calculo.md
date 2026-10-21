@@ -28,4 +28,6 @@ O 7A e o 7B entregaram calculadora e ciclo do prazo. O plano 7A–7G aprovado pr
 
 ## Verificação
 
+O Vitest executa os arquivos de teste com isolate=true na configuração Angular. O padrão compartilhado causou falha de mock do SignalR no CI, dependente do carregamento de módulos também importados por outras suítes. O isolamento preserva as asserções de autenticação, reconexão e descarte da conexão, sem alterar o serviço de produção.
+
 Verificação integral aprovada em 2026-10-21: 1.165 testes .NET em 20 projetos, gate de cobertura de 80%, builds e formatação; dependências e seis modelos EF aprovados; OpenAPI aditivo sem quebra. Frontend com lint, 153 Vitest, build Angular e audit sem vulnerabilidades. Duas rodadas consecutivas de 18 Playwright aprovados contra AppHost (uma preparação opcional de carga ignorada por rodada), incluindo cadastro/conferência/cumprimento, triagem → prazo → cumprimento com evidência → fechamento e WCAG 2.1 AA. Resultados e limites detalhados no progress.

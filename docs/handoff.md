@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7E: correção do job frontend no PR #40)
+
+**Pedido:** usuário informou falha de teste frontend. Log do job 119456432832, run 39667391993, head 5a95969: três falhas em NotificationStream, com 150 testes aprovados. Mock SignalR sem chamadas; não era falha nas asserções das telas novas.
+
+**Correção:** angular.json configura isolate=true para Vitest, removendo o cache compartilhado entre arquivos que importam o serviço. Nenhuma asserção relaxada, pacote novo ou alteração no código de produção. Falha original não reproduzida no Windows; validação local nas ordens padrão e embaralhada (seed 40), com lint. Resultados em TestResults/7e-final-validation/ci-*.log; demais gates integrais preservados por não haver mudança de runtime. Manuais revisados, sem novos passos de uso/inicialização; guia local registra o isolamento.
+
+**Estado e próximo:** correção enviada ao mesmo branch/PR #40, para validação no runner Linux do CI. Acompanhar frontend e os demais checks; aguardar merge pelo usuário. Aplicação permanece fechada, volumes/cadastros e .codex/ preservados. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
+
 ## 2026-10-21 — Codex (7E publicado no PR #40)
 
 **Pedido:** “faça o PR”. Implementação fa8cc61 enviada no branch codex/etapa-7e-telas-prazos; [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40) aberto e anexado à conversa. Quem faz o merge é o usuário.

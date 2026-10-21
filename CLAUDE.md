@@ -151,6 +151,8 @@ cd src/Web/lexflow-web && npm run lint && npm test && npx ng build && npx playwr
 
 ## Armadilhas conhecidas
 
+- **Mocks no Vitest:** preserve isolate=true no target de testes do Angular. O padrão compartilhado pode reutilizar módulos importados por outras suítes antes do vi.mock e tornar os testes dependentes da ordem (incidente SignalR no CI do PR #40). Não remova as asserções para contornar isso.
+
 - **Filhas de agregado com Id gerado no domínio** (`Guid.CreateVersion7()`): configure `builder.Property(x => x.Id).ValueGeneratedNever()`. Sem isso, uma filha nova numa edição vira alteração e a gravação falha (ADR 0026).
 - **Rota nova com parâmetro:** precisa de um caso em `CrossTenantCases`, em `tests/LexFlow.SecurityTests/EndpointSecurityTests.cs`.
   - O corpo enviado precisa passar na validação, para o 404 vir do recurso de outra organização.
