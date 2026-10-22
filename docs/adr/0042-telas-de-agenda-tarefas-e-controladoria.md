@@ -1,6 +1,6 @@
 # ADR 0042 — Telas de agenda, tarefas e controladoria
 
-- **Status:** Proposta (para revisão no PR 7F)
+- **Status:** Proposta (para revisão no PR #41)
 - **Data:** 2026-10-22
 - **Etapa:** 7F (RF-05, RF-24 e RF-26)
 

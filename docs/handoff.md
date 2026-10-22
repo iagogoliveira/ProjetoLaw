@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-22 — Codex (7F publicado no PR #41)
+
+**Pedido e publicação:** usuário pediu “crie pr”. Implementação b84e5a4 enviada no branch codex/etapa-7f-agenda-tarefas-controladoria; [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41) aberto para main e anexado à conversa. Quem faz o merge é o usuário.
+
+**Documentação/verificação:** ADR 0042 proposta no PR #41; progress, AGENTS/CLAUDE e ambos os manuais atualizados para o estado publicado. Somente documentação após os gates integrais da entrada anterior: 1.166 .NET, cobertura mínima de 80%, 185 Vitest, duas rodadas de 21 Playwright com acessibilidade e demais gates aprovados. Não repetido runtime; diff, UTF-8 e igualdade dos agentes conferidos. Aviso Angular de 513,79 kB para orçamento de aviso de 500 kB preservado e descrito no PR. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #41 e aguardar merge pelo usuário. Depois, atualizar main, aceitar ADR 0042 e preparar 7G, conforme ciclo aprovado. Fornecedor real de publicações e revisão jurídica do 7A continuam pendentes.
+
+---
+
 ## 2026-10-22 — Codex (7F implementado e verificado; commit local)
 
 **Pedido e estado:** usuário pediu “Prossiga” após o merge do PR #40. Plano 7A–7G aprovado preservado. Implementação commitada localmente no branch codex/etapa-7f-agenda-tarefas-controladoria, base 72bb88c e arrumação documental 1f095f7. Sem push/PR da implementação: aguardar pedido do usuário. Quem faz o merge é o usuário.

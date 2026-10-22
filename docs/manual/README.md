@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-22.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O checkout do 7F acrescenta agenda, tarefas, controladoria e preferências, ainda sem merge, conforme a seção 19. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-22.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), acrescenta agenda, tarefas, controladoria e preferências, ainda sem merge, conforme a seção 19. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -293,7 +293,7 @@ Escolha **Criar prazo**, selecione o processo e use a calculadora. Aplique a sug
 
 ## 19. Agenda, tarefas, controladoria e notificações (7F, checkout de desenvolvimento)
 
-Estas telas estão no branch codex/etapa-7f-agenda-tarefas-controladoria, ainda sem merge. Os dados e as ações respeitam seu perfil e o alcance autorizado no escritório. As telas do 7E já estão disponíveis na main pelo PR #40.
+Estas telas estão no branch codex/etapa-7f-agenda-tarefas-controladoria, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), ainda sem merge. Os dados e as ações respeitam seu perfil e o alcance autorizado no escritório. As telas do 7E já estão disponíveis na main pelo PR #40.
 
 ### Consultar a agenda e cadastrar compromissos
 
