@@ -1,0 +1,162 @@
+<section class="page" *transloco="let t">
+  <header>
+    <h1>{{ isEditing ? t('events.editTitle') : t('events.createTitle') }}</h1>
+    <a mat-button routerLink="/agenda">{{ t('events.backToAgenda') }}</a>
+  </header>
+  @if (store.loading()) {
+    <p aria-live="polite">{{ t('events.loading') }}</p>
+  }
+  @if (store.error()) {
+    <p role="alert">{{ t(errorTranslation(store.error()!)) }}</p>
+  }
+  @if (store.optionsError()) {
+    <p role="alert">{{ t(errorTranslation(store.optionsError()!, 'options')) }}</p>
+  }
+  @if (store.item(); as item) {
+    <p class="status">{{ t('events.status.' + item.status) }}</p>
+    @if (item.caseId) {
+      <p>
+        {{ t('events.linkedCase') }}:
+        {{
+          store.caseLabel() === 'linked' || !store.caseLabel()
+            ? t('events.caseUnavailable')
+            : store.caseLabel()
+        }}
+      </p>
+    }
+  }
+  @if (!isEditing || store.item()) {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('events.title') }}</mat-label>
+        <input
+          matInput
+          formControlName="title"
+          maxlength="300"
+          required
+          [readonly]="!canEdit || store.saving() || store.canceling()"
+        />
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>{{ t('events.required') }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('events.description') }}</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          maxlength="4000"
+          rows="4"
+          [readonly]="!canEdit || store.saving() || store.canceling()"
+        ></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('events.location') }}</mat-label>
+        <input
+          matInput
+          formControlName="location"
+          maxlength="500"
+          [readonly]="!canEdit || store.saving() || store.canceling()"
+        />
+      </mat-form-field>
+      <p>{{ t('events.timeZone', { zone: timeZoneLabel }) }}</p>
+      <div class="inline">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('events.startsAt') }}</mat-label>
+          <input
+            matInput
+            type="datetime-local"
+            formControlName="startsAt"
+            required
+            [readonly]="!canEdit || store.saving() || store.canceling()"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('events.endsAt') }}</mat-label>
+          <input
+            matInput
+            type="datetime-local"
+            formControlName="endsAt"
+            required
+            [readonly]="!canEdit || store.saving() || store.canceling()"
+          />
+        </mat-form-field>
+      </div>
+      @if (endBeforeStart) {
+        <p role="alert">{{ t('events.endAfterStart') }}</p>
+      }
+      @if (timeConversionError) {
+        <p role="alert">{{ t('events.invalidLocalTime') }}</p>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('events.assignee') }}</mat-label>
+        <mat-select
+          formControlName="assigneeUserId"
+          [disabled]="!canEdit || store.saving() || store.canceling()"
+          required
+        >
+          @for (member of store.options()?.members ?? []; track member.userId) {
+            <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (!isEditing && access.can('cases.read')) {
+        <div class="inline">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('events.searchCase') }}</mat-label>
+            <input matInput [formControl]="caseQuery" maxlength="120" />
+          </mat-form-field>
+          <button
+            mat-button
+            type="button"
+            [disabled]="store.searchingCases() || store.saving() || store.canceling()"
+            (click)="searchCases()"
+          >
+            {{ t('events.search') }}
+          </button>
+        </div>
+        @if (store.casesError()) {
+          <p role="alert">{{ t(errorTranslation(store.casesError()!, 'cases')) }}</p>
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('events.caseOptional') }}</mat-label>
+          <mat-select formControlName="caseId">
+            <mat-option [value]="null">{{ t('events.noCase') }}</mat-option>
+            @for (caseItem of store.cases(); track caseItem.id) {
+              <mat-option [value]="caseItem.id">{{
+                caseDisplay(caseItem.internalFolder, caseItem.cnjNumber)
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @if (canEdit) {
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="store.saving() || store.canceling() || store.loading() || !store.options()"
+        >
+          {{ store.saving() ? t('events.saving') : t('events.save') }}
+        </button>
+      }
+    </form>
+  }
+  @if (isEditing && canEdit && store.item()?.status === 'scheduled') {
+    <section>
+      <h2>{{ t('events.cancelTitle') }}</h2>
+      <mat-checkbox
+        [formControl]="cancelConfirmation"
+        [disabled]="store.saving() || store.canceling()"
+        >{{ t('events.cancelConfirmation') }}</mat-checkbox
+      >
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="store.saving() || store.canceling() || !cancelConfirmation.value"
+        (click)="cancelEvent()"
+      >
+        {{ store.canceling() ? t('events.cancelling') : t('events.cancel') }}
+      </button>
+    </section>
+  }
+</section>

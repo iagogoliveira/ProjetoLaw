@@ -1624,5 +1624,292 @@
       "completed": "Completed",
       "missed": "Missed"
     }
+  },
+  "tasks": {
+    "list": {
+      "title": "Tasks",
+      "description": "Track and organize office tasks.",
+      "create": "New task",
+      "empty": "No tasks found.",
+      "moreLoaded": "More tasks are available on the server; loaded results do not represent the total.",
+      "loadMore": "Load more"
+    },
+    "filters": {
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "team": "Team",
+      "case": "Case",
+      "any": "Any",
+      "apply": "Apply filters"
+    },
+    "states": {
+      "pending": "Pending",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priorities": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "dueOn": "Due date",
+      "assignee": "Assignee",
+      "priority": "Priority",
+      "case": "Case",
+      "noCase": "No case",
+      "noDescription": "No description",
+      "caseLinked": "Open case",
+      "searchCase": "Search cases",
+      "unavailableMember": "Member unavailable"
+    },
+    "saved": {
+      "title": "Saved filters",
+      "name": "Filter name",
+      "save": "Save filter",
+      "remove": "Remove"
+    },
+    "move": {
+      "label": "Move to"
+    },
+    "redistribution": {
+      "select": "Select for redistribution",
+      "assignee": "New assignee",
+      "submit": "Redistribute selected",
+      "result": "Result by task",
+      "changed": "Assignee changed"
+    },
+    "editor": {
+      "createTitle": "New task",
+      "editTitle": "Edit task",
+      "save": "Save",
+      "cancel": "Cancel",
+      "closedReadOnly": "Completed or cancelled tasks are read-only."
+    },
+    "validation": {
+      "required": "Required field."
+    },
+    "detail": {
+      "loading": "Loading task…",
+      "edit": "Edit",
+      "status": "Status",
+      "moveTo": "Move to",
+      "blockedByPending": "There are pending items. The server validates blockers before completion.",
+      "checklist": "Checklist",
+      "newChecklistItem": "New item",
+      "add": "Add",
+      "comments": "Comments",
+      "newComment": "New comment",
+      "subtasks": "Subtasks",
+      "addSubtask": "Add subtask",
+      "subtasksUnavailable": "Could not load all subtasks. Do not treat the task as having no pending dependencies.",
+      "subtasksPartial": "Only the subtasks loaded so far are shown.",
+      "loadMoreSubtasks": "Load more subtasks",
+      "commentBy": "By {{name}}, on {{date}}"
+    },
+    "filterLimit": "You can save up to ten filters.",
+    "errors": {
+      "forbidden": "You do not have permission to perform this action.",
+      "checklistNotFound": "The checklist item is no longer available.",
+      "commentInvalid": "Enter a comment of up to 4000 characters.",
+      "unresolved": "Resolve checklist items and subtasks before completing the task.",
+      "assigneeUnavailable": "The assignee is inactive or cannot access the destination.",
+      "subtaskInvalid": "The parent task must be open and top-level; the subtask must use the same case.",
+      "caseUnavailable": "The case is unavailable or closed.",
+      "notFound": "The task or case is no longer available.",
+      "batchInvalid": "Select 1 to 1000 tasks and a valid assignee.",
+      "checklistInvalid": "Enter a title of up to 300 characters and keep the checklist within 100 items.",
+      "invalidTask": "Complete the required task fields.",
+      "generic": "The operation could not be completed.",
+      "listInvalid": "The list filters or cursor are invalid.",
+      "transitionInvalid": "This change is unavailable in the current state."
+    },
+    "view": {
+      "label": "Task view",
+      "list": "List",
+      "board": "Kanban"
+    }
+  },
+  "control": {
+    "title": "Controller",
+    "dailyClose": "Publication close",
+    "from": "Start date",
+    "untilExclusive": "Until (exclusive)",
+    "idleDays": "Days without movement",
+    "apply": "Apply filters",
+    "invalidWindow": "Enter a valid interval of up to 366 days.",
+    "filterName": "Filter set name",
+    "saveFilter": "Save filter set",
+    "removeFilter": "Remove filter set {{name}}",
+    "loading": "Loading controller…",
+    "asOf": "Data updated at {{date}} (São Paulo time).",
+    "metricsTitle": "Metrics",
+    "noSamples": "No samples",
+    "samples": "Samples: {{count}}",
+    "partial": "Showing {{shown}} of {{total}} items.",
+    "none": "There are no items in this section.",
+    "errors": {
+      "invalidQuery": "Review the date range and idle days.",
+      "access": "Access to this data or preference is unavailable for your account.",
+      "preferenceInvalid": "Review the saved filter set and try again.",
+      "generic": "This operation could not be completed. Try again.",
+      "filterLimit": "You can save up to ten filter sets."
+    },
+    "sections": {
+      "pendingPublications": "Pending publications",
+      "staleCases": "Cases without movement",
+      "unassignedDeadlines": "Deadlines without an assignee",
+      "deadlinesWithoutEvidence": "Deadlines without evidence"
+    },
+    "metrics": {
+      "averageTriageMinutes": "Average triage time",
+      "retriagedPublications": "Publications triaged again",
+      "lateRegisteredDeadlines": "Deadlines registered after the internal date"
+    },
+    "units": {
+      "count": "items",
+      "minutes": "minutes",
+      "publications": "publications"
+    }
+  },
+  "notificationSettings": {
+    "title": "Notification preferences",
+    "loading": "Loading preferences…",
+    "save": "Save personal preferences",
+    "saveRules": "Save office rules",
+    "digestTime": "Daily summary at {{time}} São Paulo time.",
+    "errors": {
+      "access": "Access to these preferences is unavailable for your account.",
+      "invalid": "Review the selected options and try again.",
+      "generic": "This operation could not be completed. Try again."
+    },
+    "personal": {
+      "title": "My preferences",
+      "digest": "Receive daily email summary",
+      "sections": "Summary sections",
+      "alerts": "Optional alerts"
+    },
+    "organization": {
+      "title": "Required office rules"
+    },
+    "sections": {
+      "agenda": "Calendar",
+      "deadlines": "Deadlines",
+      "publications": "Publications"
+    },
+    "required": "{{kind}} is required and cannot be muted.",
+    "locked": "{{kind}} is required by the system.",
+    "mute": "Mute {{kind}}",
+    "kinds": {
+      "publications.received": "Publication received",
+      "publications.capture_missing": "Publication capture failed",
+      "scheduling.deadline_missed": "Missed deadline",
+      "scheduling.calendar_changed": "Calendar changed",
+      "scheduling.deadline_due_today": "Fatal deadline due today"
+    }
+  },
+  "events": {
+    "createTitle": "New event",
+    "editTitle": "Event",
+    "backToAgenda": "Back to calendar",
+    "loading": "Loading event…",
+    "saving": "Saving…",
+    "cancelling": "Cancelling…",
+    "errors": {
+      "access": "Access to this event or its options is unavailable for your account.",
+      "notFound": "This event is unavailable.",
+      "closed": "This event was cancelled and can no longer be changed.",
+      "reviewFields": "Review the event details and selected assignee.",
+      "options": "Could not load active assignees.",
+      "cases": "Could not search cases.",
+      "generic": "This operation could not be completed. Try again."
+    },
+    "required": "Required field.",
+    "title": "Title",
+    "description": "Description",
+    "location": "Location",
+    "startsAt": "Starts",
+    "endsAt": "Ends",
+    "assignee": "Assignee",
+    "timeZone": "Times use the office time zone: {{zone}}.",
+    "endAfterStart": "The end must be after the start.",
+    "invalidLocalTime": "This time does not exist in the office time zone. Choose another time.",
+    "searchCase": "Search by case number or folder",
+    "search": "Search",
+    "caseOptional": "Case (optional)",
+    "noCase": "No linked case",
+    "linkedCase": "Linked case",
+    "caseUnavailable": "Linked case",
+    "save": "Save event",
+    "status": {
+      "scheduled": "Scheduled",
+      "cancelled": "Cancelled"
+    },
+    "cancelTitle": "Cancel event",
+    "cancelConfirmation": "I confirm that I want to cancel this event. Cancellation cannot be undone.",
+    "cancel": "Cancel event"
+  },
+  "schedule": {
+    "title": "Agenda",
+    "newEvent": "New appointment",
+    "timeZone": "São Paulo time. The period includes the start date and excludes the end.",
+    "date": "Agenda date",
+    "from": "Period start",
+    "until": "Period end (exclusive)",
+    "assignee": "Assignee",
+    "team": "Team",
+    "all": "All",
+    "includeClosed": "Include closed items",
+    "apply": "Apply filters",
+    "retry": "Try again",
+    "saved": "Saved filters",
+    "filterName": "Agenda filter name",
+    "saveFilter": "Save agenda filter",
+    "remove": "Remove",
+    "loading": "Loading agenda…",
+    "navigation": "Agenda navigation",
+    "previous": "Previous period",
+    "today": "Today",
+    "next": "Next period",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "partial": "The agenda shows loaded items only. Load more to complete this period.",
+    "more": "Load more items",
+    "items": "Items in this period",
+    "empty": "No items match this period and filters.",
+    "select": "Select",
+    "newAssignee": "New assignee",
+    "redistribute": "Redistribute selected",
+    "results": "Result by item",
+    "changed": "Assignee changed",
+    "notChanged": "Not changed; check access and the current item state.",
+    "kinds": {
+      "deadline": "Deadline",
+      "task": "Task",
+      "event": "Appointment",
+      "hearing": "Hearing"
+    },
+    "states": {
+      "pending": "Pending",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "missed": "Missed",
+      "scheduled": "Scheduled",
+      "held": "Held",
+      "rescheduled": "Rescheduled"
+    },
+    "errors": {
+      "generic": "Unable to load or update the agenda. Check filters and access, then try again.",
+      "filterLimit": "You can save up to ten filters."
+    },
+    "unavailableMember": "Member unavailable",
+    "internalDue": "Internal target"
   }
 }

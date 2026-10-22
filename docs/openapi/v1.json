@@ -988,6 +988,46 @@
         }
       }
     },
+    "/api/v1/schedule/options": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "GetSchedulingOptions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulingOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/options": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "GetTaskOptions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulingOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs/{id}": {
       "get": {
         "tags": [
@@ -20701,6 +20741,59 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "SchedulingMemberOption": {
+        "required": [
+          "userId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SchedulingOptionsResponse": {
+        "required": [
+          "members",
+          "teams"
+        ],
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchedulingMemberOption"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchedulingTeamOption"
+            }
+          }
+        }
+      },
+      "SchedulingTeamOption": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },

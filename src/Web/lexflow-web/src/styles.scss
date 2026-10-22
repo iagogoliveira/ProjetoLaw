@@ -2,6 +2,36 @@
 // componentes usam apenas variáveis CSS (--mat-sys-*, --lf-*), nunca cores fixas.
 @use '@angular/material' as mat;
 
+.lf-calendar {
+  --fc-classic-button: var(--mat-sys-primary);
+  --fc-classic-button-border: var(--mat-sys-primary);
+  --fc-classic-button-strong: var(--mat-sys-primary);
+  --fc-classic-button-strong-border: var(--mat-sys-primary);
+  --fc-classic-button-outline: var(--mat-sys-outline);
+  --fc-classic-button-foreground: var(--mat-sys-on-primary);
+  --fc-classic-primary: var(--mat-sys-primary);
+  --fc-classic-primary-foreground: var(--mat-sys-on-primary);
+  --fc-classic-event: var(--mat-sys-primary);
+  --fc-classic-event-contrast: var(--mat-sys-on-primary);
+  --fc-classic-background: var(--mat-sys-surface);
+  --fc-classic-foreground: var(--mat-sys-on-surface);
+  --fc-classic-muted-foreground: var(--mat-sys-on-surface-variant);
+  --fc-classic-faint-foreground: var(--mat-sys-on-surface-variant);
+  --fc-classic-faint: var(--mat-sys-surface-container-low);
+  --fc-classic-muted: var(--mat-sys-surface-container);
+  --fc-classic-strong: var(--mat-sys-surface-container-high);
+  --fc-classic-border: var(--mat-sys-outline-variant);
+  --fc-classic-strong-border: var(--mat-sys-outline);
+  --fc-classic-today: var(--mat-sys-secondary-container);
+  --fc-classic-highlight: var(--mat-sys-secondary-container);
+  --fc-classic-now: var(--mat-sys-error);
+  --fc-classic-background-event: var(--mat-sys-secondary-container);
+  --fc-classic-background-event-opacity: 15%;
+  --fc-classic-background-event-foreground-opacity: 50%;
+  --fc-classic-small-dot-width: 8px;
+  --fc-classic-large-dot-width: 10px;
+}
+
 :root {
   // Fonte do sistema: sem dependência de CDN externo (CSP restritiva, seção 7.3).
   --lf-font-family:

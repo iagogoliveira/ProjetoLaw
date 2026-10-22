@@ -36,5 +36,6 @@ public sealed class SchedulingModule : IModule
         endpoints.MapAgenda();
         endpoints.MapTasks();
         endpoints.MapEvents();
+        endpoints.MapSchedulingOptions();
     }
 }

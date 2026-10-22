@@ -72,6 +72,38 @@
             >{{ t('deadlines.title') }}</a
           >
           <a
+            *lfCan="'schedule.events.read'"
+            mat-list-item
+            routerLink="/agenda"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('schedule.title') }}</a
+          >
+          <a
+            *lfCan="'schedule.tasks.read'"
+            mat-list-item
+            routerLink="/tarefas"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('tasks.list.title') }}</a
+          >
+          <a
+            *lfCan="'schedule.control.read'"
+            mat-list-item
+            routerLink="/controladoria"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('control.title') }}</a
+          >
+          <a
+            *lfCan="'identity.profile.read'"
+            mat-list-item
+            routerLink="/notificacoes/preferencias"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >{{ t('notificationSettings.title') }}</a
+          >
+          <a
             *lfCan="'publications.read'"
             mat-list-item
             routerLink="/publicacoes"

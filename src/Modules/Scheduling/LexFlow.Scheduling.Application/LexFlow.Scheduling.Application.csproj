@@ -4,6 +4,7 @@
     <ProjectReference Include="../LexFlow.Scheduling.Contracts/LexFlow.Scheduling.Contracts.csproj" />
     <ProjectReference Include="../../Litigation/LexFlow.Litigation.Contracts/LexFlow.Litigation.Contracts.csproj" />
     <ProjectReference Include="../../Organization/LexFlow.Organization.Contracts/LexFlow.Organization.Contracts.csproj" />
+    <ProjectReference Include="../../Identity/LexFlow.Identity.Contracts/LexFlow.Identity.Contracts.csproj" />
     <ProjectReference Include="../../Platform/LexFlow.Platform.Contracts/LexFlow.Platform.Contracts.csproj" />
     <ProjectReference Include="../../../BuildingBlocks/LexFlow.Application.Abstractions/LexFlow.Application.Abstractions.csproj" />
   </ItemGroup>

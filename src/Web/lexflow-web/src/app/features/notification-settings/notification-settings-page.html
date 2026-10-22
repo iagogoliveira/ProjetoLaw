@@ -1,0 +1,98 @@
+<section class="page" *transloco="let t">
+  <h1>{{ t('notificationSettings.title') }}</h1>
+  @if (access.can('identity.profile.read')) {
+    @if (store.settings(); as settings) {
+      <form [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+        <h2>{{ t('notificationSettings.personal.title') }}</h2>
+        <p>{{ t('notificationSettings.digestTime', { time: getDigestTime() }) }}</p>
+        <mat-checkbox formControlName="digest">{{
+          t('notificationSettings.personal.digest')
+        }}</mat-checkbox>
+        <fieldset>
+          <legend>{{ t('notificationSettings.personal.sections') }}</legend>
+          <mat-checkbox formControlName="agenda">{{
+            t('notificationSettings.sections.agenda')
+          }}</mat-checkbox>
+          <mat-checkbox formControlName="deadlines">{{
+            t('notificationSettings.sections.deadlines')
+          }}</mat-checkbox>
+          <mat-checkbox formControlName="publications">{{
+            t('notificationSettings.sections.publications')
+          }}</mat-checkbox>
+        </fieldset>
+        <fieldset>
+          <legend>{{ t('notificationSettings.personal.alerts') }}</legend>
+          @for (kind of settings.availableKinds; track kind) {
+            @if (settings.requiredKinds.includes(kind)) {
+              <p>
+                {{
+                  t('notificationSettings.required', {
+                    kind: t('notificationSettings.kinds.' + kind),
+                  })
+                }}
+              </p>
+            } @else {
+              <mat-checkbox
+                [checked]="isMuted(kind)"
+                [disabled]="store.settingsBusy() || !access.can('identity.profile.manage')"
+                (change)="toggleMuted(kind, $event.checked)"
+                >{{
+                  t('notificationSettings.mute', { kind: t('notificationSettings.kinds.' + kind) })
+                }}</mat-checkbox
+              >
+            }
+          }
+        </fieldset>
+        @if (access.can('identity.profile.manage')) {
+          <button mat-flat-button type="submit" [disabled]="store.settingsBusy()">
+            {{ t('notificationSettings.save') }}
+          </button>
+        }
+      </form>
+    } @else if (store.settingsError()) {
+      <p role="alert">{{ t(errorTranslation(store.settingsError()!)) }}</p>
+    } @else if (store.settingsLoading()) {
+      <p aria-live="polite">{{ t('notificationSettings.loading') }}</p>
+    }
+  }
+  @if (access.can('settings.organization.manage')) {
+    @if (store.rules(); as rules) {
+      <form [formGroup]="ruleForm" (ngSubmit)="saveOrganizationRules()">
+        <h2>{{ t('notificationSettings.organization.title') }}</h2>
+        @for (kind of rules.mandatoryKinds; track kind) {
+          <p>
+            {{
+              t('notificationSettings.locked', { kind: t('notificationSettings.kinds.' + kind) })
+            }}
+          </p>
+        }
+        @for (
+          kind of [
+            'publications.received',
+            'publications.capture_missing',
+            'scheduling.deadline_missed',
+            'scheduling.calendar_changed',
+            'scheduling.deadline_due_today',
+          ];
+          track kind
+        ) {
+          @if (!rules.mandatoryKinds.includes(kind)) {
+            <mat-checkbox
+              [checked]="ruleChecked(kind)"
+              [disabled]="store.rulesBusy()"
+              (change)="toggleRule(kind, $event.checked)"
+              >{{ t('notificationSettings.kinds.' + kind) }}</mat-checkbox
+            >
+          }
+        }
+        <button mat-flat-button type="submit" [disabled]="store.rulesBusy()">
+          {{ t('notificationSettings.saveRules') }}
+        </button>
+      </form>
+    } @else if (store.rulesError()) {
+      <p role="alert">{{ t(errorTranslation(store.rulesError()!)) }}</p>
+    } @else if (store.rulesLoading()) {
+      <p aria-live="polite">{{ t('notificationSettings.loading') }}</p>
+    }
+  }
+</section>

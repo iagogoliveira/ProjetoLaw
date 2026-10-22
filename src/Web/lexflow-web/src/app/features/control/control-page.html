@@ -1,0 +1,120 @@
+<section class="page" *transloco="let t">
+  <header>
+    <h1>{{ t('control.title') }}</h1>
+    @if (access.can('publications.close')) {
+      <a mat-button routerLink="/publicacoes/fechamento">{{ t('control.dailyClose') }}</a>
+    }
+  </header>
+  <form class="inline" [formGroup]="form" (ngSubmit)="apply()">
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('control.from') }}</mat-label
+      ><input matInput type="date" formControlName="from"
+    /></mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('control.untilExclusive') }}</mat-label
+      ><input matInput type="date" formControlName="until"
+    /></mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ t('control.idleDays') }}</mat-label
+      ><input matInput type="number" min="1" max="3650" formControlName="idleDays"
+    /></mat-form-field>
+    <button mat-flat-button type="submit">{{ t('control.apply') }}</button>
+  </form>
+  @if (windowInvalid()) {
+    <p role="alert">{{ t('control.invalidWindow') }}</p>
+  }
+  @if (access.can('identity.profile.read')) {
+    <div class="inline">
+      @if (access.can('identity.profile.manage')) {
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ t('control.filterName') }}</mat-label
+          ><input matInput [formControl]="saveName"
+        /></mat-form-field>
+        <button
+          mat-button
+          type="button"
+          [disabled]="store.busy() || !store.savedReady()"
+          (click)="saveCurrent()"
+        >
+          {{ t('control.saveFilter') }}
+        </button>
+      }
+      @for (item of store.saved(); track item.name) {
+        <button mat-button type="button" (click)="useSaved(item.filters)">{{ item.name }}</button>
+        @if (access.can('identity.profile.manage')) {
+          <button
+            mat-button
+            type="button"
+            (click)="removeSaved(item.name)"
+            [attr.aria-label]="t('control.removeFilter', { name: item.name })"
+          >
+            ×
+          </button>
+        }
+      }
+      @if (store.preferenceError()) {
+        <p role="alert">{{ t(preferenceErrorTranslation(store.preferenceError()!)) }}</p>
+      }
+    </div>
+  }
+  @if (store.loading()) {
+    <p aria-live="polite">{{ t('control.loading') }}</p>
+  }
+  @if (store.error()) {
+    <p role="alert">{{ t(reportErrorTranslation(store.error()!)) }}</p>
+  }
+  @if (store.report(); as report) {
+    <p>{{ t('control.asOf', { date: itemDate(report.asOf) }) }}</p>
+    <h2>{{ t('control.metricsTitle') }}</h2>
+    <dl>
+      @for (kind of metricKinds; track kind) {
+        @if (report.metrics.find((m) => m.kind === kind); as metric) {
+          <div>
+            <dt>{{ t(metricTranslation(kind)) }}</dt>
+            <dd>
+              {{
+                metric.sampleSize === 0 || metric.value === null
+                  ? t('control.noSamples')
+                  : metric.value
+              }}
+              {{
+                metric.sampleSize === 0 || metric.value === null
+                  ? ''
+                  : t(unitTranslation(metric.unit))
+              }}
+            </dd>
+            <small>{{ t('control.samples', { count: metric.sampleSize }) }}</small>
+          </div>
+        }
+      }
+    </dl>
+    @for (kind of availableSectionKinds; track kind) {
+      @if (report.sections.find((s) => s.kind === kind); as section) {
+        <section>
+          <h2>{{ t(sectionTranslation(kind)) }} ({{ section.count }})</h2>
+          @if (isPartial(section.count, section.items.length)) {
+            <p>{{ t('control.partial', { shown: section.items.length, total: section.count }) }}</p>
+          }
+          @if (section.items.length === 0) {
+            <p>{{ t('control.none') }}</p>
+          } @else {
+            <ul>
+              @for (item of section.items; track item.id) {
+                <li>
+                  @if (itemLink(kind, item.id); as link) {
+                    <a [routerLink]="link" [queryParams]="itemQuery(kind, item.id)">{{
+                      item.label
+                    }}</a>
+                  } @else {
+                    {{ item.label }}
+                  }
+                  <time>{{ itemDate(item.at) }}</time>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    }
+  }
+</section>

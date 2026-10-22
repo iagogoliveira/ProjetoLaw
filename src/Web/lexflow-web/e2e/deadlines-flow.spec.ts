@@ -64,11 +64,19 @@ test.describe('Deadline screens', () => {
     await expect(
       page.getByText('Conferência obrigatória pendente', { exact: false }),
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Iniciar', exact: true }).click();
+    const [started] = await Promise.all([
+      page.waitForResponse((r) => r.url().endsWith('/start') && r.request().method() === 'POST'),
+      page.getByRole('button', { name: 'Iniciar', exact: true }).click(),
+    ]);
+    expect(started.status()).toBe(200);
+    await expect(page.getByText(/Situação:\s*Em andamento/)).toBeVisible();
     await page.getByLabel('Evidência do cumprimento', { exact: true }).fill('Protocolo manual 789');
     await expect(page.getByRole('button', { name: 'Cumprir prazo', exact: true })).toBeDisabled();
     // Escritório com um único membro ativo permite a conferência pelo próprio autor.
     await page.getByRole('button', { name: 'Conferir prazo', exact: true }).click();
+    await expect(page.getByLabel('Evidência do cumprimento', { exact: true })).toHaveValue(
+      'Protocolo manual 789',
+    );
     await expect(page.getByRole('button', { name: 'Cumprir prazo', exact: true })).toBeEnabled();
     await expectAccessible(page);
     await page.getByRole('button', { name: 'Cumprir prazo', exact: true }).click();

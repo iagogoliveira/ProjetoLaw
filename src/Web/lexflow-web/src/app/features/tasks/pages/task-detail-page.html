@@ -1,0 +1,176 @@
+<ng-container *transloco="let t"
+  ><section class="page">
+    @if (store.loading()) {
+      <p>{{ t('tasks.detail.loading') }}</p>
+    }
+    @if (store.errorCode()) {
+      <p role="alert">{{ t(errorTranslationKey(store.errorCode())) }}</p>
+    }
+    @if (store.task(); as task) {
+      <header class="page-header">
+        <div>
+          <h1>{{ task.title }}</h1>
+          <p>
+            {{ t('tasks.states.' + task.status) }} · {{ t('tasks.priorities.' + task.priority) }}
+          </p>
+        </div>
+        @if (contentEditable()) {
+          <a mat-button [routerLink]="['/tarefas', task.id, 'editar']">{{
+            t('tasks.detail.edit')
+          }}</a>
+        }
+      </header>
+      <dl>
+        <dt>{{ t('tasks.fields.description') }}</dt>
+        <dd>{{ task.description || t('tasks.fields.noDescription') }}</dd>
+        <dt>{{ t('tasks.fields.dueOn') }}</dt>
+        <dd>{{ date(task.dueOn) }}</dd>
+        <dt>{{ t('tasks.fields.assignee') }}</dt>
+        <dd>{{ memberName(task.assigneeUserId) || t('tasks.fields.unavailableMember') }}</dd>
+        @if (task.caseId && canReadCases && caseName()) {
+          <dt>{{ t('tasks.fields.case') }}</dt>
+          <dd>
+            <a [routerLink]="['/processos', task.caseId]">{{ caseName() }}</a>
+          </dd>
+        }
+      </dl>
+      @if (hasOpenDependencies() && task.status !== 'completed' && task.status !== 'cancelled') {
+        <p role="status">{{ t('tasks.detail.blockedByPending') }}</p>
+      }
+      <section>
+        <h2>{{ t('tasks.detail.status') }}</h2>
+        @if (canManageTasks) {
+          <mat-form-field
+            ><mat-label>{{ t('tasks.detail.moveTo') }}</mat-label>
+            <mat-select
+              [value]="task.status"
+              (selectionChange)="changeState($event.value)"
+              [disabled]="store.busy()"
+            >
+              @for (state of states; track state) {
+                <mat-option [value]="state">{{ t('tasks.states.' + state) }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        }
+      </section>
+      <section>
+        <h2>{{ t('tasks.detail.checklist') }}</h2>
+        <ul>
+          @for (item of task.checklist; track item.id) {
+            <li>
+              <mat-checkbox
+                [checked]="item.completed"
+                (change)="setChecklist(item.id, $event.checked)"
+                [disabled]="store.busy() || !contentEditable()"
+                >{{ item.title }}</mat-checkbox
+              >
+            </li>
+          }
+        </ul>
+        @if (contentEditable()) {
+          <form [formGroup]="checklistForm" (ngSubmit)="addChecklist()">
+            <mat-form-field
+              ><mat-label>{{ t('tasks.detail.newChecklistItem') }}</mat-label
+              ><input matInput formControlName="title"
+            /></mat-form-field>
+            <button mat-button [disabled]="store.busy() || checklistForm.invalid">
+              {{ t('tasks.detail.add') }}
+            </button>
+          </form>
+        }
+      </section>
+      <section>
+        <h2>{{ t('tasks.detail.comments') }}</h2>
+        <ul>
+          @for (comment of task.comments; track comment.id) {
+            <li>
+              <p>{{ comment.text }}</p>
+              <small>{{
+                t('tasks.detail.commentBy', {
+                  name: memberName(comment.authorUserId) || t('tasks.fields.unavailableMember'),
+                  date: commentDate(comment.occurredAt),
+                })
+              }}</small>
+            </li>
+          }
+        </ul>
+        @if (contentEditable()) {
+          <form [formGroup]="commentForm" (ngSubmit)="addComment()">
+            <mat-form-field
+              ><mat-label>{{ t('tasks.detail.newComment') }}</mat-label
+              ><textarea matInput formControlName="text"></textarea>
+            </mat-form-field>
+            <button mat-button [disabled]="store.busy() || commentForm.invalid">
+              {{ t('tasks.detail.add') }}
+            </button>
+          </form>
+        }
+      </section>
+      @if (!task.parentTaskId) {
+        <section>
+          <h2>{{ t('tasks.detail.subtasks') }}</h2>
+          @if (!store.subtasksLoaded()) {
+            <p role="alert">{{ t('tasks.detail.subtasksUnavailable') }}</p>
+          }
+          <ul>
+            @for (subtask of store.subtasks(); track subtask.id) {
+              <li>
+                <a [routerLink]="['/tarefas', subtask.id]">{{ subtask.title }}</a> —
+                {{ t('tasks.states.' + subtask.status) }}
+              </li>
+            }
+          </ul>
+          @if (store.subtaskCursor()) {
+            <p>{{ t('tasks.detail.subtasksPartial') }}</p>
+            <button
+              mat-button
+              type="button"
+              [disabled]="store.loading()"
+              (click)="loadMoreSubtasks()"
+            >
+              {{ t('tasks.detail.loadMoreSubtasks') }}
+            </button>
+          }
+          @if (contentEditable()) {
+            <form [formGroup]="subtaskForm" (ngSubmit)="addSubtask()">
+              <mat-form-field
+                ><mat-label>{{ t('tasks.fields.title') }}</mat-label
+                ><input matInput formControlName="title"
+              /></mat-form-field>
+              <mat-form-field
+                ><mat-label>{{ t('tasks.fields.dueOn') }}</mat-label
+                ><input matInput type="date" formControlName="dueOn"
+              /></mat-form-field>
+              <mat-form-field
+                ><mat-label>{{ t('tasks.fields.assignee') }}</mat-label
+                ><mat-select formControlName="assigneeUserId">
+                  @for (member of members(); track member.userId) {
+                    <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+                  }
+                </mat-select></mat-form-field
+              >
+              <mat-form-field
+                ><mat-label>{{ t('tasks.fields.priority') }}</mat-label
+                ><mat-select formControlName="priority">
+                  @for (priority of priorities; track priority) {
+                    <mat-option [value]="priority">{{
+                      t('tasks.priorities.' + priority)
+                    }}</mat-option>
+                  }
+                </mat-select></mat-form-field
+              >
+              <mat-form-field
+                ><mat-label>{{ t('tasks.fields.description') }}</mat-label
+                ><textarea matInput formControlName="description"></textarea>
+              </mat-form-field>
+              <button mat-button [disabled]="store.busy() || subtaskForm.invalid">
+                {{ t('tasks.detail.addSubtask') }}
+              </button>
+            </form>
+          }
+        </section>
+      }
+    }
+  </section></ng-container
+>

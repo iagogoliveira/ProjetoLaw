@@ -59,6 +59,30 @@ export const routes: Routes = [
           import('./features/deadlines/deadlines.routes').then((m) => m.DEADLINES_ROUTES),
       },
       {
+        path: 'agenda',
+        canMatch: [organizationGuard],
+        loadChildren: () =>
+          import('./features/schedule/schedule.routes').then((m) => m.SCHEDULE_ROUTES),
+      },
+      {
+        path: 'tarefas',
+        canMatch: [organizationGuard],
+        loadChildren: () => import('./features/tasks/tasks.routes').then((m) => m.TASKS_ROUTES),
+      },
+      {
+        path: 'controladoria',
+        canMatch: [organizationGuard, permissionGuard('schedule.control.read')],
+        loadComponent: () => import('./features/control/control-page').then((m) => m.ControlPage),
+      },
+      {
+        path: 'notificacoes/preferencias',
+        canMatch: [organizationGuard, permissionGuard('identity.profile.read')],
+        loadComponent: () =>
+          import('./features/notification-settings/notification-settings-page').then(
+            (m) => m.NotificationSettingsPage,
+          ),
+      },
+      {
         path: 'publicacoes',
         canMatch: [organizationGuard],
         loadChildren: () =>

@@ -27,6 +27,16 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               {
+                "glob": "skeleton.css",
+                "input": "node_modules/fullcalendar",
+                "output": "calendar"
+              },
+              {
+                "glob": "theme.css",
+                "input": "node_modules/fullcalendar/themes/classic",
+                "output": "calendar"
+              },
+              {
                 "glob": "**/*",
                 "input": "public"
               }
