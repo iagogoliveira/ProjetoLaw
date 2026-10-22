@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-22 — Codex (7E mergeado; branch do 7F preparado)
+
+**Pedido:** usuário confirmou “Mergeado”. PR #40 conferido como MERGED em 2026-10-22 às 17:53 (America/Sao_Paulo), merge 72bb88c74c6b8dcbbcc5b0b513c5a8b15e3e58a6, head 0dd6402. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. A correção isolate=true passou no CI Linux.
+
+**Estado:** main atualizada por fast-forward; branch codex/etapa-7f-agenda-tarefas-controladoria criado dessa base. ADR 0041 aceita, progress, AGENTS/CLAUDE e ambos os manuais atualizados. Arrumação somente documental, com commit/push nesse branch conforme ciclo aprovado. Diff, UTF-8 e igualdade dos agentes conferidos; gates integrais do 7E preservados e complementados pelo CI, sem repetir runtime. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7F (telas de agenda, tarefas, controladoria e preferências), implementação ainda não iniciada. Ler plano aprovado, requisitos e decisões registradas antes de detalhar o trabalho. Preservar isolate=true nos testes Angular. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes. Quem faz o merge é o usuário.
+
+---
+
 ## 2026-10-21 — Codex (7E: correção do job frontend no PR #40)
 
 **Pedido:** usuário informou falha de teste frontend. Log do job 119456432832, run 39667391993, head 5a95969: três falhas em NotificationStream, com 150 testes aprovados. Mock SignalR sem chamadas; não era falha nas asserções das telas novas.
