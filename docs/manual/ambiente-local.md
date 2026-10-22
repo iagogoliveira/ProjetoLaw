@@ -1,6 +1,6 @@
 # Iniciar o LexFlow no computador
 
-Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no fechamento do 7C, em 2026-10-21; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch codex/etapa-7d-controladoria-notificacoes, criada da main no merge 966a3a1. O backend do 7C está disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21 com CI integral aprovado. As migrations do 7A, do 7B e do 7C foram aplicadas no banco local durante a verificação; a nova é `20261021025032_AgendaAndTasks`. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário. O 7D está implementado e verificado nesse checkout e publicado no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), aguardando merge pelo usuário. As migrations ControlReportPermission e NotificationPoliciesAndDailyDigest são aditivas e já foram aplicadas ao banco local durante a verificação (histórico conferido); não há novos serviços, portas ou comandos de inicialização. As telas do painel e de preferências ficam no 7F.
+Guia do ambiente de desenvolvimento para explorar as telas do [manual de utilização](README.md). Esta configuração executa os serviços localmente; não publica o sistema na internet. Revisado no pós-merge do 7D, em 2026-10-21; as telas do 6E (#35) e o backend do 7A (#36) estão disponíveis na main. O backend do 7B está disponível na main pelo PR #37, com CI integral aprovado. O checkout local está na branch codex/etapa-7e-telas-prazos, criada da main no merge 621b812 do PR #39. O backend do 7C está disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21 com CI integral aprovado. As migrations do 7A, do 7B e do 7C foram aplicadas no banco local durante a verificação; a nova é `20261021025032_AgendaAndTasks`. Comandos e endereços permanecem os mesmos. O ambiente fica fechado após as verificações, a pedido do usuário. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado pelo usuário em 2026-10-21, com CI integral aprovado. As migrations ControlReportPermission e NotificationPoliciesAndDailyDigest são aditivas e já foram aplicadas ao banco local durante a verificação (histórico conferido); não há novos serviços, portas ou comandos de inicialização. As telas do painel e de preferências ficam no 7F.
 
 Desde o merge do 6D (#34), triagem, distribuição, prazo/tarefa mínimos e fechamento estão disponíveis no backend da main. As migrations são aplicadas pelo MigrationService ao iniciar o AppHost, preservando os dados existentes. Não há novo comando de inicialização. As rotas do frontend do 6E são `/publicacoes`, `/publicacoes/fontes` e `/publicacoes/fechamento`; o acesso depende das permissões correspondentes.
 
@@ -129,7 +129,7 @@ O frontend usa LongPolling no hub existente, com Bearer e escritório em cabeça
 
 ## 10. Calculadora de prazos e calendário (7A, PR #36 mergeado)
 
-Ainda não há tela; a calculadora entra na interface no 7E. Use a API autenticada no escritório ativo, como na seção 8. A calculadora só sugere: nada é gravado.
+A interface da calculadora está no 7E (PR #40), conforme a seção 14. Para consultar pela API, use a sessão autenticada no escritório ativo, como na seção 8. A calculadora só sugere: nada é gravado.
 
 | Operação | Endpoint | Permissão |
 | --- | --- | --- |
@@ -233,3 +233,20 @@ Resumo sem itens nas seções escolhidas não é enviado. Conta não confirmada,
 Preserve os volumes e encerre o AppHost após a verificação. Não altere migrations que já tiverem sido aplicadas.
 
 Verificação integral do 7D concluída em 2026-10-21: 1.161 testes .NET, 134 Vitest e duas rodadas de 17 Playwright contra o AppHost, com acessibilidade e SMTP/Mailpit real. Aplicação encerrada, portas fechadas e volumes/cadastros preservados. Não é necessário repetir as suítes sem mudança ou preocupação concreta de regressão.
+
+## 14. Telas de prazos (7E, checkout de desenvolvimento)
+
+As telas estão no branch codex/etapa-7e-telas-prazos, publicadas no PR #40, ainda sem merge. Os comandos de inicialização, serviços e portas continuam iguais; não há pacote ou migration nova. O AppHost só deve ficar ligado durante testes ou exploração solicitada.
+
+- Acesse /prazos com schedule.deadlines.read. A lista nova usa GET /api/v1/deadlines, sem depender de schedule.events.read. O período pelo vencimento fatal é [from, until), máximo 366 dias; limit de 1 a 100, cursor por vencimento/ID. today é a data do IClock em São Paulo. Responsável, equipe e caseId apenas restringem o alcance autorizado.
+- Cadastro em /prazos/novo exige schedule.deadlines.manage; a seleção de processos e opções usa cases.read. A aba Prazos do processo exige schedule.deadlines.read. Use as opções dos cadastros existentes, sem criar novas contas por API apenas para explorar.
+- O cálculo usa POST /api/v1/deadlines/calculate e só sugere. No cadastro manual, confira a memória, aplique as datas e marque a confirmação antes de salvar. Na triagem, a mesma calculadora preenche as datas, que continuam exigindo decisão humana.
+- O detalhe /prazos/{id} usa as transições existentes de start/review/complete/miss. Conferência exige schedule.deadlines.verify; cumprimento e perda, schedule.deadlines.manage. Protocolo e justificativa são obrigatórios nas respectivas ações. A configuração GET/PUT /api/v1/organization/deadline-review continua técnica, com settings.organization.manage e corpo { requireDeadlineReview: true/false }.
+- Para verificar bloqueio por conferência, habilite a política antes de cadastrar um novo prazo (o prazo guarda a exigência vigente no cadastro). Iniciar deve continuar possível antes da revisão; cumprir deve ficar bloqueado. Em escritório com mais de um membro ativo, outro membro autorizado precisa conferir. Desabilitar a política não apaga a exigência já registrada em um prazo.
+- As faixas do semáforo estão descritas na seção 18 do manual. Mudanças de calendário apenas alertam os prazos confirmados. A revisão jurídica do 7A continua pendente.
+
+A verificação do 7E inclui Vitest, API, segurança e o fluxo Playwright triagem → prazo → cumprimento com evidência → fechamento, além de cadastro manual e conferência. Execute AppHost.Tests antes da instância usada pelo Playwright; nunca simultaneamente. Encerre aplicação e serviços após a verificação, preservando os volumes/cadastros.
+
+Verificação integral do 7E concluída em 2026-10-21: 1.165 testes .NET, 153 Vitest e duas rodadas consecutivas de 18 Playwright aprovados, incluindo acessibilidade; apenas a preparação opcional de carga foi ignorada em cada rodada. Aplicação e sete serviços encerrados, portas locais fechadas e volumes/cadastros preservados. A implementação fa8cc61 foi publicada no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), aguardando revisão e merge pelo usuário.
+
+Os testes Vitest usam isolamento entre arquivos para que mocks de dependências não dependam da ordem das suítes. O comando continua npm test, sem mudança na inicialização ou no uso da aplicação.

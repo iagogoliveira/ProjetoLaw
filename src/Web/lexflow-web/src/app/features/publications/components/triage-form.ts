@@ -21,12 +21,14 @@ import type {
   PublicationResponse,
   PublicationScreenOptionsResponse,
   PublicationTriageInput,
+  DeadlineCalculationResponse,
   TriageAction,
   TriageClassification,
 } from '../../../api/types.gen';
 import { AccessStore } from '../../../core/organization/access-store';
 import { CanDirective } from '../../../core/organization/can.directive';
 import { hearingInstant } from '../../cases/data/values-format';
+import { DeadlineCalculator } from '../../deadlines/components/deadline-calculator';
 import { PublicationsStore } from '../data/publications-store';
 
 @Component({
@@ -40,6 +42,7 @@ import { PublicationsStore } from '../data/publications-store';
     MatSelectModule,
     TranslocoDirective,
     CanDirective,
+    DeadlineCalculator,
   ],
   templateUrl: './triage-form.html',
   styleUrl: '../../../shared/ui/page.scss',
@@ -93,14 +96,57 @@ export class TriageForm implements OnChanges {
   });
   protected readonly assignment = this.fb.control('');
   protected readonly caseSearch = this.fb.control('');
+  protected readonly calculationTriggerDate = (): string =>
+    this.publication().availableOn || this.publication().publishedOn;
+  private appliedCalculationDates: Pick<
+    DeadlineCalculationResponse,
+    'startsOn' | 'internalDueOn' | 'fatalDueOn'
+  > | null = null;
+
+  protected applyCalculation(value: { result: DeadlineCalculationResponse } | null): void {
+    if (!value) {
+      if (this.appliedCalculationDates) {
+        const current = this.form.getRawValue();
+        this.form.patchValue({
+          startOn: current.startOn === this.appliedCalculationDates.startsOn ? '' : current.startOn,
+          internalDueOn:
+            current.internalDueOn === this.appliedCalculationDates.internalDueOn
+              ? ''
+              : current.internalDueOn,
+          fatalDueOn:
+            current.fatalDueOn === this.appliedCalculationDates.fatalDueOn
+              ? ''
+              : current.fatalDueOn,
+          confirmed: false,
+        });
+        this.appliedCalculationDates = null;
+      } else {
+        this.form.controls.confirmed.setValue(false);
+      }
+      return;
+    }
+    this.appliedCalculationDates = {
+      startsOn: value.result.startsOn,
+      internalDueOn: value.result.internalDueOn,
+      fatalDueOn: value.result.fatalDueOn,
+    };
+    this.form.patchValue({
+      startOn: value.result.startsOn,
+      internalDueOn: value.result.internalDueOn,
+      fatalDueOn: value.result.fatalDueOn,
+      confirmed: false,
+    });
+  }
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['publication']) return;
     const previous = changes['publication'].previousValue as PublicationResponse | undefined;
     const current = this.publication();
-    if (!previous || previous.id !== current.id)
+    if (!previous || previous.id !== current.id) {
+      this.appliedCalculationDates = null;
       this.form.reset({ caseId: current.legalCaseId ?? '' });
-    else if (previous.legalCaseId !== current.legalCaseId)
+    } else if (previous.legalCaseId !== current.legalCaseId) {
       this.form.controls.caseId.setValue(current.legalCaseId ?? '');
+    }
     if (!previous || previous.assigneeUserId !== current.assigneeUserId)
       this.assignment.setValue(current.assigneeUserId ?? '');
   }

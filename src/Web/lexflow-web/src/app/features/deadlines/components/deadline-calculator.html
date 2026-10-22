@@ -1,0 +1,117 @@
+<ng-container *transloco="let t">
+  <section class="form" aria-labelledby="deadline-calculator-title">
+    <h3 id="deadline-calculator-title">{{ t('deadlines.calculator.title') }}</h3>
+    <p class="hint">{{ t('deadlines.calculator.disclaimer') }}</p>
+    <div [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.startKind') }}</mat-label>
+        <mat-select formControlName="startKind">
+          @for (kind of startKinds; track kind) {
+            <mat-option [value]="kind">{{
+              t('deadlines.calculator.startKinds.' + kind)
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.triggerDate') }}</mat-label>
+        <input matInput type="date" formControlName="triggerDate" required />
+      </mat-form-field>
+      @if (form.controls.startKind.value === 'portalIntimation') {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('deadlines.calculator.consultedOn') }}</mat-label>
+          <input matInput type="date" formControlName="consultedOn" />
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.days') }}</mat-label>
+        <input matInput type="number" formControlName="days" min="1" max="365" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.mode') }}</mat-label>
+        <mat-select formControlName="mode">
+          @for (mode of modes; track mode) {
+            <mat-option [value]="mode">{{ t('deadlines.calculator.modes.' + mode) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-checkbox formControlName="doubled">{{ t('deadlines.calculator.doubled') }}</mat-checkbox>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.internalLeadDays') }}</mat-label>
+        <input matInput type="number" formControlName="internalLeadDays" min="0" max="30" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.stateCode') }}</mat-label>
+        <input matInput formControlName="stateCode" maxlength="2" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.calculator.municipality') }}</mat-label>
+        <input matInput formControlName="municipality" maxlength="120" />
+      </mat-form-field>
+      <p class="hint">{{ t('deadlines.calculator.caseLocationHint') }}</p>
+      <button
+        data-calculate-suggestion
+        mat-flat-button
+        type="button"
+        [disabled]="busy() || form.invalid"
+        (click)="calculate()"
+      >
+        {{ busy() ? t('deadlines.calculator.calculating') : t('deadlines.calculator.calculate') }}
+      </button>
+    </div>
+    @if (errorCode(); as code) {
+      <p role="alert">{{ t(errorKey(code)) }}</p>
+    }
+    @if (suggestion(); as value) {
+      <section aria-live="polite">
+        <h4>{{ t('deadlines.calculator.suggestion') }}</h4>
+        <dl>
+          <dt>{{ t('deadlines.calculator.intimationOn') }}</dt>
+          <dd>{{ formatDate(value.result.intimationOn) }}</dd>
+          <dt>{{ t('deadlines.calculator.startsOn') }}</dt>
+          <dd>{{ formatDate(value.result.startsOn) }}</dd>
+          <dt>{{ t('deadlines.calculator.internalDueOn') }}</dt>
+          <dd>{{ formatDate(value.result.internalDueOn) }}</dd>
+          <dt>{{ t('deadlines.calculator.fatalDueOn') }}</dt>
+          <dd>{{ formatDate(value.result.fatalDueOn) }}</dd>
+          <dt>{{ t('deadlines.calculator.countedDays') }}</dt>
+          <dd>{{ value.result.countedDays }}</dd>
+          <dt>{{ t('deadlines.calculator.location') }}</dt>
+          <dd>
+            {{ value.result.municipality || t('deadlines.common.unspecified') }}
+            {{ value.result.stateCode || '' }}
+            @if (value.result.federalJustice) {
+              · {{ t('deadlines.calculator.federalJustice') }}
+            }
+          </dd>
+        </dl>
+        <details>
+          <summary>{{ t('deadlines.calculator.memory') }}</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('deadlines.calculator.date') }}</th>
+                <th>{{ t('deadlines.calculator.step') }}</th>
+                <th>{{ t('deadlines.calculator.count') }}</th>
+                <th>{{ t('deadlines.calculator.reason') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of value.result.lines; track $index) {
+                <tr>
+                  <td>{{ formatDate(line.date) }}</td>
+                  <td>{{ t('deadlines.calculator.steps.' + line.step) }}</td>
+                  <td>{{ line.count ?? '—' }}</td>
+                  <td>{{ line.reason || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </details>
+        <button data-apply-suggestion mat-button type="button" (click)="applySuggestion()">
+          {{ t('deadlines.calculator.applySuggestion') }}
+        </button>
+      </section>
+    }
+  </section>
+</ng-container>

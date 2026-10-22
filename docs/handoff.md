@@ -10,6 +10,52 @@ Como funciona:
 
 ---
 
+## 2026-10-21 — Codex (7E: correção do job frontend no PR #40)
+
+**Pedido:** usuário informou falha de teste frontend. Log do job 119456432832, run 39667391993, head 5a95969: três falhas em NotificationStream, com 150 testes aprovados. Mock SignalR sem chamadas; não era falha nas asserções das telas novas.
+
+**Correção:** angular.json configura isolate=true para Vitest, removendo o cache compartilhado entre arquivos que importam o serviço. Nenhuma asserção relaxada, pacote novo ou alteração no código de produção. Falha original não reproduzida no Windows; validação local nas ordens padrão e embaralhada (seed 40), com lint. Resultados em TestResults/7e-final-validation/ci-*.log; demais gates integrais preservados por não haver mudança de runtime. Manuais revisados, sem novos passos de uso/inicialização; guia local registra o isolamento.
+
+**Estado e próximo:** correção enviada ao mesmo branch/PR #40, para validação no runner Linux do CI. Acompanhar frontend e os demais checks; aguardar merge pelo usuário. Aplicação permanece fechada, volumes/cadastros e .codex/ preservados. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
+
+## 2026-10-21 — Codex (7E publicado no PR #40)
+
+**Pedido:** “faça o PR”. Implementação fa8cc61 enviada no branch codex/etapa-7e-telas-prazos; [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40) aberto e anexado à conversa. Quem faz o merge é o usuário.
+
+**Publicação:** ADR 0041 proposta no PR #40, progress, AGENTS/CLAUDE e ambos os manuais atualizados para o PR aberto. Correção documental de uma indicação antiga de que a calculadora não tinha tela, apontando para o 7E. Somente documentação após os gates integrais registrados abaixo; diff, UTF-8 e igualdade AGENTS/CLAUDE conferidos, sem repetir testes de runtime. .codex/ local preservado e excluído do commit. Aplicação permanece fechada, volumes/cadastros preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #40 e aguardar merge pelo usuário. Depois, arrumação pós-merge e 7F. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes.
+
+---
+
+## 2026-10-21 — Codex (7E implementado e verificado; commit local, sem push/PR)
+
+**Pedido e decisão:** usuário autorizou prosseguir no plano aprovado. Semáforo confirmado: vermelho para fatal vencido/hoje; amarelo para meta interna vencida/hoje ou fatal nos próximos dois dias corridos; verde para demais abertos. Cumpridos/perdidos têm estado próprio. Datas civis de São Paulo.
+
+**Entrega:** branch codex/etapa-7e-telas-prazos, base 621b812 (7D #39). Consulta GET /api/v1/deadlines com permissão própria, janela semiaberta, cursor e escopo/sigilo antes da paginação. Telas /prazos, cadastro e detalhe; calculadora com memória e confirmação, revisão/cumprimento/perda, aba do processo e sugestão na triagem. Filtros na URL e até dez conjuntos salvos por usuário. SignalStores, formulários reativos e tokens globais de semáforo. Revisados os diffs das fatias Luna e corrigidas respostas antigas, navegação após saída, paginação após falha e concorrência das preferências. A chave inexistente permite o primeiro salvamento; outras falhas de leitura impedem sobrescrever filtros.
+
+**Verificação integral:** 1.165 testes .NET em 20 projetos (zero falhas/ignorados), gate de 80% (Scheduling 98,8%/99,4%; mínimo dos módulos 92,7%), builds Release/Debug e format aprovados. Dependências sem vulnerabilidades; seis modelos EF sem pendências; contrato oficial e SDK gerados, oasdiff sem quebra. Lint, 153 Vitest em 25 arquivos, build Angular e audit zero. Três Playwright direcionados e duas rodadas completas consecutivas de 18 aprovados, com WCAG 2.1 AA, uma preparação opcional de carga ignorada por rodada. AppHost.Tests passou antes do host manual. Logs, cobertura e relatórios em TestResults/7e-final-validation; direcionados em TestResults/7e-directed, conferidos pelo orquestrador.
+
+**Estado:** commit local da implementação e documentação, sem push/PR. ADR 0041 proposta, progress e AGENTS/CLAUDE sincronizados; ambos os manuais atualizados. Nenhum pacote ou migration nova. Normalização automática de 18 flags peer do lockfile descartada após conferir que não mudava versões. .codex/ local preservado e excluído do commit. Aplicação e sete serviços encerrados, volumes/cadastros preservados.
+
+**Armadilhas desta verificação:** redirecionamento do build pelo PowerShell deixou saída incompleta; o build foi confirmado por cmd.exe, com exit 0 e resumo. Não contar logs parciais como sucesso. Vitest no sandbox falhou por temporário inacessível; rerun autorizado com TEMP/TMP no workspace passou. Perfil HTTP do AppHost iniciado com ASPIRE_ALLOW_UNSECURED_TRANSPORT=true no mesmo PowerShell, conforme o manual. Limite público ampliado apenas no host de teste para as rodadas consecutivas. Nenhuma asserção relaxada.
+
+**Próximo:** aguardar pedido do usuário para push e PR do 7E. Quem faz o merge é o usuário. Depois, atualizar main/ADR/controle e seguir 7F. Política de revisão e calendário do escritório continuam pela API; GED é posterior. Revisão jurídica do 7A e fornecedor real da Etapa 6 continuam pendentes.
+
+---
+
+## 2026-10-21 — Codex (7D mergeado; branch do 7E preparado)
+
+**Pedido:** usuário confirmou “mergeado”. PR #39 conferido como MERGED em 2026-10-21 às 15:29 (America/Sao_Paulo), merge 621b8125203da8099c8380a6727e9699c5ea5229, head 3f9f40b. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E.
+
+**Estado:** main atualizada por fast-forward; branch codex/etapa-7e-telas-prazos criado dessa base. ADR 0040 aceita, progress, AGENTS/CLAUDE e ambos os manuais atualizados. Arrumação somente documental, com commit/push nesse branch conforme o ciclo aprovado. Diff, UTF-8 e igualdade dos agentes conferidos; gates integrais do 7D preservados e complementados pelo CI, sem repetir runtime. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7E (telas de prazos), implementação ainda não iniciada. Ler o plano aprovado e as decisões registradas antes de detalhar o trabalho. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes. Migrations do 7D já aplicadas localmente: não editar. Telas de agenda/controladoria/preferências no 7F.
+
+---
+
 ## 2026-10-21 — Codex (7D publicado no PR #39)
 
 **Pedido:** “crie o pr”. Implementação 676a2c1 enviada no branch codex/etapa-7d-controladoria-notificacoes; [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39) aberto e anexado à conversa. Merge pelo usuário.

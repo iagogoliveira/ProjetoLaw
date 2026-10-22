@@ -1,0 +1,41 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-weight: 600;
+}
+.status[data-urgency='red'] {
+  color: var(--lf-deadline-red-color);
+  background: var(--lf-deadline-red-background);
+}
+.status[data-urgency='yellow'] {
+  color: var(--lf-deadline-yellow-color);
+  background: var(--lf-deadline-yellow-background);
+}
+.status[data-urgency='green'] {
+  color: var(--lf-deadline-green-color);
+  background: var(--lf-deadline-green-background);
+}
+.status[data-urgency='completed'] {
+  color: var(--lf-deadline-completed-color);
+  background: var(--lf-deadline-completed-background);
+}
+.status[data-urgency='missed'] {
+  color: var(--lf-deadline-missed-color);
+  background: var(--lf-deadline-missed-background);
+}
+.cards li {
+  display: grid;
+  gap: 0.5rem;
+}
+.cards dl {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 0.2rem 0.8rem;
+  margin: 0;
+}
+.cards dd {
+  margin: 0;
+}

@@ -167,9 +167,15 @@ test.describe('Publications flow', () => {
     );
     await firstOption(page, 'Processo da triagem');
     await choose(page, 'Responsável pelo destino', 'Ana Administradora');
-    await page.getByLabel('Início do prazo', { exact: true }).fill(day());
-    await page.getByLabel('Vencimento interno', { exact: true }).fill(futureDay(10));
-    await page.getByLabel('Vencimento fatal', { exact: true }).fill(futureDay(15));
+    await page.getByLabel('Data do fato ou da publicação', { exact: true }).fill(day());
+    await choose(page, 'Origem do prazo', 'Disponibilização no DJEN');
+    await page.getByRole('button', { name: 'Calcular sugestão', exact: true }).click();
+    await page.getByText('Memória completa do cálculo', { exact: true }).click();
+    await expect(
+      page.getByRole('columnheader', { name: 'Justificativa', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Aplicar datas sugeridas', exact: true }).click();
+    await expect(page.getByLabel('Vencimento fatal', { exact: true })).not.toHaveValue('');
     await expectAccessible(page);
     const triaged = await submitTriage(page, 'deadline');
     const result = await triaged.json();
@@ -179,6 +185,21 @@ test.describe('Publications flow', () => {
       { headers },
     );
     expect((await deadlines.json())[0].id).toBe(result.triage.deadlineId);
+    await page.goto(`/prazos/${result.triage.deadlineId}`);
+    await expect(
+      page.getByRole('heading', { name: 'Contestação confirmada', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Iniciar', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Cumprir prazo', exact: true })).toBeDisabled();
+    await page
+      .getByLabel('Evidência do cumprimento', { exact: true })
+      .fill('Protocolo e2e da contestação 2026-001');
+    await expectAccessible(page);
+    await page.getByRole('button', { name: 'Cumprir prazo', exact: true }).click();
+    await expect(
+      page.getByText('Protocolo e2e da contestação 2026-001', { exact: false }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cumprir prazo', exact: true })).toHaveCount(0);
     await page.goto('/publicacoes/fechamento');
     await expect(page.getByRole('button', { name: 'Confirmar fechamento' })).toBeDisabled();
     await expectAccessible(page);

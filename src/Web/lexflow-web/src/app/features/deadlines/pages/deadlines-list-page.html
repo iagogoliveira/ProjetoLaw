@@ -1,0 +1,165 @@
+<section class="page" *transloco="let t">
+  <header class="inline">
+    <h1>{{ t('deadlines.list.title') }}</h1>
+    <a mat-flat-button routerLink="novo" *lfCan="'schedule.deadlines.manage'">{{
+      t('deadlines.list.new')
+    }}</a>
+  </header>
+  <form
+    class="inline"
+    role="search"
+    [attr.aria-label]="t('deadlines.list.title')"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('deadlines.list.from') }}</mat-label>
+      <input matInput type="date" formControlName="from" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ t('deadlines.list.untilExclusive') }}</mat-label>
+      <input matInput type="date" formControlName="until" required />
+    </mat-form-field>
+    @if (store.options(); as options) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.list.assignee') }}</mat-label>
+        <mat-select formControlName="assigneeUserId">
+          <mat-option [value]="null">{{ t('deadlines.list.all') }}</mat-option>
+          @for (member of options.members; track member.userId) {
+            <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.list.team') }}</mat-label>
+        <mat-select formControlName="teamId">
+          <mat-option [value]="null">{{ t('deadlines.list.all') }}</mat-option>
+          @for (team of options.teams; track team.id) {
+            <mat-option [value]="team.id">{{ team.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    <mat-checkbox formControlName="includeClosed">{{
+      t('deadlines.list.includeClosed')
+    }}</mat-checkbox>
+    <button mat-stroked-button type="submit" [disabled]="store.loading()">
+      {{ t('deadlines.list.apply') }}
+    </button>
+  </form>
+  @if (store.optionsError()) {
+    <p role="alert">{{ t(errorTranslationKey(store.optionsError()!)) }}</p>
+    <button mat-stroked-button (click)="store.loadOptions()">
+      {{ t('deadlines.list.retry') }}
+    </button>
+  }
+
+  <section
+    class="saved-filters"
+    *lfCan="'identity.profile.read'"
+    aria-labelledby="saved-filters-title"
+  >
+    <h2 id="saved-filters-title">{{ t('deadlines.list.savedFilters') }}</h2>
+    @if (store.savedLoading()) {
+      <p role="status">{{ t('deadlines.list.loadingFilters') }}</p>
+    }
+    @if (store.saved().length) {
+      <ul>
+        @for (filter of store.saved(); track filter.name) {
+          <li>
+            <button mat-button type="button" (click)="applySavedFilter(filter.name)">
+              {{ filter.name }}
+            </button>
+            <button
+              mat-button
+              type="button"
+              *lfCan="'identity.profile.manage'"
+              [disabled]="store.busy() || !store.savedReady()"
+              (click)="removeSavedFilter(filter.name)"
+            >
+              {{ t('deadlines.list.removeSavedFilter') }}
+            </button>
+          </li>
+        }
+      </ul>
+    } @else if (store.savedReady()) {
+      <p>{{ t('deadlines.list.noSavedFilters') }}</p>
+    }
+    <div class="inline" *lfCan="'identity.profile.manage'">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ t('deadlines.list.savedFilterName') }}</mat-label>
+        <input matInput [formControl]="saveName" maxlength="50" />
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="saveName.invalid || store.busy() || !store.savedReady() || store.loading()"
+        (click)="saveCurrentFilter()"
+      >
+        {{ t('deadlines.list.saveFilter') }}
+      </button>
+    </div>
+    @if (store.preferenceError()) {
+      <p role="alert">
+        {{
+          store.preferenceError() === 'deadlines.filter_limit'
+            ? t('deadlines.list.filterLimit')
+            : t(errorTranslationKey(store.preferenceError()!))
+        }}
+      </p>
+      <button
+        mat-button
+        type="button"
+        [disabled]="store.savedLoading() || store.busy()"
+        (click)="store.loadSaved()"
+      >
+        {{ t('deadlines.list.retry') }}
+      </button>
+    }
+  </section>
+
+  <p class="hint">{{ t('deadlines.list.legend') }}</p>
+  @if (store.errorCode()) {
+    <p role="alert">{{ t(errorTranslationKey(store.errorCode()!)) }}</p>
+    <button mat-stroked-button (click)="store.search(store.filters()!)">
+      {{ t('deadlines.list.retry') }}
+    </button>
+  }
+  @if (store.loading()) {
+    <p role="status" aria-live="polite">{{ t('deadlines.list.loading') }}</p>
+  }
+  <ul class="cards">
+    @for (item of store.items(); track item.id) {
+      <li>
+        <a [routerLink]="[item.id]">{{ item.title }}</a>
+        <dl>
+          <dt>{{ t('deadlines.list.internalDueOn') }}</dt>
+          <dd>{{ date(item.internalDueOn) }}</dd>
+          <dt>{{ t('deadlines.list.fatalDueOn') }}</dt>
+          <dd>{{ date(item.fatalDueOn) }}</dd>
+        </dl>
+        <span class="status" [attr.data-urgency]="urgency(item, store.today())">
+          <span aria-hidden="true">{{
+            urgency(item, store.today()) === 'missed'
+              ? '!'
+              : urgency(item, store.today()) === 'completed'
+                ? '✓'
+                : urgency(item, store.today()) === 'red'
+                  ? '!'
+                  : urgency(item, store.today()) === 'yellow'
+                    ? '!'
+                    : '✓'
+          }}</span>
+          {{ t('deadlines.list.urgency.' + urgency(item, store.today())) }}
+        </span>
+        <small>{{ t('deadlines.list.status.' + item.status) }}</small>
+      </li>
+    }
+  </ul>
+  @if (store.isEmpty() && !store.errorCode()) {
+    <p role="status">{{ t('deadlines.list.empty') }}</p>
+  }
+  @if (store.hasMore()) {
+    <button mat-stroked-button (click)="store.loadMore()">{{ t('deadlines.list.more') }}</button>
+  }
+</section>

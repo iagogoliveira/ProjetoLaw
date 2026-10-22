@@ -1,3 +1,4 @@
+import { CaseDeadlinesTab } from '../../deadlines/components/case-deadlines-tab';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -49,6 +50,7 @@ const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
 @Component({
   selector: 'lf-case-detail-page',
   imports: [
+    CaseDeadlinesTab,
     CanDirective,
     ClaimsTab,
     RiskTab,

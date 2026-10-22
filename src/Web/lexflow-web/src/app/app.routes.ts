@@ -53,6 +53,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/funnel/funnel.routes').then((m) => m.FUNNEL_ROUTES),
       },
       {
+        path: 'prazos',
+        canMatch: [organizationGuard],
+        loadChildren: () =>
+          import('./features/deadlines/deadlines.routes').then((m) => m.DEADLINES_ROUTES),
+      },
+      {
         path: 'publicacoes',
         canMatch: [organizationGuard],
         loadChildren: () =>

@@ -10,6 +10,16 @@
   --lf-space-md: 1rem;
   --lf-space-lg: 1.5rem;
   --lf-sidenav-width: 16rem;
+  --lf-deadline-red-color: light-dark(#8b1e1e, #ffc1bd);
+  --lf-deadline-red-background: light-dark(#fde8e7, #521416);
+  --lf-deadline-yellow-color: light-dark(#4e3b00, #ffe187);
+  --lf-deadline-yellow-background: light-dark(#fff1b8, #493900);
+  --lf-deadline-green-color: light-dark(#14532d, #b5f4c6);
+  --lf-deadline-green-background: light-dark(#dcfce7, #153e23);
+  --lf-deadline-completed-color: light-dark(#123c72, #c4dcff);
+  --lf-deadline-completed-background: light-dark(#dbeafe, #153558);
+  --lf-deadline-missed-color: light-dark(#54225b, #f2c3ff);
+  --lf-deadline-missed-background: light-dark(#f3e8ff, #45204e);
 }
 
 html {

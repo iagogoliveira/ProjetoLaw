@@ -21,6 +21,12 @@ public static class DeadlineEndpoints
             .WithTags("Scheduling").RequirePermission("schedule.deadlines.manage").WithName("RegisterDeadline")
             .Produces<DeadlineDetailResponse>(StatusCodes.Status201Created);
         var group = endpoints.MapGroup("/api/v1/deadlines").WithTags("Scheduling");
+        endpoints.MapGet("/api/v1/deadlines", async (DateOnly from, DateOnly until, Guid? assigneeUserId, Guid? teamId,
+                Guid? caseId, bool? includeClosed, string? cursor, int? limit,
+                IQueryHandler<ListDeadlinesQuery, DeadlineListPage> handler, CancellationToken ct) =>
+            (await handler.Handle(new ListDeadlinesQuery(from, until, assigneeUserId, teamId, caseId,
+                includeClosed ?? false, cursor, limit ?? 50), ct)).ToHttpResult())
+            .WithTags("Scheduling").RequirePermission("schedule.deadlines.read").WithName("ListDeadlines").Produces<DeadlineListPage>();
         group.MapGet("/{id:guid}", async (Guid id, IQueryHandler<GetDeadlineQuery, DeadlineDetailResponse> handler, CancellationToken ct) =>
             (await handler.Handle(new GetDeadlineQuery(id), ct)).ToHttpResult())
             .RequirePermission("schedule.deadlines.read").WithName("GetDeadline").Produces<DeadlineDetailResponse>();
