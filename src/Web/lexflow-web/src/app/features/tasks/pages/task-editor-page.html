@@ -1,0 +1,74 @@
+<ng-container *transloco="let t"
+  ><section class="page">
+    <header class="page-header">
+      <h1>{{ taskId() ? t('tasks.editor.editTitle') : t('tasks.editor.createTitle') }}</h1>
+    </header>
+    @if (closedTask()) {
+      <p role="status">{{ t('tasks.editor.closedReadOnly') }}</p>
+    }
+    <form class="task-form" [formGroup]="form" (ngSubmit)="save()">
+      <mat-form-field
+        ><mat-label>{{ t('tasks.fields.title') }}</mat-label
+        ><input matInput formControlName="title" maxlength="300" />
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>{{ t('tasks.validation.required') }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field
+        ><mat-label>{{ t('tasks.fields.description') }}</mat-label
+        ><textarea matInput formControlName="description" maxlength="4000"></textarea>
+      </mat-form-field>
+      <mat-form-field
+        ><mat-label>{{ t('tasks.fields.dueOn') }}</mat-label
+        ><input matInput type="date" formControlName="dueOn"
+      /></mat-form-field>
+      <mat-form-field
+        ><mat-label>{{ t('tasks.fields.assignee') }}</mat-label
+        ><mat-select formControlName="assigneeUserId">
+          @for (member of members(); track member.userId) {
+            <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <mat-form-field
+        ><mat-label>{{ t('tasks.fields.priority') }}</mat-label
+        ><mat-select formControlName="priority">
+          @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">{{ t('tasks.priorities.' + priority) }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      @if (canReadCases) {
+        <mat-form-field
+          ><mat-label>{{ t('tasks.fields.searchCase') }}</mat-label
+          ><input
+            matInput
+            [formControl]="caseSearch"
+            (input)="searchCases(caseSearch.value)"
+            [disabled]="!!taskId()"
+          />
+        </mat-form-field>
+        <mat-form-field
+          ><mat-label>{{ t('tasks.fields.case') }}</mat-label
+          ><mat-select formControlName="caseId" [disabled]="!!taskId()"
+            ><mat-option value="">{{ t('tasks.fields.noCase') }}</mat-option>
+            @for (item of caseOptions(); track item.id) {
+              <mat-option [value]="item.id">{{ item.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+      }
+      @if (errorCode()) {
+        <p role="alert">{{ t(errorTranslationKey(errorCode())) }}</p>
+      }
+      <div>
+        @if (!resourceUnavailable()) {
+          <button mat-flat-button type="submit" [disabled]="busy() || closedTask()">
+            {{ t('tasks.editor.save') }}
+          </button>
+        }
+        <a mat-button routerLink="/tarefas">{{ t('tasks.editor.cancel') }}</a>
+      </div>
+    </form>
+  </section></ng-container
+>

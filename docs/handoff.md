@@ -10,6 +10,54 @@ Como funciona:
 
 ---
 
+## 2026-10-22 — Codex (7F: correção de acessibilidade no PR #41)
+
+**Pedido/diagnóstico:** usuário informou “teste falhou”. CI run 39861916529, head 7cd209e, job AppHost/E2E 120123198148: falha definition-list nos indicadores da controladoria, repetida nas três tentativas. Contagem Amostras estava em small fora do dd; backend, frontend e demais checks aprovados.
+
+**Correção:** amostras dentro da definição do indicador; regressão de DOM com métricas com/sem amostras e E2E exigindo os três indicadores carregados após aplicar filtros/recarregar, antes do axe. A checagem anterior podia ocorrer durante o carregamento, sem a lista no HTML. Nenhuma asserção ou regra de acessibilidade relaxada.
+
+**Verificação/estado:** lint/Prettier, 186 Vitest/35 arquivos e build Angular aprovados; duas rodadas completas consecutivas de 21 Playwright com acessibilidade aprovadas, uma preparação opcional ignorada por rodada. Aviso Angular de 513,79 kB preservado, sem aumentar limite. Gates backend/contrato/dependências mantidos, sem alterações nessas áreas; CI anterior aprovado. Logs ci-fix-* e diagnóstico em TestResults/7f-final-validation e TestResults/7f-ci-failure.log. Ambos os manuais revisados, sem novos passos de uso ou inicialização. Aplicação e sete contêineres próprios encerrados, volumes/cadastros preservados. .codex/ e normalização incidental de flags peer do lockfile excluídos do commit. Correção commitada e enviada ao mesmo branch/PR #41.
+
+**Próximo:** acompanhar o novo CI Linux, revisão e merge pelo usuário. Fornecedor real de publicações e revisão jurídica do 7A permanecem pendentes.
+
+---
+
+## 2026-10-22 — Codex (7F publicado no PR #41)
+
+**Pedido e publicação:** usuário pediu “crie pr”. Implementação b84e5a4 enviada no branch codex/etapa-7f-agenda-tarefas-controladoria; [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41) aberto para main e anexado à conversa. Quem faz o merge é o usuário.
+
+**Documentação/verificação:** ADR 0042 proposta no PR #41; progress, AGENTS/CLAUDE e ambos os manuais atualizados para o estado publicado. Somente documentação após os gates integrais da entrada anterior: 1.166 .NET, cobertura mínima de 80%, 185 Vitest, duas rodadas de 21 Playwright com acessibilidade e demais gates aprovados. Não repetido runtime; diff, UTF-8 e igualdade dos agentes conferidos. Aviso Angular de 513,79 kB para orçamento de aviso de 500 kB preservado e descrito no PR. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** acompanhar CI/revisão do PR #41 e aguardar merge pelo usuário. Depois, atualizar main, aceitar ADR 0042 e preparar 7G, conforme ciclo aprovado. Fornecedor real de publicações e revisão jurídica do 7A continuam pendentes.
+
+---
+
+## 2026-10-22 — Codex (7F implementado e verificado; commit local)
+
+**Pedido e estado:** usuário pediu “Prossiga” após o merge do PR #40. Plano 7A–7G aprovado preservado. Implementação commitada localmente no branch codex/etapa-7f-agenda-tarefas-controladoria, base 72bb88c e arrumação documental 1f095f7. Sem push/PR da implementação: aguardar pedido do usuário. Quem faz o merge é o usuário.
+
+**Entrega:** agenda dia/semana/mês em São Paulo, filtros salvos/URL, paginação explícita e redistribuição por item; tarefas em lista e kanban com alternativa por teclado, cadastro/edição/detalhe, checklist, comentários, subtarefas paginadas e reabertura; compromissos administrativos com edição/cancelamento explícito; controladoria com indicadores/pendências autorizados; preferências pessoais e regras de alertas do escritório. Dois endpoints de opções mínimas de membros/equipes, com permissões de agenda/tarefas, permitem atividades sem cases.read. Contrato/SDK gerados oficialmente. FullCalendar Standard 7.1.3 e polyfill com licenças conferidas na ADR 0042 proposta; sem migration, serviço ou porta nova.
+
+**Revisão:** Sol no domínio/contrato, integração e revisão; Luna nas fatias delimitadas e gates. Corrigidos rascunhos descartados após foco/falha/busca tardia, respostas antigas, acesso perdido, listas após mudança de estado e paginação. E2E identificou estado inicial do seletor nativo, contraste do campo com foco e corrida no teste de prazos do 7E; sincronização por resposta/estado e asserção adicional de evidência, sem relaxar testes. Traces das tentativas preservados.
+
+**Verificação integral:** build Release e Debug sem avisos/erros; format aprovado; 1.166 testes .NET em 20 projetos, sem falhas/ignorados, cobertura mínima de 80% em todos os módulos (Scheduling.Domain 98,8%, Application 99,4%); seis modelos EF e dependências aprovados; OpenAPI 165 caminhos/292 schemas, oasdiff sem quebra. Lint/Prettier, 185 Vitest/35 arquivos, build Angular e audit zero; 1.587 chaves pt-BR/en iguais. Duas rodadas finais consecutivas de 21 Playwright aprovados com acessibilidade, uma preparação opcional de carga ignorada por rodada, --workers=2. Logs em TestResults/7f-final-validation e TestResults/7f-*.log. Aviso Angular preservado: 513,79 kB iniciais para aviso em 500 kB, build aprovado sem aumentar limite. Restore Release inicial com falha DNS/NU1900; repetição aprovada. Flags peer normalizadas pelo npm restauradas sem perder as oito novas dependências.
+
+**Documentação/ambiente:** progress, ADR 0042, AGENTS/CLAUDE e ambos os manuais atualizados. AppHost.Tests executado antes do AppHost manual/Playwright. Aplicação e sete contêineres próprios encerrados, portas 4200/5238/8025 fechadas; volumes/cadastros e .codex/ local preservados. Sem repetição de gates aprovados após alterações somente documentais.
+
+**Próximo:** publicar o 7F somente a pedido. Após revisão e merge pelo usuário, atualizar main, aceitar ADR e preparar 7G. Sincronização externa no 7G, anexos no GED da Etapa 9; calendário do escritório e dupla conferência continuam pela API. Fornecedor real de publicações e revisão jurídica do 7A permanecem pendentes; não declarar Etapa 6 integralmente concluída nem critério jurídico atendido.
+
+---
+
+## 2026-10-22 — Codex (7E mergeado; branch do 7F preparado)
+
+**Pedido:** usuário confirmou “Mergeado”. PR #40 conferido como MERGED em 2026-10-22 às 17:53 (America/Sao_Paulo), merge 72bb88c74c6b8dcbbcc5b0b513c5a8b15e3e58a6, head 0dd6402. Todos os checks aprovados: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. A correção isolate=true passou no CI Linux.
+
+**Estado:** main atualizada por fast-forward; branch codex/etapa-7f-agenda-tarefas-controladoria criado dessa base. ADR 0041 aceita, progress, AGENTS/CLAUDE e ambos os manuais atualizados. Arrumação somente documental, com commit/push nesse branch conforme ciclo aprovado. Diff, UTF-8 e igualdade dos agentes conferidos; gates integrais do 7E preservados e complementados pelo CI, sem repetir runtime. Aplicação permanece fechada; volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7F (telas de agenda, tarefas, controladoria e preferências), implementação ainda não iniciada. Ler plano aprovado, requisitos e decisões registradas antes de detalhar o trabalho. Preservar isolate=true nos testes Angular. Revisão jurídica do 7A e fornecedor real de publicações continuam pendentes. Quem faz o merge é o usuário.
+
+---
+
 ## 2026-10-21 — Codex (7E: correção do job frontend no PR #40)
 
 **Pedido:** usuário informou falha de teste frontend. Log do job 119456432832, run 39667391993, head 5a95969: três falhas em NotificationStream, com 150 testes aprovados. Mock SignalR sem chamadas; não era falha nas asserções das telas novas.

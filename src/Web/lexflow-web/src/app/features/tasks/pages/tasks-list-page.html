@@ -1,0 +1,277 @@
+<ng-container *transloco="let t">
+  <section class="page">
+    <header class="page-header">
+      <div>
+        <h1>{{ t('tasks.list.title') }}</h1>
+        <p>{{ t('tasks.list.description') }}</p>
+      </div>
+      <a mat-flat-button routerLink="/tarefas/novo" *lfCan="'schedule.tasks.manage'">{{
+        t('tasks.list.create')
+      }}</a>
+    </header>
+    <nav aria-label="{{ t('tasks.view.label') }}">
+      <button
+        mat-button
+        type="button"
+        [attr.aria-pressed]="view() === 'list'"
+        (click)="setView('list')"
+      >
+        {{ t('tasks.view.list') }}
+      </button>
+      <button
+        mat-button
+        type="button"
+        [attr.aria-pressed]="view() === 'board'"
+        (click)="setView('board')"
+      >
+        {{ t('tasks.view.board') }}
+      </button>
+    </nav>
+    <form class="filters" [formGroup]="filterForm" (ngSubmit)="apply()">
+      <mat-form-field
+        ><mat-label>{{ t('tasks.filters.status') }}</mat-label
+        ><mat-select formControlName="status"
+          ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+          @for (status of states; track status) {
+            <mat-option [value]="status">{{ t('tasks.states.' + status) }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <mat-form-field
+        ><mat-label>{{ t('tasks.filters.priority') }}</mat-label
+        ><mat-select formControlName="priority"
+          ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+          @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">{{ t('tasks.priorities.' + priority) }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <mat-form-field
+        ><mat-label>{{ t('tasks.filters.assignee') }}</mat-label
+        ><mat-select formControlName="assigneeUserId"
+          ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+          @for (member of store.options()?.members ?? []; track member.userId) {
+            <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <mat-form-field
+        ><mat-label>{{ t('tasks.filters.team') }}</mat-label
+        ><mat-select formControlName="teamId"
+          ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+          @for (team of store.options()?.teams ?? []; track team.id) {
+            <mat-option [value]="team.id">{{ team.name }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      @if (isCaseSearchAllowed) {
+        <mat-form-field
+          ><mat-label>{{ t('tasks.fields.searchCase') }}</mat-label
+          ><input matInput [formControl]="caseSearch" (input)="loadCases(caseSearch.value)"
+        /></mat-form-field>
+        <mat-form-field
+          ><mat-label>{{ t('tasks.filters.case') }}</mat-label
+          ><mat-select formControlName="caseId"
+            ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+            @for (item of store.caseResults(); track item.id) {
+              <mat-option [value]="item.id">{{ item.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+      }
+      <button mat-flat-button type="submit" [disabled]="store.loading()">
+        {{ t('tasks.filters.apply') }}
+      </button>
+    </form>
+    <section class="saved" *lfCan="'identity.profile.read'">
+      <h2>{{ t('tasks.saved.title') }}</h2>
+      <mat-form-field *lfCan="'identity.profile.manage'"
+        ><mat-label>{{ t('tasks.saved.name') }}</mat-label
+        ><input matInput [formControl]="savedName"
+      /></mat-form-field>
+      <button
+        mat-button
+        type="button"
+        (click)="saveFilter()"
+        *lfCan="'identity.profile.manage'"
+        [disabled]="store.busy() || store.savedLoading() || !store.savedReady()"
+      >
+        {{ t('tasks.saved.save') }}
+      </button>
+      @for (saved of store.saved(); track saved.name) {
+        <button mat-button type="button" (click)="applySaved(saved.name)">{{ saved.name }}</button>
+        <button
+          mat-button
+          type="button"
+          (click)="store.removeFilter(saved.name)"
+          *lfCan="'identity.profile.manage'"
+          [disabled]="store.busy()"
+        >
+          {{ t('tasks.saved.remove') }}
+        </button>
+      }
+      @if (store.preferenceError()) {
+        <p role="alert">{{ t(errorTranslationKey(store.preferenceError())) }}</p>
+      }
+    </section>
+    @if (store.errorCode()) {
+      <p role="alert">{{ t(errorTranslationKey(store.errorCode())) }}</p>
+    }
+    @if (store.redistribution(); as results) {
+      <section role="status">
+        <h2>{{ t('tasks.redistribution.result') }}</h2>
+        @for (result of results; track result.id) {
+          <p>
+            {{ result.title }}:
+            {{
+              result.changed
+                ? t('tasks.redistribution.changed')
+                : t(errorTranslationKey(result.errorCode))
+            }}
+          </p>
+        }
+      </section>
+    }
+    @if (store.items().length) {
+      @if (canManageTasks) {
+        <section class="redistribute">
+          <mat-form-field
+            ><mat-label>{{ t('tasks.redistribution.assignee') }}</mat-label>
+            <mat-select #target
+              ><mat-option [value]="null">{{ t('tasks.filters.any') }}</mat-option>
+              @for (member of store.options()?.members ?? []; track member.userId) {
+                <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <button
+            mat-button
+            (click)="redistribute(target.value)"
+            [disabled]="store.busy() || store.loading() || !selectedIds.size"
+          >
+            {{ t('tasks.redistribution.submit') }}
+          </button>
+        </section>
+      }
+      @if (view() === 'list') {
+        <table class="task-table">
+          <thead>
+            <tr>
+              <th>{{ t('tasks.fields.title') }}</th>
+              <th>{{ t('tasks.fields.assignee') }}</th>
+              <th>{{ t('tasks.fields.dueOn') }}</th>
+              <th>{{ t('tasks.fields.priority') }}</th>
+              <th>{{ t('tasks.detail.status') }}</th>
+              <th>{{ t('tasks.move.label') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of store.items(); track task.id) {
+              <tr>
+                <td>
+                  <label
+                    ><input
+                      type="checkbox"
+                      [checked]="selectedIds.has(task.id)"
+                      [disabled]="!canManageTasks"
+                      (change)="toggleSelected(task.id, $any($event.target).checked)"
+                    />{{ t('tasks.redistribution.select') }}</label
+                  >
+                  <a [routerLink]="['/tarefas', task.id]">{{ task.title }}</a>
+                </td>
+                <td>
+                  {{ memberName(task.assigneeUserId) || t('tasks.fields.unavailableMember') }}
+                </td>
+                <td>{{ date(task.dueOn) }}</td>
+                <td>{{ t('tasks.priorities.' + task.priority) }}</td>
+                <td>{{ t('tasks.states.' + task.status) }}</td>
+                <td>
+                  <label
+                    ><span class="visually-hidden"
+                      >{{ t('tasks.move.label') }}: {{ task.title }}</span
+                    >
+                    <select
+                      [value]="task.status"
+                      (change)="store.changeState(task.id, $any($event.target).value)"
+                      [disabled]="store.busy() || !canManageTasks"
+                    >
+                      @for (targetState of states; track targetState) {
+                        <option [value]="targetState" [selected]="targetState === task.status">
+                          {{ t('tasks.states.' + targetState) }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="board" cdkDropListGroup>
+          @for (state of states; track state) {
+            <section
+              class="column"
+              cdkDropList
+              [cdkDropListData]="state"
+              (cdkDropListDropped)="drop($event, state)"
+            >
+              <h2>{{ t('tasks.states.' + state) }}</h2>
+              @for (task of store.items().filter((x) => x.status === state); track task.id) {
+                <article
+                  class="task-card"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [cdkDragDisabled]="store.busy() || !canManageTasks"
+                >
+                  <label
+                    ><input
+                      type="checkbox"
+                      [checked]="selectedIds.has(task.id)"
+                      [disabled]="!canManageTasks"
+                      (change)="toggleSelected(task.id, $any($event.target).checked)"
+                    />{{ t('tasks.redistribution.select') }}</label
+                  >
+                  <a [routerLink]="['/tarefas', task.id]">{{ task.title }}</a>
+                  <p>
+                    {{ t('tasks.fields.dueOn') }}: {{ date(task.dueOn) }} ·
+                    {{ t('tasks.priorities.' + task.priority) }}
+                  </p>
+                  <p>
+                    {{ memberName(task.assigneeUserId) || t('tasks.fields.unavailableMember') }}
+                  </p>
+                  @if (task.caseId && caseName(task.caseId)) {
+                    <a [routerLink]="['/processos', task.caseId]">{{ caseName(task.caseId) }}</a>
+                  }
+                  <label class="move"
+                    ><span>{{ t('tasks.move.label') }}</span
+                    ><select
+                      [value]="task.status"
+                      (change)="store.changeState(task.id, $any($event.target).value)"
+                      [disabled]="store.busy() || !canManageTasks"
+                    >
+                      @for (targetState of states; track targetState) {
+                        <option [value]="targetState" [selected]="targetState === task.status">
+                          {{ t('tasks.states.' + targetState) }}
+                        </option>
+                      }
+                    </select></label
+                  >
+                </article>
+              }
+            </section>
+          }
+        </div>
+      }
+    }
+    @if (store.isEmpty()) {
+      <p>{{ t('tasks.list.empty') }}</p>
+    }
+    @if (store.hasMore()) {
+      <p>{{ t('tasks.list.moreLoaded') }}</p>
+      <button mat-button (click)="store.loadMore()" [disabled]="store.loading()">
+        {{ t('tasks.list.loadMore') }}
+      </button>
+    }
+  </section>
+</ng-container>

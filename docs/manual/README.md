@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-21.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão no branch codex/etapa-7e-telas-prazos, publicadas no [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), ainda sem merge, conforme a seção 18. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-22.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), acrescenta agenda, tarefas, controladoria e preferências, ainda sem merge, conforme a seção 19. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -188,9 +188,9 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Captura real de publicações/intimações | Fornecedor ainda pendente; o ambiente local usa provedor simulado |
 | DataJud e consultas periódicas de movimentações | Backend na main; configuração e acompanhamento disponíveis na main desde o 6E (#35) |
 | Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
-| Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend na main desde o 7A ([#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36)); tela da calculadora no branch do 7E; calendário do escritório pela API; revisão jurídica pendente |
-| Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend disponível na main pelo PR #37 (7B), mergeado em 2026-10-20; telas no branch do 7E, ainda sem merge |
-| Agenda unificada e tarefas completas | Backend disponível na main pelo PR #38; telas no 7F e sincronização no 7G |
+| Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend na main desde o 7A ([#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36)); tela da calculadora na main pelo PR #40 (7E); calendário do escritório pela API; revisão jurídica pendente |
+| Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend disponível na main pelo PR #37 (7B), mergeado em 2026-10-20; telas disponíveis na main pelo PR #40 (7E) |
+| Agenda unificada e tarefas completas | Backend disponível na main pelo PR #38; telas no checkout do 7F (seção 19), ainda sem merge; sincronização no 7G |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis; backend da controladoria disponível na main pelo PR #39; telas no 7F |
@@ -219,7 +219,7 @@ Em **Notificações**, consulte referências recebidas, abra a publicação auto
 
 A operação técnica está descrita no [guia de ambiente local](ambiente-local.md). Para tratar uma publicação, a pessoa precisa de permissão de leitura e triagem e de acesso ao seu conteúdo. Distribuir exige a permissão de distribuição; atribuir a alguém não concede acesso ao processo. O responsável precisa estar ativo e conseguir ler e triar aquela publicação.
 
-Busque o processo por pasta ou CNJ, selecione-o e use **Vincular processo**, quando necessário. A busca traz até 50 opções por vez, respeitando seu alcance; refine a pesquisa. Em **Distribuição**, escolha um membro e use **Salvar distribuição**; a opção sem atribuição remove a distribuição. A classificação e o destino são confirmados por uma pessoa. Criar prazo ou tarefa exige também a respectiva permissão de cadastro; criar audiência exige editar o processo. No checkout do 7E, a triagem oferece sugestão de cálculo para o prazo, com confirmação humana; as telas de cumprimento e conferência estão descritas na seção 18. As datas das tarefas continuam manuais. A audiência criada aparece na aba **Audiências** do processo, e os prazos na aba **Prazos**; tarefas seguem pela API até o 7F.
+Busque o processo por pasta ou CNJ, selecione-o e use **Vincular processo**, quando necessário. A busca traz até 50 opções por vez, respeitando seu alcance; refine a pesquisa. Em **Distribuição**, escolha um membro e use **Salvar distribuição**; a opção sem atribuição remove a distribuição. A classificação e o destino são confirmados por uma pessoa. Criar prazo ou tarefa exige também a respectiva permissão de cadastro; criar audiência exige editar o processo. Desde o PR #40 (7E), a triagem oferece sugestão de cálculo para o prazo, com confirmação humana; as telas de cumprimento e conferência estão descritas na seção 18. As datas das tarefas continuam manuais. A audiência criada aparece na aba **Audiências** do processo, e os prazos na aba **Prazos**; tarefas seguem pela API até o 7F.
 
 Uma publicação irrelevante ou capturada por engano pode ser encerrada sem processo, com classificação **Outros** e ação **Encerrar como irrelevante/engano**, com justificativa e identificação de quem decidiu. As demais triagens exigem processo vinculado. Escolha a classificação e a ação compatíveis, preencha os dados do destino, marque a confirmação humana e use **Confirmar e salvar triagem**. A gravação da triagem e do destino é conjunta: falhas antes da confirmação da transação desfazem os dois. Se houver falha de resposta, consulte o estado antes de reenviar. Uma publicação já triada não pode ser triada, vinculada ou distribuída novamente.
 
@@ -235,7 +235,7 @@ Na aba **Andamentos** do processo, consulte origem, data do ato e data de coleta
 
 ## 15. Prazos e alertas (7B, backend na main)
 
-O cadastro manual e as ações de iniciar, conferir, cumprir e registrar perda estão disponíveis pela API na main desde o merge do PR #37; a tela completa permanece prevista para o 7E. O [guia local](ambiente-local.md#11-ciclo-do-prazo-7b-operação-técnica) descreve como conferir essas operações.
+O cadastro manual e as ações de iniciar, conferir, cumprir e registrar perda estão disponíveis pela API na main desde o merge do PR #37; a tela completa está disponível na main pelo PR #40, conforme a seção 18. O [guia local](ambiente-local.md#11-ciclo-do-prazo-7b-operação-técnica) descreve como conferir essas operações.
 
 O cumprimento exige texto do protocolo. A perda exige justificativa. Quando a organização exige conferência, o trabalho pode ser iniciado antes dela, mas o prazo só pode ser marcado como cumprido depois de conferido. O conferente precisa ser outro membro; em escritório com um único membro ativo, a autoconferência continua exigindo a permissão de conferir prazos.
 
@@ -243,7 +243,7 @@ No sino de notificações, os alertas de **Prazo perdido** e **Calendário alter
 
 ## 16. Agenda e tarefas (7C, backend disponível na main)
 
-Na main desde o merge do PR #38, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas continuam previstas para o 7F; a implementação do 7C foi verificada em 2026-10-21 e foi mergeada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), com CI integral aprovado. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
+Na main desde o merge do PR #38, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas estão no checkout do 7F, ainda sem merge (seção 19); a implementação do 7C foi verificada em 2026-10-21 e foi mergeada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), com CI integral aprovado. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
 
 A tarefa tem responsável, vencimento, prioridade, checklist, comentários e subtarefas completas de um nível. Para concluir, todos os itens do checklist precisam estar marcados e as subtarefas concluídas ou canceladas. Tarefas concluídas/canceladas podem ser reabertas como pendentes. Reabra primeiro a principal para alterar uma subtarefa de principal fechada. Cancelar a principal preserva o estado das subtarefas. Anexos dependem do GED da Etapa 9.
 
@@ -251,7 +251,7 @@ A agenda reúne prazos (data fatal e informação da data interna), tarefas (ven
 
 ## 17. Controladoria e notificações (7D, backend disponível na main)
 
-O backend do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências continuam previstas para o 7F. A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeada pelo usuário em 2026-10-21, com CI integral aprovado. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
+O backend do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências estão no checkout do 7F, ainda sem merge (seção 19). A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeada pelo usuário em 2026-10-21, com CI integral aprovado. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
 
 O relatório reúne publicações não tratadas, prazos abertos sem responsável ativo, prazos abertos vencidos sem evidência e cumpridos legados sem protocolo. Processos sem andamento consideram apenas os ativos, pelo último andamento processual ou pelo cadastro quando não houver andamento; o padrão é de 30 dias. Contagens e indicadores respeitam as mesmas permissões, alcance e sigilo dos itens.
 
@@ -263,9 +263,9 @@ O resumo por e-mail é opcional, desativado inicialmente e exige endereço confi
 
 Receber um aviso ou e-mail não concede acesso ao processo. Os envios usam as permissões atuais; a leitura no sistema continua sujeita à autenticação exigida pelo escritório. O registro diário evita novas entregas após envio confirmado e permite retentar falhas. Em uma queda entre a aceitação SMTP e a gravação do sucesso, uma retentativa pode duplicar o e-mail.
 
-## 18. Prazos (7E, telas no branch de desenvolvimento)
+## 18. Prazos (7E, PR #40 mergeado)
 
-As telas desta seção estão no checkout do 7E, ainda sem merge. Agenda e tarefas ficam no 7F; a revisão jurídica dos casos e do calendário do 7A permanece pendente.
+As telas desta seção estão disponíveis na main pelo PR #40, mergeado em 2026-10-22. Agenda e tarefas ficam no 7F; a revisão jurídica dos casos e do calendário do 7A permanece pendente.
 
 Abra **Prazos** no menu lateral. Informe período do vencimento fatal, responsável e equipe e escolha **Aplicar filtros**. **Até** é uma data exclusiva: para incluir o dia 31, informe o dia 1 do mês seguinte. A consulta inicia trinta dias antes de hoje e termina trinta e um dias depois; amplie o período para procurar outros vencimentos. **Incluir encerrados** traz cumpridos e perdidos; **Carregar mais** continua a consulta por vencimento.
 
@@ -291,7 +291,35 @@ Se houver aviso de alteração do calendário, confira o prazo confirmado; suas 
 
 Escolha **Criar prazo**, selecione o processo e use a calculadora. Aplique a sugestão, confira responsável e datas e confirme a decisão da triagem. As datas continuam editáveis; mudar uma delas retira a confirmação. Depois de triar, abra o prazo pelo painel ou pela aba do processo e registre o cumprimento com evidência. O fechamento diário conserva as regras da seção de publicações.
 
-## 19. Manutenção do manual
+## 19. Agenda, tarefas, controladoria e notificações (7F, checkout de desenvolvimento)
+
+Estas telas estão no branch codex/etapa-7f-agenda-tarefas-controladoria, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), ainda sem merge. Os dados e as ações respeitam seu perfil e o alcance autorizado no escritório. As telas do 7E já estão disponíveis na main pelo PR #40.
+
+### Consultar a agenda e cadastrar compromissos
+
+Abra **Agenda** com permissão de leitura de compromissos. Use **Dia**, **Semana** ou **Mês**, a **Data da agenda** e os botões de período. A semana começa na segunda-feira; horários são de São Paulo. O período exibido inclui o início e exclui o fim. Filtre por responsável/equipe e, se necessário, inclua encerrados. Filtros não ampliam o acesso aos prazos, tarefas, audiências ou processos sigilosos. Quando houver mais itens no servidor, a tela informa que a agenda está parcial: use **Carregar mais itens** até completar o período. A lista abaixo do calendário também permite abrir cada item pelo teclado.
+
+Em **Novo compromisso**, informe título, responsável, início/fim e, opcionalmente, descrição, local e processo. O fim deve ser posterior ao início. Compromissos administrativos dispensam processo. Os horários são interpretados em São Paulo, independentemente do fuso do navegador. Abra um compromisso para editar; o vínculo de processo é preservado. Cancelar exige a ação explícita de confirmação; o registro cancelado continua disponível para consulta e não aceita alterações.
+
+Para redistribuir, selecione os itens editáveis, escolha o novo responsável e confira o resultado de cada item. Audiências continuam sendo administradas no processo. Datas e confirmações de prazos são preservadas na redistribuição.
+
+### Trabalhar com tarefas
+
+Abra **Tarefas**, alterne entre **Lista** e **Kanban** e filtre por estado, prioridade, responsável, equipe ou processo. Filtros ficam na URL; conjuntos podem ser salvos explicitamente, até dez por usuário. Em listas grandes, carregue as páginas seguintes; os cartões carregados não representam o total do servidor.
+
+Em **Nova tarefa**, informe título, vencimento, responsável e prioridade; descrição e processo são opcionais. No detalhe, adicione itens de **Checklist**, comentários e subtarefas. Subtarefas têm seus próprios dados e checklist, com apenas um nível e o mesmo processo da principal. Use a continuação quando a lista de subtarefas estiver parcial.
+
+Use **Mover para** ou arraste o cartão entre as colunas do kanban. A alteração só é confirmada após o servidor validar. Concluir exige checklist completo e subtarefas concluídas ou canceladas. Tarefas encerradas ficam somente leitura; para reabrir, escolha **Pendente**. Cancelar a principal não cancela suas subtarefas. Redistribuir pode ter sucessos e falhas na mesma operação: confira o resultado identificado por tarefa.
+
+### Conferir a controladoria e as notificações
+
+Abra **Controladoria** com a permissão correspondente. A janela inicial dos indicadores vai de 30 dias antes de hoje até amanhã, com fim exclusivo. **Dias sem andamento** começa em 30 e é ajustável. Pendências mostram o estado atual; a janela afeta os indicadores, não limita as pendências àquelas datas. Cada seção mostra seu total e até 100 linhas autorizadas; a tela indica quando há mais. Indicador sem amostras permanece identificado, sem inventar média zero. Abra as publicações, prazos ou processos pelos links e use **Fechamento de publicações** quando autorizado. Salve conjuntos de filtros para reutilizar a consulta.
+
+Em **Preferências de notificações**, escolha os alertas opcionais e se quer receber o resumo diário por e-mail às **07:30 de São Paulo**, com as seções de agenda, prazos e publicações. Salve suas escolhas. Os alertas obrigatórios do sistema e do escritório não podem ser silenciados; somente quem administra as regras do escritório pode exigir alertas adicionais. Sem permissão de alteração, as preferências ficam somente leitura. Sem itens nas seções escolhidas, não há envio do resumo.
+
+Sincronização Google/Microsoft fica no 7G; anexos dependem do GED da Etapa 9. Calendário do escritório e política de dupla conferência continuam configurados pela API. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes.
+
+## 20. Manutenção do manual
 
 Este é um documento em evolução, não a descrição de funcionalidades futuras como se já estivessem entregues. Após cada melhoria, revisar este manual e o guia de ambiente local. Atualizar as instruções de uso afetadas, os pré-requisitos de acesso e a tabela de disponibilidade; atualizar também o guia quando mudar a forma de iniciar, executar ou conferir o sistema. Se a melhoria não afetar um dos documentos, registrar essa ausência de impacto na verificação da entrega. Os nomes das ações devem ser conferidos na interface e nos testes de navegador.
 

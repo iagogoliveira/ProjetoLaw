@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+
+:host {
+  @include mat.form-field-overrides(
+    (
+      filled-focus-label-text-color: var(--mat-sys-on-surface),
+    )
+  );
+}
+
+dl {
+  display: grid;
+  grid-template-columns: minmax(10rem, 15rem) 1fr;
+  gap: 0.5rem 1rem;
+}
+dd {
+  margin: 0;
+}
+section {
+  margin-block: 2rem;
+}
+section form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}

@@ -1,0 +1,59 @@
+.filters,
+.saved,
+.redistribute {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-block: 1rem;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(14rem, 1fr));
+  gap: 1rem;
+  overflow-x: auto;
+}
+.column {
+  min-height: 12rem;
+  padding: 1rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 1rem;
+  background: var(--mat-sys-surface-container-low);
+}
+.task-card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  margin-block: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--mat-sys-surface);
+  box-shadow: var(--mat-sys-level1);
+}
+.move {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.task-table th,
+.task-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  text-align: start;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .board {
+    grid-template-columns: repeat(4, minmax(12rem, 70vw));
+  }
+}

@@ -2022,6 +2022,21 @@ export type RoleResponse = {
     permissions: Array<string>;
 };
 
+export type SchedulingMemberOption = {
+    userId: string;
+    name: string;
+};
+
+export type SchedulingOptionsResponse = {
+    members: Array<SchedulingMemberOption>;
+    teams: Array<SchedulingTeamOption>;
+};
+
+export type SchedulingTeamOption = {
+    id: string;
+    name: string;
+};
+
 export type SelectActiveOrganizationRequest = {
     organizationId: string;
 };
@@ -2727,6 +2742,38 @@ export type RegisterEventResponses = {
 };
 
 export type RegisterEventResponse = RegisterEventResponses[keyof RegisterEventResponses];
+
+export type GetSchedulingOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/schedule/options';
+};
+
+export type GetSchedulingOptionsResponses = {
+    /**
+     * OK
+     */
+    200: SchedulingOptionsResponse;
+};
+
+export type GetSchedulingOptionsResponse = GetSchedulingOptionsResponses[keyof GetSchedulingOptionsResponses];
+
+export type GetTaskOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tasks/options';
+};
+
+export type GetTaskOptionsResponses = {
+    /**
+     * OK
+     */
+    200: SchedulingOptionsResponse;
+};
+
+export type GetTaskOptionsResponse = GetTaskOptionsResponses[keyof GetTaskOptionsResponses];
 
 export type GetJobData = {
     body?: never;

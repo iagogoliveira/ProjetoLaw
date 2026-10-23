@@ -1,0 +1,211 @@
+<link rel="stylesheet" href="/calendar/skeleton.css" />
+<link rel="stylesheet" href="/calendar/theme.css" />
+<section class="page" *transloco="let t">
+  <header class="inline">
+    <h1>{{ t('schedule.title') }}</h1>
+    <a mat-flat-button routerLink="compromissos/novo" *lfCan="'schedule.events.manage'">{{
+      t('schedule.newEvent')
+    }}</a>
+  </header>
+  <p>{{ t('schedule.timeZone') }}</p>
+  <form class="inline" [formGroup]="form" (ngSubmit)="apply()">
+    <mat-form-field
+      ><mat-label>{{ t('schedule.date') }}</mat-label
+      ><input matInput type="date" [formControl]="dateInput" required
+    /></mat-form-field>
+    <mat-form-field
+      ><mat-label>{{ t('schedule.from') }}</mat-label
+      ><input matInput type="date" formControlName="from" required readonly
+    /></mat-form-field>
+    <mat-form-field
+      ><mat-label>{{ t('schedule.until') }}</mat-label
+      ><input matInput type="date" formControlName="until" required readonly
+    /></mat-form-field>
+    <mat-form-field
+      ><mat-label>{{ t('schedule.assignee') }}</mat-label
+      ><mat-select formControlName="assigneeUserId">
+        <mat-option [value]="null">{{ t('schedule.all') }}</mat-option>
+        @for (member of store.options()?.members ?? []; track member.userId) {
+          <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <mat-form-field
+      ><mat-label>{{ t('schedule.team') }}</mat-label
+      ><mat-select formControlName="teamId">
+        <mat-option [value]="null">{{ t('schedule.all') }}</mat-option>
+        @for (team of store.options()?.teams ?? []; track team.id) {
+          <mat-option [value]="team.id">{{ team.name }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
+    <mat-checkbox formControlName="includeClosed">{{ t('schedule.includeClosed') }}</mat-checkbox>
+    <button mat-stroked-button type="submit" [disabled]="store.loading()">
+      {{ t('schedule.apply') }}
+    </button>
+  </form>
+  @if (store.optionsError()) {
+    <p role="alert">{{ t('schedule.errors.generic') }}</p>
+    <button mat-button (click)="store.optionsLoad()">{{ t('schedule.retry') }}</button>
+  }
+  <section *lfCan="'identity.profile.read'" aria-labelledby="agenda-saved-heading">
+    <h2 id="agenda-saved-heading">{{ t('schedule.saved') }}</h2>
+    @for (filter of saved.saved(); track filter.name) {
+      <button mat-button (click)="useFilter(filter.filters)">{{ filter.name }}</button>
+      <button
+        mat-button
+        *lfCan="'identity.profile.manage'"
+        [disabled]="saved.busy() || !saved.ready()"
+        (click)="saved.remove(filter.name)"
+      >
+        {{ t('schedule.remove') }} {{ filter.name }}
+      </button>
+    }
+    @if (saved.loading()) {
+      <p role="status">{{ t('schedule.loading') }}</p>
+    }
+    <div class="inline" *lfCan="'identity.profile.manage'">
+      <mat-form-field
+        ><mat-label>{{ t('schedule.filterName') }}</mat-label
+        ><input matInput [formControl]="filterName" maxlength="50"
+      /></mat-form-field>
+      <button
+        mat-stroked-button
+        [disabled]="filterName.invalid || !saved.ready() || saved.busy()"
+        (click)="saveFilter()"
+      >
+        {{ t('schedule.saveFilter') }}
+      </button>
+    </div>
+    @if (saved.error()) {
+      <p role="alert">
+        {{
+          t(
+            saved.error() === 'schedule.filter_limit'
+              ? 'schedule.errors.filterLimit'
+              : 'schedule.errors.generic'
+          )
+        }}
+      </p>
+      <button mat-button (click)="saved.load()">{{ t('schedule.retry') }}</button>
+    }
+  </section>
+  <nav class="inline" [attr.aria-label]="t('schedule.navigation')">
+    <button mat-button (click)="move(-1)">{{ t('schedule.previous') }}</button
+    ><button mat-button (click)="move(0)">{{ t('schedule.today') }}</button
+    ><button mat-button (click)="move(1)">{{ t('schedule.next') }}</button>
+    <button
+      mat-button
+      [attr.aria-pressed]="view() === 'timeGridDay'"
+      (click)="changeView('timeGridDay')"
+    >
+      {{ t('schedule.day') }}
+    </button>
+    <button
+      mat-button
+      [attr.aria-pressed]="view() === 'timeGridWeek'"
+      (click)="changeView('timeGridWeek')"
+    >
+      {{ t('schedule.week') }}
+    </button>
+    <button
+      mat-button
+      [attr.aria-pressed]="view() === 'dayGridMonth'"
+      (click)="changeView('dayGridMonth')"
+    >
+      {{ t('schedule.month') }}
+    </button>
+  </nav>
+  @if (store.error()) {
+    <p role="alert">{{ t('schedule.errors.generic') }}</p>
+    <button mat-button (click)="store.search(form.getRawValue())">{{ t('schedule.retry') }}</button>
+  }
+  @if (store.loading()) {
+    <p role="status">{{ t('schedule.loading') }}</p>
+  }
+  @if (store.cursor()) {
+    <p role="status">{{ t('schedule.partial') }}</p>
+    <button
+      mat-stroked-button
+      [disabled]="store.loading()"
+      (click)="store.search(form.getRawValue(), true)"
+    >
+      {{ t('schedule.more') }}
+    </button>
+  }
+  <div class="lf-calendar"><full-calendar [options]="options()" /></div>
+  <h2>{{ t('schedule.items') }}</h2>
+  @if (!store.items().length && !store.loading() && !store.error()) {
+    <p>{{ t('schedule.empty') }}</p>
+  }
+  <ul>
+    @for (item of store.items(); track item.kind + item.id) {
+      <li>
+        @if (canSelect(item)) {
+          <mat-checkbox
+            [disabled]="store.busy()"
+            [checked]="isSelected(item)"
+            (change)="toggle(item, $event.checked)"
+            >{{ t('schedule.select') }} {{ itemTitle(item) }}</mat-checkbox
+          >
+        }
+        <span>{{ t('schedule.kinds.' + item.kind) }} · </span>
+        @if (item.assigneeUserId; as userId) {
+          <span
+            >{{ t('schedule.assignee') }}:
+            {{ memberName(userId) || t('schedule.unavailableMember') }} ·
+          </span>
+        }
+        @if (link(item); as path) {
+          <a [routerLink]="path">{{ itemTitle(item) }}</a>
+        } @else {
+          <span>{{ itemTitle(item) }}</span>
+        }
+        @if (item.internalDueOn; as internalDue) {
+          <span>
+            · {{ t('schedule.internalDue') }}:
+            {{ internalDue.split('-').reverse().join('/') }}</span
+          >
+        }
+        <span>
+          ·
+          {{
+            item.allDay
+              ? item.startsAt.slice(0, 10).split('-').reverse().join('/')
+              : instant(item.startsAt)
+          }}
+          · {{ t('schedule.states.' + item.status) }}</span
+        >
+      </li>
+    }
+  </ul>
+  @if (selected().length) {
+    <div class="inline">
+      <mat-form-field
+        ><mat-label>{{ t('schedule.newAssignee') }}</mat-label
+        ><mat-select [formControl]="assignee">
+          @for (member of store.options()?.members ?? []; track member.userId) {
+            <mat-option [value]="member.userId">{{ member.name }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <button
+        mat-flat-button
+        [disabled]="assignee.invalid || store.busy()"
+        (click)="redistribute()"
+      >
+        {{ t('schedule.redistribute') }} ({{ selected().length }})
+      </button>
+    </div>
+  }
+  @if (store.redistribution().length) {
+    <h2>{{ t('schedule.results') }}</h2>
+    <ul>
+      @for (result of store.redistribution(); track result.id) {
+        <li>
+          {{ result.title }}: {{ t(result.changed ? 'schedule.changed' : 'schedule.notChanged') }}
+        </li>
+      }
+    </ul>
+  }
+</section>

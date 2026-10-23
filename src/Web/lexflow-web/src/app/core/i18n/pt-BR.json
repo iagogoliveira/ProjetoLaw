@@ -1624,5 +1624,292 @@
       "completed": "Cumprido",
       "missed": "Perdido"
     }
+  },
+  "tasks": {
+    "list": {
+      "title": "Tarefas",
+      "description": "Acompanhe e organize as tarefas do escritório.",
+      "create": "Nova tarefa",
+      "empty": "Nenhuma tarefa encontrada.",
+      "moreLoaded": "Há mais tarefas no servidor; os resultados carregados não representam o total.",
+      "loadMore": "Carregar mais"
+    },
+    "filters": {
+      "status": "Estado",
+      "priority": "Prioridade",
+      "assignee": "Responsável",
+      "team": "Equipe",
+      "case": "Processo",
+      "any": "Todos",
+      "apply": "Aplicar filtros"
+    },
+    "states": {
+      "pending": "Pendente",
+      "inProgress": "Em andamento",
+      "completed": "Concluída",
+      "cancelled": "Cancelada"
+    },
+    "priorities": {
+      "low": "Baixa",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "fields": {
+      "title": "Título",
+      "description": "Descrição",
+      "dueOn": "Vencimento",
+      "assignee": "Responsável",
+      "priority": "Prioridade",
+      "case": "Processo",
+      "noCase": "Sem processo",
+      "noDescription": "Sem descrição",
+      "caseLinked": "Abrir processo",
+      "searchCase": "Buscar processo",
+      "unavailableMember": "Membro indisponível"
+    },
+    "saved": {
+      "title": "Filtros salvos",
+      "name": "Nome do filtro",
+      "save": "Salvar filtro",
+      "remove": "Remover"
+    },
+    "move": {
+      "label": "Mover para"
+    },
+    "redistribution": {
+      "select": "Selecionar para redistribuição",
+      "assignee": "Novo responsável",
+      "submit": "Redistribuir selecionadas",
+      "result": "Resultado por tarefa",
+      "changed": "Responsável alterado"
+    },
+    "editor": {
+      "createTitle": "Nova tarefa",
+      "editTitle": "Editar tarefa",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "closedReadOnly": "Tarefas concluídas ou canceladas são somente leitura."
+    },
+    "validation": {
+      "required": "Campo obrigatório."
+    },
+    "detail": {
+      "loading": "Carregando tarefa…",
+      "edit": "Editar",
+      "status": "Estado",
+      "moveTo": "Mover para",
+      "blockedByPending": "Há itens pendentes. O servidor valida os bloqueios antes de concluir.",
+      "checklist": "Checklist",
+      "newChecklistItem": "Novo item",
+      "add": "Adicionar",
+      "comments": "Comentários",
+      "newComment": "Novo comentário",
+      "subtasks": "Subtarefas",
+      "addSubtask": "Adicionar subtarefa",
+      "subtasksUnavailable": "Não foi possível carregar todas as subtarefas. O estado da tarefa não deve ser considerado livre de pendências.",
+      "subtasksPartial": "Estas são apenas as subtarefas carregadas até agora.",
+      "loadMoreSubtasks": "Carregar mais subtarefas",
+      "commentBy": "Por {{name}}, em {{date}}"
+    },
+    "filterLimit": "É possível salvar até dez filtros.",
+    "errors": {
+      "forbidden": "Você não tem permissão para esta ação.",
+      "checklistNotFound": "O item do checklist não está mais disponível.",
+      "commentInvalid": "Informe um comentário de até 4000 caracteres.",
+      "unresolved": "Resolva os itens do checklist e as subtarefas antes de concluir.",
+      "assigneeUnavailable": "O responsável está inativo ou não tem acesso ao destino.",
+      "subtaskInvalid": "A tarefa principal precisa estar aberta e ser de primeiro nível; o processo da subtarefa deve ser o mesmo.",
+      "caseUnavailable": "O processo está indisponível ou encerrado.",
+      "notFound": "A tarefa ou processo não está mais disponível.",
+      "batchInvalid": "Selecione de 1 a 1000 tarefas e um responsável válido.",
+      "checklistInvalid": "Informe um título de até 300 caracteres e mantenha até 100 itens.",
+      "invalidTask": "Informe os campos obrigatórios da tarefa.",
+      "generic": "Não foi possível concluir a operação.",
+      "listInvalid": "Os filtros ou o cursor da lista são inválidos.",
+      "transitionInvalid": "Esta alteração não está disponível no estado atual."
+    },
+    "view": {
+      "label": "Visualização das tarefas",
+      "list": "Lista",
+      "board": "Kanban"
+    }
+  },
+  "control": {
+    "title": "Controladoria",
+    "dailyClose": "Fechamento de publicações",
+    "from": "Data inicial",
+    "untilExclusive": "Até (data exclusiva)",
+    "idleDays": "Dias sem andamento",
+    "apply": "Aplicar filtros",
+    "invalidWindow": "Informe um intervalo válido de até 366 dias.",
+    "filterName": "Nome do conjunto",
+    "saveFilter": "Salvar conjunto",
+    "removeFilter": "Remover conjunto {{name}}",
+    "loading": "Carregando controladoria…",
+    "asOf": "Dados atualizados em {{date}} (horário de São Paulo).",
+    "metricsTitle": "Indicadores",
+    "noSamples": "Sem amostras",
+    "samples": "Amostras: {{count}}",
+    "partial": "Exibindo {{shown}} de {{total}} itens.",
+    "none": "Nenhum item nesta seção.",
+    "errors": {
+      "invalidQuery": "Revise o intervalo de datas e os dias de inatividade.",
+      "access": "O acesso a estes dados ou preferências está indisponível para sua conta.",
+      "preferenceInvalid": "Revise o conjunto de filtros e tente salvar novamente.",
+      "generic": "Não foi possível concluir esta operação. Tente novamente.",
+      "filterLimit": "Você pode salvar até dez conjuntos de filtros."
+    },
+    "sections": {
+      "pendingPublications": "Publicações pendentes",
+      "staleCases": "Processos sem andamento",
+      "unassignedDeadlines": "Prazos sem responsável",
+      "deadlinesWithoutEvidence": "Prazos sem evidência"
+    },
+    "metrics": {
+      "averageTriageMinutes": "Tempo médio de triagem",
+      "retriagedPublications": "Publicações triadas novamente",
+      "lateRegisteredDeadlines": "Prazos cadastrados após a data interna"
+    },
+    "units": {
+      "count": "itens",
+      "minutes": "minutos",
+      "publications": "publicações"
+    }
+  },
+  "notificationSettings": {
+    "title": "Preferências de notificações",
+    "loading": "Carregando preferências…",
+    "save": "Salvar preferências pessoais",
+    "saveRules": "Salvar regras do escritório",
+    "digestTime": "Resumo diário às {{time}} no horário de São Paulo.",
+    "errors": {
+      "access": "O acesso a estas preferências está indisponível para sua conta.",
+      "invalid": "Revise as opções selecionadas e tente novamente.",
+      "generic": "Não foi possível concluir esta operação. Tente novamente."
+    },
+    "personal": {
+      "title": "Minhas preferências",
+      "digest": "Receber resumo diário por e-mail",
+      "sections": "Seções do resumo",
+      "alerts": "Alertas opcionais"
+    },
+    "organization": {
+      "title": "Regras obrigatórias do escritório"
+    },
+    "sections": {
+      "agenda": "Agenda",
+      "deadlines": "Prazos",
+      "publications": "Publicações"
+    },
+    "required": "{{kind}} é obrigatório e não pode ser silenciado.",
+    "locked": "{{kind}} é obrigatório pelo sistema.",
+    "mute": "Silenciar {{kind}}",
+    "kinds": {
+      "publications.received": "Publicação recebida",
+      "publications.capture_missing": "Falha na captura de publicações",
+      "scheduling.deadline_missed": "Prazo perdido",
+      "scheduling.calendar_changed": "Calendário alterado",
+      "scheduling.deadline_due_today": "Prazo fatal vence hoje"
+    }
+  },
+  "events": {
+    "createTitle": "Novo compromisso",
+    "editTitle": "Compromisso",
+    "backToAgenda": "Voltar à agenda",
+    "loading": "Carregando compromisso…",
+    "saving": "Salvando…",
+    "cancelling": "Cancelando…",
+    "errors": {
+      "access": "O acesso a este compromisso ou às opções está indisponível para sua conta.",
+      "notFound": "Este compromisso não está disponível.",
+      "closed": "O compromisso foi cancelado e não pode mais ser alterado.",
+      "reviewFields": "Revise os dados do compromisso e o responsável selecionado.",
+      "options": "Não foi possível carregar os responsáveis ativos.",
+      "cases": "Não foi possível pesquisar processos.",
+      "generic": "Não foi possível concluir esta operação. Tente novamente."
+    },
+    "required": "Campo obrigatório.",
+    "title": "Título",
+    "description": "Descrição",
+    "location": "Local",
+    "startsAt": "Início",
+    "endsAt": "Fim",
+    "assignee": "Responsável",
+    "timeZone": "Horários no fuso do escritório: {{zone}}.",
+    "endAfterStart": "O fim deve ser posterior ao início.",
+    "invalidLocalTime": "Este horário não existe no fuso do escritório. Escolha outro horário.",
+    "searchCase": "Pesquisar processo pelo número ou pasta",
+    "search": "Pesquisar",
+    "caseOptional": "Processo (opcional)",
+    "noCase": "Sem processo vinculado",
+    "linkedCase": "Processo vinculado",
+    "caseUnavailable": "Processo vinculado",
+    "save": "Salvar compromisso",
+    "status": {
+      "scheduled": "Agendado",
+      "cancelled": "Cancelado"
+    },
+    "cancelTitle": "Cancelar compromisso",
+    "cancelConfirmation": "Confirmo que quero cancelar este compromisso. O cancelamento não pode ser desfeito.",
+    "cancel": "Cancelar compromisso"
+  },
+  "schedule": {
+    "title": "Agenda",
+    "newEvent": "Novo compromisso",
+    "timeZone": "Horários de São Paulo. O período inclui a data inicial e exclui a final.",
+    "date": "Data da agenda",
+    "from": "Início do período",
+    "until": "Fim do período (exclusivo)",
+    "assignee": "Responsável",
+    "team": "Equipe",
+    "all": "Todos",
+    "includeClosed": "Incluir encerrados",
+    "apply": "Aplicar filtros",
+    "retry": "Tentar novamente",
+    "saved": "Filtros salvos",
+    "filterName": "Nome do filtro da agenda",
+    "saveFilter": "Salvar filtro da agenda",
+    "remove": "Remover",
+    "loading": "Carregando agenda…",
+    "navigation": "Navegação da agenda",
+    "previous": "Período anterior",
+    "today": "Hoje",
+    "next": "Próximo período",
+    "day": "Dia",
+    "week": "Semana",
+    "month": "Mês",
+    "partial": "A agenda exibe apenas os itens carregados. Carregue mais para completar este período.",
+    "more": "Carregar mais itens",
+    "items": "Itens do período",
+    "empty": "Nenhum item neste período e filtros.",
+    "select": "Selecionar",
+    "newAssignee": "Novo responsável",
+    "redistribute": "Redistribuir selecionados",
+    "results": "Resultado por item",
+    "changed": "Responsável alterado",
+    "notChanged": "Não alterado; confira o acesso e o estado atual do item.",
+    "kinds": {
+      "deadline": "Prazo",
+      "task": "Tarefa",
+      "event": "Compromisso",
+      "hearing": "Audiência"
+    },
+    "states": {
+      "pending": "Pendente",
+      "inProgress": "Em andamento",
+      "completed": "Concluído",
+      "cancelled": "Cancelado",
+      "missed": "Perdido",
+      "scheduled": "Agendado",
+      "held": "Realizada",
+      "rescheduled": "Redesignada"
+    },
+    "errors": {
+      "generic": "Não foi possível carregar ou atualizar a agenda. Confira seus filtros e acesso e tente novamente.",
+      "filterLimit": "Você pode salvar até dez filtros."
+    },
+    "unavailableMember": "Membro indisponível",
+    "internalDue": "Meta interna"
   }
 }

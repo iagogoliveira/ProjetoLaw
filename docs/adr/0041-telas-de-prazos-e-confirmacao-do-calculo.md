@@ -1,6 +1,6 @@
 # ADR 0041 — Telas de prazos e confirmação do cálculo
 
-- **Status:** Proposta (para revisão no PR #40)
+- **Status:** Aceita (PR #40 mergeado em 2026-10-22)
 - **Data:** 2026-10-21
 - **Etapa:** 7E (RF-23)
 
