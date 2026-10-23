@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-22.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), acrescenta agenda, tarefas, controladoria e preferências, ainda sem merge, conforme a seção 19. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-22.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F está disponível na main pelo [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), mergeado em 2026-10-22 com CI integral aprovado, e acrescenta agenda, tarefas, controladoria e preferências, conforme a seção 19. O checkout do 7G ainda não acrescenta sincronização externa. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -190,7 +190,7 @@ Ao apontar um problema, anote tela, ação, resultado esperado e mensagem recebi
 | Triagem, distribuição e fechamento diário da controladoria | Backend na main desde o 6D (#34); telas disponíveis na main desde o 6E (#35) |
 | Calculadora de prazos e calendário forense (feriados, recesso e dias sem expediente do escritório) | Backend na main desde o 7A ([#36](https://github.com/iagogoliveira/ProjetoLaw/pull/36)); tela da calculadora na main pelo PR #40 (7E); calendário do escritório pela API; revisão jurídica pendente |
 | Cadastro e ciclo completo dos prazos (andamento, cumprimento com protocolo, perda justificada e conferência) | Backend disponível na main pelo PR #37 (7B), mergeado em 2026-10-20; telas disponíveis na main pelo PR #40 (7E) |
-| Agenda unificada e tarefas completas | Backend disponível na main pelo PR #38; telas no checkout do 7F (seção 19), ainda sem merge; sincronização no 7G |
+| Agenda unificada e tarefas completas | Backend disponível na main pelo PR #38; telas na main pelo PR #41 (seção 19); sincronização no 7G |
 | Automações e fluxos configuráveis | Etapa 8 |
 | GED completo, assinatura, financeiro, IA jurídica e portal | Etapas posteriores |
 | Indicadores gerenciais completos na página inicial | Ainda não disponíveis; backend da controladoria disponível na main pelo PR #39; telas no 7F |
@@ -243,7 +243,7 @@ No sino de notificações, os alertas de **Prazo perdido** e **Calendário alter
 
 ## 16. Agenda e tarefas (7C, backend disponível na main)
 
-Na main desde o merge do PR #38, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas estão no checkout do 7F, ainda sem merge (seção 19); a implementação do 7C foi verificada em 2026-10-21 e foi mergeada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), com CI integral aprovado. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
+Na main desde o merge do PR #38, a API permite cadastrar tarefas e compromissos com ou sem processo. As telas estão na main pelo PR #41 (seção 19); a implementação do 7C foi verificada em 2026-10-21 e foi mergeada no [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), com CI integral aprovado. O [guia local](ambiente-local.md#12-agenda-e-tarefas-7c-operação-técnica) descreve os endpoints para a conferência técnica.
 
 A tarefa tem responsável, vencimento, prioridade, checklist, comentários e subtarefas completas de um nível. Para concluir, todos os itens do checklist precisam estar marcados e as subtarefas concluídas ou canceladas. Tarefas concluídas/canceladas podem ser reabertas como pendentes. Reabra primeiro a principal para alterar uma subtarefa de principal fechada. Cancelar a principal preserva o estado das subtarefas. Anexos dependem do GED da Etapa 9.
 
@@ -251,7 +251,7 @@ A agenda reúne prazos (data fatal e informação da data interna), tarefas (ven
 
 ## 17. Controladoria e notificações (7D, backend disponível na main)
 
-O backend do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências estão no checkout do 7F, ainda sem merge (seção 19). A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeada pelo usuário em 2026-10-21, com CI integral aprovado. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
+O backend do 7D acrescenta consultas e configurações pela API; as telas do painel e de preferências estão na main pelo PR #41 (seção 19). A verificação integral foi aprovada em 2026-10-21; implementação publicada no [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeada pelo usuário em 2026-10-21, com CI integral aprovado. Consulte o [guia técnico local](ambiente-local.md#13-controladoria-e-notificações-7d-operação-técnica).
 
 O relatório reúne publicações não tratadas, prazos abertos sem responsável ativo, prazos abertos vencidos sem evidência e cumpridos legados sem protocolo. Processos sem andamento consideram apenas os ativos, pelo último andamento processual ou pelo cadastro quando não houver andamento; o padrão é de 30 dias. Contagens e indicadores respeitam as mesmas permissões, alcance e sigilo dos itens.
 
@@ -291,9 +291,9 @@ Se houver aviso de alteração do calendário, confira o prazo confirmado; suas 
 
 Escolha **Criar prazo**, selecione o processo e use a calculadora. Aplique a sugestão, confira responsável e datas e confirme a decisão da triagem. As datas continuam editáveis; mudar uma delas retira a confirmação. Depois de triar, abra o prazo pelo painel ou pela aba do processo e registre o cumprimento com evidência. O fechamento diário conserva as regras da seção de publicações.
 
-## 19. Agenda, tarefas, controladoria e notificações (7F, checkout de desenvolvimento)
+## 19. Agenda, tarefas, controladoria e notificações (7F, disponível na main)
 
-Estas telas estão no branch codex/etapa-7f-agenda-tarefas-controladoria, publicado no [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), ainda sem merge. Os dados e as ações respeitam seu perfil e o alcance autorizado no escritório. As telas do 7E já estão disponíveis na main pelo PR #40.
+Estas telas estão disponíveis na main pelo [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), mergeado em 2026-10-22. Os dados e as ações respeitam seu perfil e o alcance autorizado no escritório. As telas do 7E já estão disponíveis na main pelo PR #40.
 
 ### Consultar a agenda e cadastrar compromissos
 

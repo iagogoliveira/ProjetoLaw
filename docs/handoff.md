@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-22 — Codex (7F mergeado; branch do 7G preparado)
+
+**Pedido:** usuário confirmou “MERGEADO”. PR #41 conferido como MERGED em 2026-10-22 às 22:18 (America/Sao_Paulo), merge 2e5484d73edfd1c9b2a8fc730f72361d4d4ce9bc, head 1f36a01. Todos os checks aprovados no run 39876424317: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. A correção de HTML dos indicadores passou no CI Linux.
+
+**Estado/verificação:** main atualizada por fast-forward; branch codex/etapa-7g-sincronizacao-agenda criado dessa base. ADR 0042 aceita; progress, AGENTS/CLAUDE e ambos os manuais atualizados para o merge/checkout. Somente documentação nesta arrumação, com commit/push no branch novo conforme ciclo autorizado. Diff, UTF-8 e igualdade dos agentes conferidos; preservados os gates locais de 1.166 .NET, cobertura mínima de 80%, 186 Vitest e duas rodadas de 21 Playwright, complementados pelo CI integral aprovado. Nenhuma aplicação iniciada; ambiente permanece fechado, volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7G ainda não iniciado. Ler plano aprovado e requisitos antes de detalhar implementação: ICalendarSyncProvider com fake, agenda bidirecional, prazos apenas de saída; adaptadores reais dependem do registro das aplicações OAuth. Fornecedor real de publicações e revisão jurídica do 7A continuam pendentes. Não declarar a Etapa 6 integralmente concluída nem o critério jurídico atendido. Quem faz o merge é o usuário.
+
+---
+
 ## 2026-10-22 — Codex (7F: correção de acessibilidade no PR #41)
 
 **Pedido/diagnóstico:** usuário informou “teste falhou”. CI run 39861916529, head 7cd209e, job AppHost/E2E 120123198148: falha definition-list nos indicadores da controladoria, repetida nas três tentativas. Contagem Amostras estava em small fora do dd; backend, frontend e demais checks aprovados.
