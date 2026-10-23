@@ -1911,5 +1911,76 @@
     },
     "unavailableMember": "Member unavailable",
     "internalDue": "Internal target"
+  },
+  "calendarSync": {
+    "title": "Calendar synchronization",
+    "simulation": "Local simulation: no data is sent to Google or Microsoft",
+    "unavailable": "Real providers are waiting for OAuth configuration. Connections and synchronization are disabled.",
+    "loading": "Loading…",
+    "refresh": "Refresh",
+    "providers": {
+      "google": "Google Calendar",
+      "microsoft365": "Microsoft 365"
+    },
+    "connections": {
+      "title": "My connections",
+      "active": "Active",
+      "inactive": "Disconnected",
+      "lastSync": "Last synchronization: {{date}}",
+      "neverSynced": "Not synchronized yet",
+      "syncError": "The last synchronization encountered an error.",
+      "editPeriod": "Edit period",
+      "empty": "No calendar connections have been set up."
+    },
+    "form": {
+      "title": "Connect or update period",
+      "provider": "Provider",
+      "from": "Start",
+      "until": "Exclusive end",
+      "window": "The period includes the start date and excludes the end date; choose 1 to 366 days.",
+      "invalidWindow": "Enter valid dates and an interval from 1 to 366 days.",
+      "save": "Save connection and period"
+    },
+    "actions": {
+      "title": "Connection actions",
+      "sync": "Sync now",
+      "queued": "Synchronization queued. Refresh to check the latest state.",
+      "disconnect": "Disconnect",
+      "disconnectConfirmation": "I confirm disconnection. Existing calendar items will not be deleted."
+    },
+    "pending": {
+      "title": "Synchronization items needing review",
+      "reasons": {
+        "conflict": "Local and external changes conflict.",
+        "externalDeletion": "The item was cancelled in the external calendar.",
+        "unsupported": "External content cannot be applied automatically.",
+        "generic": "A change needs your decision."
+      },
+      "localTime": "LexFlow time",
+      "externalTime": "External time",
+      "externalCancellation": "Cancelled externally",
+      "yes": "Yes",
+      "no": "No",
+      "openLocal": "Open item in LexFlow",
+      "decide": "Choose an action",
+      "confirmDecision": "I confirm this decision for this item.",
+      "keepLocal": "Keep LexFlow",
+      "acceptExternal": "Apply external changes",
+      "confirmCancellation": "Confirm cancellation in LexFlow",
+      "ignoreUnsupported": "Ignore unsupported item",
+      "loadMore": "Load more items",
+      "retry": "Retry loading items",
+      "empty": "No pending items for this connection.",
+      "stale": "The item changed after it was loaded. Refresh and sync before deciding again."
+    },
+    "items": {
+      "event": "Event",
+      "deadline": "Deadline"
+    },
+    "errors": {
+      "access": "You do not have permission to view this page.",
+      "unavailable": "Real providers are waiting for OAuth.",
+      "generic": "The operation could not be completed. Refresh and try again."
+    }
   }
 }

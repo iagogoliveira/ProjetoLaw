@@ -10,6 +10,42 @@ Como funciona:
 
 ---
 
+## 2026-10-23 — Codex (7G publicado no PR #42)
+
+**Pedido/estado:** usuário pediu “crie o pr”. Branch codex/etapa-7g-sincronizacao-agenda enviado; implementação 964426b publicada no [PR #42](https://github.com/iagogoliveira/ProjetoLaw/pull/42), base main. PR aberto, sem merge; CI remoto em início de execução, sem declarar aprovação. ADR 0043 continua proposta. Este registro e as atualizações de disponibilidade seguem em commit documental no mesmo branch.
+
+**Verificação:** nenhuma mudança de runtime nesta publicação; mantidos 1.215 testes .NET/20 projetos, gate de 80%, builds/format, dependências, seis EF, OpenAPI/oasdiff aditivo, lint, 196 Vitest e duas rodadas de 22 Playwright com acessibilidade. Diff documental, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Ambos os manuais revisados e atualizados para indicar o PR aberto, sem novos passos de uso ou inicialização. Aplicação permanece fechada, volumes/cadastros preservados; .codex/ do usuário fora dos commits.
+
+**Próximo:** conferir checks/revisão e corrigir falhas se surgirem; merge somente pelo usuário. OAuth/adaptadores reais, fornecedor real de publicações e revisão jurídica do 7A continuam pendentes. Não declarar Etapa 6 integralmente concluída nem critério jurídico atendido. Após merge, seguir o ciclo pós-merge registrado nos agentes.
+
+---
+
+## 2026-10-23 — Codex (7G implementado, verificado e commitado localmente)
+
+**Pedido/decisões:** continuidade autorizada, plano 7A–7G preservado. Conflitos ficam para decisão humana; exclusão externa exige confirmação antes de cancelar localmente; saída somente tipo, datas/horários e link autenticado, inclusive em sigilosos. Google/Graph reais continuam pendentes do registro OAuth.
+
+**Estado:** branch codex/etapa-7g-sincronizacao-agenda, base 2e5484d, arrumação 93c9b9c. Implementação e documentação no commit local desta entrada, sem push ou PR. Conexões pessoais, links, snapshots, jobs, fake persistido API/Worker e fake independente em memória, rota /agenda/sincronizacao, SDK gerado e ADR 0043 proposta. Migration 20261023031154_CalendarSynchronization com três tabelas/RLS aplicada ao banco local: não editar. Nenhum pacote novo. Agenda bidirecional e prazos apenas de saída. UI identifica simulação; recorrência/dia inteiro incompatíveis ficam pendentes. Limites simulados documentados nos dois manuais/ADR/progress.
+
+**Verificação integral:** 1.215 testes .NET em 20 projetos, builds Release/Debug sem avisos, format verify, gate 80% (Scheduling Domain 98,4%, Application 96,2%), pacotes sem vulnerabilidades, seis modelos EF sem mudanças e OpenAPI/oasdiff aditivo aprovados. API final 313/313, Scheduling integration 13/13 e unit 182/182, segurança 12/12, AppHost 14/14. Frontend: lint, 196 Vitest/38 arquivos, build Angular, audit zero e duas rodadas completas consecutivas de 22 Playwright com acessibilidade; uma preparação opcional de carga ignorada por rodada. Componente revalidado 2/2 após proteção adicional de contexto. Logs TestResults/7g-final-validation e TestResults/7g-final-validation-*.log; gate usa somente 20 relatórios finais em pasta limpa. Aviso inicial Angular 514,50 kB; limite preservado. TEMP/TMP do Vitest usa pasta local do 7E para contornar ENOENT; não remover isolate=true.
+
+**Revisão/correções:** domínio e API críticos em Sol; Luna em frontend, fixtures, API básica e gates, com revisão do orquestrador. 22 cenários avançados incluem sigilo, perda de acesso, conflitos, exclusão, stale, paginação, redistribuição e recuperação idempotente. Corrigidos cancelamento local concorrente, recuperação de prazo sem esperar novo ciclo, comparação JSONB e item não suportado apagado antes de ser ignorado. CanAcceptExternal impede oferecer aplicação quando o estado/acesso não permite. O job confere vínculo ativo e IPermissionChecker central, sem presumir que permissões universais sejam grants de papel. Fixtures corrigidas para representar chaves, versões e horários válidos, sem relaxar asserções.
+
+**Ambiente/documentação:** aplicação e sete contêineres próprios encerrados; docker ps vazio e portas 4200/5238/8025 fechadas; volumes/cadastros preservados. 18 flags peer incidentais do npm revertidas após conferência. .codex/ pertence ao usuário e ficou fora do commit. Ambos os manuais, progress e AGENTS/CLAUDE atualizados; agentes idênticos.
+
+**Próximo:** push e PR do 7G somente quando o usuário pedir; não iniciar a próxima etapa antes de fechar este PR. Merge sempre pelo usuário. Adaptadores reais exigem OAuth, revisão da execução de rede fora de transações longas, credenciais protegidas e contratos oficiais. Fornecedor real de publicações e revisão jurídica do 7A seguem pendentes; não declarar Etapa 6 integralmente concluída nem o critério jurídico atendido.
+
+---
+
+## 2026-10-22 — Codex (7F mergeado; branch do 7G preparado)
+
+**Pedido:** usuário confirmou “MERGEADO”. PR #41 conferido como MERGED em 2026-10-22 às 22:18 (America/Sao_Paulo), merge 2e5484d73edfd1c9b2a8fc730f72361d4d4ce9bc, head 1f36a01. Todos os checks aprovados no run 39876424317: backend, frontend, OpenAPI, CodeQL, Gitleaks, Trivy e AppHost/E2E. A correção de HTML dos indicadores passou no CI Linux.
+
+**Estado/verificação:** main atualizada por fast-forward; branch codex/etapa-7g-sincronizacao-agenda criado dessa base. ADR 0042 aceita; progress, AGENTS/CLAUDE e ambos os manuais atualizados para o merge/checkout. Somente documentação nesta arrumação, com commit/push no branch novo conforme ciclo autorizado. Diff, UTF-8 e igualdade dos agentes conferidos; preservados os gates locais de 1.166 .NET, cobertura mínima de 80%, 186 Vitest e duas rodadas de 21 Playwright, complementados pelo CI integral aprovado. Nenhuma aplicação iniciada; ambiente permanece fechado, volumes/cadastros e .codex/ local preservados.
+
+**Próximo:** 7G ainda não iniciado. Ler plano aprovado e requisitos antes de detalhar implementação: ICalendarSyncProvider com fake, agenda bidirecional, prazos apenas de saída; adaptadores reais dependem do registro das aplicações OAuth. Fornecedor real de publicações e revisão jurídica do 7A continuam pendentes. Não declarar a Etapa 6 integralmente concluída nem o critério jurídico atendido. Quem faz o merge é o usuário.
+
+---
+
 ## 2026-10-22 — Codex (7F: correção de acessibilidade no PR #41)
 
 **Pedido/diagnóstico:** usuário informou “teste falhou”. CI run 39861916529, head 7cd209e, job AppHost/E2E 120123198148: falha definition-list nos indicadores da controladoria, repetida nas três tentativas. Contagem Amostras estava em small fora do dd; backend, frontend e demais checks aprovados.

@@ -37,5 +37,6 @@ public sealed class SchedulingModule : IModule
         endpoints.MapTasks();
         endpoints.MapEvents();
         endpoints.MapSchedulingOptions();
+        endpoints.MapCalendarSync();
     }
 }

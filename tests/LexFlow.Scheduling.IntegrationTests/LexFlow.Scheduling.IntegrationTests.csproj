@@ -6,6 +6,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Fixtures/calendar-sync-*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Scheduling\LexFlow.Scheduling.Infrastructure\LexFlow.Scheduling.Infrastructure.csproj" />
     <!-- O Platform cria as extensões e a trilha audit.audit_logs: as migrations dele vêm antes. -->
     <ProjectReference Include="..\..\src\Modules\Platform\LexFlow.Platform.Infrastructure\LexFlow.Platform.Infrastructure.csproj" />

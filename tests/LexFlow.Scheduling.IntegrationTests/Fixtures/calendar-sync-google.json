@@ -1,0 +1,28 @@
+[
+  {
+    "Id": "google-event-a",
+    "Version": "7",
+    "Title": "Consulta externa",
+    "Description": "Texto pessoal mantido pelo provedor",
+    "Location": "Sala 4",
+    "StartsAt": "2026-10-20T13:00:00Z",
+    "EndsAt": "2026-10-20T14:00:00Z",
+    "Day": null,
+    "IsCancelled": false,
+    "IsRecurring": false,
+    "ClientKey": "client-google-a"
+  },
+  {
+    "Id": "google-event-b",
+    "Version": "2",
+    "Title": "Evento cancelado",
+    "Description": null,
+    "Location": null,
+    "StartsAt": "2026-10-21T13:00:00Z",
+    "EndsAt": "2026-10-21T14:00:00Z",
+    "Day": null,
+    "IsCancelled": true,
+    "IsRecurring": false,
+    "ClientKey": null
+  }
+]

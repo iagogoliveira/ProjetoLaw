@@ -284,6 +284,228 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                     b.ToTable("calendar_events", "scheduling");
                 });
 
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.CalendarSync.CalendarConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("From")
+                        .HasColumnType("date")
+                        .HasColumnName("from");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LastErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_error_code");
+
+                    b.Property<DateTimeOffset?>("LastSyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_synced_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider");
+
+                    b.Property<DateOnly>("Until")
+                        .HasColumnType("date")
+                        .HasColumnName("until");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_connections");
+
+                    b.HasIndex("OrganizationId", "UserId", "Provider")
+                        .IsUnique()
+                        .HasDatabaseName("ix_calendar_connections_organization_id_user_id_provider");
+
+                    b.ToTable("calendar_connections", "scheduling");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.CalendarSync.CalendarSyncLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ConnectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("connection_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid?>("LegalCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("legal_case_id");
+
+                    b.Property<string>("LocalFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("local_fingerprint");
+
+                    b.Property<Guid?>("LocalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("local_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PendingLocalFingerprint")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("pending_local_fingerprint");
+
+                    b.Property<string>("PendingReason")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("pending_reason");
+
+                    b.Property<string>("PendingSnapshot")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("pending_snapshot");
+
+                    b.Property<string>("RemoteId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("remote_id");
+
+                    b.Property<string>("RemoteSnapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("remote_snapshot");
+
+                    b.Property<string>("RemoteVersion")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("remote_version");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_sync_links");
+
+                    b.HasIndex("ConnectionId")
+                        .HasDatabaseName("ix_calendar_sync_links_connection_id");
+
+                    b.HasIndex("OrganizationId", "ConnectionId", "RemoteId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_calendar_sync_links_organization_id_connection_id_remote_id");
+
+                    b.HasIndex("OrganizationId", "ConnectionId", "Kind", "LocalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_calendar_sync_links_organization_id_connection_id_kind_loca");
+
+                    b.ToTable("calendar_sync_links", "scheduling");
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.CalendarSync.SimulatedCalendarItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ClientKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("client_key");
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("link");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("payload");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("RemoteId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("remote_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_simulated_calendar_items");
+
+                    b.HasIndex("OrganizationId", "UserId", "Provider", "ClientKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_simulated_calendar_items_organization_id_user_id_provider_c");
+
+                    b.HasIndex("OrganizationId", "UserId", "Provider", "RemoteId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_simulated_calendar_items_organization_id_user_id_provider_r");
+
+                    b.ToTable("simulated_calendar_items", "scheduling");
+                });
+
             modelBuilder.Entity("LexFlow.Scheduling.Domain.Deadline", b =>
                 {
                     b.Property<Guid>("Id")
@@ -819,6 +1041,16 @@ namespace LexFlow.Scheduling.Infrastructure.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("LexFlow.Scheduling.Domain.CalendarSync.CalendarSyncLink", b =>
+                {
+                    b.HasOne("LexFlow.Scheduling.Domain.CalendarSync.CalendarConnection", null)
+                        .WithMany()
+                        .HasForeignKey("ConnectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_calendar_sync_links_calendar_connections_connection_id");
                 });
 
             modelBuilder.Entity("LexFlow.Scheduling.Domain.Deadline", b =>

@@ -60,7 +60,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
     }
 
     /// <summary>O recurso da Org A que a Org B tenta alcançar pela rota, e o corpo válido da requisição.</summary>
-    private sealed record CrossTenantCase(Guid Id, object? Body = null);
+    private sealed record CrossTenantCase(Guid Id, object? Body = null, string? RouteOverride = null);
 
     /// <summary>Recurso de outra organização (ou de outro usuário) para cada rota com parâmetro.</summary>
     private Dictionary<string, Func<SeededMember, Task<CrossTenantCase>>> CrossTenantCases => WithSchedulingRoutes(WithDeadlineRoutes(WithCaseWorkflowRoutes(WithPublicationsRoutes(WithCaseRoutes(WithCommercialCases(new(StringComparer.Ordinal)
@@ -129,6 +129,10 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         cases.Add("GET /api/v1/schedule/events/{id:guid}", async owner => new CrossTenantCase(await EventOfAsync(owner)));
         cases.Add("PUT /api/v1/schedule/events/{id:guid}", async owner => new CrossTenantCase(await EventOfAsync(owner), EventBody(owner)));
         cases.Add("POST /api/v1/schedule/events/{id:guid}/cancel", async owner => new CrossTenantCase(await EventOfAsync(owner)));
+        cases.Add("POST /api/v1/me/calendar-connections/{id:guid}/disconnect", async owner => new CrossTenantCase(await CalendarConnectionOfAsync(owner)));
+        cases.Add("POST /api/v1/me/calendar-connections/{id:guid}/sync", async owner => new CrossTenantCase(await CalendarConnectionOfAsync(owner)));
+        cases.Add("GET /api/v1/me/calendar-connections/{id:guid}/pending", async owner => new CrossTenantCase(await CalendarConnectionOfAsync(owner)));
+        cases.Add("POST /api/v1/me/calendar-connections/{id:guid}/pending/{pendingId:guid}/resolve", CalendarPendingCaseAsync);
         return cases;
     }
 
@@ -581,7 +585,7 @@ public sealed partial class EndpointSecurityTests(DependenciesFixture dependenci
         foreach (var endpoint in Endpoints().Where(e => !e.Public && e.HasRouteParameter))
         {
             var target = await cases[$"{endpoint.Method} {endpoint.Route}"](owner);
-            using var response = await SendAsync(endpoint, Fill(endpoint.Route, target.Id), intruder, target.Body);
+            using var response = await SendAsync(endpoint, target.RouteOverride ?? Fill(endpoint.Route, target.Id), intruder, target.Body);
             if (response.StatusCode != HttpStatusCode.NotFound)
             {
                 failures.Add($"{endpoint.Method} {endpoint.Route} → {(int)response.StatusCode} {await response.Content.ReadAsStringAsync(Ct)}");

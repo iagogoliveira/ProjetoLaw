@@ -3,6 +3,7 @@ using LexFlow.Infrastructure.Common.Persistence;
 using LexFlow.Scheduling.Application;
 using LexFlow.Scheduling.Domain;
 using LexFlow.Scheduling.Domain.Calendar;
+using LexFlow.Scheduling.Domain.CalendarSync;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,6 +23,9 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     public DbSet<CalendarEvent> Events => Set<CalendarEvent>();
     public DbSet<TaskChecklistItem> TaskChecklistItems => Set<TaskChecklistItem>();
     public DbSet<TaskComment> TaskComments => Set<TaskComment>();
+    public DbSet<CalendarConnection> CalendarConnections => Set<CalendarConnection>();
+    public DbSet<CalendarSyncLink> CalendarSyncLinks => Set<CalendarSyncLink>();
+    public DbSet<SimulatedCalendarItem> SimulatedCalendarItems => Set<SimulatedCalendarItem>();
 
     public async Task LockDeadlinesAsync(CancellationToken cancellationToken)
     {

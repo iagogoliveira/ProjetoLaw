@@ -41,6 +41,7 @@ builder.Services.AddJobScheduling(builder.Configuration, runServer: true);
 builder.Services.AddPlatformRecurringJobs();
 builder.Services.AddIdentityRecurringJobs();
 builder.Services.AddPublicationsRecurringJobs();
+builder.Services.AddSchedulingRecurringJobs();
 
 using var host = builder.Build();
 await host.RunAsync();

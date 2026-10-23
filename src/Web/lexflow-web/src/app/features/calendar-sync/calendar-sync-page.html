@@ -1,0 +1,228 @@
+<section class="page" *transloco="let t">
+  <h1>{{ t('calendarSync.title') }}</h1>
+  @if (!access.can('identity.profile.read')) {
+    <p role="alert">{{ t('calendarSync.errors.access') }}</p>
+  } @else {
+    @if (store.isSimulation()) {
+      <p role="status">{{ t('calendarSync.simulation') }}</p>
+    }
+    @if (!store.isAvailable()) {
+      <p role="status">{{ t('calendarSync.unavailable') }}</p>
+    }
+    @if (store.error()) {
+      <p role="alert">{{ t(errorTranslation(store.error()!)) }}</p>
+    }
+    <button
+      mat-button
+      type="button"
+      (click)="refresh()"
+      [disabled]="store.loading() || store.busy()"
+    >
+      {{ t('calendarSync.refresh') }}
+    </button>
+    @if (store.loading()) {
+      <p aria-live="polite">{{ t('calendarSync.loading') }}</p>
+    }
+    <h2>{{ t('calendarSync.connections.title') }}</h2>
+    @if (store.connections().length) {
+      <ul>
+        @for (connection of store.connections(); track connection.id) {
+          <li>
+            <button
+              mat-button
+              type="button"
+              (click)="selectConnection(connection.id)"
+              [attr.aria-pressed]="store.selectedId() === connection.id"
+            >
+              {{ t('calendarSync.providers.' + connection.provider) }} · {{ connection.from }} –
+              {{ connection.until }} ·
+              {{
+                t(
+                  connection.isActive
+                    ? 'calendarSync.connections.active'
+                    : 'calendarSync.connections.inactive'
+                )
+              }}
+            </button>
+            <span>{{
+              connection.lastSyncedAt
+                ? t('calendarSync.connections.lastSync', {
+                    date: formatInstant(connection.lastSyncedAt),
+                  })
+                : t('calendarSync.connections.neverSynced')
+            }}</span>
+            @if (connection.lastErrorCode) {
+              <span role="status">{{ t('calendarSync.connections.syncError') }}</span>
+            }
+            @if (canManage()) {
+              <button mat-button type="button" (click)="editPeriod(connection.id)">
+                {{ t('calendarSync.connections.editPeriod') }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    } @else if (!store.loading()) {
+      <p>{{ t('calendarSync.connections.empty') }}</p>
+    }
+    @if (canManage()) {
+      <form [formGroup]="form" (ngSubmit)="savePeriod()">
+        <fieldset [disabled]="store.busy() || !store.isAvailable()">
+          <h2>{{ t('calendarSync.form.title') }}</h2>
+          <mat-form-field
+            ><mat-label>{{ t('calendarSync.form.provider') }}</mat-label
+            ><mat-select formControlName="provider"
+              ><mat-option value="google">{{ t('calendarSync.providers.google') }}</mat-option
+              ><mat-option value="microsoft365">{{
+                t('calendarSync.providers.microsoft365')
+              }}</mat-option></mat-select
+            ></mat-form-field
+          >
+          <mat-form-field
+            ><mat-label>{{ t('calendarSync.form.from') }}</mat-label
+            ><input matInput type="date" formControlName="from"
+          /></mat-form-field>
+          <mat-form-field
+            ><mat-label>{{ t('calendarSync.form.until') }}</mat-label
+            ><input matInput type="date" formControlName="until"
+          /></mat-form-field>
+          <p>{{ t('calendarSync.form.window') }}</p>
+          @if (dateWindowInvalid()) {
+            <p role="alert">{{ t('calendarSync.form.invalidWindow') }}</p>
+          }
+        </fieldset>
+        <button mat-flat-button type="submit" [disabled]="store.busy() || !store.isAvailable()">
+          {{ t('calendarSync.form.save') }}
+        </button>
+      </form>
+    }
+    @if (store.selectedId(); as selectedId) {
+      @if (canManage()) {
+        <section>
+          <h2>{{ t('calendarSync.actions.title') }}</h2>
+          <button
+            mat-flat-button
+            type="button"
+            (click)="queueSync()"
+            [disabled]="store.busy() || !store.isAvailable() || !selectedConnection()?.isActive"
+          >
+            {{ t('calendarSync.actions.sync') }}
+          </button>
+          @if (store.queued()) {
+            <p role="status">{{ t('calendarSync.actions.queued') }}</p>
+          }
+          <mat-checkbox [formControl]="disconnectConfirmation">{{
+            t('calendarSync.actions.disconnectConfirmation')
+          }}</mat-checkbox>
+          <button
+            mat-button
+            type="button"
+            (click)="disconnect()"
+            [disabled]="store.busy() || !disconnectConfirmation.value"
+          >
+            {{ t('calendarSync.actions.disconnect') }}
+          </button>
+        </section>
+      }
+      <section>
+        <h2>{{ t('calendarSync.pending.title') }}</h2>
+        @if (store.changedAgain()) {
+          <p role="status">{{ t('calendarSync.pending.stale') }}</p>
+        }
+        @if (store.pendingError()) {
+          <p role="alert">{{ t(errorTranslation(store.pendingError()!)) }}</p>
+        }
+        @if (store.pendingLoading() && !store.pending().length) {
+          <p aria-live="polite">{{ t('calendarSync.loading') }}</p>
+        }
+        @for (item of store.pending(); track item.id) {
+          <article>
+            <h3>{{ item.localTitle || item.externalTitle }}</h3>
+            <p>{{ t(kindTranslation(item.kind)) }} · {{ t(reasonTranslation(item.reason)) }}</p>
+            <dl>
+              <div>
+                <dt>{{ t('calendarSync.pending.localTime') }}</dt>
+                <dd>{{ localDate(item.localStartsAt) }} – {{ localDate(item.localEndsAt) }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('calendarSync.pending.externalTime') }}</dt>
+                <dd>
+                  {{ localDate(item.externalStartsAt) }} – {{ localDate(item.externalEndsAt) }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ t('calendarSync.pending.externalCancellation') }}</dt>
+                <dd>
+                  {{
+                    t(
+                      item.externalCancelled
+                        ? 'calendarSync.pending.yes'
+                        : 'calendarSync.pending.no'
+                    )
+                  }}
+                </dd>
+              </div>
+            </dl>
+            @if (localLink(item); as link) {
+              <a [routerLink]="link">{{ t('calendarSync.pending.openLocal') }}</a>
+            }
+            @if (canManage()) {
+              <button
+                mat-button
+                type="button"
+                (click)="setResolving(item.id)"
+                [disabled]="store.busy()"
+              >
+                {{ t('calendarSync.pending.decide') }}
+              </button>
+              @if (resolvingId() === item.id) {
+                <mat-checkbox
+                  [checked]="resolutionConfirmation.value"
+                  (change)="resolutionConfirmation.setValue($event.checked)"
+                  >{{ t('calendarSync.pending.confirmDecision') }}</mat-checkbox
+                >
+                <button
+                  mat-button
+                  type="button"
+                  (click)="resolve(item.id, 'keepLocal')"
+                  [disabled]="store.busy() || !resolutionConfirmation.value"
+                >
+                  {{ t(pendingActionLabel(item, 'keep')) }}
+                </button>
+                @if (canAccept(item)) {
+                  <button
+                    mat-button
+                    type="button"
+                    (click)="resolve(item.id, 'acceptExternal')"
+                    [disabled]="store.busy() || !resolutionConfirmation.value"
+                  >
+                    {{ t(pendingActionLabel(item, 'accept')) }}
+                  </button>
+                }
+              }
+            }
+          </article>
+        }
+        @if (store.pendingCursor()) {
+          <button
+            mat-button
+            type="button"
+            (click)="store.loadMorePending()"
+            [disabled]="store.pendingLoading()"
+          >
+            {{
+              t(
+                store.pendingError()
+                  ? 'calendarSync.pending.retry'
+                  : 'calendarSync.pending.loadMore'
+              )
+            }}
+          </button>
+        }
+        @if (!store.pending().length && !store.pendingLoading() && !store.pendingError()) {
+          <p>{{ t('calendarSync.pending.empty') }}</p>
+        }
+      </section>
+    }
+  }
+</section>

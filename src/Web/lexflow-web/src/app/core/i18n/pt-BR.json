@@ -1911,5 +1911,76 @@
     },
     "unavailableMember": "Membro indisponível",
     "internalDue": "Meta interna"
+  },
+  "calendarSync": {
+    "title": "Sincronização de calendários",
+    "simulation": "Simulação local: nenhum dado é enviado ao Google ou Microsoft",
+    "unavailable": "Os provedores reais aguardam a configuração OAuth. Conexões e sincronização estão desabilitadas.",
+    "loading": "Carregando…",
+    "refresh": "Atualizar",
+    "providers": {
+      "google": "Google Calendar",
+      "microsoft365": "Microsoft 365"
+    },
+    "connections": {
+      "title": "Minhas conexões",
+      "active": "Ativa",
+      "inactive": "Desconectada",
+      "lastSync": "Última sincronização: {{date}}",
+      "neverSynced": "Ainda não sincronizada",
+      "syncError": "A última sincronização encontrou um erro.",
+      "editPeriod": "Editar período",
+      "empty": "Nenhuma conexão de calendário cadastrada."
+    },
+    "form": {
+      "title": "Conectar ou atualizar período",
+      "provider": "Provedor",
+      "from": "Início",
+      "until": "Fim exclusivo",
+      "window": "O período inclui a data inicial e exclui a data final; escolha entre 1 e 366 dias.",
+      "invalidWindow": "Informe datas válidas e um intervalo entre 1 e 366 dias.",
+      "save": "Salvar conexão e período"
+    },
+    "actions": {
+      "title": "Ações da conexão",
+      "sync": "Sincronizar agora",
+      "queued": "Sincronização enfileirada. Atualize para consultar o estado mais recente.",
+      "disconnect": "Desconectar",
+      "disconnectConfirmation": "Confirmo a desconexão. Os itens de calendário existentes não serão apagados."
+    },
+    "pending": {
+      "title": "Pendências de sincronização",
+      "reasons": {
+        "conflict": "Alterações locais e externas entraram em conflito.",
+        "externalDeletion": "O item foi cancelado no calendário externo.",
+        "unsupported": "O conteúdo externo não pode ser aplicado automaticamente.",
+        "generic": "Há uma alteração que precisa de decisão."
+      },
+      "localTime": "Horário no LexFlow",
+      "externalTime": "Horário externo",
+      "externalCancellation": "Cancelado externamente",
+      "yes": "Sim",
+      "no": "Não",
+      "openLocal": "Abrir item no LexFlow",
+      "decide": "Escolher ação",
+      "confirmDecision": "Confirmo esta decisão para este item.",
+      "keepLocal": "Manter LexFlow",
+      "acceptExternal": "Aplicar alterações externas",
+      "confirmCancellation": "Confirmar cancelamento no LexFlow",
+      "ignoreUnsupported": "Ignorar item não suportado",
+      "loadMore": "Carregar mais pendências",
+      "retry": "Tentar carregar pendências novamente",
+      "empty": "Nenhuma pendência para esta conexão.",
+      "stale": "O item mudou desde a consulta. Atualize e sincronize antes de decidir novamente."
+    },
+    "items": {
+      "event": "Compromisso",
+      "deadline": "Prazo"
+    },
+    "errors": {
+      "access": "Você não tem permissão para consultar esta tela.",
+      "unavailable": "Os provedores reais aguardam OAuth.",
+      "generic": "Não foi possível concluir a operação. Atualize e tente novamente."
+    }
   }
 }
