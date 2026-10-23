@@ -82,8 +82,9 @@
                   ? ''
                   : t(unitTranslation(metric.unit))
               }}
+              <br />
+              <small>{{ t('control.samples', { count: metric.sampleSize }) }}</small>
             </dd>
-            <small>{{ t('control.samples', { count: metric.sampleSize }) }}</small>
           </div>
         }
       }

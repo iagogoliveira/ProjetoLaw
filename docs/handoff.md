@@ -10,6 +10,18 @@ Como funciona:
 
 ---
 
+## 2026-10-22 — Codex (7F: correção de acessibilidade no PR #41)
+
+**Pedido/diagnóstico:** usuário informou “teste falhou”. CI run 39861916529, head 7cd209e, job AppHost/E2E 120123198148: falha definition-list nos indicadores da controladoria, repetida nas três tentativas. Contagem Amostras estava em small fora do dd; backend, frontend e demais checks aprovados.
+
+**Correção:** amostras dentro da definição do indicador; regressão de DOM com métricas com/sem amostras e E2E exigindo os três indicadores carregados após aplicar filtros/recarregar, antes do axe. A checagem anterior podia ocorrer durante o carregamento, sem a lista no HTML. Nenhuma asserção ou regra de acessibilidade relaxada.
+
+**Verificação/estado:** lint/Prettier, 186 Vitest/35 arquivos e build Angular aprovados; duas rodadas completas consecutivas de 21 Playwright com acessibilidade aprovadas, uma preparação opcional ignorada por rodada. Aviso Angular de 513,79 kB preservado, sem aumentar limite. Gates backend/contrato/dependências mantidos, sem alterações nessas áreas; CI anterior aprovado. Logs ci-fix-* e diagnóstico em TestResults/7f-final-validation e TestResults/7f-ci-failure.log. Ambos os manuais revisados, sem novos passos de uso ou inicialização. Aplicação e sete contêineres próprios encerrados, volumes/cadastros preservados. .codex/ e normalização incidental de flags peer do lockfile excluídos do commit. Correção commitada e enviada ao mesmo branch/PR #41.
+
+**Próximo:** acompanhar o novo CI Linux, revisão e merge pelo usuário. Fornecedor real de publicações e revisão jurídica do 7A permanecem pendentes.
+
+---
+
 ## 2026-10-22 — Codex (7F publicado no PR #41)
 
 **Pedido e publicação:** usuário pediu “crie pr”. Implementação b84e5a4 enviada no branch codex/etapa-7f-agenda-tarefas-controladoria; [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41) aberto para main e anexado à conversa. Quem faz o merge é o usuário.

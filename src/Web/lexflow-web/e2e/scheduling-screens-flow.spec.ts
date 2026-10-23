@@ -226,12 +226,15 @@ test.describe('Agenda, tasks and control screens', () => {
     await page.getByLabel('Dias sem andamento', { exact: true }).fill('45');
     await page.getByRole('button', { name: 'Aplicar filtros', exact: true }).click();
     await expect(page).toHaveURL(/idleDays=45/);
+    await expect(page.locator('dl dt')).toHaveCount(3);
+    await expect(page.locator('dl dd small')).toHaveCount(3);
     await expectAccessible(page);
     await page.getByLabel('Nome do conjunto', { exact: true }).fill('Controle mensal');
     await page.getByRole('button', { name: 'Salvar conjunto', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Controle mensal', exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole('button', { name: 'Controle mensal', exact: true })).toBeVisible();
+    await expect(page.locator('dl dt')).toHaveCount(3);
     await expectAccessible(page);
   });
 });
