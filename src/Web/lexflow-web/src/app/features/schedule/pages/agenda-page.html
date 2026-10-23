@@ -3,6 +3,9 @@
 <section class="page" *transloco="let t">
   <header class="inline">
     <h1>{{ t('schedule.title') }}</h1>
+    <a mat-stroked-button routerLink="sincronizacao" *lfCan="'identity.profile.read'">{{
+      t('calendarSync.title')
+    }}</a>
     <a mat-flat-button routerLink="compromissos/novo" *lfCan="'schedule.events.manage'">{{
       t('schedule.newEvent')
     }}</a>

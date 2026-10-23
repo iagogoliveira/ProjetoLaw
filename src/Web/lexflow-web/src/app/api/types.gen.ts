@@ -137,6 +137,22 @@ export type CalculationLineResponse = {
 
 export type CalculationStep = 'trigger' | 'publication' | 'intimation' | 'skipped' | 'counted' | 'extended';
 
+export type CalendarConnectionResponse = {
+    id: string;
+    provider: CalendarProvider;
+    from: string;
+    until: string;
+    isActive: boolean;
+    lastSyncedAt: null | string;
+    lastErrorCode: null | string;
+};
+
+export type CalendarConnectionsResponse = {
+    isSimulation: boolean;
+    isAvailable: boolean;
+    items: Array<CalendarConnectionResponse>;
+};
+
 export type CalendarEntryInput = {
     name: string;
     kind: CalendarEntryKind;
@@ -191,6 +207,39 @@ export type CalendarEventResponse = {
 };
 
 export type CalendarEventState = 'scheduled' | 'cancelled';
+
+export type CalendarItemKind = 'event' | 'deadline';
+
+export type CalendarPendingPage = {
+    items: Array<CalendarPendingResponse>;
+    nextCursor: null | string;
+};
+
+export type CalendarPendingReason = 'conflict' | 'externalDeletion' | 'unsupported';
+
+export type CalendarPendingResolutionResponse = {
+    pendingId: string;
+    resolved: boolean;
+};
+
+export type CalendarPendingResponse = {
+    id: string;
+    kind: CalendarItemKind;
+    localId: null | string;
+    reason: CalendarPendingReason;
+    localTitle: null | string;
+    localStartsAt: null | string;
+    localEndsAt: null | string;
+    externalTitle: string;
+    externalStartsAt: string;
+    externalEndsAt: string;
+    externalCancelled: boolean;
+    canAcceptExternal: boolean;
+};
+
+export type CalendarProvider = 'google' | 'microsoft365';
+
+export type CalendarResolution = 'keepLocal' | 'acceptExternal';
 
 export type CaptureAlertResponse = {
     id: string;
@@ -665,6 +714,12 @@ export type ConflictRisk = 'none' | 'indirect' | 'direct';
  * Lado da pessoa consultada no novo trabalho (decisão de 2026-10-17: a consulta informa o lado).
  */
 export type ConflictSide = 'client' | 'opponent';
+
+export type ConnectCalendarCommand = {
+    provider: CalendarProvider;
+    from: string;
+    until: string;
+};
 
 export type ContactChannel = 'email' | 'phone' | 'whatsApp';
 
@@ -1962,6 +2017,10 @@ export type ResetPasswordRequest = {
     userId: string;
     token: string;
     newPassword: string;
+};
+
+export type ResolveCalendarPendingRequest = {
+    resolution: CalendarResolution;
 };
 
 /**
@@ -8941,3 +9000,110 @@ export type CancelEventResponses = {
 };
 
 export type CancelEventResponse = CancelEventResponses[keyof CancelEventResponses];
+
+export type ListCalendarConnectionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/calendar-connections';
+};
+
+export type ListCalendarConnectionsResponses = {
+    /**
+     * OK
+     */
+    200: CalendarConnectionsResponse;
+};
+
+export type ListCalendarConnectionsResponse = ListCalendarConnectionsResponses[keyof ListCalendarConnectionsResponses];
+
+export type ConnectCalendarData = {
+    body: ConnectCalendarCommand;
+    path?: never;
+    query?: never;
+    url: '/api/v1/me/calendar-connections';
+};
+
+export type ConnectCalendarResponses = {
+    /**
+     * OK
+     */
+    200: CalendarConnectionResponse;
+};
+
+export type ConnectCalendarResponse = ConnectCalendarResponses[keyof ConnectCalendarResponses];
+
+export type DisconnectCalendarData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/me/calendar-connections/{id}/disconnect';
+};
+
+export type DisconnectCalendarResponses = {
+    /**
+     * OK
+     */
+    200: CalendarConnectionResponse;
+};
+
+export type DisconnectCalendarResponse = DisconnectCalendarResponses[keyof DisconnectCalendarResponses];
+
+export type QueueCalendarSyncData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/me/calendar-connections/{id}/sync';
+};
+
+export type QueueCalendarSyncResponses = {
+    /**
+     * Accepted
+     */
+    202: CalendarConnectionResponse;
+};
+
+export type QueueCalendarSyncResponse = QueueCalendarSyncResponses[keyof QueueCalendarSyncResponses];
+
+export type ListCalendarPendingData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: {
+        after?: string;
+    };
+    url: '/api/v1/me/calendar-connections/{id}/pending';
+};
+
+export type ListCalendarPendingResponses = {
+    /**
+     * OK
+     */
+    200: CalendarPendingPage;
+};
+
+export type ListCalendarPendingResponse = ListCalendarPendingResponses[keyof ListCalendarPendingResponses];
+
+export type ResolveCalendarPendingData = {
+    body: ResolveCalendarPendingRequest;
+    path: {
+        id: string;
+        pendingId: string;
+    };
+    query?: never;
+    url: '/api/v1/me/calendar-connections/{id}/pending/{pendingId}/resolve';
+};
+
+export type ResolveCalendarPendingResponses = {
+    /**
+     * OK
+     */
+    200: CalendarPendingResolutionResponse;
+};
+
+export type ResolveCalendarPendingResponse = ResolveCalendarPendingResponses[keyof ResolveCalendarPendingResponses];

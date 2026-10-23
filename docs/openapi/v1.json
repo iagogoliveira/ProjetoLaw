@@ -12534,6 +12534,205 @@
           }
         }
       }
+    },
+    "/api/v1/me/calendar-connections": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ListCalendarConnections",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectionsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ConnectCalendar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectCalendarCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/calendar-connections/{id}/disconnect": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "DisconnectCalendar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/calendar-connections/{id}/sync": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "QueueCalendarSync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/calendar-connections/{id}/pending": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ListCalendarPending",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarPendingPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/calendar-connections/{id}/pending/{pendingId}/resolve": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "ResolveCalendarPending",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pendingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveCalendarPendingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarPendingResolutionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13047,6 +13246,73 @@
           "extended"
         ]
       },
+      "CalendarConnectionResponse": {
+        "required": [
+          "id",
+          "provider",
+          "from",
+          "until",
+          "isActive",
+          "lastSyncedAt",
+          "lastErrorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/CalendarProvider"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastSyncedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lastErrorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CalendarConnectionsResponse": {
+        "required": [
+          "isSimulation",
+          "isAvailable",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "isSimulation": {
+            "type": "boolean"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarConnectionResponse"
+            }
+          }
+        }
+      },
       "CalendarEntryInput": {
         "required": [
           "name",
@@ -13300,6 +13566,142 @@
         "enum": [
           "scheduled",
           "cancelled"
+        ]
+      },
+      "CalendarItemKind": {
+        "enum": [
+          "event",
+          "deadline"
+        ]
+      },
+      "CalendarPendingPage": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarPendingResponse"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "CalendarPendingReason": {
+        "enum": [
+          "conflict",
+          "externalDeletion",
+          "unsupported"
+        ]
+      },
+      "CalendarPendingResolutionResponse": {
+        "required": [
+          "pendingId",
+          "resolved"
+        ],
+        "type": "object",
+        "properties": {
+          "pendingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CalendarPendingResponse": {
+        "required": [
+          "id",
+          "kind",
+          "localId",
+          "reason",
+          "localTitle",
+          "localStartsAt",
+          "localEndsAt",
+          "externalTitle",
+          "externalStartsAt",
+          "externalEndsAt",
+          "externalCancelled",
+          "canAcceptExternal"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CalendarItemKind"
+          },
+          "localId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/CalendarPendingReason"
+          },
+          "localTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "localStartsAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "localEndsAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "externalTitle": {
+            "type": "string"
+          },
+          "externalStartsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "externalEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "externalCancelled": {
+            "type": "boolean"
+          },
+          "canAcceptExternal": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CalendarProvider": {
+        "enum": [
+          "google",
+          "microsoft365"
+        ]
+      },
+      "CalendarResolution": {
+        "enum": [
+          "keepLocal",
+          "acceptExternal"
         ]
       },
       "CaptureAlertResponse": {
@@ -15289,6 +15691,27 @@
           "opponent"
         ],
         "description": "Lado da pessoa consultada no novo trabalho (decisão de 2026-10-17: a consulta informa o lado)."
+      },
+      "ConnectCalendarCommand": {
+        "required": [
+          "provider",
+          "from",
+          "until"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/CalendarProvider"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          }
+        }
       },
       "ContactChannel": {
         "enum": [
@@ -20521,6 +20944,17 @@
           },
           "newPassword": {
             "type": "string"
+          }
+        }
+      },
+      "ResolveCalendarPendingRequest": {
+        "required": [
+          "resolution"
+        ],
+        "type": "object",
+        "properties": {
+          "resolution": {
+            "$ref": "#/components/schemas/CalendarResolution"
           }
         }
       },

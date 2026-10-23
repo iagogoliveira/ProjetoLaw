@@ -186,6 +186,9 @@ public sealed class DeadlineNotificationVisibilityTests
         public DbSet<CalendarEvent> Events => throw new NotSupportedException();
         public DbSet<TaskChecklistItem> TaskChecklistItems => throw new NotSupportedException();
         public DbSet<TaskComment> TaskComments => throw new NotSupportedException();
+        public DbSet<LexFlow.Scheduling.Domain.CalendarSync.CalendarConnection> CalendarConnections => throw new NotSupportedException();
+        public DbSet<LexFlow.Scheduling.Domain.CalendarSync.CalendarSyncLink> CalendarSyncLinks => throw new NotSupportedException();
+        public DbSet<LexFlow.Scheduling.Domain.CalendarSync.SimulatedCalendarItem> SimulatedCalendarItems => throw new NotSupportedException();
         public bool HasActiveTransaction => false;
         public Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
         public Task LockDeadlinesAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
