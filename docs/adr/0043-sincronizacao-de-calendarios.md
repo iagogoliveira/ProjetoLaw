@@ -1,6 +1,6 @@
 # ADR 0043 — Sincronização de calendários por usuário
 
-- **Status:** Proposta (para revisão no PR 7G)
+- **Status:** Proposta (para revisão no PR #42)
 - **Data:** 2026-10-22
 - **Etapa:** 7G (RF-24)
 

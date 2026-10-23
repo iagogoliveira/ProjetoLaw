@@ -10,6 +10,16 @@ Como funciona:
 
 ---
 
+## 2026-10-23 — Codex (7G publicado no PR #42)
+
+**Pedido/estado:** usuário pediu “crie o pr”. Branch codex/etapa-7g-sincronizacao-agenda enviado; implementação 964426b publicada no [PR #42](https://github.com/iagogoliveira/ProjetoLaw/pull/42), base main. PR aberto, sem merge; CI remoto em início de execução, sem declarar aprovação. ADR 0043 continua proposta. Este registro e as atualizações de disponibilidade seguem em commit documental no mesmo branch.
+
+**Verificação:** nenhuma mudança de runtime nesta publicação; mantidos 1.215 testes .NET/20 projetos, gate de 80%, builds/format, dependências, seis EF, OpenAPI/oasdiff aditivo, lint, 196 Vitest e duas rodadas de 22 Playwright com acessibilidade. Diff documental, UTF-8 e igualdade AGENTS/CLAUDE conferidos. Ambos os manuais revisados e atualizados para indicar o PR aberto, sem novos passos de uso ou inicialização. Aplicação permanece fechada, volumes/cadastros preservados; .codex/ do usuário fora dos commits.
+
+**Próximo:** conferir checks/revisão e corrigir falhas se surgirem; merge somente pelo usuário. OAuth/adaptadores reais, fornecedor real de publicações e revisão jurídica do 7A continuam pendentes. Não declarar Etapa 6 integralmente concluída nem critério jurídico atendido. Após merge, seguir o ciclo pós-merge registrado nos agentes.
+
+---
+
 ## 2026-10-23 — Codex (7G implementado, verificado e commitado localmente)
 
 **Pedido/decisões:** continuidade autorizada, plano 7A–7G preservado. Conflitos ficam para decisão humana; exclusão externa exige confirmação antes de cancelar localmente; saída somente tipo, datas/horários e link autenticado, inclusive em sigilosos. Google/Graph reais continuam pendentes do registro OAuth.

@@ -1,6 +1,6 @@
 # Manual de utilização do LexFlow
 
-**Revisão — 2026-10-23.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F está disponível na main pelo [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), mergeado em 2026-10-22 com CI integral aprovado, e acrescenta agenda, tarefas, controladoria e preferências, conforme a seção 19. O checkout do 7G acrescenta a sincronização simulada descrita abaixo; os adaptadores externos reais continuam pendentes. Recursos ainda previstos são identificados nas seções correspondentes.
+**Revisão — 2026-10-23.** Este manual acompanha as telas disponíveis até o 6E (#35), os recursos de backend do 7A (#36) e do 7B (#37) disponíveis na main e o backend do 7C disponível na main pelo [PR #38](https://github.com/iagogoliveira/ProjetoLaw/pull/38), mergeado em 2026-10-21. O backend do 7D está disponível na main pelo [PR #39](https://github.com/iagogoliveira/ProjetoLaw/pull/39), mergeado em 2026-10-21 com CI integral aprovado; o sino trata o novo lembrete. As telas do 7E estão disponíveis na main pelo [PR #40](https://github.com/iagogoliveira/ProjetoLaw/pull/40), mergeado em 2026-10-22 com CI integral aprovado, conforme a seção 18. O 7F está disponível na main pelo [PR #41](https://github.com/iagogoliveira/ProjetoLaw/pull/41), mergeado em 2026-10-22 com CI integral aprovado, e acrescenta agenda, tarefas, controladoria e preferências, conforme a seção 19. O 7G está publicado no [PR #42](https://github.com/iagogoliveira/ProjetoLaw/pull/42), ainda aguardando revisão e merge, e acrescenta a sincronização simulada descrita abaixo; os adaptadores externos reais continuam pendentes. Recursos ainda previstos são identificados nas seções correspondentes.
 
 Para iniciar o sistema no computador, consulte [Ambiente local](ambiente-local.md). Para navegar com o ambiente iniciado, abra [LexFlow](http://localhost:4200).
 
@@ -319,7 +319,7 @@ Em **Preferências de notificações**, escolha os alertas opcionais e se quer r
 
 A sincronização simulada do 7G está descrita abaixo; anexos dependem do GED da Etapa 9. Calendário do escritório e política de dupla conferência continuam configurados pela API. Revisão jurídica do 7A e fornecedor real de publicações permanecem pendentes.
 
-## 20. Sincronização de calendários (7G, implementação local)
+## 20. Sincronização de calendários (7G, PR #42 aberto)
 
 Na **Agenda**, abra **Sincronização de calendários** (`/agenda/sincronizacao`). A configuração é pessoal em cada escritório. O ambiente de desenvolvimento informa **Simulação local**: não há autenticação OAuth nem envio para Google ou Microsoft nesta entrega. Fora de ambientes com simulação habilitada, a tela informa a indisponibilidade e desabilita conexão e sincronização.
 
